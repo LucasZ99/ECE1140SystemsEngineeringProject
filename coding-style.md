@@ -1,6 +1,6 @@
 # Team Tovarish Style Guide
 
-This guide highlights some key points from the [pep-8 python style guide](https://peps.python.org/pep-0008/). The guide as a whole should be followed for code submitted to this repository, however this guide highlights the key points. This summary has been created to serve as a quick reference and to accompany submissions when necessary.
+This guide reiterates some key points from the [pep-8 python style guide](https://peps.python.org/pep-0008/). The guide as a whole should be followed for code submitted to this repository, however this guide highlights the key points. This summary has been created to serve as a quick reference and to accompany submissions when necessary.
 
 # Naming
 
