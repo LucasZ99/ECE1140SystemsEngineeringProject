@@ -1,5 +1,5 @@
 import RPi.GPIO as GPIO
-import time_tracker
+# import time_tracker
 
 GPIO.setmode(GPIO.BCM)
 
@@ -13,7 +13,7 @@ class PotOhm:
         GPIO.setup(self.pin_a, GPIO.IN)
         GPIO.setup(self.pin_b, GPIO.OUT)
         GPIO.output(self.pin_b, False)
-        time.sleep(0.004)
+        # time.sleep(0.004)
 
     def charge_time(self):
         GPIO.setup(self.pin_b, GPIO.IN)
@@ -33,4 +33,4 @@ if __name__ == "__main__":
     pB = input("PortB: ")
     Temp_Pot = PotOhm(pA,pB)
     print(Temp_Pot.analog_read())
-    time.sleep(1)
+    # time.sleep(1)
