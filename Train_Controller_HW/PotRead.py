@@ -1,5 +1,5 @@
 import RPi.GPIO as GPIO
-import time
+import time_tracker
 
 GPIO.setmode(GPIO.BCM)
 
