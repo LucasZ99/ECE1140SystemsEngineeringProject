@@ -4,7 +4,6 @@ import time_tracker
 GPIO.setmode(GPIO.BCM)
 
 
-
 class PotOhm:
     def __init__(self, pinA, pinB):
         self.pin_a = pinA
