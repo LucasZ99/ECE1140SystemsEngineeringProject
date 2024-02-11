@@ -11,7 +11,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 
-class Ui_MainWindow(object):
+class Ui_MainWindow(QtWidgets.QMainWindow):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(587, 507)
@@ -26,7 +26,7 @@ class Ui_MainWindow(object):
         self.manual_mode.setFont(font)
         self.manual_mode.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.manual_mode.setObjectName("manual_mode")
-        self.manual_mode.clicked.connect(self.set_manual_mode)
+        # self.manual_mode.clicked.connect(self.set_manual_mode)
 
         self.browse = QtWidgets.QPushButton(self.centralwidget)
         self.browse.setGeometry(QtCore.QRect(350, 70, 111, 51))
@@ -47,6 +47,7 @@ class Ui_MainWindow(object):
 
         self.filename = QtWidgets.QLabel(self.centralwidget)
         self.filename.setGeometry(QtCore.QRect(310, 130, 181, 20))
+        self.filename.setFixedWidth(250)
         font = QtGui.QFont()
         font.setPointSize(9)
         self.filename.setFont(font)
@@ -142,21 +143,31 @@ class Ui_MainWindow(object):
         fname = QtWidgets.QFileDialog.getOpenFileName(self, 'Open PLC File', 'C:/Users/lucas')
         self.filename.setText(fname[0])
 
-    # TODO - configure this to open the manual mode dialogue
-    def set_manual_mode(self):
+    # # TODO - configure this to open the manual mode dialogue
+    # def set_manual_mode(self):
+    #
+    #
+    # # TODO - update the LCD object with current occupied block #
+    # # def update_occupancy(self):
+    #
+    #
+    # # TODO - update the LCD object with current switch position (block number)
+    # def update_switch_position(self):
+    #
+    #
+    # # TODO - update the light state based on the light number
+    # def update_light_state(self, light_number):
+    #
+    #
+    # # TODO - update the railroad crossing status based on block occupancy
+    # def update_RR_crossing(self):
 
+if __name__ == "__main__":
+    import sys
 
-    # TODO - update the LCD object with current occupied block #
-    def update_occupancy(self):
-
-
-    # TODO - update the LCD object with current switch position (block number)
-    def update_switch_position(self):
-
-
-    # TODO - update the light state based on the light number
-    def update_light_state(self, light_number):
-
-
-    # TODO - update the railroad crossing status based on block occupancy
-    def update_RR_crossing(self):
+    app = QtWidgets.QApplication(sys.argv)
+    MainWindow = QtWidgets.QMainWindow()
+    ui = Ui_MainWindow()
+    ui.setupUi(MainWindow)
+    MainWindow.show()
+    sys.exit(app.exec_())
