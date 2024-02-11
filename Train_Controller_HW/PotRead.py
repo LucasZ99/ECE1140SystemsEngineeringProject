@@ -1,4 +1,4 @@
-import RPi.GPIO as GPIO
+import RPi.GPIO as GPIO #can only import on rasp pi
 import time
 
 GPIO.setmode(GPIO.BCM)
@@ -29,9 +29,11 @@ class PotOhm:
         self.discharge()
         return self.charge_time()
 
+'''
 if __name__ == "__main__":
     pA = input("PortA: ")
     pB = input("PortB: ")
     Temp_Pot = PotOhm(pA,pB)
     print(Temp_Pot.analog_read())
     time.sleep(1)
+'''
