@@ -1,2 +1,2 @@
-preant('hello world')
+print('hello world')
 
