@@ -309,7 +309,6 @@ class Ui_MainWindow(object):
         print("BLOCK STATUS:")
         print("Blocks:", blocks)
         print("-----------------")
-        print("-----------------")
         print("SWITCH STATUS:")
         print("Switches:", switches)
         print("-----------------")
