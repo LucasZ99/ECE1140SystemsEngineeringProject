@@ -35,17 +35,20 @@ buttons
 8: brake fail
 '''
 
-Thread1_active = True
 w = None
 
-class mainWindow(QWidget):
-    def __init__(self,numtrain,update_arr):
-        super(mainWindow, self).__init__()
+class TestBench_JEB382(QWidget):
+    def __init__(self,numtrain,update_arr,verbose=False):
+        super(TestBench_JEB382, self).__init__()
         self.setWindowTitle('TrainControllerHW TB #'+str(numtrain))
         
         #this array inputed as an init gets updated as UI is used
         #classes that created this TB have the array they passed locally update with it as well
-        self.update_arr = update_arr
+        if len(update_arr)<10:
+            update_arr = [0]*10
+            update_arr = [0.0, 0.0, 0.0, 0.0, 0.0, False, False, False, False, '']
+        self.class_arr = update_arr
+        #print(update_arr)
                 
         #self.resize(800, 600)
         self.layout = QGridLayout(self)
@@ -61,8 +64,8 @@ class mainWindow(QWidget):
         
         self.genlabels()
         self.genbuttons()
-
-        self.show()
+        self.gentxtbox()
+        self.Thread1_active = True
     
     #--------
     def genlabels(self):
@@ -90,11 +93,19 @@ class mainWindow(QWidget):
             label2.setMaximumHeight(40)
             self.layout.addWidget(label2, i, 2, 1, 1)
     def updatetick(self):
-        for i in range(len(self.ticks)):
-            self.update_arr[i] = self.ticks[i].value()
+        try:
+            #tickers
+            for i in range(len(self.ticks)):
+                self.class_arr[i] = self.ticks[i].value()
+            #beacon
+            for i in range(len(self.ticks),len(self.buttons)+len(self.ticks)):
+                self.class_arr[i] = self.buttons[i-len(self.ticks)].isChecked()
+            self.class_arr[-1] = self.textbox.text()
+        except:
+            print("TB done; min err")
+            self.Thread1_active = False
             
             
-    
     #--------
     def genbuttons(self):
         
@@ -120,46 +131,53 @@ class mainWindow(QWidget):
     def count_clicks(self,index):
         if self.buttons[index].isChecked():
             self.buttons[index].setStyleSheet("background-color: red; border: 3px solid black")
-            self.update_arr[index+5] = True
+            self.class_arr[index+5] = True
         else:
             self.buttons[index].setStyleSheet("background-color: green; border: 3px solid black")
-            self.update_arr[index+5] = False
+            self.class_arr[index+5] = False
     #code when window closes
     def closeEvent(self, *args, **kwargs):
-        super(mainWindow, self).closeEvent(*args, **kwargs)
-        global Thread1_active
-        Thread1_active = False
-        
-        
-def mainloop_1sec():
-    exec = False
-    lastexec = 0
-    while True:
-        if not exec:
-            exec = True
-            lastexec = time.time()
-            #hahahah
-            print(arr)
-            if w: w.updatetick()
-        if time.time() - lastexec > 1: exec = False
-        if not Thread1_active: break
-def mainloop_fast(numtrain):
+        super(TestBench_JEB382, self).closeEvent(*args, **kwargs)
+        if __name__ == "__main__": self.Thread1_active = False
+            
+    
+    #--------
+    def gentxtbox(self):
+        txtlab = QLabel("Beacon: 0x")
+        self.layout.addWidget(txtlab, 10, 0, 1, 1)
+        self.textbox = QLineEdit()
+        self.layout.addWidget(self.textbox, 10, 1, 1, 3)
+            
+            
+    '''#--------
+    def loop(self,verbose=False):
+        while True:
+            self.updatetick()
+            if verbose: print(f"TB TrainC #{numtrain}",arr)
+            if not self.Thread1_active: break'''
+            
+
+
+#=============================
+
+def TB_mainloop_fast(numtrain):
     while True:
         print(f"TB TrainC #{numtrain}",arr)
-        if w: w.updatetick()
-        if not Thread1_active: break
+        if w:
+            w.updatetick()
+            if not w.Thread1_active: break
         
         
-def pyqtloop(numtrain,arr):
+def TB_pyqtloop(numtrain,arr):
     app = QApplication(sys.argv)
     global w
-    w = mainWindow(numtrain, arr)
+    w = TestBench_JEB382(numtrain, arr)
+    w.show()
     sys.exit(app.exec())
     
 def TB_fin(numtrain,arr):
-    t1 = threading.Thread(target=pyqtloop, args=(numtrain,arr,))
-    #t2 = threading.Thread(target=mainloop_1sec, args=(numtrain,))
-    t2 = threading.Thread(target=mainloop_fast, args=(numtrain,))
+    t1 = threading.Thread(target=TB_pyqtloop, args=(numtrain,arr,))
+    t2 = threading.Thread(target=TB_mainloop_fast, args=(numtrain,))
  
     t1.start()
     t2.start()
@@ -171,5 +189,5 @@ def TB_fin(numtrain,arr):
         
 if __name__ == "__main__":
     numtrain=1
-    arr = [0]*9
+    arr = [0]*10
     TB_fin(numtrain,arr)
