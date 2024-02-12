@@ -36,6 +36,7 @@ buttons
 '''
 
 Thread1_active = True
+w = None
 
 class mainWindow(QWidget):
     def __init__(self,numtrain,update_arr):
@@ -88,6 +89,11 @@ class mainWindow(QWidget):
             label2.setStyleSheet("border: 0px")
             label2.setMaximumHeight(40)
             self.layout.addWidget(label2, i, 2, 1, 1)
+    def updatetick(self):
+        for i in range(len(self.ticks)):
+            self.update_arr[i] = self.ticks[i].value()
+            
+            
     
     #--------
     def genbuttons(self):
@@ -125,7 +131,7 @@ class mainWindow(QWidget):
         Thread1_active = False
         
         
-def mainloop():
+def mainloop_1sec():
     exec = False
     lastexec = 0
     while True:
@@ -134,17 +140,26 @@ def mainloop():
             lastexec = time.time()
             #hahahah
             print(arr)
+            if w: w.updatetick()
         if time.time() - lastexec > 1: exec = False
         if not Thread1_active: break
+def mainloop_fast(numtrain):
+    while True:
+        print(f"TB TrainC #{numtrain}",arr)
+        if w: w.updatetick()
+        if not Thread1_active: break
         
-def pyqtloop(arr):
+        
+def pyqtloop(numtrain,arr):
     app = QApplication(sys.argv)
-    w = mainWindow(1, arr)
+    global w
+    w = mainWindow(numtrain, arr)
     sys.exit(app.exec())
     
-def TB_fin(arr):
-    t1 = threading.Thread(target=pyqtloop, args=(arr,))
-    t2 = threading.Thread(target=mainloop, args=())
+def TB_fin(numtrain,arr):
+    t1 = threading.Thread(target=pyqtloop, args=(numtrain,arr,))
+    #t2 = threading.Thread(target=mainloop_1sec, args=(numtrain,))
+    t2 = threading.Thread(target=mainloop_fast, args=(numtrain,))
  
     t1.start()
     t2.start()
@@ -155,5 +170,6 @@ def TB_fin(arr):
     
         
 if __name__ == "__main__":
+    numtrain=1
     arr = [0]*9
-    TB_fin(arr)
+    TB_fin(numtrain,arr)
