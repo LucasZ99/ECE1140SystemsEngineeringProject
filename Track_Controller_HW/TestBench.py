@@ -273,7 +273,7 @@ class Ui_MainWindow(object):
         if text.isdigit():
             value = int(text)
             if value <= 0:
-                self.label_7.setText("must be positive value")
+                self.label_7.setText("must be positive integer")
                 self.label_7.setStyleSheet("color : red")
                 self.pushButton.setEnabled(False)
             else:
@@ -282,7 +282,7 @@ class Ui_MainWindow(object):
                 global authority  # pass value out to authority variable
                 authority = value
         else:
-            self.label_7.setText("must be positive value")
+            self.label_7.setText("must be positive integer")
             self.label_7.setStyleSheet("color : red")
             self.pushButton.setEnabled(False)
 
