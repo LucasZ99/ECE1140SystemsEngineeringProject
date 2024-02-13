@@ -96,7 +96,7 @@ class TestBench_JEB382(QWidget):
             label2.setStyleSheet("border: 0px")
             label2.setMaximumHeight(40)
             self.layout.addWidget(label2, i, 2, 1, 1)
-    def updatetick(self):
+    def update_TestBench_JEB382(self):
         try:
             #tickers
             for i in range(len(self.ticks)):
@@ -148,6 +148,7 @@ class TestBench_JEB382(QWidget):
         if __name__ == "__main__": self.Thread1_active = False
         else:
             print("JEB382 TB Hidden")
+            self.ToggleBtn.setText("Toggle TestBench[off]")
             self.ToggleBtn.setStyleSheet("background-color: rgb(156, 156, 156); border: 2px solid rgb(100, 100, 100); border-radius: 6px")
             
     
@@ -162,7 +163,7 @@ class TestBench_JEB382(QWidget):
     '''#--------
     def loop(self,verbose=False):
         while True:
-            self.updatetick()
+            self.update_TestBench_JEB382()
             if verbose: print(f"TB TrainC #{numtrain}",arr)
             if not self.Thread1_active: break'''
             
@@ -174,7 +175,7 @@ def TB_mainloop_fast(numtrain):
     while True:
         print(f"TB TrainC #{numtrain}",arr)
         if w:
-            w.updatetick()
+            w.update_TestBench_JEB382()
             if not w.Thread1_active: break
         
         
