@@ -270,6 +270,7 @@ class Ui_MainWindow(object):
 
     def authTextHandler(self):  # When the text field is changed for authority
         text = self.textEdit_3.toPlainText()  # checking to see if it is a valid integer
+        text2 = self.textEdit.toPlainText()
         if text.isdigit():
             value = int(text)
             if value <= 0:
@@ -278,9 +279,11 @@ class Ui_MainWindow(object):
                 self.pushButton.setEnabled(False)
             else:
                 self.label_7.setText("")
-                self.pushButton.setEnabled(True)
                 global authority  # pass value out to authority variable
                 authority = value
+                if text2.isnumeric() or text2.replace(".", "").isnumeric():
+                    self.pushButton.setEnabled(True)
+
         else:
             self.label_7.setText("must be positive integer")
             self.label_7.setStyleSheet("color : red")
@@ -288,6 +291,7 @@ class Ui_MainWindow(object):
 
     def sugSpeedTextHandler(self):
         text = self.textEdit.toPlainText()  # checking to see if it is a valid integer
+        text2 = self.textEdit_3.toPlainText()
         if text.isnumeric() or text.replace(".", "").isnumeric():  # text must be an int or float
             value = float(text)
             if value <= 0:
@@ -296,9 +300,11 @@ class Ui_MainWindow(object):
                 self.pushButton.setEnabled(False)
             else:
                 self.label_8.setText("")
-                self.pushButton.setEnabled(True)
                 global suggestSpeed  # pass suggestSpeed out the global variable
                 suggestSpeed = value
+                if text2.isdigit():
+                    self.pushButton.setEnabled(True)
+
         else:
             self.label_8.setText("must be positive value")
             self.label_8.setStyleSheet("color : red")
