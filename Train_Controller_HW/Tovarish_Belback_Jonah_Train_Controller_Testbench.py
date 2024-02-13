@@ -1,13 +1,12 @@
+import os
 import sys
 import functools
 import time
-from PyQt6.QtWidgets import *
-from PyQt6 import QtCore
 import threading
 
-from PyQt6.QtCore import *  # pyqtSlot, QTimer, Qt,
-import PyQt6.QtGui as QtGui
-from PyQt6.QtGui import QPainter, QColor, QPen, QKeySequence
+from PyQt6.QtWidgets import *
+from PyQt6.QtCore import *
+from PyQt6.QtGui import *
 
 
 '''app = QApplication([])
@@ -38,9 +37,12 @@ buttons
 w = None
 
 class TestBench_JEB382(QWidget):
-    def __init__(self,numtrain,update_arr):#,verbose=False):
+    def __init__(self,numtrain,update_arr,ToggleBtn=None):#,verbose=False):
         super(TestBench_JEB382, self).__init__()
         self.setWindowTitle('TrainControllerHW TB #'+str(numtrain))
+        
+        ICON = QIcon(os.getcwd()+"\icon.png")
+        self.setWindowIcon(ICON)
         
         #this array inputed as an init gets updated as UI is used
         #classes that created this TB have the array they passed locally update with it as well
@@ -49,6 +51,9 @@ class TestBench_JEB382(QWidget):
             update_arr = [0.0, 0.0, 0.0, 0.0, 0.0, False, False, False, False, '']
         self.class_arr = update_arr
         #print(update_arr)
+        
+        #SW UI passthrough
+        self.ToggleBtn = ToggleBtn
                 
         #self.resize(800, 600)
         self.layout = QGridLayout(self)
@@ -83,7 +88,6 @@ class TestBench_JEB382(QWidget):
             self.layout.addWidget(label1, i, 0, 1, 1)
             
             tickbox = QDoubleSpinBox()
-            tickbox.setStyleSheet("border: 0px")
             self.layout.addWidget(tickbox, i, 1, 1, 1)
             self.ticks.append(tickbox)
             
@@ -125,23 +129,26 @@ class TestBench_JEB382(QWidget):
             button = QPushButton()
             button.setCheckable(True)
             button.clicked.connect( functools.partial(self.count_clicks, index=i-6) )
-            button.setStyleSheet("background-color: rgb(156, 156, 156); border: 1px solid black")
+            button.setStyleSheet("background-color: rgb(156, 156, 156); border: 2px solid rgb(100, 100, 100); border-radius: 6px")
             button.setText("Off")
             self.layout.addWidget(button, i, 1, 1, 1)
             self.buttons.append(button)
     def count_clicks(self,index):
         if self.buttons[index].isChecked():
-            self.buttons[index].setStyleSheet("background-color: rgb(143, 186, 255); border: 1px solid black")
+            self.buttons[index].setStyleSheet("background-color: rgb(143, 186, 255); border: 2px solid rgb(42, 97, 184); border-radius: 6px")
             self.buttons[index].setText("On")
             self.class_arr[index+5] = True
         else:
-            self.buttons[index].setStyleSheet("background-color: rgb(156, 156, 156); border: 1px solid black")
+            self.buttons[index].setStyleSheet("background-color: rgb(156, 156, 156); border: 2px solid rgb(100, 100, 100); border-radius: 6px")
             self.buttons[index].setText("Off")
             self.class_arr[index+5] = False
     #code when window closes
     def closeEvent(self, *args, **kwargs):
         super(TestBench_JEB382, self).closeEvent(*args, **kwargs)
         if __name__ == "__main__": self.Thread1_active = False
+        else:
+            print("JEB382 TB Hidden")
+            self.ToggleBtn.setStyleSheet("background-color: rgb(156, 156, 156); border: 2px solid rgb(100, 100, 100); border-radius: 6px")
             
     
     #--------
