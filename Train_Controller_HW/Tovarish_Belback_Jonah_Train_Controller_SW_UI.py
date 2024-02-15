@@ -11,16 +11,17 @@ from PyQt6.QtWidgets import *
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 
+#TODO
 #add passenger ebrake alert
 #add disable passenger ebrake
-#remove commanded speed from Train Model
+#make so commanded speed in Driver_arr is overwritten by TrainModels cmd spd if in auto
+#fix toggle TB text when TB is closed (off/on text flipped)
 
 #add hiding lower section in automatic
-#add updating inputs from existing array when initally turned on
 
 
 
-TB_verbose = True
+verbose = True
 w = None
 stylesheet = """
     SW_UI_JEB382 {
@@ -42,13 +43,13 @@ class SW_UI_JEB382(QMainWindow):
         
         #array inputed as an init gets updated as UI is used
         #classes that created this TB have the array they passed locally update with it as well
-        if len(TrainModel_arr)<10:
+        if len(TrainModel_arr)!=10:
             TrainModel_arr = [0]*10
-            TrainModel_arr = [0.0, 0.0, 0.0, 0.0, 0.0, False, False, False, False, '']
+            TrainModel_arr = [0.0, 0.0, 0.0, 0.0, 0.0, False, False, False, False, ""]
         self.TrainModel_arr = TrainModel_arr
-        if len(Driver_arr)<12:
-            Driver_arr = [0]*12
-            Driver_arr = [0.0, 0.0, 0.0, 0.0, False, False, 0.0, False, False, False, False, '']
+        if len(Driver_arr)!=11:
+            Driver_arr = [0]*11
+            Driver_arr = [0.0, 0.0, 0.0, False, False, 0.0, False, False, False, False, ""]
         self.Driver_arr = Driver_arr
         
         ICON = QIcon(os.getcwd()+"\icon.png")
@@ -72,6 +73,13 @@ class SW_UI_JEB382(QMainWindow):
         path = os.getcwd()+"\Train_Controller_HW\JEB382_bg1.png"
         #print(path)
         if app: app.setStyleSheet(stylesheet)
+        
+        self.init_comp=True
+        self.aux1=self.Driver_arr[:]#copy not reference
+        self.aux2=self.TrainModel_arr[:]
+        self.update_SW_UI_JEB382(True)
+        if self.Driver_arr[-1] == "" or self.Driver_arr[-1] == 0.0: self.LED_Announce.setText("N/A")
+
 
     
     #--------
@@ -82,7 +90,7 @@ class SW_UI_JEB382(QMainWindow):
         self.TB_window.Thread1_active = False
         print("closed UI")
         
-    def toggle_TB(self):
+    def toggle_TB(self):            
         if self.TB_window.isVisible():
             self.TB_window.hide()
             self.BTN_TB.setStyleSheet("background-color: rgb(156, 156, 156); border: 2px solid rgb(100, 100, 100); border-radius: 6px")
@@ -91,43 +99,50 @@ class SW_UI_JEB382(QMainWindow):
             self.BTN_TB.setStyleSheet("background-color: rgb(143, 186, 255); border: 2px solid rgb(42, 97, 184); border-radius: 6px")
             self.TB_window.show()
             
-    def update_SW_UI_JEB382(self):
-        #----get values of all the TCKs and BTNs; put in Driver_arr
-        if self.BTN_Mode.isChecked():   #update the array if its manual mode
-            self.Driver_arr[0] = self.TCK_Kp.value()    #2_1
-            self.Driver_arr[1] = self.TCK_Ki.value()
-            self.Driver_arr[2] = self.TCK_Ki.value()    #2_2
-            self.Driver_arr[3] = self.TCK_CmdSpd.value()
-            self.Driver_arr[4] = self.BTN_CabnLgt.isChecked()
-            self.Driver_arr[5] = self.BTN_HeadLgt.isChecked()
-            self.Driver_arr[6] = self.TCK_Temp.value()
-            self.Driver_arr[7] = self.BTN_Door_L.isChecked()
-            self.Driver_arr[8] = self.BTN_Door_R.isChecked()
-            self.Driver_arr[9] = self.BTN_EBRK.isChecked()
-            self.Driver_arr[10] = self.BTN_SBRK.isChecked()
-        #self.Driver_arr[11] = Announcement
-        #else:hide TODO
-        
-        #----get values from Test Bench
-        #self.TrainModel_arr
-        if self.TB_window.isVisible():
-            self.TB_window.update_TestBench_JEB382()
-        
-        #change LED values
-        self.LED_CabnLgt    .setText(str(   self.Driver_arr[4]        ))
-        self.LED_HeadLgt    .setText(str(   self.Driver_arr[5]        ))
-        self.LED_Temp       .setText(str(   self.Driver_arr[6]        ))
-        self.LED_Announce   .setText(str(   self.Driver_arr[11]       ))
-        self.LED_Door_L     .setText(str(   self.Driver_arr[7]        ))
-        self.LED_Door_R     .setText(str(   self.Driver_arr[8]        ))
-        self.LED_Sig_Fail   .setText(str(   self.TrainModel_arr[-4]   ))
-        self.LED_Eng_Fail   .setText(str(   self.TrainModel_arr[-3]   ))
-        self.LED_Brk_Fail   .setText(str(   self.TrainModel_arr[-2]   ))
-        self.LED_CurSpd     .setText(str(   self.TrainModel_arr[0]    ))
-        
-        #change format of LEDs TODO
-        #use a gen function TODO
-        
+    def update_SW_UI_JEB382(self,skip=False):
+        if not(self.init_comp and self.isVisible() ): return
+        try:
+            #----get values of all the TCKs and BTNs; put in Driver_arr
+            if self.BTN_Mode.isChecked() or skip:   #update the array if its manual mode
+                self.Driver_arr[0] = self.TCK_Kp.value()    #2_1
+                self.Driver_arr[1] = self.TCK_Ki.value()
+                self.Driver_arr[2] = self.TCK_CmdSpd.value()
+                self.Driver_arr[3] = self.BTN_CabnLgt.isChecked()
+                self.Driver_arr[4] = self.BTN_HeadLgt.isChecked()
+                self.Driver_arr[5] = self.TCK_Temp.value()
+                self.Driver_arr[6] = self.BTN_Door_L.isChecked()
+                self.Driver_arr[7] = self.BTN_Door_R.isChecked()
+                self.Driver_arr[8] = self.BTN_EBRK.isChecked()
+                self.Driver_arr[9] = self.BTN_SBRK.isChecked()
+            #self.Driver_arr[10] = Announcement
+            #else:hide TODO
+            
+            #----get values from Test Bench
+            if self.TB_window.isVisible():
+                self.TB_window.update_TestBench_JEB382()
+            
+            #detect changes before changing LED
+            #change LED values
+            if self.aux1[ 3] != self.Driver_arr[ 3]: LED_tog(self.LED_CabnLgt,       self.aux1[ 3])
+            if self.aux1[ 4] != self.Driver_arr[ 4]: LED_tog(self.LED_HeadLgt,       self.aux1[ 4])
+            self.LED_Temp    .setText(str(  self.aux1[ 5]))
+            self.LED_Announce.setText(str(  self.aux1[-1]))
+            if self.aux1[ 6] != self.Driver_arr[ 6]: LED_tog(self.LED_Door_L,        self.aux1[ 6])
+            if self.aux1[ 7] != self.Driver_arr[ 7]: LED_tog(self.LED_Door_R,        self.aux1[ 7])
+            if self.aux2[-4] != self.TrainModel_arr[-4]: LED_tog(self.LED_Sig_Fail,  self.aux2[-4])
+            if self.aux2[-3] != self.TrainModel_arr[-3]: LED_tog(self.LED_Eng_Fail,  self.aux2[-3])
+            if self.aux2[-2] != self.TrainModel_arr[-2]: LED_tog(self.LED_Brk_Fail,  self.aux2[-2])
+            self.LED_CurSpd  .setText(str(  self.aux2[0]))
+            if self.aux1[-1] != self.Driver_arr[-1] and self.aux1[-1] != "" and self.aux1[-1] != 0.0:
+                print("HEEEERRREEE:",self.aux1[-1])
+                self.LED_Announce.setText( str(self.Driver_arr[-1]) )
+            
+            self.aux1=self.Driver_arr[:]
+            self.aux2=self.TrainModel_arr[:]
+        except Exception as e:
+            print("update:",e)
+            return
+                    
 
 
     #--------
@@ -321,24 +336,35 @@ def gen_but_tog(but, text1=None,text2=None, style_on=None,style_off=None):
         but.setStyleSheet(f"{style_off if style_off else 'background-color: rgb(156, 156, 156); border: 2px solid rgb(100, 100, 100); border-radius: 6px'}")
         if text1: but.setText(text1)
         else: but.setText("Off")
-    
+
+#change format of LEDs TODO, .value funcs are fine
+def LED_tog(but,checked):
+    #on
+    if checked:
+        but.setText("Off")
+        but.setStyleSheet("background-color: rgb(222, 62, 38); border: 2px solid rgb(222, 0, 0); border-radius: 4px")
+    else:
+        but.setText("On")
+        but.setStyleSheet("background-color: rgb(0, 224, 34); border: 2px solid rgb(30, 143, 47); border-radius: 4px")
+        
+
 #=============================
 #threading debug funcs
-
+import time
 def SW_mainloop_fast(numtrain):
+    time.sleep(2)
     try:
         while True:
             if w:
                 w.update_SW_UI_JEB382()
                 if w.TB_window.isVisible():
-                    if TB_verbose:
+                    if verbose:
                         print(f"TB TrainC #{numtrain}",TrainModel_arr)
                     #w.TB_window.update_TestBench_JEB382()
                     if not w.TB_window.Thread1_active: break
-                if not TB_verbose:
-                    print(f"SW TrainC #{numtrain}",Driver_arr)
+                #if verbose and not w.TB_window.isVisible(): print(f"SW TrainC #{numtrain}",Driver_arr)
     except Exception as e:
-        print(e)
+        print("MAINLOOP:",e)
         #print("TB done; minor err")
 
 def SW_pyqtloop(numtrain,Driver_arr,TrainModel_arr):
@@ -363,6 +389,6 @@ def SW_fin(numtrain,Driver_arr,TrainModel_arr):
 
 if __name__ == "__main__":    
     numtrain=1
-    Driver_arr = [0]*12
-    TrainModel_arr = [0]*10
+    Driver_arr = [0.00]*11
+    TrainModel_arr = [0.00]*10
     SW_fin(numtrain,Driver_arr,TrainModel_arr)

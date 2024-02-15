@@ -46,7 +46,7 @@ class TestBench_JEB382(QWidget):
         
         #this array inputed as an init gets updated as UI is used
         #classes that created this TB have the array they passed locally update with it as well
-        if len(update_arr)<10:
+        if len(update_arr)!=10:
             update_arr = [0]*10
             update_arr = [0.0, 0.0, 0.0, 0.0, 0.0, False, False, False, False, '']
         self.class_arr = update_arr
