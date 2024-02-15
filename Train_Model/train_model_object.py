@@ -1,7 +1,5 @@
 class TrainModel:
-    def __init__(self):
-        self.ID = 0
-
+    def __init__(self, numid=0):
         # physics values
         self.velocity = 0.0
         self.acceleration = 0.0
@@ -16,6 +14,7 @@ class TrainModel:
         self.min_power = 0
 
         # train descriptors
+        self.ID = numid
         self.length = 32.2  # per car
         self.height = 3.42
         self.width = 2.65
@@ -42,6 +41,25 @@ class TrainModel:
         self.engine_failure = False
         self.pickup_failure = False
         self.brake_failure = False
+
+    def set_ID(self, id):
+        self.ID = id
+
+    def get_ID(self):
+        return self.ID
+
+    def set_velocity(self, vel):
+        self.velocity = vel
+
+    def get_velocity(self):
+        return self.velocity
+
+    def set_acceleration(self, acc):
+        self.acceleration = acc
+
+    def get_acceleration(self):
+        return self.acceleration
+
 
 
 
