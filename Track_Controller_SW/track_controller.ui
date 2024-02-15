@@ -306,6 +306,19 @@
      <string>RR Crossing:</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="tb_button">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>93</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Test Bench</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

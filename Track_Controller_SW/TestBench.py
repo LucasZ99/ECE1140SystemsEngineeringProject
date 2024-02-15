@@ -9,19 +9,15 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 
 # Global Variables
-authority = 5
 suggestSpeed = 50
 numSwitches = 1
-numBlocks = 15
 switches = [True] * numSwitches
-blocks = [False] * numBlocks
-
 
 class Ui_MainWindow(object):
 
     def __init__(self, block_array, authority_num):
-        self.block_array = block_array
-        self.authority_num = authority_num
+        self.blocks = block_array
+        self.authority = authority_num
 
     def setupUi(self, MainWindow):
 
@@ -233,33 +229,28 @@ class Ui_MainWindow(object):
             self.checkBox_4.setChecked(True)
 
     def blStatusHandler(self):  # New block is selected from the dropdown menu
-        if blocks[self.comboBox_3.currentIndex()] == 'O':
+        if self.blocks[self.comboBox_3.currentIndex()] == 'O':
             self.checkBox_3.setChecked(True)
         else:
             self.checkBox_3.setChecked(False)
 
     def defaultsPressHandler(self):  # Defaults button is pressed
-        global authority
         global suggestSpeed
         global numSwitches
-        global numBlocks
         global switches
-        global blocks
 
         # assigning vals from defaults to variables
-        authority = 5
+        self.authority = 5
         suggestSpeed = 50
         for i in range(0, numSwitches):
             switches[i] = True
-        for j in range(0, numBlocks):
-            blocks[j] = False
 
         # updating UI
-        if (self.checkBox_3.isChecked()) and (~blocks[self.comboBox_3.currentIndex()]):
+        if (self.checkBox_3.isChecked()) and (~self.blocks[self.comboBox_3.currentIndex()]):
             self.checkBox_3.setChecked(False)
         self.comboBox_3.setCurrentIndex(0)
 
-        self.textEdit_3.setText(str(authority))  # authority update
+        self.textEdit_3.setText(str(self.authority))  # authority update
 
         self.checkBox_4.setChecked(True)  # switch state update
         self.checkBox_6.setChecked(False)
@@ -269,9 +260,9 @@ class Ui_MainWindow(object):
 
     def blOccupancyHandler(self):  # The block occupancy status of a block is altered
         if self.checkBox_3.isChecked():
-            blocks[self.comboBox_3.currentIndex()] = True
+            self.blocks[self.comboBox_3.currentIndex()] = True
         else:
-            blocks[self.comboBox_3.currentIndex()] = False
+            self.blocks[self.comboBox_3.currentIndex()] = False
 
     def authTextHandler(self):  # When the text field is changed for authority
         text = self.textEdit_3.toPlainText()  # checking to see if it is a valid integer
@@ -284,8 +275,7 @@ class Ui_MainWindow(object):
                 self.pushButton.setEnabled(False)
             else:
                 self.label_7.setText("")
-                global authority  # pass value out to authority variable
-                authority = value
+                self.authority = value
                 if text2.isnumeric() or text2.replace(".", "").isnumeric():
                     self.pushButton.setEnabled(True)
 
@@ -318,20 +308,17 @@ class Ui_MainWindow(object):
     def applyHandler(self):  # When the apply button is pressed [this will be used to send vals out into main module]
         print("-----------------")
         print("BLOCK STATUS:")
-        print("Blocks:", blocks)
+        print("Blocks:", self.blocks)
         print("-----------------")
         print("SWITCH STATUS:")
         print("Switches:", switches)
         print("-----------------")
         print("AUTHORITY:")
-        print("Authority:", authority, " blocks")
+        print("Authority:", self.authority, " blocks")
         print("-----------------")
         print("SUGGESTED SPEED:")
         print("Suggested Speed:", suggestSpeed, " m/s")
         print("-----------------")
-
-        self.block_array = blocks
-        self.authority_num = authority
 
 
 def main(block_array, authority_num):
@@ -342,8 +329,7 @@ def main(block_array, authority_num):
     ui = Ui_MainWindow(block_array, authority_num)
     ui.setupUi(MainWindow)
     MainWindow.show()
-
-    sys.exit(app.exec())
+    app.exec()
 
 
 if __name__ == "__main__":

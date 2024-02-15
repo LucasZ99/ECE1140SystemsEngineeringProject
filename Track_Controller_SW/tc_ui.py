@@ -5,8 +5,13 @@ from PyQt5.QtWidgets import QFileDialog, QDialog, QPushButton, QLabel, QLCDNumbe
     QVBoxLayout
 from PyQt5 import uic
 import sys
+
+import numpy as np
+from PyQt5 import QtCore
 from switching import switch
 from PLC_Logic import parse_plc
+import TestBench
+import switching
 
 
 def better_button_ret(size=None, text1=None, text2=None, checkable=True, style1=None, style2=None):
@@ -49,28 +54,34 @@ def gen_but_tog(but, text1=None, text2=None, style_on=None, style_off=None):
 
 
 class ManualMode(QWidget):
-    def __init__(self):
+    def __init__(self, switch_array):
         super().__init__()
         self.setWindowTitle('Manual Mode')
         self.setFixedSize(400, 400)
-
-        self.toggle_button = better_button_ret(200, text1="Facing Block 6", text2= "Facing Block 11")
-
         self.layout = QVBoxLayout(self)
-        self.layout.addWidget(self.toggle_button)
+
+        # button_array = []
+        for switch in switch_array:
+            self.layout.addWidget(
+                better_button_ret(200,
+                                  text1=f"Facing Block {switch.current_pos}",
+                                  text2=f"Facing Block {switch.pos_b if switch.current_pos == switch.pos_a else switch.pos_a}")
+            )
 
 
-    def toggle(self):
-        if self.toggle_button.text() == 'Facing block 6':
-            self.toggle_button.setText('Facing block 11')
-            # update switch array
-        else:
-            self.toggle_button.setText('Facing block 6')
-            # update switch array
+class OccupancyWorker(QtCore.QObject):
+    occupancy_updated = QtCore.pyqtSignal(object)
+
+    def __init__(self, block_occupancy):
+        super().__init__()
+        self.occupancy_arr = block_occupancy
+
+    def run(self):
+        self.occupancy_updated.emit(self.occupancy_arr)
 
 
 class UI(QMainWindow):
-    def __init__(self, switch_array, plc_logic):
+    def __init__(self, switch_array, plc_logic, block_occupancy, authority):
         super(UI, self).__init__()
         # load ui
         uic.loadUi('track_controller.ui', self)
@@ -82,6 +93,8 @@ class UI(QMainWindow):
         # Assign attributes
         self.switch_array = switch_array
         self.plc_logic = plc_logic
+        self.block_occupancy = block_occupancy
+        self.authority = authority
 
         # Define widgets
         self.manual_mode = self.findChild(QPushButton, 'manual_mode')
@@ -92,20 +105,26 @@ class UI(QMainWindow):
         self.light_b6 = self.findChild(QLabel, 'light_block_6')
         self.light_b11 = self.findChild(QLabel, 'light_block_7')
         self.rr_crossing = self.findChild(QLabel, 'label')
+        self.tb_button = self.findChild(QPushButton, 'tb_button')
 
         # define connections
-        # self.manual_mode.clicked.connect(self.manual_mode_clicked)
         self.browse_button.clicked.connect(self.browse_files)
-        self.manual_mode.clicked.connect(self.window2)
+        self.manual_mode.clicked.connect(self.manual_mode_dialogue)
+        self.tb_button.clicked.connect(self.open_tb)
 
-        # show the app
+        # run threads
+        self.occupancy_thread()
+
+        # show the app and TB
         self.show()
 
-    def window2(self):
-        self.w = ManualMode()
-        self.w.show()
+    def open_tb(self):
+        TestBench.main(self.block_occupancy, self.authority)
 
-    # def manual_mode_clicked(self):
+    def manual_mode_dialogue(self):
+        self.w = ManualMode(self.switch_array)
+        # TODO: send eventual update to track model
+        self.w.show()
 
     def browse_files(self):
         fname = QFileDialog.getOpenFileName(self, 'Open PLC File', 'C:/Users/lucas')
@@ -114,17 +133,31 @@ class UI(QMainWindow):
 
         # send filename to parsing program
         self.plc_logic.set_filepath(fname[0])
-        # print(self.plc_logic.filepath)
 
-    # def update_occupancy(self):
+    def occupancy_thread(self):
+        # Create the thread handler
+        occupancy_thread = QtCore.QThread()
+        occupancy_worker = OccupancyWorker(self.block_occupancy)
+        occupancy_worker.moveToThread(occupancy_thread)
+        occupancy_thread.started.connect(occupancy_worker.run)
+        occupancy_thread.finished.connect(occupancy_thread.quit)
+
+        # Connect to GUI update function
+        occupancy_worker.occupancy_updated.connect(self.update_occupancy)
+
+        occupancy_thread.start()
+    def update_occupancy(self):
+        # Find the truth value from the block occupancy array
+        self.block_occupied.display(np.argmax(self.block_occupancy > 0))
 
 
-def main(switches_arr, plc_logic):
+def main(switches_arr, plc_logic, block_occupancy, authority):
     app = QApplication(sys.argv)
-    UIWindow = UI(switches_arr, plc_logic)
+    UIWindow = UI(switches_arr, plc_logic, block_occupancy, authority)
     UIWindow.show()
     app.exec_()
 
 
 if __name__ == '__main__':
-    main()
+    auth = 0
+    main([], parse_plc(), [], auth)
