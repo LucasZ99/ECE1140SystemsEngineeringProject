@@ -2,7 +2,12 @@ from PyQt5.QtWidgets import QMainWindow, QApplication, QLabel, QTextEdit, QPushB
 from PyQt5 import uic
 import sys
 
+
 class UI(QMainWindow):
+    # constants
+    tons_per_kilogram = 0.00110231
+    feet_per_meter = 3.28084
+
     def __init__(self):
         super(UI, self).__init__()
 
