@@ -1,9 +1,9 @@
 import numpy as np
 
 
-class switch(object):
+class Switch(object):
     def __init__(self, block, pos_a, pos_b, current_pos):
-        super(switch, self).__init__()
+        super(Switch, self).__init__()
 
         self.block = block
         self.pos_a = pos_a
@@ -23,3 +23,6 @@ class switch(object):
             self.current_pos = self.pos_b
         else:
             self.current_pos = self.pos_a
+
+    def to_string(self):
+        return str(f'Switch at block {self.block} -> {self.current_pos}')

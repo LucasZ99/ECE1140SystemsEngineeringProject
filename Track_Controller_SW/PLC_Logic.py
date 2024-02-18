@@ -1,4 +1,4 @@
-class parse_plc:
+class ParsePlc:
     def __init__(self):
         self.filepath = None
 
