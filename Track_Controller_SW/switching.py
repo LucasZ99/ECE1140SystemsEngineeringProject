@@ -1,6 +1,3 @@
-import numpy as np
-
-
 class Switch(object):
     def __init__(self, block, pos_a, pos_b, current_pos):
         super(Switch, self).__init__()
