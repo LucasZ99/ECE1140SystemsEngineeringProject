@@ -1,6 +1,7 @@
 import random
 import math
 
+
 class TrainModel:
     # constants
     max_power = 120000  # in watts
@@ -13,7 +14,7 @@ class TrainModel:
     length_per_car = 32.2  # per car in meters
     height = 3.42  # in meters
     width = 2.65  # in meters
-    acc_due_to_gravity = 9.81
+    acc_due_to_gravity = 9.81  # in m/s^2
 
     def __init__(self, numid=0, cars=1):
         # physics values
@@ -31,7 +32,7 @@ class TrainModel:
         self.car_number = cars
         self.passenger_count = 0
         self.crew_count = 2
-        self.train_length = self.car_number * self.length_per_car
+        self.train_length = self.car_number * self.length_per_car  # in meters
         self.max_passengers = self.car_number * self.max_passengers_per_car
         self.total_mass = self.car_number * self.train_mass_per_car + self.crew_count * self.mass_per_person  # in kg
 
@@ -46,12 +47,15 @@ class TrainModel:
         # signals received
         self.commanded_velocity = 0.0
         self.authority = 0.0
-        self.beacon = 0
+        self.beacon = ""
 
         # failures
         self.engine_failure = False
         self.pickup_failure = False
         self.brake_failure = False
+
+    def get_train_mass_per_car(self):
+        return self.train_mass_per_car
 
     def set_power(self, pwr):
         if pwr >= self.max_power:
@@ -64,9 +68,11 @@ class TrainModel:
     def get_power(self):
         return self.power
 
+    # noinspection PyPep8Naming
     def set_ID(self, numid):
         self.ID = numid
 
+    # noinspection PyPep8Naming
     def get_ID(self):
         return self.ID
 
@@ -125,22 +131,26 @@ class TrainModel:
         if cars < 1:
             return False
         else:
-            self.crew_count = cars
+            self.car_number = cars
             self.train_length = self.car_number * self.length_per_car
             self.max_passengers = self.car_number * self.max_passengers_per_car
-            self.total_mass = self.car_number * self.train_mass_per_car + self.crew_count * self.mass_per_person
+            self.total_mass = (self.car_number * self.train_mass_per_car +
+                               (self.crew_count + self.passenger_count) * self.mass_per_person)
             return True
 
     def get_car_count(self):
         return self.crew_count
 
     def set_passenger_count(self, pas):
-        if pas < 0 | pas > self.max_passengers:
-            return False
+        if pas <= 0:
+            self.passenger_count = 0
+        elif pas >= self.max_passengers:
+            self.passenger_count = self.max_passengers
         else:
             self.passenger_count = pas
-            self.total_mass = self.car_number * self.train_mass_per_car + (self.crew_count + self.passenger_count) * self.mass_per_person
-            return True
+
+        self.total_mass = (self.car_number * self.train_mass_per_car +
+                           (self.crew_count + self.passenger_count) * self.mass_per_person)
 
     def get_passenger_count(self):
         return self.passenger_count
@@ -150,11 +160,21 @@ class TrainModel:
             return False
         else:
             self.crew_count = crew
-            self.total_mass = self.car_number * self.train_mass_per_car + (self.crew_count + self.passenger_count) * self.mass_per_person
+            self.total_mass = (self.car_number * self.train_mass_per_car +
+                               (self.crew_count + self.passenger_count) * self.mass_per_person)
             return True
 
     def get_crew_count(self):
         return self.crew_count
+
+    def set_total_mass(self, tot):
+        if tot <= 0:
+            return False
+        else:
+            self.total_mass = tot
+
+    def get_total_mass(self):
+        return self.total_mass
 
     def exterior_lights_on(self):
         self.exterior_light = True
@@ -245,15 +265,19 @@ class TrainModel:
 
     def station_passenger_update(self, ingoing):
         outgoing = random.randint(0, self.passenger_count)
-        new_pass_count = self.passenger_count - outgoing + ingoing
-        self.set_passenger_count(new_pass_count)
+        self.set_passenger_count(self.passenger_count - outgoing + ingoing)
 
     def physics_calculation(self, time):
         # power is already delimited by the nature of set_power
+        # if velocity = 0 when starting to move, kick-start
+        if self.velocity == 0 & (self.power != 0):
+            self.velocity = .1
 
         # force calculation
         force_from_power = self.power / self.velocity
-        force_from_gravity = -1 * self.total_mass * self.acc_due_to_gravity * self.grade / math.sqrt(1 + self.grade * self.grade)
+        prop_grade = self.grade / 100
+        force_from_gravity = (-1 * self.total_mass * self.acc_due_to_gravity *
+                              prop_grade / math.sqrt(1 + prop_grade * prop_grade))
         # multiply by negative because the grade points in the wrong direction
         net_force = force_from_gravity + force_from_power
 
@@ -266,10 +290,5 @@ class TrainModel:
         new_acc = net_force / self.total_mass
 
         # velocity calculation
-        new_vel = self.velocity + time/2 * (self.acceleration + new_acc)
-
-        self.velocity = new_vel
+        self.velocity = self.velocity + time/2 * (self.acceleration + new_acc)
         self.acceleration = new_acc
-
-
-

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>dBrakeLabel</class>
- <widget class="QMainWindow" name="dBrakeLabel">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
   <property name="enabled">
    <bool>true</bool>
   </property>
@@ -9,12 +9,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1173</width>
-    <height>903</height>
+    <width>904</width>
+    <height>463</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Train Model Interface</string>
   </property>
   <property name="layoutDirection">
    <enum>Qt::LeftToRight</enum>
@@ -32,7 +32,7 @@
     <property name="title">
      <string>Physics Calculation Information</string>
     </property>
-    <widget class="QLabel" name="dBrakeLabel_2">
+    <widget class="QLabel" name="dBrakeLabel">
      <property name="geometry">
       <rect>
        <x>20</x>
@@ -318,6 +318,22 @@
      </property>
      <property name="text">
       <string>Total Mass</string>
+     </property>
+    </widget>
+    <widget class="Line" name="sepLine">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>190</y>
+       <width>191</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Sunken</enum>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
      </property>
     </widget>
    </widget>
@@ -638,7 +654,7 @@
       </rect>
      </property>
      <property name="text">
-      <string> </string>
+      <string/>
      </property>
     </widget>
     <widget class="QLabel" name="eFailLabel">
@@ -1046,7 +1062,7 @@
     <property name="geometry">
      <rect>
       <x>180</x>
-      <y>430</y>
+      <y>0</y>
       <width>231</width>
       <height>421</height>
      </rect>
@@ -1416,7 +1432,7 @@
     <property name="geometry">
      <rect>
       <x>410</x>
-      <y>430</y>
+      <y>0</y>
       <width>241</width>
       <height>291</height>
      </rect>
@@ -1424,38 +1440,6 @@
     <property name="title">
      <string>Train Information</string>
     </property>
-    <widget class="QLabel" name="heightValue_tb">
-     <property name="geometry">
-      <rect>
-       <x>200</x>
-       <y>50</y>
-       <width>31</width>
-       <height>41</height>
-      </rect>
-     </property>
-     <property name="frameShape">
-      <enum>QFrame::NoFrame</enum>
-     </property>
-     <property name="text">
-      <string>ft</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="widthValue_tb">
-     <property name="geometry">
-      <rect>
-       <x>200</x>
-       <y>90</y>
-       <width>31</width>
-       <height>41</height>
-      </rect>
-     </property>
-     <property name="frameShape">
-      <enum>QFrame::NoFrame</enum>
-     </property>
-     <property name="text">
-      <string>ft</string>
-     </property>
-    </widget>
     <widget class="QLabel" name="crewLabel_tb">
      <property name="geometry">
       <rect>
@@ -1470,22 +1454,6 @@
      </property>
      <property name="text">
       <string>Crew</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="trainMassValue_tb">
-     <property name="geometry">
-      <rect>
-       <x>200</x>
-       <y>170</y>
-       <width>31</width>
-       <height>41</height>
-      </rect>
-     </property>
-     <property name="frameShape">
-      <enum>QFrame::NoFrame</enum>
-     </property>
-     <property name="text">
-      <string>Tons</string>
      </property>
     </widget>
     <widget class="QLabel" name="widthLabel_tb">
@@ -1534,22 +1502,6 @@
      </property>
      <property name="text">
       <string>Length</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="lengthValue_tb">
-     <property name="geometry">
-      <rect>
-       <x>200</x>
-       <y>10</y>
-       <width>31</width>
-       <height>41</height>
-      </rect>
-     </property>
-     <property name="frameShape">
-      <enum>QFrame::NoFrame</enum>
-     </property>
-     <property name="text">
-      <string>ft</string>
      </property>
     </widget>
     <widget class="QLabel" name="carsLabel_tb">
@@ -1616,63 +1568,11 @@
       <string>Height</string>
      </property>
     </widget>
-    <widget class="QTextEdit" name="heightTextBox">
-     <property name="geometry">
-      <rect>
-       <x>110</x>
-       <y>60</y>
-       <width>81</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="layoutDirection">
-      <enum>Qt::LeftToRight</enum>
-     </property>
-    </widget>
     <widget class="QTextEdit" name="carsTextBox">
      <property name="geometry">
       <rect>
        <x>110</x>
        <y>140</y>
-       <width>81</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="layoutDirection">
-      <enum>Qt::LeftToRight</enum>
-     </property>
-    </widget>
-    <widget class="QTextEdit" name="widthTextBox">
-     <property name="geometry">
-      <rect>
-       <x>110</x>
-       <y>100</y>
-       <width>81</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="layoutDirection">
-      <enum>Qt::LeftToRight</enum>
-     </property>
-    </widget>
-    <widget class="QTextEdit" name="lengthTextBox">
-     <property name="geometry">
-      <rect>
-       <x>110</x>
-       <y>20</y>
-       <width>81</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="layoutDirection">
-      <enum>Qt::LeftToRight</enum>
-     </property>
-    </widget>
-    <widget class="QTextEdit" name="trainMassTextBox">
-     <property name="geometry">
-      <rect>
-       <x>110</x>
-       <y>180</y>
        <width>81</width>
        <height>31</height>
       </rect>
@@ -1707,12 +1607,76 @@
       <enum>Qt::LeftToRight</enum>
      </property>
     </widget>
+    <widget class="QLabel" name="widthValue_tb">
+     <property name="geometry">
+      <rect>
+       <x>120</x>
+       <y>90</y>
+       <width>101</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="text">
+      <string># ft</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="heightValue_tb">
+     <property name="geometry">
+      <rect>
+       <x>120</x>
+       <y>50</y>
+       <width>101</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="text">
+      <string># ft</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="trainMassValue_tb">
+     <property name="geometry">
+      <rect>
+       <x>120</x>
+       <y>170</y>
+       <width>101</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="text">
+      <string># Tons</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lengthValue_tb">
+     <property name="geometry">
+      <rect>
+       <x>120</x>
+       <y>10</y>
+       <width>101</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="text">
+      <string># ft</string>
+     </property>
+    </widget>
    </widget>
    <widget class="QGroupBox" name="transGroup_tb">
     <property name="geometry">
      <rect>
       <x>650</x>
-      <y>430</y>
+      <y>0</y>
       <width>241</width>
       <height>171</height>
      </rect>
@@ -1860,7 +1824,7 @@
     <property name="geometry">
      <rect>
       <x>650</x>
-      <y>600</y>
+      <y>170</y>
       <width>241</width>
       <height>251</height>
      </rect>
@@ -2037,7 +2001,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1173</width>
+     <width>904</width>
      <height>21</height>
     </rect>
    </property>
