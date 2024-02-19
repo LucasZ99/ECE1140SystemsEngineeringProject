@@ -1,6 +1,8 @@
+import os
+
 from PyQt6.QtWidgets import (
     QApplication, QWidget, QPushButton, QLineEdit, QGridLayout, QTableWidget, QGroupBox, QVBoxLayout,
-    QTableWidget, QLabel, QSlider, QComboBox
+    QTableWidget, QLabel, QSlider, QComboBox, QFileDialog
 )
 from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import Qt
@@ -16,7 +18,7 @@ class Window(QWidget):
         super().__init__()
         # Backend
         # self.trackModel = track_model
-
+        self.file_name = self.getFileName()
         # Window Layout
         self.setWindowIcon(QIcon("icon.jpg"))
         self.setWindowTitle("Track Model")
@@ -25,10 +27,17 @@ class Window(QWidget):
         layout = QGridLayout()
         self.setLayout(layout)
 
-        # 3x3 grid
-        # [s] [m] [m]
-        # [s] [m] [m]
-        # [s] [f] [t]
+        # 3x5 grid
+        #     0   1   2   3   4
+        #  0 [s] [s] [m] [m] [m]
+        #  1 [s] [s] [m] [m] [m]
+        #  2 [s] [s] [f] [t] [u]
+
+        # s = (0, 0, 3, 2)
+        # m = (0, 2, 2, 3)
+        # f = (2, 2, 1, 1)
+        # t = (2, 3, 1, 1)
+        # u = (2, 4, 1, 1)
 
         # Selected Section
         self.selected_section_group = QGroupBox()
@@ -46,7 +55,7 @@ class Window(QWidget):
         ss_group_layout.addWidget(table3)
 
         self.selected_section_group.setLayout(ss_group_layout)
-        layout.addWidget(self.selected_section_group, 0, 0, 3, 1)
+        layout.addWidget(self.selected_section_group, 0, 0, 3, 2)
 
         # Failure Modes
         self.failure_modes_group = QGroupBox("Failure Modes")
@@ -86,7 +95,7 @@ class Window(QWidget):
         fm_group_layout.addWidget(toggle3, 2, 2)
 
         self.failure_modes_group.setLayout(fm_group_layout)
-        layout.addWidget(self.failure_modes_group, 2, 1, 1, 1)
+        layout.addWidget(self.failure_modes_group, 2, 2, 1, 1)
 
         # Temperature Controls
         self.temperature_controls_group = QGroupBox("Temperature Controls")
@@ -107,11 +116,25 @@ class Window(QWidget):
         self.slider_label.setText("Environmental Temperature: 74 °F")
 
         self.temperature_controls_group.setLayout(tc_layout)
-        layout.addWidget(self.temperature_controls_group, 2, 2, 1, 1)
+        layout.addWidget(self.temperature_controls_group, 2, 3, 1, 1)
 
         # Map
         self.map_group = QGroupBox("Map")
-        layout.addWidget(self.map_group, 0, 1, 2, 2)
+        layout.addWidget(self.map_group, 0, 2, 2, 3)
+
+        # Upload Button
+        self.upload_layout_group = QGroupBox("Upload Track Layout")
+        ul_layout = QVBoxLayout()
+
+        upload_layout_button = QPushButton("Browse Files")
+        upload_layout_button.clicked.connect(self.getFileName)
+        ul_layout.addWidget(upload_layout_button)
+
+        self.current_file_label = QLabel('Reading from "' + self.file_name.split('/')[-1] + '"')
+        ul_layout.addWidget(self.current_file_label)
+
+        self.upload_layout_group.setLayout(ul_layout)
+        layout.addWidget(self.upload_layout_group, 2, 4, 1, 1)
 
     ##############################
     # Event Handlers
@@ -119,6 +142,20 @@ class Window(QWidget):
     def display_slider_value(self):
         self.slider_label.setText("Environmental Temperature: " + str(self.sender().value()) + "°F")
         self.slider_label.adjustSize()  # Expands label size as numbers get larger
+
+    def getFileName(self):
+        file_filter = 'Data File (*.xlsx);; Excel File (*.xlsx, *.xls)'
+        response = QFileDialog.getOpenFileName(
+            parent=self,
+            caption='Select Track Layout File',
+            directory=os.getcwd(),
+            filter=file_filter,
+            initialFilter='Data File (*.xlsx)'
+        )
+        self.file_name = response[0]
+        if hasattr(self, 'current_file_label'):
+            self.current_file_label.setText('Reading from "' + self.file_name.split('/')[-1] + '"')
+        return self.file_name
 
 
 ##############################

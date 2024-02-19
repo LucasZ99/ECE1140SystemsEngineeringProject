@@ -1,4 +1,5 @@
-Upload File Button
+Upload File Button Functionality
 Integrate backend to front end
+Make Display Tables Geometry Wider
 Styling
 Dynamic Map
