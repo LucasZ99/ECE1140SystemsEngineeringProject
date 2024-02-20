@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>904</width>
-    <height>463</height>
+    <width>911</width>
+    <height>520</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -747,7 +747,7 @@
       <enum>QFrame::NoFrame</enum>
      </property>
      <property name="text">
-      <string>0x...</string>
+      <string>...</string>
      </property>
     </widget>
     <widget class="QLabel" name="authValue">
@@ -1310,84 +1310,6 @@
       <string>Total Mass</string>
      </property>
     </widget>
-    <widget class="QTextEdit" name="powerTextBox">
-     <property name="geometry">
-      <rect>
-       <x>100</x>
-       <y>20</y>
-       <width>81</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="layoutDirection">
-      <enum>Qt::LeftToRight</enum>
-     </property>
-    </widget>
-    <widget class="QTextEdit" name="accTextBox">
-     <property name="geometry">
-      <rect>
-       <x>100</x>
-       <y>60</y>
-       <width>81</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="layoutDirection">
-      <enum>Qt::LeftToRight</enum>
-     </property>
-    </widget>
-    <widget class="QTextEdit" name="speedTextBox">
-     <property name="geometry">
-      <rect>
-       <x>100</x>
-       <y>100</y>
-       <width>81</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="layoutDirection">
-      <enum>Qt::LeftToRight</enum>
-     </property>
-    </widget>
-    <widget class="QTextEdit" name="totMassTextBox">
-     <property name="geometry">
-      <rect>
-       <x>100</x>
-       <y>140</y>
-       <width>81</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="layoutDirection">
-      <enum>Qt::LeftToRight</enum>
-     </property>
-    </widget>
-    <widget class="QTextEdit" name="gradeTextBox">
-     <property name="geometry">
-      <rect>
-       <x>100</x>
-       <y>220</y>
-       <width>81</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="layoutDirection">
-      <enum>Qt::LeftToRight</enum>
-     </property>
-    </widget>
-    <widget class="QTextEdit" name="elevTextBox">
-     <property name="geometry">
-      <rect>
-       <x>100</x>
-       <y>260</y>
-       <width>81</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="layoutDirection">
-      <enum>Qt::LeftToRight</enum>
-     </property>
-    </widget>
     <widget class="QCheckBox" name="dBrakeCheck">
      <property name="geometry">
       <rect>
@@ -1425,6 +1347,100 @@
      </property>
      <property name="text">
       <string/>
+     </property>
+    </widget>
+    <widget class="Line" name="line">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>190</y>
+       <width>191</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="powerTextBox">
+     <property name="geometry">
+      <rect>
+       <x>100</x>
+       <y>20</y>
+       <width>81</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="accTextBox">
+     <property name="geometry">
+      <rect>
+       <x>100</x>
+       <y>59</y>
+       <width>81</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="speedTextBox">
+     <property name="geometry">
+      <rect>
+       <x>100</x>
+       <y>99</y>
+       <width>81</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="totMassTextBox">
+     <property name="geometry">
+      <rect>
+       <x>100</x>
+       <y>139</y>
+       <width>81</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="gradeTextBox">
+     <property name="geometry">
+      <rect>
+       <x>100</x>
+       <y>219</y>
+       <width>81</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="elevTextBox">
+     <property name="geometry">
+      <rect>
+       <x>100</x>
+       <y>259</y>
+       <width>81</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
      </property>
     </widget>
    </widget>
@@ -1568,45 +1584,6 @@
       <string>Height</string>
      </property>
     </widget>
-    <widget class="QTextEdit" name="carsTextBox">
-     <property name="geometry">
-      <rect>
-       <x>110</x>
-       <y>140</y>
-       <width>81</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="layoutDirection">
-      <enum>Qt::LeftToRight</enum>
-     </property>
-    </widget>
-    <widget class="QTextEdit" name="crewTextBox">
-     <property name="geometry">
-      <rect>
-       <x>110</x>
-       <y>220</y>
-       <width>81</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="layoutDirection">
-      <enum>Qt::LeftToRight</enum>
-     </property>
-    </widget>
-    <widget class="QTextEdit" name="passTextBox">
-     <property name="geometry">
-      <rect>
-       <x>110</x>
-       <y>260</y>
-       <width>81</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="layoutDirection">
-      <enum>Qt::LeftToRight</enum>
-     </property>
-    </widget>
     <widget class="QLabel" name="widthValue_tb">
      <property name="geometry">
       <rect>
@@ -1671,6 +1648,36 @@
       <string># ft</string>
      </property>
     </widget>
+    <widget class="QLineEdit" name="carsTextBox">
+     <property name="geometry">
+      <rect>
+       <x>110</x>
+       <y>139</y>
+       <width>81</width>
+       <height>31</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="crewTextBox">
+     <property name="geometry">
+      <rect>
+       <x>110</x>
+       <y>219</y>
+       <width>81</width>
+       <height>31</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="passTextBox">
+     <property name="geometry">
+      <rect>
+       <x>110</x>
+       <y>259</y>
+       <width>81</width>
+       <height>31</height>
+      </rect>
+     </property>
+    </widget>
    </widget>
    <widget class="QGroupBox" name="transGroup_tb">
     <property name="geometry">
@@ -1732,22 +1739,6 @@
       <string>0x</string>
      </property>
     </widget>
-    <widget class="QLabel" name="beaconValue_tb">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>130</y>
-       <width>16</width>
-       <height>41</height>
-      </rect>
-     </property>
-     <property name="frameShape">
-      <enum>QFrame::NoFrame</enum>
-     </property>
-     <property name="text">
-      <string>0x</string>
-     </property>
-    </widget>
     <widget class="QLabel" name="authValue_tb">
      <property name="geometry">
       <rect>
@@ -1780,43 +1771,34 @@
       <string>Recieved Speed</string>
      </property>
     </widget>
-    <widget class="QTextEdit" name="recSpeedTextBox">
+    <widget class="QLineEdit" name="recSpeedTextBox">
      <property name="geometry">
       <rect>
        <x>150</x>
-       <y>10</y>
+       <y>9</y>
        <width>81</width>
        <height>31</height>
       </rect>
      </property>
-     <property name="layoutDirection">
-      <enum>Qt::LeftToRight</enum>
-     </property>
     </widget>
-    <widget class="QTextEdit" name="authTextBox">
+    <widget class="QLineEdit" name="authTextBox">
      <property name="geometry">
       <rect>
        <x>150</x>
-       <y>50</y>
+       <y>49</y>
        <width>81</width>
        <height>31</height>
       </rect>
      </property>
-     <property name="layoutDirection">
-      <enum>Qt::LeftToRight</enum>
-     </property>
     </widget>
-    <widget class="QTextEdit" name="beaconTextBox">
+    <widget class="QLineEdit" name="beaconTextBox">
      <property name="geometry">
       <rect>
-       <x>40</x>
-       <y>130</y>
-       <width>191</width>
+       <x>20</x>
+       <y>129</y>
+       <width>211</width>
        <height>31</height>
       </rect>
-     </property>
-     <property name="layoutDirection">
-      <enum>Qt::LeftToRight</enum>
      </property>
     </widget>
    </widget>
@@ -1928,19 +1910,6 @@
       <string>Right Doors</string>
      </property>
     </widget>
-    <widget class="QTextEdit" name="tempTextBox">
-     <property name="geometry">
-      <rect>
-       <x>120</x>
-       <y>20</y>
-       <width>91</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="layoutDirection">
-      <enum>Qt::LeftToRight</enum>
-     </property>
-    </widget>
     <widget class="QCheckBox" name="intLightCheck">
      <property name="geometry">
       <rect>
@@ -1952,6 +1921,15 @@
      </property>
      <property name="text">
       <string/>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
+     <property name="tristate">
+      <bool>false</bool>
      </property>
     </widget>
     <widget class="QCheckBox" name="leftDoorCheck">
@@ -1993,6 +1971,45 @@
       <string/>
      </property>
     </widget>
+    <widget class="QLineEdit" name="tempTextBox">
+     <property name="geometry">
+      <rect>
+       <x>120</x>
+       <y>20</y>
+       <width>91</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QPushButton" name="physicsButton">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>440</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Physics</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="passengerButton">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>440</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Passengers</string>
+    </property>
    </widget>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -2001,7 +2018,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>904</width>
+     <width>911</width>
      <height>21</height>
     </rect>
    </property>

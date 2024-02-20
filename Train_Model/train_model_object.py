@@ -31,7 +31,7 @@ class TrainModel:
         self.ID = numid
         self.car_number = cars
         self.passenger_count = 0
-        self.crew_count = 2
+        self.crew_count = 1
         self.train_length = self.car_number * self.length_per_car  # in meters
         self.max_passengers = self.car_number * self.max_passengers_per_car
         self.total_mass = self.car_number * self.train_mass_per_car + self.crew_count * self.mass_per_person  # in kg
@@ -45,17 +45,14 @@ class TrainModel:
         self.interior_temp = 68  # room temp in fahrenheit
 
         # signals received
-        self.commanded_velocity = 0.0
-        self.authority = 0.0
+        self.commanded_velocity = 0
+        self.authority = 0
         self.beacon = ""
 
         # failures
         self.engine_failure = False
         self.pickup_failure = False
         self.brake_failure = False
-
-    def get_train_mass_per_car(self):
-        return self.train_mass_per_car
 
     def set_power(self, pwr):
         if pwr >= self.max_power:
@@ -139,7 +136,7 @@ class TrainModel:
             return True
 
     def get_car_count(self):
-        return self.crew_count
+        return self.car_number
 
     def set_passenger_count(self, pas):
         if pas <= 0:
@@ -236,6 +233,12 @@ class TrainModel:
     def get_authority(self):
         return self.authority
 
+    def set_beacon(self, beac):
+        self.beacon = beac
+
+    def get_beacon(self):
+        return self.beacon
+
     def fail_engine(self):
         self.engine_failure = True
 
@@ -262,6 +265,18 @@ class TrainModel:
 
     def get_brake_failure(self):
         return self.brake_failure
+
+    def get_train_length(self):
+        return self.train_length
+
+    def get_train_mass(self):
+        return self.train_mass_per_car * self.car_number
+
+    def get_height(self):
+        return self.height
+
+    def get_width(self):
+        return self.width
 
     def station_passenger_update(self, ingoing):
         outgoing = random.randint(0, self.passenger_count)
