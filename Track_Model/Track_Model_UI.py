@@ -49,18 +49,26 @@ class Window(QWidget):
         ss_title = QLabel()
         ss_title.setText("Selected Section (Section X)")
         ss_group_layout.addWidget(ss_title)
+
         self.table1 = QTableWidget()
-        self.table1.setRowCount(6)
-        self.table1.setColumnCount(7)
         self.table1_data = self.track_model.get_block_table('A')
         m, n = self.table1_data.shape
-        for i in range(0, m):
+        self.table1.setRowCount(m-1)
+        self.table1.setColumnCount(7)
+        self.table1.setHorizontalHeaderLabels(self.table1_data[0, :])
+        self.table1.verticalHeader().setVisible(False)
+        self.table1.resizeRowsToContents()
+        self.table1.resize(1000, 300)
+        for i in range(1, m):
             for j in range(0, n):
-                self.table1.setItem(i, j, QTableWidgetItem(self.table1_data[i, j]))
+                self.table1.setItem(i-1, j, QTableWidgetItem(str(self.table1_data[i, j])))
         ss_group_layout.addWidget(self.table1)
 
-        table2 = QTableWidget(12, 3, self)
-        ss_group_layout.addWidget(table2)
+        self.table2 = QTableWidget()
+        self.table2_data = self.track_model.get_block_table('A')
+
+
+
         table3 = QTableWidget(12, 3, self)
         ss_group_layout.addWidget(table3)
 

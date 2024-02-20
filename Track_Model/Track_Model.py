@@ -49,17 +49,26 @@ class TrackModel:
 
     def get_block_table(self, section_id):
         n = len(self.get_section(section_id))
-        print(n)
-        print(self.get_section(section_id))
         block_table = np.empty(shape=(n + 1, 7), dtype=object)
         # everything comes from data except occupancy (from train model) and temp (from temp controls)
         # but even those values will be stored in our data
-        block_table[0, :] = ['Block ID', 'Length', 'Grade', 'Speed Limit', 'Elevation', 'Occupancy', 'Temp']
+        block_table[0, :] = ['Block ID', 'Length', 'Grade', 'Speed Limit', 'Elevation', 'Occupancy', 'Temperature']
         block_table[1:n+1, 0:7] = self.get_section(section_id)[:, 2:9]
-        print()
-        print(block_table)
-        print(block_table.shape)
         return block_table
+
+    def get_station_table(self, section_id):
+        relevant_section_data = self.get_section(section_id)[:, 2, 9, 10]
+        infrastructure = relevant_section_data[1:, :]
+        stations = relevant_section_data.copy()
+        for i in range(0, len(infrastructure)):
+            s = infrastructure[i]
+            if 'Station' not in s:
+                np.delete(stations, i, axis=0)
+
+        if len(stations) == 0:
+            return 0
+
+        # else return station table TODO
 
 
 
