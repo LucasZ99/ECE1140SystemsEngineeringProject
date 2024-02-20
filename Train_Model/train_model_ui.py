@@ -176,13 +176,9 @@ class UITrain(QMainWindow):
 
     def set_pbrake(self):
         self.train.enable_passenger_emergency_brake()
-        print("I'm here 1")
         self.ebp = True
         self.populate_values()
         self.ebp = False
-        print("I'm here 2")
-
-        print(f'{self.ebp}')
 
     def power_change(self):
         self.train.set_power(float(self.powerValue_tb.text()))
@@ -209,19 +205,12 @@ class UITrain(QMainWindow):
         self.populate_values()
 
     def pbrake_change(self):
-        print(f'{self.ebp}')
         if not self.ebp:
-            print("I'm here 3")
             if self.train.get_passenger_emergency_brake():
-                print("I'm here 4")
                 self.train.disable_passenger_emergency_brake()
-                print("I'm here 5")
             else:
-                print("I'm here 6")
                 self.train.enable_passenger_emergency_brake()
-                print("I'm here 7")
             self.populate_values()
-            print("I'm here 8")
         self.ebp = False
 
     def sbrake_change(self):
@@ -329,17 +318,11 @@ class UITrain(QMainWindow):
         self.gradeValue_tb.setText(f'{self.train.get_grade(): .2f}')
         self.elevValue.setText(f'{self.train.get_elevation() * self.feet_per_meter: .2f} ft')
         self.elevValue_tb.setText(f'{self.train.get_elevation() * self.feet_per_meter: .2f}')
-        print("I'm here 9")
         if self.train.get_passenger_emergency_brake():
-            print("I'm here 10")
             self.pBrakeValue.setValue(100)
-            print("I'm here 11")
         else:
-            print("I'm here 12")
             self.pBrakeValue.setValue(0)
-            print("I'm here 13")
         self.pBrakeValue_tb.setChecked(self.train.get_passenger_emergency_brake())
-        print("I'm here 14")
 
         if self.train.get_service_brake():
             self.sBrakeValue.setValue(100)
