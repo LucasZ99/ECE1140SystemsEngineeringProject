@@ -1,14 +1,14 @@
-from PyQt6.QtCore import QSize, Qt
-from PyQt6.QtWidgets import QMainWindow, QApplication, QWidget, QPushButton, QLabel, QLineEdit, QVBoxLayout, QGridLayout, QComboBox, QHBoxLayout, QButtonGroup, QTableWidget, QHeaderView
+from time import localtime, struct_time
+from PyQt6.QtCore import QSize, Qt, QTime, QTimer
+from PyQt6.QtWidgets import QMainWindow, QApplication, QWidget, QPushButton, QLabel, QLineEdit, QVBoxLayout, QGridLayout, QComboBox, QHBoxLayout, QButtonGroup, QTableWidget
 
-from CTC.Models import BlockModel
+# from models import BlockModel
 
 class CTC_MainWindow(QMainWindow):
     def __init__(self):
         super(CTC_MainWindow, self).__init__()
 
         self.setWindowTitle("CTC Office")
-
 
         dispatch_train_layout = QVBoxLayout()
 
@@ -47,6 +47,10 @@ class CTC_MainWindow(QMainWindow):
 
         dispatch_train_train_number = QLabel()
         dispatch_train_train_number.setText(f"Train Number: %d" % 1)
+        dispatch_train_train_number.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        f = dispatch_train_train_number.font()
+        f.setPointSize(20)
+        dispatch_train_train_number.setFont(f)
         dispatch_train_dispatch_information_grid.addWidget(dispatch_train_train_number, 1, 0)
 
         # Arrival Time
@@ -74,17 +78,20 @@ class CTC_MainWindow(QMainWindow):
 
         dispatch_train_departure_time_label = QLabel("Departure Time")
 
-        dispatch_train_departure_time = QLineEdit()
-        dispatch_train_departure_time.setInputMask("00:00")
-        dispatch_train_departure_time.setText("12:47")
-        dispatch_train_departure_time.setFixedSize(dispatch_train_departure_time.sizeHint())
+        self.dispatch_train_departure_time = QLineEdit()
+        self.dispatch_train_departure_time.setInputMask("00:00")
+        self.dispatch_train_departure_time.setText("12:47")
+        self.dispatch_train_departure_time.setFixedSize(self.dispatch_train_departure_time.sizeHint())
 
         # Now Button
         depart_now_button = QPushButton()
         depart_now_button.setText("Now")
+        depart_now_button.setFixedSize(depart_now_button.sizeHint())
+        depart_now_button.clicked.connect(self.set_time_to_now)
 
-        dispatch_train_departure_time_button_hbox.addWidget(dispatch_train_departure_time)
+        dispatch_train_departure_time_button_hbox.addWidget(self.dispatch_train_departure_time)
         dispatch_train_departure_time_button_hbox.addWidget(depart_now_button)
+        dispatch_train_departure_time_button_hbox.setAlignment(Qt.AlignmentFlag.AlignLeft)
 
 
         dispatch_train_departure_time_layout.addWidget(dispatch_train_departure_time_label)
@@ -116,19 +123,29 @@ class CTC_MainWindow(QMainWindow):
         # dispatch train button
         dispatch_train_button = QPushButton("Dispatch Train #%d" % 1)
         dispatch_train_layout.addWidget(dispatch_train_button)
+        # dispatch_train_widget = QWidget()
+        # dispatch_train_widget.setLayout(dispatch_train_layout)
+        # dispatch_train_widget.setFixedSize(dispatch_train_widget.baseSize())
         
+
+        # Time
         # Time in center of window
         ctc_main_right_side = QVBoxLayout()
         ctc_main_right_side.setSpacing(10)
         ctc_main_layout_right_top_section = QHBoxLayout()
-        train_system_time = QLabel("15:15")
-        train_system_time_font = train_system_time.font()
+        self.train_system_time = QLabel(self.format_time_hhmm(localtime()))
+        train_system_time_font = self.train_system_time.font()
         train_system_time_font.setPointSize(30)
-        train_system_time.setFont(train_system_time_font)
+        self.train_system_time.setFont(train_system_time_font)
+
+        # Update time every 1 second
+        time_timer = QTimer(self)
+        time_timer.timeout.connect(self.timer_handler_1sec)
+        time_timer.start(1000)
 
         ctc_mode_select = QComboBox()
         ctc_mode_select.addItems(["Automatic Mode", "Manual Mode", "Maintenance Mode"])
-        ctc_main_layout_right_top_section.addWidget(train_system_time)
+        ctc_main_layout_right_top_section.addWidget(self.train_system_time)
         ctc_main_layout_right_top_section.addWidget(ctc_mode_select)
 
 
@@ -221,16 +238,43 @@ class CTC_MainWindow(QMainWindow):
 
         self.setCentralWidget(main_layout_widget)
 
+    def set_time_to_now(self):
+        current_time = localtime()
+        self.dispatch_train_departure_time.setText(self.format_time_hhmm(current_time))
+
+    def timer_handler_1sec(self):
+        self.update_time()
+
+    def update_time(self):
+        current_time = localtime()
+
+        self.train_system_time.setText(self.format_time_hhmm(current_time))
+
+    def format_time_hhmm(self, time:struct_time)->str:
+        h = str(time.tm_hour)
+        m = str(time.tm_min)
+
+        if(len(h) == 1):
+            hh = "0" + h
+        else:
+            hh = h
+        
+        if(len(m) == 1):
+            mm = "0" + m
+        else:
+            mm = m
+
+        return hh + ":" + mm
+
     # def validate_input_time(self, t):
 
+if __name__=="__main__":
+    # define CTC Object
+    # pass CTC Object to CTC_MainWindow()
 
+    ctc_ui_app = QApplication([])
 
-       
+    window = CTC_MainWindow()
+    window.show()
 
-
-ctc_ui_app = QApplication([])
-
-window = CTC_MainWindow()
-window.show()
-
-ctc_ui_app.exec()
+    ctc_ui_app.exec()
