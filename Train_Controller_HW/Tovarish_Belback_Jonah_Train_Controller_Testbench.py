@@ -3,6 +3,7 @@ import sys
 import functools
 import time
 import threading
+import numpy
 
 from PyQt6.QtWidgets import *
 from PyQt6.QtCore import *
@@ -40,7 +41,7 @@ buttons
 w = None
 
 class TestBench_JEB382(QWidget):
-    def __init__(self,numtrain,TrainModel_arr,ToggleBtn=None):#,verbose=False):
+    def __init__(self,numtrain,in_TrainModel_arr,ToggleBtn=None):#,verbose=False):
         super(TestBench_JEB382, self).__init__()
         self.setWindowTitle('TrainControllerHW TB #'+str(numtrain))
         
@@ -49,23 +50,28 @@ class TestBench_JEB382(QWidget):
         
         #this array inputed as an init gets updated as UI is used
         #classes that created this TB have the array they passed locally update with it as well
-        if len(TrainModel_arr)<12:
+        if len(in_TrainModel_arr)<12:
             #if array is empty or missing values, autofills at end of missing indexes
             t_TrainModel_arr = [0.0, 0.0, 0.0, 0.0, 0.0, False, False, 0, False, False,False,"00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"]
-            TrainModel_arr = TrainModel_arr + t_TrainModel_arr[len(TrainModel_arr):]
+            in_TrainModel_arr = in_TrainModel_arr + t_TrainModel_arr[len(in_TrainModel_arr):]
         #if over, snips
-        elif len(TrainModel_arr)>12: TrainModel_arr = TrainModel_arr[0:-(len(TrainModel_arr)-10)]
+        elif len(in_TrainModel_arr)>12: in_TrainModel_arr = in_TrainModel_arr[0:-(len(in_TrainModel_arr)-10)]
         #ensure beacon arr indx is proper size
-        if len(str(TrainModel_arr[-1]))<128:
-            TrainModel_arr[-1] = "0"*(128-len(str(TrainModel_arr[-1])))+str(TrainModel_arr[-1])
-        elif len(str(TrainModel_arr[-1]))>128:
-            TrainModel_arr[-1] = str(TrainModel_arr[-1])[len(str(TrainModel_arr[-1]))-128:]
+        if len(str(in_TrainModel_arr[-1]))<128:
+            in_TrainModel_arr[-1] = "0"*(128-len(str(in_TrainModel_arr[-1])))+str(in_TrainModel_arr[-1])
+        elif len(str(in_TrainModel_arr[-1]))>128:
+            in_TrainModel_arr[-1] = str(in_TrainModel_arr[-1])[len(str(in_TrainModel_arr[-1]))-128:]
         #checks door side state is within range
-        if TrainModel_arr[7] not in range(0,4):
-            TrainModel_arr[7]=0
-        self.statside=TrainModel_arr[7]
+        if in_TrainModel_arr[7] not in range(0,5):
+            in_TrainModel_arr[7]=0
+        self.statside=in_TrainModel_arr[7]
+        #check tickboxes are within limit(0,100)
+        limit1=0;limit2=100
+        for i in range(0,4):
+            if   in_TrainModel_arr[i] < limit1: in_TrainModel_arr[i]=limit1
+            elif in_TrainModel_arr[i] > limit2: in_TrainModel_arr[i]=limit2
         
-        self.TrainModel_arr = TrainModel_arr
+        self.TrainModel_arr = in_TrainModel_arr
         #print(TrainModel_arr)
         
         #SW UI passthrough
@@ -138,18 +144,21 @@ class TestBench_JEB382(QWidget):
             self.layout.addWidget(label1, i, 4, 1, 1)
             
             button = better_button_ret()
-            button.setChecked(self.TrainModel_arr[i+4])#TODO
+            button.setChecked(bool(self.TrainModel_arr[i+4]))#TODO
             gen_but_tog(button)
             button.clicked.connect( functools.partial(gen_but_tog,but=button) )
             if i not in [2,3]: self.layout.addWidget(button, i, 5, 1, 1)
             self.buttons.append(button)
-            print(i)
         
         #adjust 1,2 ; Track Circuit State,Station Side
-        button = better_button_ret(text="Left",style="background-color: rgb(222, 62, 38); border: 2px solid rgb(222, 0, 0); border-radius: 4px")
+        button = better_button_ret()
         button.clicked.connect( functools.partial(gen_but_tog,but=button,text1="Left",text2="Right",
                                                   style_on="background-color: rgb(0, 224, 34); border: 2px solid rgb(30, 143, 47); border-radius: 4px",
                                                   style_off="background-color: rgb(222, 62, 38); border: 2px solid rgb(222, 0, 0); border-radius: 4px") )
+        button.setChecked(bool(self.TrainModel_arr[6]))
+        gen_but_tog(but=button,text1="Left",text2="Right",
+                    style_on="background-color: rgb(0, 224, 34); border: 2px solid rgb(30, 143, 47); border-radius: 4px",
+                    style_off="background-color: rgb(222, 62, 38); border: 2px solid rgb(222, 0, 0); border-radius: 4px") 
         self.layout.addWidget(button, 2, 5, 1, 1)
         self.buttons[1] = button
         
@@ -175,11 +184,11 @@ class TestBench_JEB382(QWidget):
             but.setStyleSheet("background-color: rgb(255, 115, 255); border: 2px solid rgb(189,  72, 181); border-radius: 6px")
             if not start: self.statside = 3
             
-        elif self.statside-start == 3: #3to0 Neither
+        else:# self.statside-start == 3: #3to0 Neither
             but.setText("Neither")
             but.setStyleSheet("background-color: rgb(255, 207, 255); border: 2px solid rgb(255, 175, 255); border-radius: 6px")
             if not start: self.statside = 0
-        else: print("TestBench_JEB382 BTNF_station error")
+        #else: print("TestBench_JEB382 BTNF_station error")
         
      
     #code when window closes
@@ -231,7 +240,7 @@ def gen_but_tog(but, text1=None,text2=None, style_on=None,style_off=None):
 
 #=============================
 
-def TB_mainloop_fast(numtrain):
+def TB_mainloop_fast(numtrain,arr):
     while True:
         print(f"TB TrainC #{numtrain}",arr)
         if w:
@@ -248,7 +257,7 @@ def TB_pyqtloop(numtrain,arr):
     
 def TB_fin(numtrain,arr):
     t1 = threading.Thread(target=TB_pyqtloop, args=(numtrain,arr,))
-    t2 = threading.Thread(target=TB_mainloop_fast, args=(numtrain,))
+    t2 = threading.Thread(target=TB_mainloop_fast, args=(numtrain,arr))
  
     t1.start()
     t2.start()
@@ -256,13 +265,53 @@ def TB_fin(numtrain,arr):
     t1.join()
     t2.join()
     
+def test_TB():
+    app = QApplication(sys.argv)
+    #---------------------------
+    
+    arr =[9]*12
+    w1 = TestBench_JEB382(1, arr)
+    w1.show()
+    w1.update_TestBench_JEB382()
+    print(f"TB TrainC #{1}",w1.TrainModel_arr)
+    
+    arr =[8.0, 9.0, 10.0, 11.0, 12.0, True, False, 1, True, False, True,"hiyaaaaa"]
+    w2 = TestBench_JEB382(2, arr)
+    w2.show()
+    w2.update_TestBench_JEB382()
+    print(f"TB TrainC #{2}",w2.TrainModel_arr)
+    
+    arr =[1.0, 2.0, 3.0, 4.0, 5.0, True, False, 2, True, False, True,"byyeeee"]
+    w3 = TestBench_JEB382(3, arr)
+    w3.show()
+    w3.update_TestBench_JEB382()
+    print(f"TB TrainC #{3}",w3.TrainModel_arr)
+    
+    arr =[2.0, 2.0, 3.0, 4.0, 5.0, True, True, 3, True, True, True,"00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"]
+    w4 = TestBench_JEB382(4, arr)
+    w4.show()
+    w4.update_TestBench_JEB382()
+    print(f"TB TrainC #{4}",w4.TrainModel_arr)
+    
+    arr =[3.0, 2.0, 3.0, 4.0, 5.0, False, False, 0, False, False, False,"overflow00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"]
+    w5 = TestBench_JEB382(5, arr)
+    w5.show()
+    w5.update_TestBench_JEB382()
+    print(f"TB TrainC #{5}",w5.TrainModel_arr)
+    
+    arr =[4.0, 2.0, 3.0, 4.0, 5.0, False, False, 0, False, False, False,"overflow000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000overflow"]
+    w6 = TestBench_JEB382(6, arr)
+    w6.show()
+    w6.update_TestBench_JEB382()
+    print(f"TB TrainC #{6}",w6.TrainModel_arr)
+    
+    #---------------------------
+    sys.exit(app.exec())
     
         
 if __name__ == "__main__":
     numtrain=1
-    arr =(
-    # [9]*12
-    [8.0, 9.0, 10.0, 11.0, 12.0, True, False, 1, True, False, True,"hiyaaaaa"]
-    )
     #TB_fin(numtrain,arr)
-    TB_pyqtloop(numtrain,arr)
+    
+    
+    test_TB()
