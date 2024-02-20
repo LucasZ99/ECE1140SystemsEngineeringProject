@@ -107,6 +107,7 @@ class UITrain(QMainWindow):
         self.transGroup_tb.hide()
         self.opGroup_tb.hide()
         self.tb = False
+        self.ebp = False
 
         self.physicsButton.pressed.connect(self.physics_test)
         self.passengerButton.pressed.connect(self.passenger_test)
@@ -176,8 +177,12 @@ class UITrain(QMainWindow):
     def set_pbrake(self):
         self.train.enable_passenger_emergency_brake()
         print("I'm here 1")
+        self.ebp = True
         self.populate_values()
+        self.ebp = False
         print("I'm here 2")
+
+        print(f'{self.ebp}')
 
     def power_change(self):
         self.train.set_power(float(self.powerValue_tb.text()))
@@ -204,7 +209,8 @@ class UITrain(QMainWindow):
         self.populate_values()
 
     def pbrake_change(self):
-        if self.pBrakeValue_tb.hitButton():
+        print(f'{self.ebp}')
+        if not self.ebp:
             print("I'm here 3")
             if self.train.get_passenger_emergency_brake():
                 print("I'm here 4")
@@ -216,6 +222,7 @@ class UITrain(QMainWindow):
                 print("I'm here 7")
             self.populate_values()
             print("I'm here 8")
+        self.ebp = False
 
     def sbrake_change(self):
         if self.train.get_service_brake():
