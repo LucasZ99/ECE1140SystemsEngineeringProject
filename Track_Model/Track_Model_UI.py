@@ -2,12 +2,14 @@ import os
 
 from PyQt6.QtWidgets import (
     QApplication, QWidget, QPushButton, QLineEdit, QGridLayout, QTableWidget, QGroupBox, QVBoxLayout,
-    QTableWidget, QLabel, QSlider, QComboBox, QFileDialog
+    QTableWidget, QLabel, QSlider, QComboBox, QFileDialog, QTableView, QTableWidgetItem
 )
 from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import Qt
 from Animated_Toggle import AnimatedToggle
 import sys
+from Track_Model import TrackModel
+from TableModel import TableModel
 
 
 ##############################
@@ -17,8 +19,8 @@ class Window(QWidget):
     def __init__(self):
         super().__init__()
         # Backend
-        # self.trackModel = track_model
         self.file_name = self.getFileName()
+        self.track_model = TrackModel(self.file_name)
         # Window Layout
         self.setWindowIcon(QIcon("icon.jpg"))
         self.setWindowTitle("Track Model")
@@ -47,8 +49,16 @@ class Window(QWidget):
         ss_title = QLabel()
         ss_title.setText("Selected Section (Section X)")
         ss_group_layout.addWidget(ss_title)
-        table1 = QTableWidget(12, 3, self)
-        ss_group_layout.addWidget(table1)
+        self.table1 = QTableWidget()
+        self.table1.setRowCount(6)
+        self.table1.setColumnCount(7)
+        self.table1_data = self.track_model.get_block_table('A')
+        m, n = self.table1_data.shape
+        for i in range(0, m):
+            for j in range(0, n):
+                self.table1.setItem(i, j, QTableWidgetItem(self.table1_data[i, j]))
+        ss_group_layout.addWidget(self.table1)
+
         table2 = QTableWidget(12, 3, self)
         ss_group_layout.addWidget(table2)
         table3 = QTableWidget(12, 3, self)
@@ -144,6 +154,7 @@ class Window(QWidget):
         self.slider_label.adjustSize()  # Expands label size as numbers get larger
 
     def getFileName(self):
+        # file browser dialog
         file_filter = 'Data File (*.xlsx);; Excel File (*.xlsx, *.xls)'
         response = QFileDialog.getOpenFileName(
             parent=self,
@@ -152,16 +163,22 @@ class Window(QWidget):
             filter=file_filter,
             initialFilter='Data File (*.xlsx)'
         )
+        # Set file_name and change label
         self.file_name = response[0]
         if hasattr(self, 'current_file_label'):
             self.current_file_label.setText('Reading from "' + self.file_name.split('/')[-1] + '"')
-        return self.file_name
 
+        # Update track_model
+        self.track_model = TrackModel(self.file_name)
+
+        # return our new file name
+        return self.file_name
 
 ##############################
 # Run app
 ##############################
-app = QApplication(sys.argv)
-window = Window()
-window.show()
-sys.exit(app.exec())
+
+# app = QApplication(sys.argv)
+# window = Window()
+# window.show()
+# sys.exit(app.exec())

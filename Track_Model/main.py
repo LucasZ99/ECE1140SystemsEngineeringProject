@@ -7,7 +7,7 @@ from Track_Model_UI import Window
 
 
 t = TrackModel('Blue Line.xlsx')
-print(t.get_data())
+# print(t.get_data())
 app = QApplication(sys.argv)
 window = Window()
 window.show()
