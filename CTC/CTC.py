@@ -32,6 +32,11 @@ class CTC:
     
     def get_blocks(self, line_id:int)->list[str]:
         return self.block_ids[line_id]
+    
+    def get_block_and_station(self, line_id:int, block_id:str)->list[str]:
+        block_index = self.block_ids[line_id].index(block_id)
+
+        return self.get_blocks_and_stations(line_id)[block_index]
 
     def get_blocks_and_stations(self, line_id:int)->list[list[str]]:
         blocks_and_stations = []
@@ -48,7 +53,7 @@ class CTC:
     def get_stations(self, line_id:int)->list[str]:
         return self.line_stations[line_id][:]
     
-    def get_travel_time_between_blocks_minutes(self, line_id:int, block_a:str, block_b:str)->float:
+    def get_travel_time_between_blocks_s(self, line_id:int, block_a:str, block_b:str)->float:
         distances = self.get_distances_between_blocks(line_id, block_a, block_b)
 
         block_a_id = self.block_ids[line_id].index(block_a)

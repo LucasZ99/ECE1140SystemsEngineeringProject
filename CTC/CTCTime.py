@@ -1,13 +1,14 @@
+from datetime import date, datetime
 import time
 
 #class CTCTime:
-def get_current_time()->time.struct_time:
-    return time.localtime()
+def get_current_time()->datetime:
+    return datetime.now()
     
 def get_current_time_hh_mm()->int:
     current_time = get_current_time()
-    h = str(current_time.tm_hour)
-    m = str(current_time.tm_min)
+    h = str(current_time.hour)
+    m = str(current_time.minute)
 
     if(len(h) == 1):
         hh = "0" + h
@@ -23,8 +24,8 @@ def get_current_time_hh_mm()->int:
 
 def get_current_time_hh_mm_str()->str:
     current_time = get_current_time()
-    h = str(current_time.tm_hour)
-    m = str(current_time.tm_min)
+    h = str(current_time.hour)
+    m = str(current_time.minute)
 
     if(len(h) == 1):
         hh = "0" + h

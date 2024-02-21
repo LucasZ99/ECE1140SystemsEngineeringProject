@@ -1,15 +1,15 @@
-from PyQt6.QtCore import QObject
+from PyQt6.QtCore import QObject, QTime
 from time import struct_time
 from CTC.CTCTime import *
 
 class Train:
-    def __init__(self, number:int, line:str, destination:str, departure_time:str, arrival_time:str, stops:list[str]):
+    def __init__(self, number:int, line:int, destination:str, departure_time:QTime, route:list[str]):
         self.number = number
         self.line = line
         self.destination = destination
         self.departure_time = departure_time
-        self.arrival_time = arrival_time
-        self.stops = stops
+        # self.arrival_time = arrival_time
+        self.route = route
 
 class CTCSchedule:
     def __init__(self):
@@ -38,6 +38,9 @@ class CTCSchedule:
                 dispatch_now_list.append(train)
 
         return dispatch_now_list
+    
+    def get_schedule(self)->list[Train]:
+        return self.dispatch_queue
 
 
     # def import_schedule(self):
