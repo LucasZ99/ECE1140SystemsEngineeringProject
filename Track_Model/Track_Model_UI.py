@@ -2,7 +2,8 @@ import os
 
 from PyQt6.QtWidgets import (
     QApplication, QWidget, QPushButton, QLineEdit, QGridLayout, QTableWidget, QGroupBox, QVBoxLayout,
-    QTableWidget, QLabel, QSlider, QComboBox, QFileDialog, QTableView, QTableWidgetItem
+    QTableWidget, QLabel, QSlider, QComboBox, QFileDialog, QTableView, QTableWidgetItem, QMainWindow,
+    QFrame, QHeaderView
 )
 from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import Qt
@@ -15,7 +16,7 @@ from TableModel import TableModel
 ##############################
 # Main Window
 ##############################
-class Window(QWidget):
+class Window(QMainWindow):
     def __init__(self):
         super().__init__()
         # Backend
@@ -27,8 +28,40 @@ class Window(QWidget):
         self.setContentsMargins(20, 20, 20, 20)
         self.resize(1920//2, 1080//2)
         layout = QGridLayout()
-        self.setLayout(layout)
 
+        # Style
+        self.setStyleSheet("""
+            QMainWindow{
+                background-color: lightblue;
+            }
+            QGroupBox {
+                background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                                  stop: 0 #E0E0E0, stop: 1 #FFFFFF);
+                border: 2px solid black;
+                border-radius: 5px;
+                margin-top: 5ex; /* leave space at the top for the title */
+            }
+
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                subcontrol-position: top left; /* position at the top center */
+                padding: 0 3px;
+            }
+            
+            QTableWidget {
+                font: 12px
+            }
+            
+            QHeaderView {
+                font: 12px;
+            }
+            
+            QHeaderView::section {
+                font: 12px;
+                width: 5px
+            }
+
+        """)
         # 3x5 grid
         #     0   1   2   3   4
         #  0 [s] [s] [m] [m] [m]
@@ -42,23 +75,20 @@ class Window(QWidget):
         # u = (2, 4, 1, 1)
 
         # Selected Section
-        self.selected_section_group = QGroupBox()
+        self.selected_section_group = QGroupBox("Selected Section (Section X)")
 
         ss_group_layout = QVBoxLayout()
 
-        ss_title = QLabel()
-        ss_title.setText("Selected Section (Section X)")
-        ss_group_layout.addWidget(ss_title)
-
         self.table1 = QTableWidget()
+        self.table1.setAlternatingRowColors(True)
         self.table1_data = self.track_model.get_block_table('A')
+
         m, n = self.table1_data.shape
         self.table1.setRowCount(m-1)
         self.table1.setColumnCount(7)
         self.table1.setHorizontalHeaderLabels(self.table1_data[0, :])
         self.table1.verticalHeader().setVisible(False)
-        self.table1.resizeRowsToContents()
-        self.table1.resize(1000, 300)
+
         for i in range(1, m):
             for j in range(0, n):
                 self.table1.setItem(i-1, j, QTableWidgetItem(str(self.table1_data[i, j])))
@@ -66,8 +96,6 @@ class Window(QWidget):
 
         self.table2 = QTableWidget()
         self.table2_data = self.track_model.get_block_table('A')
-
-
 
         table3 = QTableWidget(12, 3, self)
         ss_group_layout.addWidget(table3)
@@ -131,7 +159,7 @@ class Window(QWidget):
 
         self.slider_label = QLabel(self)
         tc_layout.addWidget(self.slider_label)
-        self.slider_label.setText("Environmental Temperature: 74 °F")
+        self.slider_label.setText("Environmental Temperature:\n74 °F")
 
         self.temperature_controls_group.setLayout(tc_layout)
         layout.addWidget(self.temperature_controls_group, 2, 3, 1, 1)
@@ -148,17 +176,21 @@ class Window(QWidget):
         upload_layout_button.clicked.connect(self.getFileName)
         ul_layout.addWidget(upload_layout_button)
 
-        self.current_file_label = QLabel('Reading from "' + self.file_name.split('/')[-1] + '"')
+        self.current_file_label = QLabel('Reading from\n"' + self.file_name.split('/')[-1] + '"')
         ul_layout.addWidget(self.current_file_label)
 
         self.upload_layout_group.setLayout(ul_layout)
         layout.addWidget(self.upload_layout_group, 2, 4, 1, 1)
 
+        # center widget
+        center_widget = QWidget()
+        center_widget.setLayout(layout)
+        self.setCentralWidget(center_widget)
     ##############################
     # Event Handlers
     ##############################
     def display_slider_value(self):
-        self.slider_label.setText("Environmental Temperature: " + str(self.sender().value()) + "°F")
+        self.slider_label.setText("Environmental Temperature:\n" + str(self.sender().value()) + "°F")
         self.slider_label.adjustSize()  # Expands label size as numbers get larger
 
     def getFileName(self):
@@ -174,7 +206,7 @@ class Window(QWidget):
         # Set file_name and change label
         self.file_name = response[0]
         if hasattr(self, 'current_file_label'):
-            self.current_file_label.setText('Reading from "' + self.file_name.split('/')[-1] + '"')
+            self.current_file_label.setText('Reading from\n"' + self.file_name.split('/')[-1] + '"')
 
         # Update track_model
         self.track_model = TrackModel(self.file_name)
