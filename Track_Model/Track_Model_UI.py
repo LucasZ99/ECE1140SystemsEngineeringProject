@@ -95,10 +95,33 @@ class Window(QMainWindow):
         ss_group_layout.addWidget(self.table1)
 
         self.table2 = QTableWidget()
-        self.table2_data = self.track_model.get_block_table('A')
+        self.table2.setAlternatingRowColors(True)
+        self.table2_data = self.track_model.get_station_table('A')
 
-        table3 = QTableWidget(12, 3, self)
-        ss_group_layout.addWidget(table3)
+        m, n = self.table2_data.shape
+        self.table2.setRowCount(m)
+        self.table2.setColumnCount(7)
+        self.table2.setHorizontalHeaderLabels(['Station', 'Block', 'Side', 'Heaters',
+                                               'Embarking', 'Disembarking', 'Ticket Sales'])
+        self.table2.verticalHeader().setVisible(False)
+        for i in range(0, m):
+            for j in range(0, n):
+                self.table2.setItem(i, j, QTableWidgetItem(str(self.table2_data[i, j])))
+        ss_group_layout.addWidget(self.table2)
+
+        self.table3 = QTableWidget()
+        self.table3.setAlternatingRowColors(True)
+        self.table3_data = self.track_model.get_infrastructure_table('A')
+
+        m, n = self.table3_data.shape
+        self.table3.setRowCount(m)
+        self.table3.setColumnCount(3)
+        self.table3.setHorizontalHeaderLabels(['Infrastructure', 'Block', 'Value'])
+        self.table3.verticalHeader().setVisible(False)
+        for i in range(0, m):
+            for j in range(0, n):
+                self.table3.setItem(i, j, QTableWidgetItem(str(self.table3_data[i, j])))
+        ss_group_layout.addWidget(self.table3)
 
         self.selected_section_group.setLayout(ss_group_layout)
         layout.addWidget(self.selected_section_group, 0, 0, 3, 2)
@@ -186,6 +209,7 @@ class Window(QMainWindow):
         center_widget = QWidget()
         center_widget.setLayout(layout)
         self.setCentralWidget(center_widget)
+
     ##############################
     # Event Handlers
     ##############################

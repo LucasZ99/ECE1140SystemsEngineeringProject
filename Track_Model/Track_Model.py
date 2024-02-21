@@ -52,23 +52,21 @@ class TrackModel:
         block_table = np.empty(shape=(n + 1, 7), dtype=object)
         # everything comes from data except occupancy (from train model) and temp (from temp controls)
         # but even those values will be stored in our data
-        block_table[0, :] = ['Block ID', 'Length', 'Grade', 'Speed Limit', 'Elevation', 'Occupancy', 'Temperature']
+        block_table[0, :] = ['Block', 'Length', 'Grade', 'Speed Limit', 'Elevation', 'Occupancy', 'Temperature']
         block_table[1:n+1, 0:7] = self.get_section(section_id)[:, 2:9]
         return block_table
 
     def get_station_table(self, section_id):
-        relevant_section_data = self.get_section(section_id)[:, 2, 9, 10]
-        infrastructure = relevant_section_data[1:, :]
-        stations = relevant_section_data.copy()
-        for i in range(0, len(infrastructure)):
-            s = infrastructure[i]
-            if 'Station' not in s:
-                np.delete(stations, i, axis=0)
+        relevant_section_data = self.get_section(section_id)[:, [9, 2, 10]]
+        arr = relevant_section_data.copy()
+        filtered_arr = arr[np.array(['Station' in str(x) for x in arr[:, 0]])]
 
-        if len(stations) == 0:
-            return 0
+        return filtered_arr
 
-        # else return station table TODO
+    def get_infrastructure_table(self, section_id):
+        arr = self.get_section(section_id)[:, [9, 2, 11]]
+        filtered_arr = arr[~np.isnan(np.array([len(str(x)) if isinstance(x, str) else x for x in arr[:, 0]]))]
+        return filtered_arr
 
 
 

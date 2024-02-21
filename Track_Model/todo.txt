@@ -6,13 +6,14 @@ Dynamic Map
 
 Consider changing QGroupBoxes to QFrames with a QLabel title as per https://forum.qt.io/topic/80053/styling-qgroupbox-in-qt-design/8
 
-RN
-Finish fetching other 2 tables
+For 2/21/2024:
 Add 3 buttons for 3 sections on map
 Changing Temperature Changes it on table and enables heaters
 Failure Modes have appropriate responses
+Format Tables - add grid and reduce cell width
+Test-Bench
+embarking/disembarking/ticket sales
 
 
-
-Format Tables
-Show Block occupancy
+Show Block occupancy on map?
+Real Time simulation?
