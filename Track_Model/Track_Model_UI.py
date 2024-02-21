@@ -11,6 +11,7 @@ from Animated_Toggle import AnimatedToggle
 import sys
 from Track_Model import TrackModel
 from TableModel import TableModel
+from dynamic_map import DynamicMap
 
 
 ##############################
@@ -32,15 +33,15 @@ class Window(QMainWindow):
         # Style
         self.setStyleSheet("""
             QMainWindow{
-                background-color: lightblue;
+                background-color: #d9d9d9;
             }
             QGroupBox {
                 background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-                                                  stop: 0 #E0E0E0, stop: 1 #FFFFFF);
+                                                  stop: 0 #d9d9d9, stop: 1 #FFFFFF);
                 border: 2px solid black;
                 border-radius: 5px;
                 margin-top: 5ex; /* leave space at the top for the title */
-            }
+            }  
 
             QGroupBox::title {
                 subcontrol-origin: margin;
@@ -49,7 +50,8 @@ class Window(QMainWindow):
             }
             
             QTableWidget {
-                font: 12px
+                font: 12px;
+                gridline-color: black;
             }
             
             QHeaderView {
@@ -58,7 +60,7 @@ class Window(QMainWindow):
             
             QHeaderView::section {
                 font: 12px;
-                width: 5px
+                border: 1px solid black;
             }
 
         """)
@@ -189,6 +191,12 @@ class Window(QMainWindow):
 
         # Map
         self.map_group = QGroupBox("Map")
+        map_layout = QVBoxLayout()
+
+        dmap = DynamicMap()
+        map_layout.addWidget(dmap)
+
+        self.map_group.setLayout(map_layout)
         layout.addWidget(self.map_group, 0, 2, 2, 3)
 
         # Upload Button
