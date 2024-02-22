@@ -12,7 +12,9 @@ https://www.youtube.com/watch?v=NrijKenny3Y&ab_channel=JieJenn
 https://learndataanalysis.org/how-to-pass-data-from-one-window-to-another-pyqt5-tutorial/
 
 Format Tables - reduce cell width
+Reduce space between buttons
 embarking/disembarking/ticket sales
+
 
 
 Show Block occupancy on map?
