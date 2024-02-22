@@ -31,18 +31,20 @@ self.Driver_arr[9] = self.BTN_SBRK.isChecked()
 self.Driver_arr[10] = disabled passenger brake
 
 #TrainModel_arr
-ticks-------------
+ticks
 0: act spd
 1: com spd
 2: vit auth
 3: spd lim
 4: acc lim
-buttons-----------
-5: pass ebrake
-6: sig fail
-7: eng fail
-8: brake fail
-9: beacon (128chars)
+buttons
+5 : pass ebrake
+6 : Track Circuit State
+7 : Station side(0to3)
+8 : sig fail
+9 : eng fail
+10: brake fail
+11: beacon (128chars)
 '''
 
 
@@ -61,42 +63,50 @@ stylesheet = """
 """
 
 class SW_UI_JEB382(QMainWindow):
-    def __init__(self,numtrain,Driver_arr,TrainModel_arr,app=None):
+    def __init__(self,numtrain,in_Driver_arr,in_TrainModel_arr,app=None):
         super(SW_UI_JEB382, self).__init__()
-        self.setWindowTitle('TrainControllerHW SW_UI #'+str(numtrain))        
-        self.setFixedWidth (660)
-        self.setFixedHeight(445)
+        self.setWindowTitle('TrainControllerHW SW_UI #'+str(numtrain))
+        #self.setFixedSize(690, 430)
         
         self.numtrain = numtrain
         
         #-------adjust arrays-------
         #array inputed as an init gets updated as UI is used
         #classes that created this TB have the array they passed locally update with it as well
-        if len(TrainModel_arr)<10:
+        if len(in_TrainModel_arr)<12:
             #if array is empty or missing values, autofills at end of missing indexes
-            t_TrainModel_arr = [0.0, 0.0, 0.0, 0.0, 0.0, False, False, False, False, "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"]
-            TrainModel_arr = TrainModel_arr + t_TrainModel_arr[len(TrainModel_arr):]
+            t_TrainModel_arr = [0.0, 0.0, 0.0, 0.0, 0.0, False, False, 0, False, False,False,"00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"]
+            in_TrainModel_arr = in_TrainModel_arr + t_TrainModel_arr[len(in_TrainModel_arr):]
         #if over, snips
-        elif len(TrainModel_arr)>10: TrainModel_arr = TrainModel_arr[0:-(len(TrainModel_arr)-10)]
+        elif len(in_TrainModel_arr)>12: in_TrainModel_arr = in_TrainModel_arr[0:-(len(in_TrainModel_arr)-12)]
         #ensure beacon arr indx is proper size
-        if len(str(TrainModel_arr[-1]))<128:
-            TrainModel_arr[-1] = "0"*(128-len(str(TrainModel_arr[-1])))+str(TrainModel_arr[-1])
-        elif len(str(TrainModel_arr[-1]))>128:
-            TrainModel_arr[-1] = str(TrainModel_arr[-1])[len(str(TrainModel_arr[-1]))-128:]
+        if len(str(in_TrainModel_arr[-1]))<128:
+            in_TrainModel_arr[-1] = "0"*(128-len(str(in_TrainModel_arr[-1])))+str(in_TrainModel_arr[-1])
+        elif len(str(in_TrainModel_arr[-1]))>128:
+            in_TrainModel_arr[-1] = str(in_TrainModel_arr[-1])[len(str(in_TrainModel_arr[-1]))-128:]
         #checks door side state is within range
-        if TrainModel_arr[7] in range(0,4): TrainModel_arr[7]=0
-    
-        self.TrainModel_arr = TrainModel_arr
+        if in_TrainModel_arr[7] not in range(0,5):
+            in_TrainModel_arr[7]=0
+        self.statside=in_TrainModel_arr[7]
+        #check tickboxes are within limit(0,100)
+        limit1=0;limit2=100
+        for i in range(0,4):
+            if   in_TrainModel_arr[i] < limit1: in_TrainModel_arr[i]=limit1
+            elif in_TrainModel_arr[i] > limit2: in_TrainModel_arr[i]=limit2
+        
+        print(in_TrainModel_arr); print(len(in_TrainModel_arr))#debug
+        self.TrainModel_arr = in_TrainModel_arr
         
         #same checks with Driver_arr
-        if len(Driver_arr)<=12:
+        if len(in_Driver_arr)<11:
             #if array is empty or missing values, autofills at end of missing indexes
             t_Driver_arr = [0.0, 0.0, 0.0, False, False, 0.0, False, False, False, False, False]
-            Driver_arr = Driver_arr + t_Driver_arr[len(Driver_arr):]
+            in_Driver_arr = in_Driver_arr + t_Driver_arr[len(in_Driver_arr):]
         #if over, snips
-        elif len(Driver_arr)>10: Driver_arr = Driver_arr[0:-(len(Driver_arr)-10)]
-            
-        self.Driver_arr = Driver_arr
+        elif len(in_Driver_arr)>11: in_Driver_arr = in_Driver_arr[0:-(len(in_Driver_arr)-11)]
+        
+        print(in_Driver_arr); print(len(in_Driver_arr))#debug
+        self.Driver_arr = in_Driver_arr
         
         
         #-------Setup window-------
@@ -113,12 +123,13 @@ class SW_UI_JEB382(QMainWindow):
         self.genSect0(0,0) #TestBench; Mode Select
         self.genSect1_1(1,0) #TrainEnviroment
         self.genSect1_2(1,4) #Station Info
-        self.genSect1_3(1,10) #FailStates
-        self.genSect2_1(6,0) #EngControl
-        self.genSect2_2(6,4) #DriverControl
+        self.genSect1_3(1,8) #FailStates
+        self.genSect2_1(7,0) #EngControl
+        self.genSect2_2(7,4) #DriverControl
         self.layout.addWidget(QLabel(""), 5, 0,  1, 8)#spacer; Horz 1_x/2_x
         self.layout.addWidget(QLabel(""), 1, 3, 13, 1)#spacer; Vert x_1/x_2
         self.layout.addWidget(QLabel(""), 1, 8,  6, 1)#spacer; Vert x_2/x_3
+        #self.layout.addWidget(QLabel(""), 14, 0, 1, 9)#spacer; bottom
         if app: app.setStyleSheet(stylesheet)#set background
         
         #update command helpers
@@ -165,15 +176,15 @@ class SW_UI_JEB382(QMainWindow):
             
             #detect changes before changing LED
             #change LED values
-            if self.aux1[ 3] != self.Driver_arr[ 3]: LED_tog(self.LED_CabnLgt,       self.aux1[ 3])
-            if self.aux1[ 4] != self.Driver_arr[ 4]: LED_tog(self.LED_HeadLgt,       self.aux1[ 4])
+            if self.aux1[ 3] != self.Driver_arr[ 3] or skip: LED_tog(self.LED_CabnLgt,       self.aux1[ 3])
+            if self.aux1[ 4] != self.Driver_arr[ 4] or skip: LED_tog(self.LED_HeadLgt,       self.aux1[ 4])
             self.LED_Temp    .setText(str(  self.aux1[ 5]))
             self.LED_Announce.setText(str(  self.aux1[-1]))
-            if self.aux1[ 6] != self.Driver_arr[ 6]: LED_tog(self.LED_Door_L,        self.aux1[ 6])
-            if self.aux1[ 7] != self.Driver_arr[ 7]: LED_tog(self.LED_Door_R,        self.aux1[ 7])
-            if self.aux2[-4] != self.TrainModel_arr[-4]: LED_tog(self.LED_Sig_Fail,  self.aux2[-4])
-            if self.aux2[-3] != self.TrainModel_arr[-3]: LED_tog(self.LED_Eng_Fail,  self.aux2[-3])
-            if self.aux2[-2] != self.TrainModel_arr[-2]: LED_tog(self.LED_Brk_Fail,  self.aux2[-2])
+            if self.aux1[ 6] != self.Driver_arr[ 6] or skip: LED_tog(self.LED_Door_L,        self.aux1[ 6],"Left","Left")
+            if self.aux1[ 7] != self.Driver_arr[ 7] or skip: LED_tog(self.LED_Door_R,        self.aux1[ 7],"Right","Right")
+            if self.aux2[-4] != self.TrainModel_arr[-4] or skip: LED_tog(self.LED_Sig_Fail,  self.aux2[-4])
+            if self.aux2[-3] != self.TrainModel_arr[-3] or skip: LED_tog(self.LED_Eng_Fail,  self.aux2[-3])
+            if self.aux2[-2] != self.TrainModel_arr[-2] or skip: LED_tog(self.LED_Brk_Fail,  self.aux2[-2])
             self.LED_CurSpd  .setText(str(  self.aux2[0]))
             if self.aux2[-1] != self.TrainModel_arr[-1] and self.aux2[-1] != "" and self.aux2[-1] != 0.0:
                 print("HEEEERRREEE:",self.aux1[-1])
@@ -197,7 +208,11 @@ class SW_UI_JEB382(QMainWindow):
         
         self.BTN_Mode = better_button_ret(text="Auto",checkable=True)
         self.BTN_Mode.clicked.connect(self.BTNF_Mode)
-        self.layout.addWidget(self.BTN_Mode, OriginY, OriginX+4, 1, 8)
+        self.layout.addWidget(self.BTN_Mode, OriginY, OriginX+4, 1, 3)#7)
+        
+        self.BTN_HW = better_button_ret(text="Engage HW",checkable=True)
+        self.BTN_HW.clicked.connect(self.BTNF_HW)
+        self.layout.addWidget(self.BTN_HW, OriginY, OriginX+8, 1, 3)
     
     def toggle_TB(self):
         
@@ -231,13 +246,13 @@ class SW_UI_JEB382(QMainWindow):
             
             self.BTN_Door_L.setCheckable(True)
             self.BTN_Door_L.setChecked(self.prevBTNstate[2])
-            gen_but_tog(self.BTN_Door_L)
-            LED_tog(self.LED_Door_L, self.BTN_Door_L.isChecked())
+            gen_but_tog(self.BTN_Door_L,"Left","Left")
+            LED_tog(self.LED_Door_L, self.BTN_Door_L.isChecked(),"Left","Left")
             
             self.BTN_Door_R.setCheckable(True)
             self.BTN_Door_R.setChecked(self.prevBTNstate[3])
-            gen_but_tog(self.BTN_Door_R)
-            LED_tog(self.LED_Door_R, self.BTN_Door_R.isChecked())
+            gen_but_tog(self.BTN_Door_R,"Right","Right")
+            LED_tog(self.LED_Door_R, self.BTN_Door_R.isChecked(),"Right","Right")
         else:
             self.TCK_Kp.setDisabled(True)
             self.TCK_Ki.setDisabled(True)
@@ -263,15 +278,18 @@ class SW_UI_JEB382(QMainWindow):
             self.BTN_Door_L.setStyleSheet("background-color: rgb(156, 156, 156); border: 2px solid rgb(100, 100, 100); border-radius: 6px")
             self.BTN_Door_L.setCheckable(False)
             self.Driver_arr[6] = None   #read from Train Model TODO
-            LED_tog(self.LED_Door_L, False)
+            LED_tog(self.LED_Door_L, False,"Left","Left")
             
             self.prevBTNstate[3] = self.BTN_Door_R.isChecked()
             self.BTN_Door_R.setText("DISABLED")
             self.BTN_Door_R.setStyleSheet("background-color: rgb(156, 156, 156); border: 2px solid rgb(100, 100, 100); border-radius: 6px")
             self.BTN_Door_R.setCheckable(False)
             self.Driver_arr[7] = None   #read from Train Model TODO
-            LED_tog(self.LED_Door_R, False)
-            
+            LED_tog(self.LED_Door_R, False,"Right","Right")
+    
+    def BTNF_HW(self):
+        gen_but_tog(self.BTN_HW,"Engage HW","Engage HW")
+        return False
         
 
 
@@ -282,6 +300,8 @@ class SW_UI_JEB382(QMainWindow):
         #generate labels
         label = better_label_ret("Train Enviroment",16)
         self.layout.addWidget(label, OriginY, OriginX, 1, 3)
+        
+        self.layout.setColumnMinimumWidth(OriginX,80)
         
         label_names = ["Cabin Lights","Headlights","Cabin Temp"]
         for i in range(1,len(label_names)+1):
@@ -296,9 +316,16 @@ class SW_UI_JEB382(QMainWindow):
         self.layout.addWidget(self.LED_HeadLgt, OriginY+2, OriginX+1, 1, 1)
         
         self.LED_Temp = better_LED_ret("0.00","background-color: white; border: 1px solid black")
+        self.LED_Temp.setText(str(self.Driver_arr[5]))
         self.layout.addWidget(self.LED_Temp, OriginY+3, OriginX+1, 1, 1)
         label = better_label_ret("°F")
         self.layout.addWidget(label, OriginY+3, OriginX+2, 1, 3)
+        
+        self.layout.addWidget(better_label_ret("Door States"), OriginY+4, OriginX, 1, 2)
+        self.LED_Door_L = better_LED_ret("Left")
+        self.layout.addWidget(self.LED_Door_L, OriginY+4, OriginX+1, 1, 1)
+        self.LED_Door_R = better_LED_ret("Right")
+        self.layout.addWidget(self.LED_Door_R, OriginY+4, OriginX+2, 1, 1)
     
     
     #--------
@@ -309,22 +336,35 @@ class SW_UI_JEB382(QMainWindow):
         label = better_label_ret("Station Information",16)
         self.layout.addWidget(label, OriginY, OriginX, 1, 3)
         
+        self.layout.setColumnMinimumWidth(OriginX,120)
+        
         #individually make rest of section
         self.layout.addWidget(better_label_ret("Announcement"), OriginY+1, OriginX, 1, 2)
         self.LED_Announce = better_LED_ret("N/A","background-color: white; border: 1px solid black")
         self.LED_Announce.setFixedWidth(126)
-        self.layout.addWidget(self.LED_Announce, OriginY+1, OriginX+2, 1, 2)
+        self.layout.addWidget(self.LED_Announce, OriginY+1, OriginX+1, 1, 2)
+        '''
         
         self.layout.addWidget(better_label_ret("Doors (Left, Right)"), OriginY+2, OriginX, 1, 2)
         self.LED_Door_L = better_LED_ret()
         self.layout.addWidget(self.LED_Door_L, OriginY+2, OriginX+2, 1, 1)
         self.LED_Door_R = better_LED_ret()
-        self.layout.addWidget(self.LED_Door_R, OriginY+2, OriginX+3, 1, 1)
+        self.layout.addWidget(self.LED_Door_R, OriginY+2, OriginX+3, 1, 1)'''
         
-        self.layout.addWidget(better_label_ret("Passenger eBrake"), OriginY+3, OriginX, 1, 2)
+        self.layout.addWidget(better_label_ret("Passenger eBrake"), OriginY+2, OriginX, 1, 2)
         self.LED_Pass_EB = better_LED_ret()
         self.LED_Pass_EB.setFixedWidth(126)
-        self.layout.addWidget(self.LED_Pass_EB, OriginY+3, OriginX+2, 1, 2)
+        self.layout.addWidget(self.LED_Pass_EB, OriginY+2, OriginX+1, 1, 2)
+        
+        self.layout.addWidget(better_label_ret("Track Circuit"), OriginY+3, OriginX, 1, 2)
+        self.LED_Track_Circ = better_LED_ret()
+        self.LED_Track_Circ.setFixedWidth(126)
+        self.layout.addWidget(self.LED_Track_Circ, OriginY+3, OriginX+1, 1, 2)
+        
+        self.layout.addWidget(better_label_ret("Station Side"), OriginY+4, OriginX, 1, 2)
+        self.LED_Stat_Side = better_LED_ret()
+        self.LED_Stat_Side.setFixedWidth(126)
+        self.layout.addWidget(self.LED_Stat_Side, OriginY+4, OriginX+1, 1, 2)
     
     
     #--------
@@ -395,51 +435,53 @@ class SW_UI_JEB382(QMainWindow):
         #individually make rest of section
         self.LED_CurSpd = better_LED_ret("0.00")
         self.LED_CurSpd.setStyleSheet("background-color: rgb(207, 207, 207); border: 1px solid black")
-        self.layout.addWidget(self.LED_CurSpd, OriginY+1, OriginX+2, 1, 1)
+        self.layout.addWidget(self.LED_CurSpd, OriginY+1, OriginX+1, 1, 1)
         label = better_label_ret("MPH")
-        self.layout.addWidget(label, OriginY+1, OriginX+3, 1, 3)
+        self.layout.addWidget(label, OriginY+1, OriginX+2, 1, 3)
         
         self.TCK_CmdSpd = QDoubleSpinBox()
         self.TCK_CmdSpd.valueChanged.connect(self.TCKF_CmdSpd)
         self.TCK_CmdSpd.setDisabled(True)
-        self.layout.addWidget(self.TCK_CmdSpd, OriginY+2, OriginX+2, 1, 1)
+        self.layout.addWidget(self.TCK_CmdSpd, OriginY+2, OriginX+1, 1, 1)
         label = better_label_ret("MPH")
-        self.layout.addWidget(label, OriginY+2, OriginX+3, 1, 3)
+        self.layout.addWidget(label, OriginY+2, OriginX+2, 1, 3)
         
         self.BTN_CabnLgt = better_button_ret(sizeW=True)
         self.BTN_CabnLgt.clicked.connect(self.BTNF_CL)
-        self.layout.addWidget(self.BTN_CabnLgt, OriginY+3, OriginX+2, 1, 1)
+        self.layout.addWidget(self.BTN_CabnLgt, OriginY+3, OriginX+1, 1, 1)
         self.BTN_HeadLgt = better_button_ret(sizeW=True)
         self.BTN_HeadLgt.clicked.connect(self.BTNF_HL)
-        self.layout.addWidget(self.BTN_HeadLgt, OriginY+4, OriginX+2, 1, 1)
+        self.layout.addWidget(self.BTN_HeadLgt, OriginY+4, OriginX+1, 1, 1)
         
         self.TCK_Temp = QDoubleSpinBox()
         self.TCK_Temp.valueChanged.connect(self.TCKF_Temp)
         self.TCK_Temp.setDisabled(True)
-        self.layout.addWidget(self.TCK_Temp, OriginY+5, OriginX+2, 1, 1)
+        self.layout.addWidget(self.TCK_Temp, OriginY+5, OriginX+1, 1, 1)
         label = better_label_ret("°F")
-        self.layout.addWidget(label, OriginY+5, OriginX+3, 1, 3)
+        self.layout.addWidget(label, OriginY+5, OriginX+2, 1, 3)
         
         self.BTN_Door_L = better_button_ret(sizeW=True)
         self.BTN_Door_L.clicked.connect(self.BTNF_DL)
-        self.layout.addWidget(self.BTN_Door_L, OriginY+6, OriginX+2, 1, 1)
+        self.layout.addWidget(self.BTN_Door_L, OriginY+6, OriginX+1, 1, 1)
         self.BTN_Door_R = better_button_ret(sizeW=True)
         self.BTN_Door_R.clicked.connect(self.BTNF_DR)
-        self.layout.addWidget(self.BTN_Door_R, OriginY+6, OriginX+3, 1, 1)
+        self.layout.addWidget(self.BTN_Door_R, OriginY+6, OriginX+2, 1, 1)
         
         #right side
-        self.BTN_EBRK = better_button_ret(sizeH=116,checkable=True,text="EMERGENCY BRAKE",
+        self.BTN_EBRK = better_button_ret(sizeH=116,
+                                          checkable=True,text="EMERGENCY BRAKE",
                                           style="background-color: rgb(200,  100,  100); border: 6px solid rgb(120, 0, 0); border-radius: 6px")
         self.BTN_EBRK.clicked.connect(self.BTNF_EB)
-        self.layout.addWidget(self.BTN_EBRK, OriginY, OriginX+5, 4, 3)
+        self.layout.addWidget(self.BTN_EBRK, OriginY, OriginX+4, 4, 3)
         
-        self.BTN_SBRK = better_button_ret(sizeH=56,checkable=True,text="Service Brake")
+        self.BTN_SBRK = better_button_ret(sizeH=56,
+                                          checkable=True,text="Service Brake")
         self.BTN_SBRK.clicked.connect(self.BTNF_SB)
-        self.layout.addWidget(self.BTN_SBRK, OriginY+4, OriginX+5, 2, 3)
+        self.layout.addWidget(self.BTN_SBRK, OriginY+4, OriginX+4, 2, 3)
         
         self.BTN_DisPaEB = better_button_ret(checkable=True,text="Disable Passenger eBrake")
         self.BTN_DisPaEB.clicked.connect(self.BTNF_DPE)
-        self.layout.addWidget(self.BTN_DisPaEB, OriginY+6, OriginX+5, 1, 3)
+        self.layout.addWidget(self.BTN_DisPaEB, OriginY+6, OriginX+4, 1, 3)
         
     def BTNF_CL(self):
         if self.BTN_Mode.isChecked():
@@ -453,22 +495,20 @@ class SW_UI_JEB382(QMainWindow):
             LED_tog(self.LED_HeadLgt, self.Driver_arr[4])
     def BTNF_DL(self):
         if self.BTN_Mode.isChecked():
-            gen_but_tog(self.BTN_Door_L)
+            gen_but_tog(self.BTN_Door_L,"Left","Left")
             self.Driver_arr[6] = self.BTN_Door_L.isChecked()
-            LED_tog(self.LED_Door_L, self.Driver_arr[6])
+            LED_tog(self.LED_Door_L, self.Driver_arr[6],"Left","Left")
     def BTNF_DR(self):
         if self.BTN_Mode.isChecked():
-            gen_but_tog(self.BTN_Door_R)
+            gen_but_tog(self.BTN_Door_R,"Right","Right")
             self.Driver_arr[7] = self.BTN_Door_R.isChecked()
-            LED_tog(self.LED_Door_R, self.Driver_arr[7])
+            LED_tog(self.LED_Door_R, self.Driver_arr[7],"Right","Right")
     def BTNF_EB(self):
-        #if self.BTN_Mode.isChecked():
         gen_but_tog(self.BTN_EBRK,"EMERGENCY BRAKE","EMERGENCY BRAKE",
                 "background-color: rgb(200,  50,  50); border: 6px solid rgb(120, 0, 0); border-radius: 6px",
                 "background-color: rgb(200, 100, 100); border: 6px solid rgb(120, 0, 0); border-radius: 6px")
         self.Driver_arr[8] = self.BTN_EBRK.isChecked()
     def BTNF_SB(self):
-        #if self.BTN_Mode.isChecked():
         gen_but_tog(self.BTN_SBRK,"Service Brake","Service Brake")
         self.Driver_arr[9] = self.BTN_SBRK.isChecked()   
     def BTNF_DPE(self):
@@ -527,13 +567,13 @@ def better_LED_ret(text=None,style=None):
     
     return label
 
-def LED_tog(but,checked):
+def LED_tog(but,checked, overwrite1="On", overwrite2="Off"):
     #on
     if checked:
-        but.setText("On")
+        but.setText(overwrite1)
         but.setStyleSheet("background-color: rgb(0, 224, 34); border: 2px solid rgb(30, 143, 47); border-radius: 4px")
     else:
-        but.setText("Off")
+        but.setText(overwrite2)
         but.setStyleSheet("background-color: rgb(222, 62, 38); border: 2px solid rgb(222, 0, 0); border-radius: 4px")
         
 
@@ -545,6 +585,7 @@ def SW_mainloop_fast(numtrain):
     try:
         while True:
             if w:
+                #print(w.width(),w.height())
                 w.update_SW_UI_JEB382()
                 if w.TB_window.isVisible():
                     if verbose:
@@ -578,12 +619,8 @@ def SW_fin(numtrain,Driver_arr,TrainModel_arr):
 
 if __name__ == "__main__":    
     numtrain=1
-    Driver_arr = [12.00]*11
-    TrainModel_arr = [7.00]*10
-    TrainModel_arr = [0]*90
-    '''
-    Driver_arr = [0.00]*11
-    TrainModel_arr = [0.00]*10
-    '''
+    Driver_arr = [12.00]*90
+    TrainModel_arr = [7.00]*90
+    
     #SW_fin(numtrain,Driver_arr,TrainModel_arr)
     SW_pyqtloop(numtrain,Driver_arr,TrainModel_arr)

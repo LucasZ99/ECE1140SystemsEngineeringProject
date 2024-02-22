@@ -55,7 +55,7 @@ class TestBench_JEB382(QWidget):
             t_TrainModel_arr = [0.0, 0.0, 0.0, 0.0, 0.0, False, False, 0, False, False,False,"00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"]
             in_TrainModel_arr = in_TrainModel_arr + t_TrainModel_arr[len(in_TrainModel_arr):]
         #if over, snips
-        elif len(in_TrainModel_arr)>12: in_TrainModel_arr = in_TrainModel_arr[0:-(len(in_TrainModel_arr)-10)]
+        elif len(in_TrainModel_arr)>12: in_TrainModel_arr = in_TrainModel_arr[0:-(len(in_TrainModel_arr)-12)]
         #ensure beacon arr indx is proper size
         if len(str(in_TrainModel_arr[-1]))<128:
             in_TrainModel_arr[-1] = "0"*(128-len(str(in_TrainModel_arr[-1])))+str(in_TrainModel_arr[-1])
@@ -144,7 +144,7 @@ class TestBench_JEB382(QWidget):
             self.layout.addWidget(label1, i, 4, 1, 1)
             
             button = better_button_ret()
-            button.setChecked(bool(self.TrainModel_arr[i+4]))#TODO
+            button.setChecked(bool(self.TrainModel_arr[i+4]))
             gen_but_tog(button)
             button.clicked.connect( functools.partial(gen_but_tog,but=button) )
             if i not in [2,3]: self.layout.addWidget(button, i, 5, 1, 1)
