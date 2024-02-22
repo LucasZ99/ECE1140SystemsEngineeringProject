@@ -210,11 +210,13 @@ class CTC_MainWindow(QMainWindow):
         
         block_table_layout.addItem(block_table_header_layout)
 
-        ctc_main_layout_block_table = QTableWidget()
-        ctc_main_layout_block_table.setColumnCount(7)
-        ctc_main_layout_block_table.setHorizontalHeaderLabels(["Block ID", "Train in Block\n(train number)","Block Open","Signal Status","Switch Destination","Railroad Crossing Activated","Speed Limit"])
+        self.block_table = BlockTable(self.ctc)
+        self.block_table.get_table_for_line(0)
+
+        block_table_line_select.currentIndexChanged.connect(self.block_table.get_table_for_line)
+        block_table_search_bar.textChanged.connect(self.block_table.search)
         
-        block_table_layout.addWidget(ctc_main_layout_block_table)
+        block_table_layout.addWidget(self.block_table)
 
         ctc_main_right_side_bottom.addItem(block_table_layout)
 
@@ -223,14 +225,14 @@ class CTC_MainWindow(QMainWindow):
         ctc_throughput_label.setAlignment(Qt.AlignmentFlag.AlignHCenter)
         ctc_throughput_layout.addWidget(ctc_throughput_label)
 
-        ctc_main_layout_throughput = QTableWidget()
-        ctc_main_layout_throughput.setRowCount(2)
-        ctc_main_layout_throughput.setVerticalHeaderLabels(["Red Line", "Green Line"])
+        ctc_main_layout_throughput = QGridLayout()
+        ctc_main_layout_throughput.addWidget(QLabel("Trains Per Hour"), 0, 1)
+        ctc_main_layout_throughput.addWidget(QLabel("# Ticket Sales Per Hour"), 0, 2)
 
-        ctc_main_layout_throughput.setColumnCount(2)
-        ctc_main_layout_throughput.setHorizontalHeaderLabels(["Trains Per Hour", "# Ticket Sales Per Hour"])
+        for id, line in enumerate(self.ctc.get_lines()):
+            ctc_main_layout_throughput.addWidget(QLabel(line + " Line") , id + 1, 0)
         
-        ctc_throughput_layout.addWidget(ctc_main_layout_throughput)
+        ctc_throughput_layout.addItem(ctc_main_layout_throughput)
         ctc_main_right_side_bottom.addItem(ctc_throughput_layout)
     
         ctc_main_right_side.addItem(ctc_main_right_side_bottom)
@@ -258,7 +260,7 @@ class CTC_MainWindow(QMainWindow):
             self.calculate_route_arrival_times()
 
     def validate_destination_select(self, selected_id:int):
-        print("validate dest", self.departure_time())
+        print("validate dest", selected_id, self.departure_time())
         if selected_id == 0:
             self.dispatch_button_list[self.current_line_id()].setEnabled(False)
             self.clear_schedule()
@@ -341,6 +343,8 @@ class CTC_MainWindow(QMainWindow):
         print("calculate times", self.departure_time())
         dispatch_train_schedule = self.dispatch_train_schedule_list[self.current_line_id()]
 
+        print(self.route)
+
         travel_time_s = 0
         arrival_time = QTime(self.departure_time_list[self.current_line_id()].time())
 
@@ -365,13 +369,20 @@ class CTC_MainWindow(QMainWindow):
         line_id = self.dispatch_train_tab_widget.currentIndex()
         dispatch_train_schedule = self.dispatch_train_schedule_list[self.dispatch_train_tab_widget.currentIndex()]
 
-        self.route = ["A1"]
+
+        print(self.ctc.get_blocks(self.current_line_id()))
+        # print("Destination Block: ", self.ctc.get_blocks(self.current_line_id())[selected_id - 1])
+        # print(self.ctc.get_route_to_block(self.current_line_id(), "YARD", "B10"))
+
+        self.route = self.ctc.get_route_to_block(self.current_line_id(), "YARD", self.ctc.get_blocks(self.current_line_id())[selected_id - 1])
+        # print(self.route)
+
 
         dispatch_train_schedule.setRowCount(0)
         if selected_id != 0:
-            for station, block in zip(self.ctc.get_stations(line_id)[:(selected_id)], self.ctc.get_blocks(line_id)[:(selected_id)]):
+            for block in self.route:
+                station = self.ctc.get_station_name(self.current_line_id(), block)
                 if station != "":
-                    self.route.append(block)
                     row_number = dispatch_train_schedule.rowCount()
                     dispatch_train_schedule.insertRow(row_number)
 
@@ -379,7 +390,7 @@ class CTC_MainWindow(QMainWindow):
                     dispatch_train_schedule.setItem(row_number, 1, station_name)
 
             if self.ctc.get_stations(line_id)[selected_id - 1] == "":
-                self.route.append(self.ctc.get_blocks(line_id)[selected_id - 1])
+                # self.route.append(self.ctc.get_blocks(line_id)[selected_id - 1])
                 row_number = dispatch_train_schedule.rowCount()
                 dispatch_train_schedule.insertRow(row_number)
                 station_name = QTableWidgetItem(self.ctc.get_blocks(line_id)[selected_id - 1])
@@ -421,7 +432,7 @@ class CTC_MainWindow(QMainWindow):
             table.setItem(row, 0, QTableWidgetItem(train_number))
             table.setItem(row, 1, QTableWidgetItem(train_line))
 
-
+    
 
     # # Move dispatched trains to CTC
     def poll_schedule_for_trains_to_dispatch(self):
@@ -460,6 +471,43 @@ class CTC_MainWindow(QMainWindow):
             mm = m
 
         return hh + ":" + mm
+    
+class BlockTable(QTableWidget):
+    def __init__(self, ctc:CTC):
+        super().__init__()
+
+        self.ctc = ctc
+
+        self.setColumnCount(8)
+        self.verticalHeader().setVisible(False)
+
+        self.setHorizontalHeaderLabels(["Block ID", "Train in Block\n(train number)","Block Open","Signal Status","Switch Destination","Railroad Crossing Activated","Length (ft)", "Speed Limit (mph)"])
+
+    def get_table_for_line(self, line_id:int):
+        # clear rows
+        self.setRowCount(0)
+
+        for id, block in enumerate(self.ctc.get_block_data(line_id)):
+            self.insertRow(id)
+            block_id = block.id
+            block_length_ft = block.length_m * 3.28084
+            block_speed_limit_mph = block.speed_limit_kph / 1.609
+
+            self.setItem(id, 0, QTableWidgetItem(block_id))
+            self.setItem(id, 6, QTableWidgetItem(str(block_length_ft)))
+            self.setItem(id, 7, QTableWidgetItem(str(block_speed_limit_mph)))
+
+
+    def search(self, search_term:str):
+        self.setCurrentItem(None)
+
+        if not search_term:
+            return
+        
+        search_results = self.findItems(search_term, Qt.MatchFlag.MatchContains)
+        if search_results:
+            for search_result in search_results:
+                search_result.setSelected(True)
 
 class DispatchArrivalTime(QWidget):
     def __init__(self):
