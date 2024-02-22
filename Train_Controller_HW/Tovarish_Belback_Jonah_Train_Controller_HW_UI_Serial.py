@@ -1,11 +1,18 @@
 #import pyfirmata
 import pyfirmata2
 import time
+import serial
 
 
 
 global board
-board = pyfirmata2.ArduinoMega('COM7')
+board = serial.Serial('COM7',9600, timeout = 2)
+def ser_read():
+    data = board.readline()
+    return data.decode()
+def ser_send(inp):
+    board.write(inp.encode())
+
 
 #mini classes---------------------------------------------------------
 class LED_PyF():
@@ -35,37 +42,13 @@ class POT_PyF():
         else: return round( ( (self.item.read())*(self.end-self.start) )+self.start,2)
     
 #arduino verison of HW UI----------------------------------------------
-class HW_UI_JEB382_PyFirmat():
+class HW_UI_JEB382_Serial():
     def __init__(self,in_Driver_arr,in_TrainModel_arr):
         self.Driver_arr = in_Driver_arr
         self.TrainModel_arr = in_TrainModel_arr
         self.init_clk = time.time()
         
-        #input sets
-        self.TCK_Kp     = POT_PyF(0)
-        self.TCK_Ki     = POT_PyF(1)
-        self.TCK_CmdSpd = POT_PyF(2)
-        self.TCK_Temp   = POT_PyF(3)
-        self.BTN_CabnLgt = BTN_PyF(40)
-        self.BTN_HeadLgt = BTN_PyF(41)
-        self.BTN_Door_L  = BTN_PyF(42)
-        self.BTN_Door_R  = BTN_PyF(43)
-        self.BTN_EBRK    = BTN_PyF(44)
-        self.BTN_SBRK    = BTN_PyF(45)
-        self.BTN_DisPaEB = BTN_PyF(46)
         
-        #LEDs
-        self.LED_CabnLgt    = LED_PyF(22)
-        self.LED_HeadLgt    = LED_PyF(23)
-        self.LED_Door_L     = LED_PyF(24)
-        self.LED_Door_R     = LED_PyF(25)
-        self.LED_Pass_EB    = LED_PyF(26)
-        self.LED_Track_Circ = LED_PyF(27)
-        self.LED_Stat_Side2 = LED_PyF(28)
-        self.LED_Stat_Side1 = LED_PyF(29)
-        self.LED_Sig_Fail   = LED_PyF(30)
-        self.LED_Eng_Fail   = LED_PyF(31)
-        self.LED_Brk_Fail   = LED_PyF(32)
     
     def updateOuts(self):
         if int(time.time() - self.init_clk)%3 == 0:
@@ -98,7 +81,6 @@ class HW_UI_JEB382_PyFirmat():
         self.Driver_arr[1] = self.TCK_Ki.read()
         self.Driver_arr[2] = self.TCK_CmdSpd.read()
         self.Driver_arr[5] = self.TCK_Temp.read()
-        board.send_sysex(pyfirmata2.STRING_DATA, pyfirmata2.util.str_to_two_byte_iter(self.TrainModel_arr[0:20]))
     
     def updateDisplay(self):
         self.LED_CabnLgt   .write(self.BTN_CabnLgt.read())
@@ -121,7 +103,7 @@ if __name__ == "__main__":
     main_Driver_arr = [0.0, 0.0, 0.0, False, False, 0.0, False, False, False, False, False]
     main_TrainModel_arr = [0.0, 0.0, 0.0, 0.0, 0.0, False, False, 0, False, False,False,
                            "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"]
-    w = HW_UI_JEB382_PyFirmat(main_Driver_arr,main_TrainModel_arr)
+    w = HW_UI_JEB382_Serial(main_Driver_arr,main_TrainModel_arr)
     
     it = pyfirmata2.util.Iterator(board)  
     it.start()

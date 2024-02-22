@@ -37,7 +37,7 @@ buttons
 10: brake fail
 11: beacon (128chars)
 '''
-
+global w
 w = None
 
 class TestBench_JEB382(QWidget):
@@ -252,7 +252,6 @@ def TB_mainloop_fast(numtrain,arr):
         
 def TB_pyqtloop(numtrain,arr):
     app = QApplication(sys.argv)
-    global w
     w = TestBench_JEB382(numtrain, arr)
     w.show()
     sys.exit(app.exec())

@@ -1,4 +1,5 @@
 from Tovarish_Belback_Jonah_Train_Controller_Testbench import TestBench_JEB382
+#from Tovarish_Belback_Jonah_Train_Controller_HW_UI_PyFirmata import HW_UI_JEB382_PyFirmat
 
 import os
 import sys
@@ -10,6 +11,9 @@ import threading
 from PyQt6.QtWidgets import *
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
+
+import serial
+
 
 #TODO
 #make so commanded speed in Driver_arr is overwritten by TrainModels cmd spd if in auto
@@ -50,9 +54,10 @@ buttons
 
 
 
-
+global Arduino, board
 verbose = True
 w = None
+
 #background
 stylesheet = """
     SW_UI_JEB382 {
@@ -62,13 +67,27 @@ stylesheet = """
     }
 """
 
+
+def ser_read():
+    data = board.readline()
+    print("SERIAL: "+str(data))
+    return data.decode()
+def ser_send(inp):
+    #print(str(inp)[1:-1])
+    board.write(str(inp)[1:-1].encode())
+
+
+
 class SW_UI_JEB382(QMainWindow):
-    def __init__(self,numtrain,in_Driver_arr,in_TrainModel_arr,app=None):
+    def __init__(self,numtrain,in_Driver_arr,in_TrainModel_arr,in_output_arr,app=None):
         super(SW_UI_JEB382, self).__init__()
         self.setWindowTitle('TrainControllerHW SW_UI #'+str(numtrain))
         self.setFixedSize(670, 446)
         
         self.numtrain = numtrain
+        
+        in_output_arr = [0.0,0.0 False,False, False,False, False,False, 0.0, ""]
+        self.output_arr = in_output_arr
         
         #-------adjust arrays-------
         #array inputed as an init gets updated as UI is used
@@ -103,6 +122,7 @@ class SW_UI_JEB382(QMainWindow):
         self.HW_Driver_arr = in_Driver_arr[:]#make copy, detach from other ware
         in_Driver_arr = self.SW_Driver_arr  #the initial state is HW, reference preserved
         self.Driver_arr = in_Driver_arr #class arr is reference to input
+        self.Ware = 0
         
         
         
@@ -138,6 +158,11 @@ class SW_UI_JEB382(QMainWindow):
         if self.Driver_arr[-1] == "" or self.Driver_arr[-1] == 0.0: self.LED_Announce.setText("N/A")
         
         self.prevBTNstate=[0,0,0,0]#used for mode button function
+        
+        #if Arduino: self.HW_UI_JEB382 = HW_UI_JEB382_PyFirmat(self.HW_Driver_arr,self.TrainModel_arr)
+        if Arduino:
+            self.HW_Driver_arr = ser_read()
+            print(self.HW_Driver_arr)
 
 
     
@@ -165,6 +190,11 @@ class SW_UI_JEB382(QMainWindow):
                 self.SW_Driver_arr[8] = self.BTN_EBRK.isChecked()
                 self.SW_Driver_arr[9] = self.BTN_SBRK.isChecked()
                 self.SW_Driver_arr[10]= self.BTN_DisPaEB.isChecked()
+                
+            if Arduino and self.Ware:
+                ser_send(self.TrainModel_arr)
+                self.HW_Driver_arr = ser_read()
+                return
             
             
             #----get values from Test Bench
@@ -201,6 +231,21 @@ class SW_UI_JEB382(QMainWindow):
             
             self.aux1=self.Driver_arr[:]
             self.aux2=self.TrainModel_arr[:]
+            
+            if self.BTN_Mode.isChecked(): commandspd = self.Driver_arr[2]%self.TrainModel_arr[3]
+            else: commandspd = self.TrainModel_arr[1]%self.TrainModel_arr[3]
+            if commandspd/self.output_arr[1] > self.TrainModel_arr[4]: commandspd = commandspd*self.TrainModel_arr[4] #correct with acceleration limit
+            self.output_arr[0] = commandspd
+            self.output_arr[1] = commandspd
+            self.output_arr[2] = self.Driver_arr[9]
+            self.output_arr[3] = self.Driver_arr[8]
+            self.output_arr[4] = self.Driver_arr[3] #or \/\/\/\/ or if beacon give info that its underground (undetermined)
+            self.output_arr[5] = self.Driver_arr[4] #or ^^^^ or if its night outside, in overall integration time var
+            self.output_arr[6] = (self.Driver_arr[6] and self.BTN_Mode.isChecked()) or self.TrainModel_arr[7]%2==1 #at station or overwriten
+            self.output_arr[7] = (self.Driver_arr[7] and self.BTN_Mode.isChecked()) or self.TrainModel_arr[7]>1 #at station or overwriten
+            self.output_arr[8] = self.Driver_arr[5]
+            self.output_arr[9] = str(self.TrainModel_arr[-1])[0:20].replace("0", "") + " Station
+            
         except Exception as e:
             print("update:",e)
             return
@@ -224,7 +269,6 @@ class SW_UI_JEB382(QMainWindow):
         self.layout.addWidget(self.BTN_HW, OriginY, OriginX+8, 1, 3)
     
     def toggle_TB(self):
-        
         if self.TB_window.isVisible():
             self.TB_window.hide()
             self.BTN_TB.setText("Toggle TestBench[off]")
@@ -294,9 +338,12 @@ class SW_UI_JEB382(QMainWindow):
     
     def BTNF_HW(self):
         gen_but_tog(self.BTN_HW,"Engage HW","Engage HW")
-        if self.BTN_HW.isChecked(): self.Driver_arr = self.HW_Driver_arr
-        else: self.Driver_arr = self.SW_Driver_arr
-        return False
+        if self.BTN_HW.isChecked():
+            self.Driver_arr = self.HW_Driver_arr
+            self.Ware = 1
+        else:
+            self.Driver_arr = self.SW_Driver_arr
+            self.Ware = 0
         
 
 
@@ -642,10 +689,14 @@ def SW_fin(numtrain,main_Driver_arr,main_TrainModel_arr):
 
 
 
-if __name__ == "__main__":    
+if __name__ == "__main__":
+    Arduino = False
+    if Arduino: board = serial.Serial('COM7',9600, timeout = 2)
+    
     numtrain=1
     main_Driver_arr = [12.00]*90    #gets copied, is meant to get u
     main_TrainModel_arr = [7.00]*90
+    
     
     SW_fin(numtrain,main_Driver_arr,main_TrainModel_arr)
     #SW_pyqtloop(numtrain,main_Driver_arr,main_TrainModel_arr)
