@@ -11,6 +11,7 @@ from Animated_Toggle import AnimatedToggle
 import sys
 from Track_Model import TrackModel
 from dynamic_map import DynamicMap
+from Track_Model_TB_UI import TestBenchWindow
 
 
 ##############################
@@ -22,6 +23,7 @@ class Window(QMainWindow):
         # Backend
         self.file_name = self.getFileName()
         self.track_model = TrackModel(self.file_name)
+        self.test_bench_window = TestBenchWindow()
         # Window Layout
         self.setWindowIcon(QIcon("icon.jpg"))
         self.setWindowTitle("Track Model")
@@ -243,6 +245,11 @@ class Window(QMainWindow):
         self.upload_layout_group.setLayout(ul_layout)
         layout.addWidget(self.upload_layout_group, 2, 4, 1, 1)
 
+        # Test Bench Button
+        self.test_bench_button = QPushButton("Test Bench")
+        self.test_bench_button.clicked.connect(self.test_bench_button_clicked)
+        layout.addWidget(self.test_bench_button, 3, 4, 1, 1)
+
         # center widget
         center_widget = QWidget()
         center_widget.setLayout(layout)
@@ -390,6 +397,8 @@ class Window(QMainWindow):
         self.combo2.addItems(self.str_list_blocks)
         self.combo3.addItems(self.str_list_blocks)
 
+    def test_bench_button_clicked(self):
+        self.test_bench_window.show()
 
 ##############################
 # Run app

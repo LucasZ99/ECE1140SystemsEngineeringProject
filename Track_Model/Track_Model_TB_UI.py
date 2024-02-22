@@ -55,6 +55,16 @@ class TestBenchWindow(QWidget):
 
                 """)
 
+        ####################
+        # Backend
+        ####################
+
+
+
+        ####################
+        # Frontend
+        ####################
+
         layout = QVBoxLayout()
         self.setLayout(layout)
 
@@ -171,8 +181,10 @@ class TestBenchWindow(QWidget):
     def apply_button2_clicked(self):
         pass
 
+    def display(self):
+        self.show()
 
-app = QApplication([])
-window = TestBenchWindow()
-window.show()
-app.exec()
+# app = QApplication([])
+# window = TestBenchWindow()
+# window.show()
+# app.exec()
