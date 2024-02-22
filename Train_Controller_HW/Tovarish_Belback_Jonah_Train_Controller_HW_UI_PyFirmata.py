@@ -98,7 +98,7 @@ class HW_UI_JEB382_PyFirmat():
         self.Driver_arr[1] = self.TCK_Ki.read()
         self.Driver_arr[2] = self.TCK_CmdSpd.read()
         self.Driver_arr[5] = self.TCK_Temp.read()
-        board.send_sysex(pyfirmata2.STRING_DATA, pyfirmata2.util.str_to_two_byte_iter(self.TrainModel_arr[0:20]))
+        #board.send_sysex(pyfirmata2.STRING_DATA, pyfirmata2.util.str_to_two_byte_iter(self.TrainModel_arr[0:20]))
     
     def updateDisplay(self):
         self.LED_CabnLgt   .write(self.BTN_CabnLgt.read())

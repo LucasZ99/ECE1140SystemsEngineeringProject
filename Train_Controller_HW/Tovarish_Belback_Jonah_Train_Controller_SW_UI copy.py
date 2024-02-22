@@ -69,6 +69,14 @@ stylesheet = """
 """
 
 
+def ser_read():
+    data = board.readline()
+    print("SERIAL: "+str(data))
+    return data.decode()
+def ser_send(inp):
+    #print(str(inp)[1:-1])
+    board.write(str(inp)[1:-1].encode())
+
 
 
 class SW_UI_JEB382(QMainWindow):
@@ -116,7 +124,9 @@ class SW_UI_JEB382(QMainWindow):
         in_Driver_arr = self.SW_Driver_arr  #the initial state is HW, reference preserved
         self.Driver_arr = in_Driver_arr #class arr is reference to input
         self.Ware = 0
-            
+        
+        if not serial_b: self.HW_UI_JEB382 = HW_UI_JEB382_PyFirmat(self.HW_Driver_arr,self.TrainModel_arr)
+        
         
         
         
@@ -152,7 +162,10 @@ class SW_UI_JEB382(QMainWindow):
         
         self.prevBTNstate=[0,0,0,0]#used for mode button function
         
-        if Arduino: self.HW_UI_JEB382 = HW_UI_JEB382_PyFirmat(self.HW_Driver_arr,self.TrainModel_arr)
+        #if Arduino: self.HW_UI_JEB382 = HW_UI_JEB382_PyFirmat(self.HW_Driver_arr,self.TrainModel_arr)
+        if Arduino and serial_b:
+            self.HW_Driver_arr = ser_read()
+            print(self.HW_Driver_arr)
 
 
     
@@ -182,9 +195,14 @@ class SW_UI_JEB382(QMainWindow):
                 self.SW_Driver_arr[10]= self.BTN_DisPaEB.isChecked()
                 
             if Arduino and self.Ware:
-                self.HW_UI_JEB382.updateOuts()
-                self.HW_UI_JEB382.updateDisplay()
-                self.HW_Driver_arr = self.HW_UI_JEB382.Driver_arr
+                if serial_b:
+                    ser_send(self.TrainModel_arr)
+                    self.HW_Driver_arr = ser_read()
+                    return
+                else:
+                    self.HW_UI_JEB382.updateOuts()
+                    self.HW_UI_JEB382.updateDisplay()
+                    self.HW_Driver_arr = self.HW_UI_JEB382.Driver_arr
             
             
             #----get values from Test Bench
@@ -690,6 +708,7 @@ def SW_fin(numtrain,main_Driver_arr,main_TrainModel_arr,main_output_arr):
 global main_ouput
 if __name__ == "__main__":
     Arduino = True
+    if Arduino and serial_b: board = serial.Serial('COM7',9600, timeout = 2)
     
     numtrain=1
     main_Driver_arr = [12.00]*90    #gets copied, is meant to get u
