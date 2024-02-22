@@ -39,8 +39,8 @@ class TrackModel:
         self.line_name = self.data[0, 0]
         self.num_blocks = len(self.data)
 
-    def set_block_occupancy(self, block_id, occupancy):
-        self.data[block_id, 10] = occupancy
+    def set_block_occupancy(self, block, occupancy):
+        self.data[block, 7] = occupancy
 
     def check_data(self):  # update this in future to validate data further
         if len(self.data) == 0:
@@ -66,7 +66,8 @@ class TrackModel:
 
     def get_infrastructure_table(self, section_id):
         arr = self.get_section(section_id)[:, [9, 2, 11]]
-        filtered_arr = arr[~np.isnan(np.array([len(str(x)) if isinstance(x, str) else x for x in arr[:, 0]]))]
+        filtered_arr = arr[~np.isnan(np.array([len(str(x)) if isinstance(x, str) else x for x in arr[:, 0]])) & (
+                    np.char.find(arr[:, 0].astype(str), "Station") == -1)]
         return filtered_arr
 
     def set_env_temperature(self, temperature):
@@ -79,12 +80,33 @@ class TrackModel:
             heaters[heaters == 0] = 1
         else:
             heaters[heaters == 1] = 0
-        for i in range(1, len(heaters) - 1):
+        for i in range(0, len(heaters)):
             if heaters[i] == 1:
-                self.data[i, 8] = 90
+                self.data[i+1, 8] = 90
 
+    def set_power_failure(self, block, value):
+        self.data[block, 13] = value
+        self.set_occupancy_from_failures(block)
 
+    def set_track_circuit_failure(self, block, value):
+        self.data[block, 14] = value
+        self.set_occupancy_from_failures(block)
 
+    def set_broken_rail_failure(self, block, value):
+        self.data[block, 15] = value
+        self.set_occupancy_from_failures(block)
+        # this block can no longer be occupied if value = 1
 
+    def set_occupancy_from_failures(self, block):
+        # broken rail takes priority as it is infinite resistance
+        # sets to 0 if no failures, so must account for train presence afterwords whenever using this function
+        p = self.data[block, 13]
+        tc = self.data[block, 14]
+        br = self.data[block, 15]
 
-
+        if br:
+            self.set_block_occupancy(block, 0)
+        elif p or tc:
+            self.set_block_occupancy(block, 1)
+        else:
+            self.set_block_occupancy(block, 0)

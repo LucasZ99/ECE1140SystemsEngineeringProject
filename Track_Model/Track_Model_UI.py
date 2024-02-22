@@ -147,11 +147,11 @@ class Window(QMainWindow):
         fm_group_layout = QGridLayout()
 
         f1_title = QLabel()
-        f1_title.setText("Broken Rail Failure:")
+        f1_title.setText("Power Failure:")
         f2_title = QLabel()
         f2_title.setText("Track Circuit Failure:")
         f3_title = QLabel()
-        f3_title.setText("Power Failure:")
+        f3_title.setText("Broken Rail Failure:")
         fm_group_layout.addWidget(f1_title, 0, 0)
         fm_group_layout.addWidget(f2_title, 1, 0)
         fm_group_layout.addWidget(f3_title, 2, 0)
@@ -159,26 +159,39 @@ class Window(QMainWindow):
         self.str_list_blocks = list(self.table1_data[1:, 0].astype(str))
         self.combo1 = QComboBox()
         self.combo1.addItems(self.str_list_blocks)
+        self.combo1.activated.connect(self.combo1_new_item_selected)
+
         self.combo2 = QComboBox()
         self.combo2.addItems(self.str_list_blocks)
+        self.combo2.activated.connect(self.combo2_new_item_selected)
+
         self.combo3 = QComboBox()
         self.combo3.addItems(self.str_list_blocks)
+        self.combo3.activated.connect(self.combo3_new_item_selected)
+
         self.combo1.setFixedSize(50, 25)
         self.combo2.setFixedSize(50, 25)
         self.combo3.setFixedSize(50, 25)
+
         fm_group_layout.addWidget(self.combo1, 0, 1)
         fm_group_layout.addWidget(self.combo2, 1, 1)
         fm_group_layout.addWidget(self.combo3, 2, 1)
 
-        toggle1 = AnimatedToggle()
-        toggle1.setFixedSize(toggle1.sizeHint())
-        toggle2 = AnimatedToggle()
-        toggle2.setFixedSize(toggle2.sizeHint())
-        toggle3 = AnimatedToggle()
-        toggle3.setFixedSize(toggle3.sizeHint())
-        fm_group_layout.addWidget(toggle1, 0, 2)
-        fm_group_layout.addWidget(toggle2, 1, 2)
-        fm_group_layout.addWidget(toggle3, 2, 2)
+        self.toggle1 = AnimatedToggle()
+        self.toggle1.setFixedSize(self.toggle1.sizeHint())
+        self.toggle1.clicked.connect(self.toggle1_clicked)
+
+        self.toggle2 = AnimatedToggle()
+        self.toggle2.setFixedSize(self.toggle2.sizeHint())
+        self.toggle2.clicked.connect(self.toggle2_clicked)
+
+        self.toggle3 = AnimatedToggle()
+        self.toggle3.setFixedSize(self.toggle3.sizeHint())
+        self.toggle3.clicked.connect(self.toggle3_clicked)
+
+        fm_group_layout.addWidget(self.toggle1, 0, 2)
+        fm_group_layout.addWidget(self.toggle2, 1, 2)
+        fm_group_layout.addWidget(self.toggle3, 2, 2)
 
         self.failure_modes_group.setLayout(fm_group_layout)
         layout.addWidget(self.failure_modes_group, 2, 2, 1, 1)
@@ -267,6 +280,7 @@ class Window(QMainWindow):
         # Update track_model
         self.track_model = TrackModel(self.file_name)
 
+        # TODO: Make a refresh everything (or reset everything) function and put it here
         # return our new file name
         return self.file_name
 
@@ -281,6 +295,66 @@ class Window(QMainWindow):
     def button_c_clicked(self):
         self.selected_section = 'C'
         self.section_refresh()
+
+    def combo1_new_item_selected(self):
+        # sets the value of the toggle based on the value from our data
+        block = int(self.combo1.currentText())
+        print(self.track_model.get_data()[block, 13])
+        self.toggle1.setChecked(self.track_model.get_data()[block, 13])
+
+    def toggle1_clicked(self):
+        block = int(self.combo1.currentText())
+        val = int(self.toggle1.isChecked())
+        self.track_model.set_power_failure(block, val)
+        self.data_and_tables_refresh()
+
+    def combo2_new_item_selected(self):
+        # sets the value of the toggle based on the value from our data
+        block = int(self.combo2.currentText())
+        self.toggle2.setChecked(self.track_model.get_data()[block, 14])
+
+    def toggle2_clicked(self):
+        block = int(self.combo2.currentText())
+        val = int(self.toggle2.isChecked())
+        self.track_model.set_track_circuit_failure(block, val)
+        self.data_and_tables_refresh()
+
+    def combo3_new_item_selected(self):
+        # sets the value of the toggle based on the value from our data
+        block = int(self.combo3.currentText())
+        self.toggle3.setChecked(self.track_model.get_data()[block, 15])
+
+    def toggle3_clicked(self):
+        block = int(self.combo3.currentText())
+        val = int(self.toggle3.isChecked())
+        self.track_model.set_broken_rail_failure(block, val)
+        self.data_and_tables_refresh()
+
+    def data_and_tables_refresh(self):
+        # data
+        self.table1_data = self.track_model.get_block_table(self.selected_section)
+        self.table2_data = self.track_model.get_station_table(self.selected_section)
+        self.table3_data = self.track_model.get_infrastructure_table(self.selected_section)
+        # table1
+        m, n = self.table1_data.shape
+        self.table1.setRowCount(m - 1)
+        self.table1.verticalHeader().setVisible(False)
+        for i in range(1, m):
+            for j in range(0, n):
+                self.table1.setItem(i - 1, j, QTableWidgetItem(str(self.table1_data[i, j])))
+        # table2
+        m, n = self.table2_data.shape
+        self.table2.setRowCount(m)
+        for i in range(0, m):
+            for j in range(0, n):
+                self.table2.setItem(i, j, QTableWidgetItem(str(self.table2_data[i, j])))
+        # table3
+        m, n = self.table3_data.shape
+        self.table3.setRowCount(m)
+        self.table3.setColumnCount(3)
+        for i in range(0, m):
+            for j in range(0, n):
+                self.table3.setItem(i, j, QTableWidgetItem(str(self.table3_data[i, j])))
 
     def section_refresh(self):
         # data

@@ -6,11 +6,9 @@ Dynamic Map
 
 Consider changing QGroupBoxes to QFrames with a QLabel title as per https://forum.qt.io/topic/80053/styling-qgroupbox-in-qt-design/8
 
-For 2/21/2024:
-Changing Temperature Changes it on table and enables heaters (just double check)
-Failure Modes have appropriate responses
-Format Tables - reduce cell width
+For 2/22/2024:
 Test-Bench
+Format Tables - reduce cell width
 embarking/disembarking/ticket sales
 
 
