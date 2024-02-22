@@ -138,7 +138,6 @@ class UITrain(QMainWindow):
         self.leftDoorValue_tb.stateChanged.connect(self.left_door_change)
         self.rightDoorValue_tb.stateChanged.connect(self.right_door_change)
 
-
         # show the app
         self.show()
 
@@ -171,7 +170,7 @@ class UITrain(QMainWindow):
         self.populate_values()
 
     def passenger_test(self):
-        self.train.station_passenger_update(random.randint(0,50))
+        self.train.station_passenger_update(random.randint(0, 50))
         self.populate_values()
 
     def set_pbrake(self):
@@ -394,4 +393,3 @@ class UITrain(QMainWindow):
 app = QApplication(sys.argv)
 UIWindow = UITrain()
 app.exec()
-

@@ -1037,7 +1037,7 @@
      </property>
      <property name="font">
       <font>
-       <pointsize>14</pointsize>
+       <pointsize>12</pointsize>
       </font>
      </property>
      <property name="text">
@@ -2019,7 +2019,7 @@
      <x>0</x>
      <y>0</y>
      <width>911</width>
-     <height>21</height>
+     <height>26</height>
     </rect>
    </property>
   </widget>

@@ -62,6 +62,9 @@ class TrainModel:
         else:
             self.power = pwr
 
+        if self.engine_failure:
+            self.power = 0
+
     def get_power(self):
         return self.power
 
@@ -223,12 +226,16 @@ class TrainModel:
 
     def set_commanded_velocity(self, c_speed):
         self.commanded_velocity = c_speed
+        if self.pickup_failure:
+            self.commanded_velocity = 0
 
     def get_commanded_velocity(self):
         return self.commanded_velocity
 
     def set_authority(self, auth):
         self.authority = auth
+        if self.pickup_failure:
+            self.authority = 0
 
     def get_authority(self):
         return self.authority
@@ -241,6 +248,7 @@ class TrainModel:
 
     def fail_engine(self):
         self.engine_failure = True
+        self.power = 0
 
     def fix_engine(self):
         self.engine_failure = False
@@ -250,6 +258,8 @@ class TrainModel:
 
     def fail_signal_pickup(self):
         self.pickup_failure = True
+        self.commanded_velocity = 0
+        self.authority = 0
 
     def fix_signal_pickup(self):
         self.pickup_failure = False
@@ -285,10 +295,13 @@ class TrainModel:
     def physics_calculation(self, time):
         # power is already delimited by the nature of set_power
         # if velocity = 0 when starting to move, kick-start
-        if self.velocity == 0 & (self.power != 0):
+        if (self.velocity == 0.0) and (self.power != 0.0):
             self.velocity = .1
 
         # force calculation
+        if self.velocity == 0:
+            return
+
         force_from_power = self.power / self.velocity
         prop_grade = self.grade / 100
         force_from_gravity = (-1 * self.total_mass * self.acc_due_to_gravity *
@@ -296,9 +309,9 @@ class TrainModel:
         # multiply by negative because the grade points in the wrong direction
         net_force = force_from_gravity + force_from_power
 
-        if self.passenger_emergency_status | self.driver_emergency_status:
+        if self.passenger_emergency_status or self.driver_emergency_status:
             net_force -= self.emergency_force
-        elif (not self.brake_failure) & self.service_status:
+        elif (not self.brake_failure) and self.service_status:
             net_force -= self.service_force
 
         # acceleration calculation
