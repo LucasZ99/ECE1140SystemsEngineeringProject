@@ -22,6 +22,17 @@ class AnimatedToggle(QCheckBox):
 
     _transparent_pen = QPen(Qt.GlobalColor.transparent)
     _light_grey_pen = QPen(Qt.GlobalColor.lightGray)
+    # light blue is
+    #   bar_color=Qt.GlobalColor.gray
+    #   checked_color="#00B0FF",
+    #   handle_color=Qt.GlobalColor.white,
+    #   pulse_unchecked_color="#44999999",
+    #   pulse_checked_color="#4400B0EE",
+    # red is
+    #   checked_color = "#FF0000",
+    #   handle_color = Qt.GlobalColor.white,
+    #   pulse_unchecked_color = "#44999999",
+    #   pulse_checked_color = "#FFCCCB",
 
     def __init__(
         self,

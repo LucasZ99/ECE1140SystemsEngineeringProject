@@ -6,9 +6,9 @@ from Track_Model import TrackModel
 from Track_Model_UI import Window
 
 
-t = TrackModel('Blue Line.xlsx')
-print(t.get_data())
-app = QApplication(sys.argv)
+# t = TrackModel('Blue Line.xlsx')
+# print(t.get_data()[:, -1])
+app = QApplication([])
 window = Window()
 window.show()
-sys.exit(app.exec())
+app.exec()

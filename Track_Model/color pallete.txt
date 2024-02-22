@@ -1,0 +1,7 @@
+black 353535
+green 99d98c
+white ffffff
+gray d9d9d9
+blue 284b63
+orange eb5e28
+red bc4749
