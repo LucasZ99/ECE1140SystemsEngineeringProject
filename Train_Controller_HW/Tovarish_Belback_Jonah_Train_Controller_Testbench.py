@@ -44,6 +44,7 @@ class TestBench_JEB382(QWidget):
     def __init__(self,numtrain,in_TrainModel_arr,ToggleBtn=None):#,verbose=False):
         super(TestBench_JEB382, self).__init__()
         self.setWindowTitle('TrainControllerHW TB #'+str(numtrain))
+        self.setFixedSize(874, 316)
         
         ICON = QIcon(os.getcwd()+"\icon.png")
         self.setWindowIcon(ICON)
@@ -204,7 +205,7 @@ class TestBench_JEB382(QWidget):
     #--------
     def gentxtbox(self):
         txtlab = better_label_ret("Beacon (128chars): 0x")
-        self.layout.addWidget(txtlab, 12, 0, 1, 1)
+        self.layout.addWidget(txtlab, 12, 0, 1, 4)
         self.textbox = QLineEdit()
         self.textbox.setFixedWidth(852)
         self.textbox.setText(self.TrainModel_arr[-1])
@@ -223,7 +224,7 @@ def better_button_ret(sizeW=True,sizeH=24,checkable=True,text="Off",style="backg
 
 def better_label_ret(text,size=10,bold=False):
     label = QLabel(text)
-    label.setFixedWidth(120)
+    #label.setFixedWidth(120)
     label.setStyleSheet(f"font-size: {size}pt; border: 0px; {'font-weight: bold;' if bold else ''}")
     return label
 
@@ -242,9 +243,10 @@ def gen_but_tog(but, text1=None,text2=None, style_on=None,style_off=None):
 
 def TB_mainloop_fast(numtrain,arr):
     while True:
-        print(f"TB TrainC #{numtrain}",arr)
         if w:
             w.update_TestBench_JEB382()
+            #arr = w.TrainModel_arr
+            print(f"TB TrainC #{numtrain}",w.TrainModel_arr)
             if not w.Thread1_active: break
         
         
@@ -256,7 +258,7 @@ def TB_pyqtloop(numtrain,arr):
     sys.exit(app.exec())
     
 def TB_fin(numtrain,arr):
-    t1 = threading.Thread(target=TB_pyqtloop, args=(numtrain,arr,))
+    t1 = threading.Thread(target=TB_pyqtloop, args=(numtrain,arr))
     t2 = threading.Thread(target=TB_mainloop_fast, args=(numtrain,arr))
  
     t1.start()
@@ -311,7 +313,8 @@ def test_TB():
         
 if __name__ == "__main__":
     numtrain=1
-    #TB_fin(numtrain,arr)
+    arr =[9]*30
+    TB_fin(numtrain,arr)
     
     
-    test_TB()
+    #test_TB()
