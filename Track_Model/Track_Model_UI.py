@@ -92,6 +92,7 @@ class Window(QMainWindow):
         self.table1.setColumnCount(7)
         self.table1.setHorizontalHeaderLabels(self.table1_data[0, :])
         self.table1.verticalHeader().setVisible(False)
+        self.table1.setMinimumWidth(300)
 
         for i in range(1, m):
             for j in range(0, n):
@@ -117,12 +118,15 @@ class Window(QMainWindow):
         m, n = self.table2_data.shape
         self.table2.setRowCount(m)
         self.table2.setColumnCount(7)
-        self.table2.setHorizontalHeaderLabels(['Station', 'Block', 'Side', 'Heaters',
-                                               'Embarking', 'Disembarking', 'Ticket Sales'])
+        self.table2.setHorizontalHeaderLabels(['Station', 'Block', 'Side', 'Heaters', 'Ticket Sales',
+                                               'Embarking', 'Disembarking'])
         self.table2.verticalHeader().setVisible(False)
         for i in range(0, m):
             for j in range(0, n):
                 self.table2.setItem(i, j, QTableWidgetItem(str(self.table2_data[i, j])))
+        # disembarking from TB
+        for i in range(0, m):
+            self.table2.setItem(i, 6, QTableWidgetItem('0'))
         ss_group_layout.addWidget(self.table2)
 
         self.table3 = QTableWidget()
@@ -354,6 +358,9 @@ class Window(QMainWindow):
         for i in range(0, m):
             for j in range(0, n):
                 self.table2.setItem(i, j, QTableWidgetItem(str(self.table2_data[i, j])))
+        # disembarking from TB
+        for i in range(0, m):
+            self.table2.setItem(i, 6, QTableWidgetItem('0'))
         # table3
         m, n = self.table3_data.shape
         self.table3.setRowCount(m)
@@ -380,6 +387,11 @@ class Window(QMainWindow):
         for i in range(0, m):
             for j in range(0, n):
                 self.table2.setItem(i, j, QTableWidgetItem(str(self.table2_data[i, j])))
+        # disembarking from TB
+        disembarking_passengers = self.test_bench_window.get_disembarking_passengers()
+        for i in range(0, m):
+            print(self.table2_data[i, 0])
+            self.table2.setItem(i, 6, QTableWidgetItem(str(disembarking_passengers[str(self.table2_data[i, 0])])))
         # table3
         m, n = self.table3_data.shape
         self.table3.setRowCount(m)
@@ -398,8 +410,12 @@ class Window(QMainWindow):
         self.combo3.addItems(self.str_list_blocks)
 
     def test_bench_button_clicked(self):
+        self.test_bench_window.apply_clicked.connect(self.on_apply_clicked)
         self.test_bench_window.show()
 
+    def on_apply_clicked(
+            self, commanded_speed, authority, switches, lights, rxr, train_presence, disembarking_passengers):
+        print(commanded_speed, authority, switches, lights, rxr, train_presence, disembarking_passengers)
 ##############################
 # Run app
 ##############################
