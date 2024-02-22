@@ -3,7 +3,7 @@ import os
 from PyQt6.QtWidgets import (
     QApplication, QWidget, QPushButton, QLineEdit, QGridLayout, QTableWidget, QGroupBox, QVBoxLayout,
     QTableWidget, QLabel, QSlider, QComboBox, QFileDialog, QTableView, QTableWidgetItem, QMainWindow,
-    QFrame, QHeaderView
+    QFrame, QHeaderView, QAbstractScrollArea
 )
 from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import Qt
@@ -77,13 +77,14 @@ class Window(QMainWindow):
         # u = (2, 4, 1, 1)
 
         # Selected Section
-        self.selected_section_group = QGroupBox("Selected Section (Section X)")
+        self.selected_section = 'A'
+        self.selected_section_group = QGroupBox(f"Selected Section (Section {self.selected_section})")
 
         ss_group_layout = QVBoxLayout()
 
         self.table1 = QTableWidget()
         self.table1.setAlternatingRowColors(True)
-        self.table1_data = self.track_model.get_block_table('A')
+        self.table1_data = self.track_model.get_block_table(self.selected_section)
 
         m, n = self.table1_data.shape
         self.table1.setRowCount(m-1)
@@ -96,9 +97,21 @@ class Window(QMainWindow):
                 self.table1.setItem(i-1, j, QTableWidgetItem(str(self.table1_data[i, j])))
         ss_group_layout.addWidget(self.table1)
 
+        # This more or less adjusts table size to valid width, but we want cell width to decrease
+        # self.table1.setVisible(False)
+        # self.table1.verticalScrollBar().setValue(0)
+        # self.table1.resizeColumnsToContents()
+        # self.table1.setVisible(True)
+        # width = self.table1.verticalHeader().width()
+        # width += self.table1.horizontalHeader().length()
+        # if self.table1.verticalScrollBar().isVisible():
+        #     width += self.table1.verticalScrollBar().width()
+        # width += self.table1.frameWidth() * 2
+        # self.table1.setFixedWidth(width)
+
         self.table2 = QTableWidget()
         self.table2.setAlternatingRowColors(True)
-        self.table2_data = self.track_model.get_station_table('A')
+        self.table2_data = self.track_model.get_station_table(self.selected_section)
 
         m, n = self.table2_data.shape
         self.table2.setRowCount(m)
@@ -113,7 +126,7 @@ class Window(QMainWindow):
 
         self.table3 = QTableWidget()
         self.table3.setAlternatingRowColors(True)
-        self.table3_data = self.track_model.get_infrastructure_table('A')
+        self.table3_data = self.track_model.get_infrastructure_table(self.selected_section)
 
         m, n = self.table3_data.shape
         self.table3.setRowCount(m)
@@ -143,17 +156,19 @@ class Window(QMainWindow):
         fm_group_layout.addWidget(f2_title, 1, 0)
         fm_group_layout.addWidget(f3_title, 2, 0)
 
-        int_list_blocks = list(range(1, 16))
-        str_list_blocks = list(map(str, int_list_blocks))
-        combo1 = QComboBox()
-        combo1.addItems(str_list_blocks)
-        combo2 = QComboBox()
-        combo2.addItems(str_list_blocks)
-        combo3 = QComboBox()
-        combo3.addItems(str_list_blocks)
-        fm_group_layout.addWidget(combo1, 0, 1)
-        fm_group_layout.addWidget(combo2, 1, 1)
-        fm_group_layout.addWidget(combo3, 2, 1)
+        self.str_list_blocks = list(self.table1_data[1:, 0].astype(str))
+        self.combo1 = QComboBox()
+        self.combo1.addItems(self.str_list_blocks)
+        self.combo2 = QComboBox()
+        self.combo2.addItems(self.str_list_blocks)
+        self.combo3 = QComboBox()
+        self.combo3.addItems(self.str_list_blocks)
+        self.combo1.setFixedSize(50, 25)
+        self.combo2.setFixedSize(50, 25)
+        self.combo3.setFixedSize(50, 25)
+        fm_group_layout.addWidget(self.combo1, 0, 1)
+        fm_group_layout.addWidget(self.combo2, 1, 1)
+        fm_group_layout.addWidget(self.combo3, 2, 1)
 
         toggle1 = AnimatedToggle()
         toggle1.setFixedSize(toggle1.sizeHint())
@@ -173,7 +188,7 @@ class Window(QMainWindow):
         tc_layout = QVBoxLayout()
 
         slider = QSlider(Qt.Orientation.Horizontal, self)
-        slider.setGeometry(50, 50, 200, 50)
+        slider.setGeometry(50, 50, 100, 50)  # this isn't doing anything rn
         slider.setMinimum(-40)
         slider.setMaximum(120)
         slider.setTickPosition(QSlider.TickPosition.TicksBelow)
@@ -193,8 +208,11 @@ class Window(QMainWindow):
         self.map_group = QGroupBox("Map")
         map_layout = QVBoxLayout()
 
-        dmap = DynamicMap()
-        map_layout.addWidget(dmap)
+        self.dynamic_map = DynamicMap()
+        self.dynamic_map.button_a.clicked.connect(self.button_a_clicked)
+        self.dynamic_map.button_b.clicked.connect(self.button_b_clicked)
+        self.dynamic_map.button_c.clicked.connect(self.button_c_clicked)
+        map_layout.addWidget(self.dynamic_map)
 
         self.map_group.setLayout(map_layout)
         layout.addWidget(self.map_group, 0, 2, 2, 3)
@@ -223,7 +241,13 @@ class Window(QMainWindow):
     ##############################
     def display_slider_value(self):
         self.slider_label.setText("Environmental Temperature:\n" + str(self.sender().value()) + "°F")
-        self.slider_label.adjustSize()  # Expands label size as numbers get larger
+        # self.slider_label.adjustSize()  # Expands label size as numbers get larger
+        self.track_model.set_env_temperature(self.sender().value())
+        if self.sender().value() <= 32:  # could check current heater value, but no need
+            self.track_model.set_heaters(1)  # we do not use bool b/c we need NaN value for non-heater blocks
+        else:
+            self.track_model.set_heaters(0)
+        self.section_refresh()  # we could write a new function for only refreshing tables 1&3, but no need
 
     def getFileName(self):
         # file browser dialog
@@ -245,6 +269,54 @@ class Window(QMainWindow):
 
         # return our new file name
         return self.file_name
+
+    def button_a_clicked(self):
+        self.selected_section = 'A'
+        self.section_refresh()
+
+    def button_b_clicked(self):
+        self.selected_section = 'B'
+        self.section_refresh()
+
+    def button_c_clicked(self):
+        self.selected_section = 'C'
+        self.section_refresh()
+
+    def section_refresh(self):
+        # data
+        self.table1_data = self.track_model.get_block_table(self.selected_section)
+        self.table2_data = self.track_model.get_station_table(self.selected_section)
+        self.table3_data = self.track_model.get_infrastructure_table(self.selected_section)
+        # table1
+        m, n = self.table1_data.shape
+        self.table1.setRowCount(m - 1)
+        self.table1.verticalHeader().setVisible(False)
+        for i in range(1, m):
+            for j in range(0, n):
+                self.table1.setItem(i - 1, j, QTableWidgetItem(str(self.table1_data[i, j])))
+        # table2
+        m, n = self.table2_data.shape
+        self.table2.setRowCount(m)
+        for i in range(0, m):
+            for j in range(0, n):
+                self.table2.setItem(i, j, QTableWidgetItem(str(self.table2_data[i, j])))
+        # table3
+        m, n = self.table3_data.shape
+        self.table3.setRowCount(m)
+        self.table3.setColumnCount(3)
+        for i in range(0, m):
+            for j in range(0, n):
+                self.table3.setItem(i, j, QTableWidgetItem(str(self.table3_data[i, j])))
+
+        # failure drop-downs
+        self.str_list_blocks = list(self.table1_data[1:, 0].astype(str))
+        self.combo1.clear()
+        self.combo2.clear()
+        self.combo3.clear()
+        self.combo1.addItems(self.str_list_blocks)
+        self.combo2.addItems(self.str_list_blocks)
+        self.combo3.addItems(self.str_list_blocks)
+
 
 ##############################
 # Run app

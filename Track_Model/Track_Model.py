@@ -11,6 +11,7 @@ class TrackModel:
         self.line_name = self.data[0, 0]
         self.num_blocks = len(self.data)
         self.ticket_sales = 0
+        self.environmental_temperature = 74
 
     def get_data(self):
         return self.data
@@ -57,7 +58,7 @@ class TrackModel:
         return block_table
 
     def get_station_table(self, section_id):
-        relevant_section_data = self.get_section(section_id)[:, [9, 2, 10]]
+        relevant_section_data = self.get_section(section_id)[:, [9, 2, 10, 12]]
         arr = relevant_section_data.copy()
         filtered_arr = arr[np.array(['Station' in str(x) for x in arr[:, 0]])]
 
@@ -67,6 +68,22 @@ class TrackModel:
         arr = self.get_section(section_id)[:, [9, 2, 11]]
         filtered_arr = arr[~np.isnan(np.array([len(str(x)) if isinstance(x, str) else x for x in arr[:, 0]]))]
         return filtered_arr
+
+    def set_env_temperature(self, temperature):
+        self.environmental_temperature = temperature
+        self.data[1:, 8] = temperature
+
+    def set_heaters(self, value):  # For now acts instantaneously, but may need to stimulate heating over time
+        heaters = self.data[1:, 12]
+        if value:
+            heaters[heaters == 0] = 1
+        else:
+            heaters[heaters == 1] = 0
+        for i in range(1, len(heaters) - 1):
+            if heaters[i] == 1:
+                self.data[i, 8] = 90
+
+
 
 
 

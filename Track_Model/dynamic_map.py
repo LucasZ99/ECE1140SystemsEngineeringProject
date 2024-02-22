@@ -34,13 +34,13 @@ class DynamicMap(QWidget):
         super().__init__()
         layout = QGridLayout()
 
-        button_a = DynamicMapSection("A")
-        button_b = DynamicMapSection("B")
-        button_c = DynamicMapSection("C")
-        layout.addWidget(button_a, 1, 0)
-        layout.addWidget(button_b, 0, 1)
-        layout.addWidget(button_c, 2, 1)
-        # TODO: Set spacing somehow
+        self.button_a = DynamicMapSection("A")
+        self.button_b = DynamicMapSection("B")
+        self.button_c = DynamicMapSection("C")
+        layout.addWidget(self.button_a, 1, 0)
+        layout.addWidget(self.button_b, 0, 1)
+        layout.addWidget(self.button_c, 2, 1)
+        # TODO: Set spacing somehow and eventually automate
         self.setLayout(layout)
 
 
