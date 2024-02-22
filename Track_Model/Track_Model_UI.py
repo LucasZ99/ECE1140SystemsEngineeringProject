@@ -10,7 +10,6 @@ from PyQt6.QtCore import Qt
 from Animated_Toggle import AnimatedToggle
 import sys
 from Track_Model import TrackModel
-from TableModel import TableModel
 from dynamic_map import DynamicMap
 
 
