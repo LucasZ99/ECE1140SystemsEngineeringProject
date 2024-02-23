@@ -35,3 +35,4 @@ if __name__ == "__main__":
     Temp_Pot = PotOhm(pA,pB)
     print(Temp_Pot.analog_read())
     # time.sleep(1)
+'''
