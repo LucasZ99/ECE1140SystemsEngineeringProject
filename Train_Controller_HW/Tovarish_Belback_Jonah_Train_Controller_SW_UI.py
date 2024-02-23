@@ -79,7 +79,7 @@ class SW_UI_JEB382(QMainWindow):
         
         self.numtrain = numtrain
         
-        in_output_arr = [0.0,0.0, False,False, False,False, False,False, 0.0, ""]
+        in_output_arr = [1.0,1.0, False,False, False,False, False,False, 0.0, ""]
         self.output_arr = in_output_arr
         
         #-------adjust arrays-------
@@ -108,7 +108,7 @@ class SW_UI_JEB382(QMainWindow):
         self.TrainModel_arr = in_TrainModel_arr
         
         #Driver_arr, is output, the inputted arr is just used for the variable reference
-        in_Driver_arr = [0.0, 0.0, 0.0, False, False, 0.0, False, False, False, False, False]
+        in_Driver_arr = [1.0, 1.0, 0.0, False, False, 0.0, False, False, False, False, False]
         
         print(in_Driver_arr); print(len(in_Driver_arr))#debug
         self.SW_Driver_arr = in_Driver_arr[:]#make copy, detach from other ware
@@ -168,7 +168,7 @@ class SW_UI_JEB382(QMainWindow):
         if not(self.init_comp and self.isVisible() ): return
         try:
             #----get values of all the TCKs and BTNs; put in Driver_arr
-            if self.BTN_Mode.isChecked() or skip:   #update the array if its manual mode
+            if self.BTN_Mode.isChecked():   #update the array if its manual mode
                 self.SW_Driver_arr[0] = self.TCK_Kp.value()    #2_1
                 self.SW_Driver_arr[1] = self.TCK_Ki.value()
                 self.SW_Driver_arr[2] = self.TCK_CmdSpd.value()
@@ -222,28 +222,47 @@ class SW_UI_JEB382(QMainWindow):
             self.aux1=self.Driver_arr[:]
             self.aux2=self.TrainModel_arr[:]
             
-            commandspd=0
-            if self.BTN_Mode.isChecked():
-                commandspd = self.Driver_arr[2]%self.TrainModel_arr[3]
-            else:
-                commandspd = self.TrainModel_arr[1]%self.TrainModel_arr[3]
-            if commandspd/self.output_arr[1] > self.TrainModel_arr[4]:
-                commandspd = commandspd*self.TrainModel_arr[4] #correct with acceleration limit
-            self.output_arr[0] = commandspd
-            self.output_arr[1] = self.Driver_arr[0]+(self.Driver_arr[1]/commandspd) #pwr= Kp+(Ki/s)
+            #print("DRV",self.Driver_arr)
+            #print("TRM",self.TrainModel_arr)
+            #print("OUT",self.output_arr)
+            
+            
             self.output_arr[2] = self.Driver_arr[9]
-            self.output_arr[3] = self.Driver_arr[8]
+            self.output_arr[3] = self.Driver_arr[8] or (self.TrainModel_arr[5] and not self.Driver_arr[10])
             self.output_arr[4] = self.Driver_arr[3] #or \/\/\/\/ or if beacon give info that its underground (undetermined)
             self.output_arr[5] = self.Driver_arr[4] #or ^^^^ or if its night outside, in overall integration time var
             self.output_arr[6] = (self.Driver_arr[6] and self.BTN_Mode.isChecked()) or self.TrainModel_arr[7]%2==1 #at station or overwriten
             self.output_arr[7] = (self.Driver_arr[7] and self.BTN_Mode.isChecked()) or self.TrainModel_arr[7]>1 #at station or overwriten
             self.output_arr[8] = self.Driver_arr[5]
             self.output_arr[9] = str(self.TrainModel_arr[-1])[0:20].replace("0", "") + " Station"
-            if main_ouput: print(f"OUT TrainC #{numtrain}",self.output_arr)
             
-            #if not self.TB_window.isVisible():
-            print(f"TrainC #{1}",self.Driver_arr)
             
+            if self.output_arr[3] or self.TrainModel_arr[-3] or self.TrainModel_arr[-2]:
+                self.output_arr[0] = 0
+                self.output_arr[1] = 0
+                return
+            
+            commandspd=0
+            if self.BTN_Mode.isChecked(): commandspd = self.Driver_arr[2]
+            else: commandspd = self.TrainModel_arr[1]
+            
+            #if commandspd >self.TrainModel_arr[3] or self.TrainModel_arr[0]> self.TrainModel_arr[3]: commandspd=self.TrainModel_arr[3]
+            #if self.output_arr[0] != 0: if commandspd/self.self.output_arr[0] > self.TrainModel_arr[4]: commandspd = (commandspd*self.TrainModel_arr[4]) #correct with acceleration limit
+            if commandspd >self.TrainModel_arr[3] or self.TrainModel_arr[0]> self.TrainModel_arr[3]:
+                self.output_arr[0]=self.TrainModel_arr[3]
+                self.output_arr[1] = 0
+            else:
+                self.output_arr[0] = commandspd
+                self.output_arr[1] = self.Driver_arr[0]+(self.Driver_arr[1]/(commandspd-self.TrainModel_arr[0])) #pwr= Kp+(Ki/s)
+            #print("CCCCC")
+            #if main_ouput: print(f"OUT TrainC #{numtrain}",self.output_arr)
+            
+            #if not self.TB_window.isVisible(): print(f"TrainC #{1}",self.Driver_arr)
+            if self.TrainModel_arr[2] == 0:
+                self.output_arr[0] = 0
+                self.output_arr[1] = 0
+                self.output_arr[3] = True
+                
         except Exception as e:
             #print("update:",e)
             return
@@ -337,7 +356,7 @@ class SW_UI_JEB382(QMainWindow):
     def BTNF_HW(self):
         gen_but_tog(self.BTN_HW,"Engage HW","Engage HW")
         if self.BTN_HW.isChecked():
-            self.Driver_arr = self.HW_UI_JEB382.Driver_arr
+            self.Driver_arr = self.HW_UI_JEB382.Driver_arr#self.HW_UI_JEB382.Driver_arr
             self.Ware = 1
         else:
             self.Driver_arr = self.SW_Driver_arr
@@ -472,10 +491,12 @@ class SW_UI_JEB382(QMainWindow):
         
         #individually make rest of section
         self.TCK_Kp = QDoubleSpinBox()
+        self.TCK_Kp.setValue(self.Driver_arr[0])
         self.TCK_Kp.valueChanged.connect(self.TCKF_Kp)
         self.TCK_Kp.setDisabled(True)
         self.layout.addWidget(self.TCK_Kp, OriginY+1, OriginX+1, 1, 1)
         self.TCK_Ki = QDoubleSpinBox()
+        self.TCK_Ki.setValue(self.Driver_arr[1])
         self.TCK_Ki.valueChanged.connect(self.TCKF_Ki)
         self.TCK_Ki.setDisabled(True)
         self.layout.addWidget(self.TCK_Ki, OriginY+2, OriginX+1, 1, 1)
@@ -654,19 +675,19 @@ def LED_tog(but,checked, overwrite1="On", overwrite2="Off"):
 import time
 def SW_mainloop_fast(numtrain,Driver_arr,TrainModel_arr,output_arr):
     time.sleep(2)
-    try:
-        while True:
-            if w:
-                if w.TB_window.isVisible():
-                    if not main_ouput: print(f"TB TrainC #{numtrain}",w.TrainModel_arr)
-                    w.TB_window.update_TestBench_JEB382()
-                    if not w.TB_window.Thread1_active: break
-                w.update_SW_UI_JEB382()
-                #if not w.TB_window.isVisible() and not main_ouput: print(f"SW TrainC #{numtrain}",w.Driver_arr)
-                #if main_ouput: print(f"OUT TrainC #{numtrain}",w.output_arr)
-    except Exception as e:
+    #try:
+    while True:
+        if w:
+            if w.TB_window.isVisible():
+                if not main_ouput: print(f"TB TrainC #{numtrain}",w.TrainModel_arr)
+                w.TB_window.update_TestBench_JEB382()
+                if not w.TB_window.Thread1_active: break
+            w.update_SW_UI_JEB382()
+            if not w.TB_window.isVisible() and not main_ouput: print(f"SW TrainC #{numtrain}",w.Driver_arr)
+            if main_ouput: print(f"OUT TrainC #{numtrain}",w.output_arr)
+    '''except Exception as e:
         print("MAINLOOP:",e)
-        #print("TB done; minor err")
+        #print("TB done; minor err")'''
 
 def SW_pyqtloop(numtrain,main_Driver_arr,main_TrainModel_arr,main_output_arr):
     app = QApplication(sys.argv)
@@ -693,9 +714,10 @@ if __name__ == "__main__":
     
     numtrain=1
     main_Driver_arr = [12.00]*90    #gets copied, is meant to get u
-    main_TrainModel_arr = [7.00]*90
+    main_TrainModel_arr = [5.0, 12.0, 10.0, 9.0, 9.0, True, True, 0, True, True, True,
+                           '000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000007.0']#[7.00]*90
     main_output_arr = [7.00]*90
     
-    main_ouput=False
-    #SW_fin(numtrain,main_Driver_arr,main_TrainModel_arr,main_output_arr)
-    SW_pyqtloop(numtrain,main_Driver_arr,main_TrainModel_arr,main_output_arr)
+    main_ouput=True
+    SW_fin(numtrain,main_Driver_arr,main_TrainModel_arr,main_output_arr)
+    #SW_pyqtloop(numtrain,main_Driver_arr,main_TrainModel_arr,main_output_arr)

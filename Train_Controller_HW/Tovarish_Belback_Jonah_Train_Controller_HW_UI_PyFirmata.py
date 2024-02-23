@@ -118,8 +118,8 @@ import time
 if __name__ == "__main__":
     Arduino = True
     
-    main_Driver_arr = [0.0, 0.0, 0.0, False, False, 0.0, False, False, False, False, False]
-    main_TrainModel_arr = [0.0, 0.0, 0.0, 0.0, 0.0, False, False, 0, False, False,False,
+    main_Driver_arr = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    main_TrainModel_arr = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0.0, 0.0,0.0,
                            "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"]
     w = HW_UI_JEB382_PyFirmat(main_Driver_arr,main_TrainModel_arr)
     
