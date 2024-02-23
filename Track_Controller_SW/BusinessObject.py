@@ -29,7 +29,7 @@ class BusinessLogic(QObject):
 
     @pyqtSlot(int)
     def switches_changed(self, index):
-        print("Switch changed")
+        print(f"Switch at b{self.switches_arr[index].block} changed")
         self.switches_arr[index].toggle()
         if self.switches_arr[index].current_pos == self.switches_arr[index].pos_a:
             self.light_signal.emit(self.switches_arr[index].pos_a)

@@ -4,42 +4,48 @@ import numpy as np
 from PyQt6 import QtCore
 from PyQt6.QtCore import pyqtSignal, pyqtSlot
 from PyQt6.QtWidgets import QFileDialog, QMainWindow, QWidget, QVBoxLayout, QPushButton, QLabel, \
-    QLCDNumber, QListWidgetItem
+    QLCDNumber, QListWidgetItem, QButtonGroup
 from PyQt6.uic import loadUi
 
 import TestBench
 
 
 class ManualMode(QWidget):
+
     switch_changed_signal = pyqtSignal(int)
 
     def __init__(self, business_logic):
         super().__init__()
-        self.setWindowTitle('Manual Mode')
+        self.setWindowTitle('Maintenance Mode')
         self.setMinimumSize(200, 200)
         self.layout = QVBoxLayout(self)
         self.business_logic = business_logic
         self.switches_arr = np.copy(business_logic.switches_arr)
 
-        self.switch_button_dict = {}
-        self.button_array = []
-        count = 0
+        # self.switch_button_dict = {}
+        # self.button_array = []
+        self.switch_button_group = QButtonGroup()
+        button_id = 0
         for switch in self.switches_arr:
-            count += 1
+
             button = self.switch_button_ret(
                 size=200,
-                text1=f"Facing Block {switch.current_pos}",
-                text2=f"Facing Block {switch.pos_b if switch.current_pos == switch.pos_a else switch.pos_a}")
-            self.layout.addWidget(button)
-            self.button_array.append(button)
-            self.key = f"switch_button_{count}"
-            exec(self.key + '=button')
-            # address switches by their button
-            self.switch_button_dict[self.key] = switch
+                text1=f"Switch at Block {switch.block}")
 
-    def switch_button_ret(self, size=None, text1=None, text2=None, checkable=True, style1=None, style2=None):
-        if text1 and not text2:
-            text2 = text1
+            # self.button_array.append(button)
+            # self.key = f"switch_button_{button_id}"
+            self.switch_button_group.addButton(button, button_id)
+            button_id += 1
+            # exec(self.key + '=button')
+            # address switches by their button
+            # self.switch_button_dict[self.key] = switch
+            self.layout.addWidget(button)
+        self.switch_button_group.buttonClicked.connect(self.switch_button_pressed)
+
+    def switch_button_pressed(self, button):
+        QtCore.QMetaObject.invokeMethod(self, "switch_changed_signal",
+                                        QtCore.Q_ARG(int, self.switch_button_group.id(button)))
+    def switch_button_ret(self, size=None, text1=None, checkable=True, style1=None, style2=None):
         button = QPushButton()
         button.setCheckable(checkable)
         button.setFixedHeight(24)
@@ -50,46 +56,9 @@ class ManualMode(QWidget):
                 button.setText(text1)
             else:
                 button.setText("Off")
-            button.clicked.connect(
-                functools.partial(self.switch_but_tog, but=button, text1=text1, text2=text2, style_on=style1,
-                                  style_off=style2))
-        else:
-            # button.setStyleSheet("background-color: rgb(222, 62, 38); border: 2px solid rgb(222, 0, 0); border-radius: 4px")
-            if text1:
-                button.setText(text2)
         if size:
             button.setFixedWidth(size)
         return button
-
-    def switch_but_tog(self, but, text1=None, text2=None, style_on=None, style_off=None):
-        if but.isChecked():
-            # but.setStyleSheet(
-            #     f"{style_on if style_on else 'background-color: rgb(143, 186, 255);
-            #     border: 2px solid rgb( 42,  97, 184);
-            #     border-radius: 6px'}")
-            if text1:
-                but.setText(text2)
-            else:
-                but.setText("On")
-        else:
-            # but.setStyleSheet(
-            #     f"{style_off if style_off else 'background-color: rgb(156, 156, 156);
-            #     border: 2px solid rgb(100, 100, 100);
-            #     border-radius: 6px'}")
-            if text1:
-                but.setText(text1)
-            else:
-                but.setText("Off")
-
-        self.handle_toggle(0)
-
-    def update_switch(self, index):
-
-        QtCore.QMetaObject.invokeMethod(self, "switch_changed_signal",
-                                        QtCore.Q_ARG(int, index))
-
-    def handle_toggle(self, index):
-        self.update_switch(index)
 
 
 class UI(QMainWindow):
@@ -167,7 +136,7 @@ class UI(QMainWindow):
         if light_num == 6:
             self.light_b6.setStyleSheet("background-color: rgb(0, 224, 34)")  # Green
             self.light_b11.setStyleSheet("background-color: rgb(222, 62, 38)")  # Red
-        else:
+        elif light_num == 11:
             self.light_b6.setStyleSheet("background-color: rgb(222, 62, 38)")
             self.light_b11.setStyleSheet("background-color: rgb(0, 224, 34)")
 

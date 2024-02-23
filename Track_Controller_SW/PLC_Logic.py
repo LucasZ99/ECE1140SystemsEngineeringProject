@@ -6,6 +6,6 @@ class ParsePlc(QObject):
         super().__init__()
         self.filepath = None
 
-    def set_filepath(self, filepath)
+    def set_filepath(self, filepath):
         self.filepath = filepath
         print(f"filepath: {self.filepath}")

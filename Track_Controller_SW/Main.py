@@ -9,7 +9,9 @@ import tc_ui
 
 
 def main():
-    switches_arr = [switching.Switch(5, 6, 11, 6)]
+    switches_arr = [switching.Switch(5, 6, 11, 6),
+                    switching.Switch(8, 9, 18, 9)
+                    ]
     plc_logic = PLC_Logic.ParsePlc()
     block_occupancy = [False] * 16
     authority = True

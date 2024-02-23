@@ -1,7 +1,8 @@
 import numpy as np
 from PyQt6 import QtCore
 from PyQt6.QtCore import pyqtSignal, QCoreApplication
-from PyQt6.QtWidgets import QMainWindow, QWidget, QTextEdit, QPushButton, QLabel, QComboBox, QCheckBox, QGroupBox
+from PyQt6.QtWidgets import QMainWindow, QWidget, QTextEdit, QPushButton, QLabel, QComboBox, QCheckBox, QGroupBox, \
+    QLineEdit
 
 
 class TbMainWindow(QMainWindow):
@@ -26,7 +27,7 @@ class TbMainWindow(QMainWindow):
         self.centralwidget = QWidget(parent=self)
         self.centralwidget.setObjectName("centralwidget")
 
-        self.sug_speed = QTextEdit(parent=self.centralwidget)
+        self.sug_speed = QLineEdit(parent=self.centralwidget)
         self.sug_speed.setGeometry(140, 210, 104, 31)
         self.sug_speed.setObjectName("textEdit")
 
@@ -120,7 +121,7 @@ class TbMainWindow(QMainWindow):
         self.comboBox_3.currentIndexChanged.connect(self.bl_status_handler)
         self.authority_check.stateChanged.connect(self.auth_handler)
         # TODO - Figure out how to implement read delay
-        self.sug_speed.textChanged.connect(self.sug_speed_text_handler)
+        self.sug_speed.editingFinished.connect(self.sug_speed_text_handler)
         self.show()
 
     def retranslate_ui(self, MainWindow):
@@ -142,7 +143,7 @@ class TbMainWindow(QMainWindow):
     # Handlers:
     def sw_toggle_handler(self):
         QtCore.QMetaObject.invokeMethod(self, "switch_changed_signal",
-                                        QtCore.Q_ARG(int, self.comboBox_3.currentIndex()))
+                                        QtCore.Q_ARG(int, self.comboBox.currentIndex()))
 
     def bl_status_handler(self):  # New block is selected from the dropdown menu
         if self.blocks[self.comboBox_3.currentIndex()] == 'O':
@@ -170,7 +171,7 @@ class TbMainWindow(QMainWindow):
                                             QtCore.Q_ARG(bool, False))
 
     def sug_speed_text_handler(self):
-        text = self.sug_speed.toPlainText()  # checking to see if it is a valid integer
+        text = self.sug_speed.text()  # checking to see if it is a valid integer
         if text.isnumeric() or text.replace(".", "").isnumeric():  # text must be an int or float
             value = float(text)
             if value <= 0:

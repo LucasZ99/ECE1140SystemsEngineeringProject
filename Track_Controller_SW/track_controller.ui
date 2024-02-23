@@ -23,9 +23,9 @@
    <widget class="QPushButton" name="manual_mode">
     <property name="geometry">
      <rect>
-      <x>80</x>
-      <y>90</y>
-      <width>221</width>
+      <x>50</x>
+      <y>100</y>
+      <width>271</width>
       <height>81</height>
      </rect>
     </property>
@@ -44,7 +44,7 @@
      <cursorShape>PointingHandCursor</cursorShape>
     </property>
     <property name="text">
-     <string>Manual Mode</string>
+     <string>Maintenance Mode</string>
     </property>
    </widget>
    <widget class="QPushButton" name="browse">
@@ -242,7 +242,7 @@
      <x>0</x>
      <y>0</y>
      <width>757</width>
-     <height>21</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuTrack_Controller_UI">
