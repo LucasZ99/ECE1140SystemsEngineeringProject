@@ -232,9 +232,6 @@ class TestBenchWindow(QWidget):
     def display(self):
         self.show()
 
-    # helpers
-    def get_disembarking_passengers(self):
-        return self.disembarking_passengers
 
 # app = QApplication([])
 # window = TestBenchWindow()

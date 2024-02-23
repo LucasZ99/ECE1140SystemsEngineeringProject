@@ -124,9 +124,6 @@ class Window(QMainWindow):
         for i in range(0, m):
             for j in range(0, n):
                 self.table2.setItem(i, j, QTableWidgetItem(str(self.table2_data[i, j])))
-        # disembarking from TB
-        for i in range(0, m):
-            self.table2.setItem(i, 6, QTableWidgetItem('0'))
         ss_group_layout.addWidget(self.table2)
 
         self.table3 = QTableWidget()
@@ -358,9 +355,6 @@ class Window(QMainWindow):
         for i in range(0, m):
             for j in range(0, n):
                 self.table2.setItem(i, j, QTableWidgetItem(str(self.table2_data[i, j])))
-        # disembarking from TB
-        for i in range(0, m):
-            self.table2.setItem(i, 6, QTableWidgetItem('0'))
         # table3
         m, n = self.table3_data.shape
         self.table3.setRowCount(m)
@@ -387,11 +381,6 @@ class Window(QMainWindow):
         for i in range(0, m):
             for j in range(0, n):
                 self.table2.setItem(i, j, QTableWidgetItem(str(self.table2_data[i, j])))
-        # disembarking from TB
-        disembarking_passengers = self.test_bench_window.get_disembarking_passengers()
-        for i in range(0, m):
-            print(self.table2_data[i, 0])
-            self.table2.setItem(i, 6, QTableWidgetItem(str(disembarking_passengers[str(self.table2_data[i, 0])])))
         # table3
         m, n = self.table3_data.shape
         self.table3.setRowCount(m)
@@ -416,6 +405,23 @@ class Window(QMainWindow):
     def on_apply_clicked(
             self, commanded_speed, authority, switches, lights, rxr, train_presence, disembarking_passengers):
         print(commanded_speed, authority, switches, lights, rxr, train_presence, disembarking_passengers)
+        # update switches
+
+        # update lights
+
+        # update rxr
+
+        # update train presence
+        # for i in range(1, self.track_model.get_num_blocks):
+        #     self.track_model.set_occupancy_from_train_presence(i, train_presence[i])
+        # update disembarking passengers
+
+        # disembarking from TB
+        # for i in range(0, m):
+        #     self.table2.setItem(i, 6, QTableWidgetItem('0'))
+
+        # refresh tables
+        self.section_refresh()
 ##############################
 # Run app
 ##############################

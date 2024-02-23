@@ -116,3 +116,10 @@ class TrackModel:
             self.set_block_occupancy(block, 1)
         else:
             self.set_block_occupancy(block, 0)
+
+    def set_occupancy_from_train_presence(self, block, presence):
+        br = self.data[block, 15]
+        if br:
+            self.set_block_occupancy(block, 0)
+        else:
+            self.set_block_occupancy(block, presence)
