@@ -20,3 +20,37 @@ embarking/disembarking/ticket sales
 Show Block occupancy on map?
 Real Time simulation?
 
+
+Integration:
+
+Inputs
+name - what we do w/ it - dtype - example - units
+    Track Controller:
+        Commanded Speed - just passing - float - 50, m/s
+        Authority - just passing - float - 100, m
+        Switch Position - updates switch positions - [int, bool] - [5, True] - Block ID, Left/Right
+        Signal Activation - updates signal positions - [int, bool] - [5, True] - Block ID, Green/Red
+        Rail Road Crossing - updates rail-road positions - [int, bool] - [5, True], Idle/Active
+    Train Model:
+        Train Presence Changed - used to find block occupancy - int - 1 - number of blocks moved since last time it was sent
+        Disembarking Passengers - updates disembarking passengers @ station - [int, int] - [11, 52] - Station Block ID, Num Passengers Disembarking
+
+Outputs
+name - where we get it - dtype - example - units
+    Track Controller:
+        Block Occupancy -
+        Track Information -
+    Train Model:
+        Commanded Speed - from track controller input - float - 50, m/s
+        Authority - from track controller input - float - 100, m
+        Beacon - track layout data @ index of block train is occupying - string - any 128 char msg
+        Limits - track layout data @ index of block train is occupying - int - 70 - km/h
+        Grade - track layout data @ index of block train is occupying - int - 10 - %
+        Elevation - track layout data @ index of block train is occupying - float - 1.5 - cumulative m
+        Underground - track layout data @ index of block train is occupying - bool - False - underground/above-ground
+    CTC:
+        Ticket Sales - randomly generated reasonable number - int - 524 - number of ticket sales total
+
+MISC
+    Embarking - random portion of ticket sales
+    Block Occupancy from train presence - We only know when trains are dispatched from yard and when trains move to next block
