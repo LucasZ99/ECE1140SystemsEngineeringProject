@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>911</width>
-    <height>520</height>
+    <width>915</width>
+    <height>529</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -253,7 +253,7 @@
       <enum>QFrame::NoFrame</enum>
      </property>
      <property name="text">
-      <string># mph&lt;sup&gt;2</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;# ft/s&lt;span style=&quot; vertical-align:super;&quot;&gt;2&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
     </widget>
     <widget class="QLabel" name="speedLabel">
@@ -1030,9 +1030,9 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>230</y>
+       <y>220</y>
        <width>151</width>
-       <height>71</height>
+       <height>141</height>
       </rect>
      </property>
      <property name="font">
@@ -1041,14 +1041,24 @@
       </font>
      </property>
      <property name="text">
-      <string>Emergency Only</string>
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset theme="danger">
+       <normaloff>red_triangle.jpg</normaloff>red_triangle.jpg</iconset>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>135</width>
+       <height>135</height>
+      </size>
      </property>
     </widget>
     <widget class="QCheckBox" name="tbCheck">
      <property name="geometry">
       <rect>
        <x>40</x>
-       <y>350</y>
+       <y>380</y>
        <width>91</width>
        <height>20</height>
       </rect>
@@ -1243,7 +1253,7 @@
       <enum>QFrame::NoFrame</enum>
      </property>
      <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;mph&lt;span style=&quot; vertical-align:super;&quot;&gt;2&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;ft/s&lt;span style=&quot; vertical-align:super;&quot;&gt;2&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
     </widget>
     <widget class="QLabel" name="speedLabel_tb">
@@ -2018,8 +2028,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>911</width>
-     <height>26</height>
+     <width>915</width>
+     <height>21</height>
     </rect>
    </property>
   </widget>

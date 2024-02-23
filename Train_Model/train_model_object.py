@@ -77,7 +77,10 @@ class TrainModel:
         return self.ID
 
     def set_velocity(self, vel):
-        self.velocity = vel
+        if vel <= 0:
+            self.velocity = 0
+        else:
+            self.velocity = vel
 
     def get_velocity(self):
         return self.velocity
@@ -300,9 +303,10 @@ class TrainModel:
 
         # force calculation
         if self.velocity == 0:
-            return
+            force_from_power = 0
+        else:
+            force_from_power = self.power / self.velocity
 
-        force_from_power = self.power / self.velocity
         prop_grade = self.grade / 100
         force_from_gravity = (-1 * self.total_mass * self.acc_due_to_gravity *
                               prop_grade / math.sqrt(1 + prop_grade * prop_grade))

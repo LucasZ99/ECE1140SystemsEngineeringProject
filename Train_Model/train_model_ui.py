@@ -1,8 +1,11 @@
 import sys
+
+from PyQt5.QtGui import QIcon
+
 import train_model_object
 from PyQt5 import uic
 from PyQt5.QtWidgets import (QMainWindow, QApplication, QLabel, QPushButton, QGroupBox,
-                             QCheckBox, QComboBox, QProgressBar, QLineEdit)
+                             QCheckBox, QComboBox, QProgressBar, QLineEdit, QFileIconProvider)
 import random
 
 
@@ -102,6 +105,8 @@ class UITrain(QMainWindow):
         self.populate_values()
 
         # define behavior
+        self.emerButton.setIcon(QIcon("red_triangle.png"))
+
         self.phyGroup_tb.hide()
         self.trainGroup_tb.hide()
         self.transGroup_tb.hide()
@@ -184,7 +189,7 @@ class UITrain(QMainWindow):
         self.populate_values()
 
     def acc_change(self):
-        self.train.set_acceleration(float(self.accValue_tb.text()) * 5280 / self.feet_per_meter / 3600 / 3600)
+        self.train.set_acceleration(float(self.accValue_tb.text()) / self.feet_per_meter)
         self.populate_values()
 
     def speed_change(self):
@@ -307,8 +312,8 @@ class UITrain(QMainWindow):
         self.powerValue.setText(f'{self.train.get_power(): .2f} W')
         self.powerValue_tb.setText(f'{self.train.get_power(): .2f}')
         self.accValue.setText(
-            f"{self.train.get_acceleration() * self.feet_per_meter * 3600 * 3600 / 5280: .2f} mph<sup>2")
-        self.accValue_tb.setText(f"{self.train.get_acceleration() * self.feet_per_meter * 3600 * 3600 / 5280: .2f}")
+            f"{self.train.get_acceleration() * self.feet_per_meter: .2f} ft/s<sup>2")
+        self.accValue_tb.setText(f"{self.train.get_acceleration() * self.feet_per_meter: .2f}")
         self.speedValue.setText(f'{self.train.get_velocity() * self.feet_per_meter * 3600 / 5280: .2f} mph')
         self.speedValue_tb.setText(f'{self.train.get_velocity() * self.feet_per_meter * 3600 / 5280: .2f}')
         self.totMassValue.setText(f'{self.train.get_total_mass() * self.tons_per_kilogram: .2f} Tons')
