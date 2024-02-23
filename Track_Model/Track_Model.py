@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import sys
+import random
 
 
 class TrackModel:
@@ -12,6 +13,11 @@ class TrackModel:
         self.num_blocks = len(self.data)
         self.ticket_sales = 0
         self.environmental_temperature = 74
+        # giving random embarking num and ticket sales
+        for i in range(0, self.num_blocks):
+            if self.data[i, 16] == 0:
+                self.data[i, 16] = random.randint(1, 100)
+                self.data[i, 17] = random.randint(1, self.data[i, 16])
 
     def get_data(self):
         return self.data
@@ -58,7 +64,7 @@ class TrackModel:
         return block_table
 
     def get_station_table(self, section_id):
-        relevant_section_data = self.get_section(section_id)[:, [9, 2, 10, 12]]
+        relevant_section_data = self.get_section(section_id)[:, [9, 2, 10, 12, 16, 17]]
         arr = relevant_section_data.copy()
         filtered_arr = arr[np.array(['Station' in str(x) for x in arr[:, 0]])]
 
@@ -110,3 +116,10 @@ class TrackModel:
             self.set_block_occupancy(block, 1)
         else:
             self.set_block_occupancy(block, 0)
+
+    def set_occupancy_from_train_presence(self, block, presence):
+        br = self.data[block, 15]
+        if br:
+            self.set_block_occupancy(block, 0)
+        else:
+            self.set_block_occupancy(block, presence)

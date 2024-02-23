@@ -92,6 +92,7 @@ class Window(QMainWindow):
         self.table1.setColumnCount(7)
         self.table1.setHorizontalHeaderLabels(self.table1_data[0, :])
         self.table1.verticalHeader().setVisible(False)
+        self.table1.setMinimumWidth(300)
 
         for i in range(1, m):
             for j in range(0, n):
@@ -117,8 +118,8 @@ class Window(QMainWindow):
         m, n = self.table2_data.shape
         self.table2.setRowCount(m)
         self.table2.setColumnCount(7)
-        self.table2.setHorizontalHeaderLabels(['Station', 'Block', 'Side', 'Heaters',
-                                               'Embarking', 'Disembarking', 'Ticket Sales'])
+        self.table2.setHorizontalHeaderLabels(['Station', 'Block', 'Side', 'Heaters', 'Ticket Sales',
+                                               'Embarking', 'Disembarking'])
         self.table2.verticalHeader().setVisible(False)
         for i in range(0, m):
             for j in range(0, n):
@@ -398,8 +399,29 @@ class Window(QMainWindow):
         self.combo3.addItems(self.str_list_blocks)
 
     def test_bench_button_clicked(self):
+        self.test_bench_window.apply_clicked.connect(self.on_apply_clicked)
         self.test_bench_window.show()
 
+    def on_apply_clicked(
+            self, commanded_speed, authority, switches, lights, rxr, train_presence, disembarking_passengers):
+        print(commanded_speed, authority, switches, lights, rxr, train_presence, disembarking_passengers)
+        # update switches
+
+        # update lights
+
+        # update rxr
+
+        # update train presence
+        # for i in range(1, self.track_model.get_num_blocks):
+        #     self.track_model.set_occupancy_from_train_presence(i, train_presence[i])
+        # update disembarking passengers
+
+        # disembarking from TB
+        # for i in range(0, m):
+        #     self.table2.setItem(i, 6, QTableWidgetItem('0'))
+
+        # refresh tables
+        self.section_refresh()
 ##############################
 # Run app
 ##############################
