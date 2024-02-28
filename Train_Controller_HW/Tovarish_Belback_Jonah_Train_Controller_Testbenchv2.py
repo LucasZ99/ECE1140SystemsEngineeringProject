@@ -41,7 +41,7 @@ global glob_TB
 glob_TB = None
 
 class TestBench_JEB382(QWidget):
-    def __init__(self,numtrain,in_TrainModel_arr,ToggleBtn=None):#,verbose=False):
+    def __init__(self,numtrain,in_TrainModel_arr,app=None):#,verbose=False):
         super(TestBench_JEB382, self).__init__()
         self.setWindowTitle('TrainControllerHW TB #'+str(numtrain))
         self.setFixedSize(874, 316)
@@ -74,9 +74,6 @@ class TestBench_JEB382(QWidget):
         
         self.TrainModel_arr = in_TrainModel_arr
         #print(TrainModel_arr)
-        
-        #SW UI passthrough
-        self.ToggleBtn = ToggleBtn
                 
         #self.resize(800, 600)
         self.layout = QGridLayout(self)
@@ -94,47 +91,58 @@ class TestBench_JEB382(QWidget):
         self.genbuttons()
         self.gentxtbox()
         self.Thread1_active = True
-        
-        #pyfrimata edition
-        #while True: self.update_TestBench_JEB382()
+        self.app = app
     
     #--------
     def genTCKs(self):
         
         self.ticks = []
-        tickNames1 = ["Actual Speed:","Commanded Speed","Vital Authority","Speed Limit","Accel/Decel Limit"]
-        tickNames2 = ["MPH"          ,"MPH"            ,"Miles"          ,"MPH"        ,"MPH/s"]
+        tickNames1 = ["Actual Speed:","Commanded Speed","Vital Authority","Speed Limit","Accel Limit","Decel Limit"]
+        tickNames2 = ["MPH"          ,"MPH"            ,"Miles"          ,"MPH"        ,"MPH/s"      ,"MPH/s"]
         
         # generates tickboxes and names with names from array
         for i in range(1,len(tickNames1)+1):
             label1 = better_label_ret(tickNames1[i-1])
             self.layout.addWidget(label1, i, 0, 1, 1)
             
-            tickbox = QDoubleSpinBox()
-            tickbox.setValue(self.TrainModel_arr[i-1])
-            self.layout.addWidget(tickbox, i, 1, 1, 1)
-            self.ticks.append(tickbox)
-            
             label2 = QLabel(tickNames2[i-1])
             #label2.setFrameStyle(QFrame.Panel)
             label2.setStyleSheet("border: 0px")
             label2.setMaximumHeight(40)
             self.layout.addWidget(label2, i, 2, 1, 1)
-    def update_TestBench_JEB382(self):
-        try:
-            #tickers
-            for i in range(len(self.ticks)):
-                self.TrainModel_arr[i] = self.ticks[i].value()
-            #beacon
-            for i in range(len(self.ticks),len(self.buttons)+len(self.ticks)):
-                self.TrainModel_arr[i] = self.buttons[i-len(self.ticks)].isChecked()
-            self.TrainModel_arr[-1] = self.textbox.text()
-            
-            #exception
-            self.TrainModel_arr[7] = self.statside
-        except:
-            print("TB done; min err")
-            self.Thread1_active = False
+        
+        self.TCK_ActSpd = QDoubleSpinBox()
+        self.TCK_ActSpd.setValue(self.TrainModel_arr[1])
+        self.TCK_ActSpd.valueChanged.connect(lambda: self.TCKF(TCK=self.TCK_ActSpd,index=0))
+        self.layout.addWidget(self.TCK_ActSpd, 1, 1, 1, 1)
+        
+        self.TCK_CmdSpd = QDoubleSpinBox()
+        self.TCK_CmdSpd.setValue(self.TrainModel_arr[2])
+        self.TCK_CmdSpd.valueChanged.connect(lambda: self.TCKF(TCK=self.TCK_CmdSpd,index=1))
+        self.layout.addWidget(self.TCK_CmdSpd, 2, 1, 1, 1)
+        
+        self.TCK_VitAut = QDoubleSpinBox()
+        self.TCK_VitAut.setValue(self.TrainModel_arr[3])
+        self.TCK_VitAut.valueChanged.connect(lambda: self.TCKF(TCK=self.TCK_VitAut,index=2))
+        self.layout.addWidget(self.TCK_VitAut, 3, 1, 1, 1)
+        
+        self.TCK_SpdLmt = QDoubleSpinBox()
+        self.TCK_SpdLmt.setValue(self.TrainModel_arr[4])
+        self.TCK_SpdLmt.valueChanged.connect(lambda: self.TCKF(TCK=self.TCK_SpdLmt,index=3))
+        self.layout.addWidget(self.TCK_SpdLmt, 4, 1, 1, 1)
+        
+        self.TCK_AccLmt = QDoubleSpinBox()
+        self.TCK_AccLmt.setValue(self.TrainModel_arr[5])
+        self.TCK_AccLmt.valueChanged.connect(lambda: self.TCKF(TCK=self.TCK_AccLmt,index=4))
+        self.layout.addWidget(self.TCK_AccLmt, 5, 1, 1, 1)
+        
+        self.TCK_DeAccLmt = QDoubleSpinBox()
+        self.TCK_DeAccLmt.setValue(self.TrainModel_arr[6])
+        self.TCK_DeAccLmt.valueChanged.connect(lambda: self.TCKF(TCK=self.TCK_DeAccLmt,index=5))
+        self.layout.addWidget(self.TCK_DeAccLmt, 6, 1, 1, 1)
+    #++++++
+    def TCKF(self,TCK,index):
+        self.TrainModel_arr[index] = TCK.value()
             
             
     #--------
@@ -146,17 +154,22 @@ class TestBench_JEB382(QWidget):
         for i in range(1,len(buttonNames1)+1):
             label1 = better_label_ret(text=buttonNames1[i-1])
             self.layout.addWidget(label1, i, 4, 1, 1)
-            
             button = better_button_ret()
             button.setChecked(bool(self.TrainModel_arr[i+4]))
             gen_but_tog(button)
-            button.clicked.connect( functools.partial(gen_but_tog,but=button) )
+            button.clicked.connect( functools.partial(self.gen_but_tog2,but=button,index=i+4) )#TODO
             if i not in [2,3]: self.layout.addWidget(button, i, 5, 1, 1)
             self.buttons.append(button)
+            
+        '''self.PassEBRK = better_button_ret()
+        self.PassEBRK.setChecked(bool(self.TrainModel_arr[i+4]))
+        gen_but_tog(button)
+        button.clicked.connect( functools.partial(self.gen_but_tog2,but=button,index=) )
+        self.layout.addWidget(button, i, 5, 1, 1)'''
         
         #adjust 1,2 ; Track Circuit State,Station Side
         button = better_button_ret()
-        button.clicked.connect( functools.partial(gen_but_tog,but=button,text1="Left",text2="Right",
+        button.clicked.connect( functools.partial(self.gen_but_tog2,but=button, index=6, text1="Left",text2="Right",
                                                   style_on="background-color: rgb(0, 224, 34); border: 2px solid rgb(30, 143, 47); border-radius: 4px",
                                                   style_off="background-color: rgb(222, 62, 38); border: 2px solid rgb(222, 0, 0); border-radius: 4px") )
         button.setChecked(bool(self.TrainModel_arr[6]))
@@ -171,6 +184,18 @@ class TestBench_JEB382(QWidget):
         button.clicked.connect( functools.partial(self.BTNF_station,but=button))
         self.layout.addWidget(button, 3, 5, 1, 1)
         self.buttons[2] = button
+        
+    #++++++
+    def gen_but_tog2(self, but, index=None, text1=None,text2=None, style_on=None,style_off=None):
+        if but.isChecked():
+            but.setStyleSheet(f"{style_on  if style_on  else 'background-color: rgb(143, 186, 255); border: 2px solid rgb( 42,  97, 184); border-radius: 6px'}")
+            if text1: but.setText(text2)
+            else: but.setText("On")
+        else:
+            but.setStyleSheet(f"{style_off if style_off else 'background-color: rgb(156, 156, 156); border: 2px solid rgb(100, 100, 100); border-radius: 6px'}")
+            if text1: but.setText(text1)
+            else: but.setText("Off")
+        if index: self.TrainModel_arr[index] = but.isChecked()
         
     def BTNF_station(self,but,start=False):
         if   self.statside-start == 0: #0to1 Left
@@ -194,6 +219,8 @@ class TestBench_JEB382(QWidget):
             if not start: self.statside = 0
         #else: print("TestBench_JEB382 BTNF_station error")
         
+        self.TrainModel_arr[7] = self.statside
+        
      
     #code when window closes
     def closeEvent(self, *args, **kwargs):
@@ -201,9 +228,10 @@ class TestBench_JEB382(QWidget):
         if __name__ == "__main__": self.Thread1_active = False
         else:
             print("JEB382 TB Hidden")
-            if self.ToggleBtn:
-                self.ToggleBtn.setText("Toggle TestBench[off]")
-                self.ToggleBtn.setStyleSheet("background-color: rgb(156, 156, 156); border: 2px solid rgb(100, 100, 100); border-radius: 6px")
+            if self.app: sys.exit(self.app.exec())
+    
+    def earlyclose(self):
+        sys.exit(self.app.exec())
             
     
     #--------
@@ -213,7 +241,11 @@ class TestBench_JEB382(QWidget):
         self.textbox = QLineEdit()
         self.textbox.setFixedWidth(852)
         self.textbox.setText(self.TrainModel_arr[-1])
+        self.textbox.textChanged.connect(self.textbox_update)
         self.layout.addWidget(self.textbox, 13, 0, 1, 8)
+    #+-+-+-+
+    def textbox_update(self):
+        self.TrainModel_arr[-1] = self.textbox.text()
             
  #--------#--------#--------#--------#--------
 def better_button_ret(sizeW=True,sizeH=24,checkable=True,text="Off",style="background-color: rgb(156, 156, 156); border: 2px solid rgb(100, 100, 100); border-radius: 6px"):
@@ -245,31 +277,50 @@ def gen_but_tog(but, text1=None,text2=None, style_on=None,style_off=None):
 
 #=============================
 
-def TB_mainloop_fast(numtrain,arr):
+def TB_mainloop_fast(numtrain):
+    global glob_TB
+    time.sleep(2)
     while True:
         if glob_TB:
-            glob_TB.update_TestBench_JEB382()
-            #arr = glob_TB.TrainModel_arr
             print(f"TB TrainC #{numtrain}",glob_TB.TrainModel_arr)
             if not glob_TB.Thread1_active: break
         
         
 def TB_pyqtloop(numtrain,arr):
+    global glob_TB
     app = QApplication(sys.argv)
     glob_TB = TestBench_JEB382(numtrain, arr)
     glob_TB.show()
     sys.exit(app.exec())
     
+#better fun with passing an app through TestBench
+def TB_pyqtloop2(numtrain,arr):
+    app = QApplication(sys.argv)
+    glob_TB = TestBench_JEB382(numtrain, arr)
+    glob_TB.show()
+    sys.exit(app.exec())
+
+
+def TB_outside_call(numtrain,arr):
+    t1 = threading.Thread(target=TB_pyqtloop2, args=(numtrain,arr))
+    t1.start()
+    t1.join()
+
+
+
+
 def TB_fin(numtrain,arr):
     t1 = threading.Thread(target=TB_pyqtloop, args=(numtrain,arr))
-    t2 = threading.Thread(target=TB_mainloop_fast, args=(numtrain,arr))
+    t2 = threading.Thread(target=TB_mainloop_fast, args=(numtrain,))
  
     t1.start()
     t2.start()
  
     t1.join()
     t2.join()
-    
+
+
+
 def test_TB():
     app = QApplication(sys.argv)
     #---------------------------
@@ -277,37 +328,37 @@ def test_TB():
     arr =[9]*12
     w1 = TestBench_JEB382(1, arr)
     w1.show()
-    w1.update_TestBench_JEB382()
+    #w1.update_TestBench_JEB382()
     print(f"TB TrainC #{1}",w1.TrainModel_arr)
     
     arr =[8.0, 9.0, 10.0, 11.0, 12.0, True, False, 1, True, False, True,"hiyaaaaa"]
     w2 = TestBench_JEB382(2, arr)
     w2.show()
-    w2.update_TestBench_JEB382()
+    #w2.update_TestBench_JEB382()
     print(f"TB TrainC #{2}",w2.TrainModel_arr)
     
     arr =[1.0, 2.0, 3.0, 4.0, 5.0, True, False, 2, True, False, True,"byyeeee"]
     w3 = TestBench_JEB382(3, arr)
     w3.show()
-    w3.update_TestBench_JEB382()
+    #w3.update_TestBench_JEB382()
     print(f"TB TrainC #{3}",w3.TrainModel_arr)
     
     arr =[2.0, 2.0, 3.0, 4.0, 5.0, True, True, 3, True, True, True,"00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"]
     w4 = TestBench_JEB382(4, arr)
     w4.show()
-    w4.update_TestBench_JEB382()
+    #w4.update_TestBench_JEB382()
     print(f"TB TrainC #{4}",w4.TrainModel_arr)
     
     arr =[3.0, 2.0, 3.0, 4.0, 5.0, False, False, 0, False, False, False,"overflow00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"]
     w5 = TestBench_JEB382(5, arr)
     w5.show()
-    w5.update_TestBench_JEB382()
+    #w5.update_TestBench_JEB382()
     print(f"TB TrainC #{5}",w5.TrainModel_arr)
     
     arr =[4.0, 2.0, 3.0, 4.0, 5.0, False, False, 0, False, False, False,"overflow000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000overflow"]
     w6 = TestBench_JEB382(6, arr)
     w6.show()
-    w6.update_TestBench_JEB382()
+    #w6.update_TestBench_JEB382()
     print(f"TB TrainC #{6}",w6.TrainModel_arr)
     
     #---------------------------
@@ -319,5 +370,5 @@ if __name__ == "__main__":
     arr =[9]*30
     TB_fin(numtrain,arr)
     
-    
+    #TB_pyqtloop(numtrain,arr)
     #test_TB()
