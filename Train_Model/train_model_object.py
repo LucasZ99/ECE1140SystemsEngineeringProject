@@ -1,8 +1,12 @@
 import random
 import math
+import train_model_container
 
 
 class TrainModel:
+    #container
+    container = train_model_container.TrainModelContainer()
+
     # constants
     max_power = 120000  # in watts
     min_power = 0  # in watts
@@ -57,13 +61,10 @@ class TrainModel:
     def set_power(self, pwr):
         if pwr >= self.max_power:
             self.power = self.max_power
-        elif pwr <= self.min_power:
+        elif pwr <= self.min_power or self.engine_failure:
             self.power = self.min_power
         else:
             self.power = pwr
-
-        if self.engine_failure:
-            self.power = 0
 
     def get_power(self):
         return self.power
@@ -290,6 +291,12 @@ class TrainModel:
 
     def get_width(self):
         return self.width
+
+    def set_container(self, cont):
+        self.container = cont
+
+    def get_container(self):
+        return  self.container
 
     def station_passenger_update(self, ingoing):
         outgoing = random.randint(0, self.passenger_count)
