@@ -1,12 +1,8 @@
 import random
 import math
-import train_model_container
 
 
 class TrainModel:
-    #container
-    container = train_model_container.TrainModelContainer()
-
     # constants
     max_power = 120000  # in watts
     min_power = 0  # in watts
@@ -23,6 +19,8 @@ class TrainModel:
     def __init__(self, numid=0, cars=1):
         # physics values
         self.power = 0.0  # in watts
+        self.block_length = 0.0
+        self.position = 0.0
         self.velocity = 0.0  # in m/s
         self.acceleration = 0.0  # in m/s
         self.grade = 0.0  # in %
@@ -68,6 +66,22 @@ class TrainModel:
 
     def get_power(self):
         return self.power
+
+    def set_block_length(self, length):
+        if length < 0:
+            return False
+        else:
+            self.block_length = length
+            return True
+
+    def get_block_length(self):
+        return self.block_length
+
+    def reset_position(self):
+        self.position = 0
+
+    def get_position(self):
+        return self.position
 
     # noinspection PyPep8Naming
     def set_ID(self, numid):
@@ -292,12 +306,6 @@ class TrainModel:
     def get_width(self):
         return self.width
 
-    def set_container(self, cont):
-        self.container = cont
-
-    def get_container(self):
-        return  self.container
-
     def station_passenger_update(self, ingoing):
         outgoing = random.randint(0, self.passenger_count)
         self.set_passenger_count(self.passenger_count - outgoing + ingoing)
@@ -329,5 +337,11 @@ class TrainModel:
         new_acc = net_force / self.total_mass
 
         # velocity calculation
-        self.velocity = self.velocity + time/2 * (self.acceleration + new_acc)
+        new_vel = self.velocity + time/2 * (self.acceleration + new_acc)
+        if new_vel < 0:
+            new_vel = 0
+
+        # position calculation
+        self.position = self.position + time/2 * (self.velocity + new_vel)
+        self.set_velocity(new_vel)
         self.acceleration = new_acc

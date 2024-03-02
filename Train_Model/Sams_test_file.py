@@ -26,18 +26,13 @@ class Tester:
 
 tester1 = Tester()
 tester2 = Tester()
-testee = Testee()
+testee1 = Testee()
+testee2 = Testee()
 
-tester1.set_y(testee)
-tester2.set_y(testee)
-
+tester1.set_y(testee1)
 tester1.change_y(2)
-tester2.print_y()
+tau = tester1.get_y()
+tau = testee2
 
 
-
-
-
-
-
-
+tester1.print_y()
