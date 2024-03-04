@@ -25,14 +25,14 @@ file = 'TBData.txt'
 path = os.path.join(subdir, file)
 
 
-class Ui_MainWindow(object):
+class Ui_main_window(object):
 
-    def setupUi(self, MainWindow):
-        MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(369, 365)
-        MainWindow.setMinimumSize(QtCore.QSize(369, 365))
-        MainWindow.setMaximumSize(QtCore.QSize(369, 365))
-        self.centralwidget = QtWidgets.QWidget(parent=MainWindow)
+    def setup_Ui(self, main_window):
+        main_window.setObjectName("MainWindow")
+        main_window.resize(369, 365)
+        main_window.setMinimumSize(QtCore.QSize(369, 365))
+        main_window.setMaximumSize(QtCore.QSize(369, 365))
+        self.centralwidget = QtWidgets.QWidget(parent=main_window)
         self.centralwidget.setObjectName("centralwidget")
 
         self.suggSpeedText = QtWidgets.QTextEdit(parent=self.centralwidget)
@@ -138,17 +138,17 @@ class Ui_MainWindow(object):
         self.occCheck.raise_()
         self.suggSpeedLabel.raise_()
 
-        MainWindow.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(parent=MainWindow)
+        main_window.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(parent=main_window)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 369, 22))
         self.menubar.setObjectName("menubar")
-        MainWindow.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(parent=MainWindow)
+        main_window.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar(parent=main_window)
         self.statusbar.setObjectName("statusbar")
-        MainWindow.setStatusBar(self.statusbar)
+        main_window.setStatusBar(self.statusbar)
 
-        self.retranslateUi(MainWindow)
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        self.retranslate_ui(main_window)
+        QtCore.QMetaObject.connectSlotsByName(main_window)
 
         # defaults
         self.swLeftCheck.setChecked(True)
@@ -157,60 +157,60 @@ class Ui_MainWindow(object):
 
 
         # Events:
-        self.swLeftCheck.clicked.connect(self.swSelLeftHandler)
+        self.swLeftCheck.clicked.connect(self.sw_sel_left_handler)
 
-        self.swRightCheck.clicked.connect(self.swSelRightHandler)
+        self.swRightCheck.clicked.connect(self.sw_sel_right_handler)
 
-        self.apply.clicked.connect(self.applyHandler)
+        self.apply.clicked.connect(self.apply_handler)
 
-        self.occCheck.clicked.connect(self.blOccupancyHandler)
+        self.occCheck.clicked.connect(self.bl_occupancy_handler)
 
-        self.swSelDropdown.currentIndexChanged.connect(self.swStatusHandler)
+        self.swSelDropdown.currentIndexChanged.connect(self.sw_status_handler)
 
-        self.blOccDropdown.currentIndexChanged.connect(self.blStatusHandler)
+        self.blOccDropdown.currentIndexChanged.connect(self.bl_status_handler)
 
-        self.authText.textChanged.connect(self.authTextHandler)
+        self.authText.textChanged.connect(self.auth_text_handler)
 
-        self.suggSpeedText.textChanged.connect(self.sugSpeedTextHandler)
+        self.suggSpeedText.textChanged.connect(self.sug_speed_text_handler)
 
-        self.defaults.clicked.connect(self.defaultsPressHandler)
+        self.defaults.clicked.connect(self.defaults_press_handler)
 
-    def retranslateUi(self, MainWindow):
+    def retranslate_ui(self, main_window):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "Track Controller Test Bench"))
-        self.apply.setText(_translate("MainWindow", "Apply"))
-        self.blOccLabel.setText(_translate("MainWindow", "Block Occupancy:"))
-        self.blOccDropdown.setItemText(0, _translate("MainWindow", "Block 1"))
-        self.blOccDropdown.setItemText(1, _translate("MainWindow", "Block 2"))
-        self.blOccDropdown.setItemText(2, _translate("MainWindow", "Block 3"))
-        self.blOccDropdown.setItemText(3, _translate("MainWindow", "Block 4"))
-        self.blOccDropdown.setItemText(4, _translate("MainWindow", "Block 5"))
-        self.blOccDropdown.setItemText(5, _translate("MainWindow", "Block 6"))
-        self.blOccDropdown.setItemText(6, _translate("MainWindow", "Block 7"))
-        self.blOccDropdown.setItemText(7, _translate("MainWindow", "Block 8"))
-        self.blOccDropdown.setItemText(8, _translate("MainWindow", "Block 9"))
-        self.blOccDropdown.setItemText(9, _translate("MainWindow", "Block 10"))
-        self.blOccDropdown.setItemText(10, _translate("MainWindow", "Block 11"))
-        self.blOccDropdown.setItemText(11, _translate("MainWindow", "Block 12"))
-        self.blOccDropdown.setItemText(12, _translate("MainWindow", "Block 13"))
-        self.blOccDropdown.setItemText(13, _translate("MainWindow", "Block 14"))
-        self.blOccDropdown.setItemText(14, _translate("MainWindow", "Block 15"))
-        self.groupBox.setTitle(_translate("MainWindow", "Inputs from CTC:"))
-        self.swSelLabel.setText(_translate("MainWindow", "Switch Selction:"))
-        self.swSelDropdown.setItemText(0, _translate("MainWindow", "SW1"))
-        self.authLabel.setText(_translate("MainWindow", "Authority:"))
-        self.blocksLabel.setText(_translate("MainWindow", "blocks"))
-        self.swLeftCheck.setText(_translate("MainWindow", "Left"))
-        self.swRightCheck.setText(_translate("MainWindow", "Right"))
-        self.defaults.setText(_translate("MainWindow", "Defaults"))
-        self.msLabel.setText(_translate("MainWindow", "m/s"))
-        self.groupBox_2.setTitle(_translate("MainWindow", "Inputs from Track Model:"))
-        self.occCheck.setText(_translate("MainWindow", "Occupied"))
-        self.suggSpeedLabel.setText(_translate("MainWindow", "Suggested Speed:"))
+        main_window.setWindowTitle(_translate("main_window", "Track Controller Test Bench"))
+        self.apply.setText(_translate("main_window", "Apply"))
+        self.blOccLabel.setText(_translate("main_window", "Block Occupancy:"))
+        self.blOccDropdown.setItemText(0, _translate("main_window", "Block 1"))
+        self.blOccDropdown.setItemText(1, _translate("main_window", "Block 2"))
+        self.blOccDropdown.setItemText(2, _translate("main_window", "Block 3"))
+        self.blOccDropdown.setItemText(3, _translate("main_window", "Block 4"))
+        self.blOccDropdown.setItemText(4, _translate("main_window", "Block 5"))
+        self.blOccDropdown.setItemText(5, _translate("main_window", "Block 6"))
+        self.blOccDropdown.setItemText(6, _translate("main_window", "Block 7"))
+        self.blOccDropdown.setItemText(7, _translate("main_window", "Block 8"))
+        self.blOccDropdown.setItemText(8, _translate("main_window", "Block 9"))
+        self.blOccDropdown.setItemText(9, _translate("main_window", "Block 10"))
+        self.blOccDropdown.setItemText(10, _translate("main_window", "Block 11"))
+        self.blOccDropdown.setItemText(11, _translate("main_window", "Block 12"))
+        self.blOccDropdown.setItemText(12, _translate("main_window", "Block 13"))
+        self.blOccDropdown.setItemText(13, _translate("main_window", "Block 14"))
+        self.blOccDropdown.setItemText(14, _translate("main_window", "Block 15"))
+        self.groupBox.setTitle(_translate("main_window", "Inputs from CTC:"))
+        self.swSelLabel.setText(_translate("main_window", "Switch Selction:"))
+        self.swSelDropdown.setItemText(0, _translate("main_window", "SW1"))
+        self.authLabel.setText(_translate("main_window", "Authority:"))
+        self.blocksLabel.setText(_translate("main_window", "blocks"))
+        self.swLeftCheck.setText(_translate("main_window", "Left"))
+        self.swRightCheck.setText(_translate("main_window", "Right"))
+        self.defaults.setText(_translate("main_window", "Defaults"))
+        self.msLabel.setText(_translate("main_window", "m/s"))
+        self.groupBox_2.setTitle(_translate("main_window", "Inputs from Track Model:"))
+        self.occCheck.setText(_translate("main_window", "Occupied"))
+        self.suggSpeedLabel.setText(_translate("main_window", "Suggested Speed:"))
 
     # Handlers:
     # mutual exclusion for check boxes
-    def swStatusHandler(self):
+    def sw_status_handler(self):
         if switches[self.swSelDropdown.currentIndex()] == 'L':
             self.swLeftCheck.setChecked(True)
             self.swRightCheck.setChecked(False)
@@ -218,29 +218,29 @@ class Ui_MainWindow(object):
             self.swLeftCheck.setChecked(False)
             self.swRightCheck.setChecked(True)
 
-    def swSelLeftHandler(self):  # 'Left' checkbox is activated
+    def sw_sel_left_handler(self):  # 'Left' checkbox is activated
         if self.swLeftCheck.isChecked():
             self.swRightCheck.setChecked(False)
-            switchIndex = self.swSelDropdown.currentIndex()
-            switches[switchIndex] = 'L'
+            switch_index = self.swSelDropdown.currentIndex()
+            switches[switch_index] = 'L'
         else:
             self.swRightCheck.setChecked(True)
 
-    def swSelRightHandler(self):  # 'Right' checkbox is activated
+    def sw_sel_right_handler(self):  # 'Right' checkbox is activated
         if self.swRightCheck.isChecked():
             self.swLeftCheck.setChecked(False)
-            switchIndex = self.swSelDropdown.currentIndex()
-            switches[switchIndex] = 'R'
+            switch_index = self.swSelDropdown.currentIndex()
+            switches[switch_index] = 'R'
         else:
             self.swLeftCheck.setChecked(True)
 
-    def blStatusHandler(self):  # New block is selected from the dropdown menu
+    def bl_status_handler(self):  # New block is selected from the dropdown menu
         if blocks[self.blOccDropdown.currentIndex()] == 'O':
             self.occCheck.setChecked(True)
         else:
             self.occCheck.setChecked(False)
 
-    def defaultsPressHandler(self):  # Defaults button is pressed
+    def defaults_press_handler(self):  # Defaults button is pressed
         global authority
         global suggestedSpeed
         global numSwitches
@@ -269,13 +269,13 @@ class Ui_MainWindow(object):
 
         self.suggSpeedText.setText(str(suggestedSpeed))  # suggested speed update
 
-    def blOccupancyHandler(self):  # The block occupancy status of a block is altered
+    def bl_occupancy_handler(self):  # The block occupancy status of a block is altered
         if self.occCheck.isChecked():
             blocks[self.blOccDropdown.currentIndex()] = 'O'
         else:
             blocks[self.blOccDropdown.currentIndex()] = 'E'
 
-    def authTextHandler(self):  # When the text field is changed for authority
+    def auth_text_handler(self):  # When the text field is changed for authority
         text = self.authText.toPlainText()  # checking to see if it is a valid integer
         text2 = self.suggSpeedText.toPlainText()
         if text.isdigit():
@@ -296,7 +296,7 @@ class Ui_MainWindow(object):
             self.authWarnLabel.setStyleSheet("color : red")
             self.apply.setEnabled(False)
 
-    def sugSpeedTextHandler(self):
+    def sug_speed_text_handler(self):
         text = self.suggSpeedText.toPlainText()  # checking to see if it is a valid integer
         text2 = self.authText.toPlainText()
         if text.isnumeric() or text.replace(".", "").isnumeric():  # text must be an int or float
@@ -317,7 +317,7 @@ class Ui_MainWindow(object):
             self.speedWarnLabel.setStyleSheet("color : red")
             self.apply.setEnabled(False)
 
-    def applyHandler(self):  # When the apply button is pressed [this will be used to send vals out into main module]
+    def apply_handler(self):  # When the apply button is pressed [this will be used to send vals out into main module]
         with open (path, 'w') as file:  # writing the variables to a text doc to be read by main
             file.write(f"authority = {authority}\n")
             file.write(f"suggestedSpeed = {suggestedSpeed}\n")
@@ -325,16 +325,16 @@ class Ui_MainWindow(object):
             file.write(f"blocks = {blocks}\n")
 
 
-def tbMain():
+def tb_main():
     import sys
 
     app = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow()
-    ui.setupUi(MainWindow)
-    MainWindow.show()
+    main_window = QtWidgets.Qmain_window()
+    ui = Ui_main_window()
+    ui.setupUi(main_window)
+    main_window.show()
     sys.exit(app.exec())
 
-def runTB():
-    thread = threading.Thread(target=tbMain)
+def run_tb():
+    thread = threading.Thread(target=tb_main)
     thread.start()
