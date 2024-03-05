@@ -26,9 +26,6 @@ class BusinessLogic(QObject):
     def toggle_switch(self, index):
         pass
 
-    def close_block(self, index):
-        pass
-
     # Must call this method whenever occupancy is updated
     @pyqtSlot(list)
     def occupancy_changed(self, new_occupancy: list) -> None:
