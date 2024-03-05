@@ -1,38 +1,15 @@
-class Testee:
-    x = 0
+import new_train_model
 
-    def set_x(self, y):
-        self.x = y
+train = new_train_model.TrainModel()
 
-    def get_x(self):
-        return self.x
+train.heater.update_target(75)
 
+for i in range(100):
+    train.physics_calculation(1)
+    print(f'target = {train.heater.target_temp}, initial = {train.heater.initial_temp}, current = {train.heater.current_temp}, constant = {train.heater.time_constant}')
 
-class Tester:
-    y = Testee()
+train.heater.update_target(68)
 
-    def set_y(self, x):
-        self.y = x
-
-    def get_y(self):
-        return self.y
-
-    def print_y(self):
-        print(self.y.get_x())
-
-    def change_y(self, x):
-        self.y.set_x(x)
-
-
-tester1 = Tester()
-tester2 = Tester()
-testee1 = Testee()
-testee2 = Testee()
-
-tester1.set_y(testee1)
-tester1.change_y(2)
-tau = tester1.get_y()
-tau = testee2
-
-
-tester1.print_y()
+for i in range(100):
+    train.physics_calculation(1)
+    print(f'target = {train.heater.target_temp}, initial = {train.heater.initial_temp}, current = {train.heater.current_temp}, constant = {train.heater.time_constant}')
