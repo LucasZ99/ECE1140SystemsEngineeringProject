@@ -1,23 +1,25 @@
 import numpy as np
 from PyQt6 import QtCore
 from PyQt6.QtCore import pyqtSignal, QCoreApplication
-from PyQt6.QtWidgets import QMainWindow, QWidget, QTextEdit, QPushButton, QLabel, QComboBox, QCheckBox, QGroupBox, \
+from PyQt6.QtWidgets import QMainWindow, QWidget, QPushButton, QLabel, QComboBox, QCheckBox, QGroupBox, \
     QLineEdit
+
+from BusinessObject import BusinessLogic
 
 
 class TbMainWindow(QMainWindow):
     occupancy_changed_signal = pyqtSignal(list)
     switch_changed_signal = pyqtSignal(int)
-    authority_updated = pyqtSignal(bool)
-    sug_speed_updated = pyqtSignal(float)
+    authority_updated_signal = pyqtSignal(bool)
+    sug_speed_updated_signal = pyqtSignal(float)
 
-    def __init__(self, business_logic):
+    def __init__(self, business_logic: BusinessLogic):
         super(TbMainWindow, self).__init__()
 
         self.authority = business_logic.authority
         self.business_logic = business_logic
-        self.blocks = np.copy(business_logic.occupancy_arr)
-        self.switches = business_logic.switches_arr
+        self.block_list = np.copy(business_logic.occupancy_list)
+        self.switches_list = business_logic.switches_list
         self.sug_speed = business_logic.suggested_speed
 
         self.setObjectName("MainWindow")
@@ -38,7 +40,7 @@ class TbMainWindow(QMainWindow):
         self.comboBox_3 = QComboBox(parent=self.centralwidget)
         self.comboBox_3.setGeometry(140, 40, 71, 22)
         self.comboBox_3.setObjectName("comboBox_3")
-        for i in range(len(self.blocks)):
+        for i in range(len(self.block_list)):
             self.comboBox_3.addItem(f"Block {i}")
 
         self.groupBox = QGroupBox(parent=self.centralwidget)
@@ -52,7 +54,7 @@ class TbMainWindow(QMainWindow):
         self.comboBox = QComboBox(parent=self.groupBox)
         self.comboBox.setGeometry(130, 80, 81, 22)
         self.comboBox.setObjectName("comboBox")
-        for i in range(len(self.switches)):
+        for i in range(len(self.switches_list)):
             self.comboBox.addItem(f"SW{i + 1}")
 
         self.label_2 = QLabel(parent=self.groupBox)
@@ -110,19 +112,15 @@ class TbMainWindow(QMainWindow):
 
         self.retranslate_ui(self)
 
-        # defaults
-        # self.authority_check.setText("5")
-        # self.textEdit.setText("50")
-
         # Events:
         self.switch_button.clicked.connect(self.sw_toggle_handler)
         self.show_button.clicked.connect(self.print_blocks)
         self.checkBox_3.clicked.connect(self.bl_occupancy_handler)
         self.comboBox_3.currentIndexChanged.connect(self.bl_status_handler)
         self.authority_check.stateChanged.connect(self.auth_handler)
-        # TODO - Figure out how to implement read delay
         self.sug_speed.editingFinished.connect(self.sug_speed_text_handler)
         self.show()
+
 
     def retranslate_ui(self, MainWindow):
         _translate = QCoreApplication.translate
@@ -140,13 +138,14 @@ class TbMainWindow(QMainWindow):
         self.checkBox_3.setText(_translate("MainWindow", "Occupied"))
         self.label_5.setText(_translate("MainWindow", "Suggested Speed:"))
 
+
     # Handlers:
     def sw_toggle_handler(self):
         QtCore.QMetaObject.invokeMethod(self, "switch_changed_signal",
                                         QtCore.Q_ARG(int, self.comboBox.currentIndex()))
 
     def bl_status_handler(self):  # New block is selected from the dropdown menu
-        if self.blocks[self.comboBox_3.currentIndex()] == 'O':
+        if self.block_list[self.comboBox_3.currentIndex()] == 'O':
             self.checkBox_3.setChecked(True)
         else:
             self.checkBox_3.setChecked(False)
@@ -155,12 +154,12 @@ class TbMainWindow(QMainWindow):
 
         if self.checkBox_3.isChecked():
             # re-assign occupancy to false
-            self.blocks = [False] * len(self.blocks)
-            self.blocks[self.comboBox_3.currentIndex()] = True
+            self.block_list = [False] * len(self.block_list)
+            self.block_list[self.comboBox_3.currentIndex()] = True
         else:
-            self.blocks[self.comboBox_3.currentIndex()] = False
+            self.block_list[self.comboBox_3.currentIndex()] = False
 
-        self.update_occupancy(self.blocks)
+        self.update_occupancy(self.block_list)
 
     def auth_handler(self):  # When the checkbox is changed for authority
         if self.authority_check.isChecked():
@@ -186,16 +185,16 @@ class TbMainWindow(QMainWindow):
             self.label_8.setStyleSheet("color: red")
             self.show_button.setEnabled(False)
 
-    def update_sug_speed(self, value):
+    def update_sug_speed(self, value: float) -> None:
         QtCore.QMetaObject.invokeMethod(self, "sug_speed_updated",
                                         QtCore.Q_ARG(float, value))
 
-    def update_occupancy(self, blocks):
+    def update_occupancy(self, blocks: list):
         QtCore.QMetaObject.invokeMethod(self, "occupancy_changed_signal",
                                         QtCore.Q_ARG(list, blocks))
 
-    def print_blocks(self):  # When the apply button is pressed [this will be used to send vals out into main module]
+    def print_blocks(self):
         print("-----------------")
         print("BLOCK STATUS:")
-        print(f"Blocks: {self.blocks}")
+        print(f"Blocks: {self.block_list}")
         print("-----------------")

@@ -1,5 +1,5 @@
 class Switch(object):
-    def __init__(self, block, pos_a, pos_b, current_pos):
+    def __init__(self, block: int, pos_a: int, pos_b: int, current_pos: int):
         super(Switch, self).__init__()
 
         self.block = block
