@@ -8,7 +8,7 @@ from PyQt6.QtWidgets import QFileDialog, QMainWindow, QWidget, QVBoxLayout, QPus
 from PyQt6.uic import loadUi
 
 import TestBench
-from Track_Controller_SW.BusinessObject import BusinessLogic
+from Track_Controller_SW.BusinessLogic import BusinessLogic
 from Track_Controller_SW.switching import Switch
 
 

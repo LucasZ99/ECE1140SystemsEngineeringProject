@@ -2,7 +2,7 @@ import sys
 
 from PyQt6.QtWidgets import QApplication
 
-import BusinessObject
+from BusinessLogic import BusinessLogic
 import PLC_Logic
 from switching import Switch
 import TrackControllerUI
@@ -18,13 +18,13 @@ class TrackController(object):
         self.plc_logic = PLC_Logic.PlcProgram()
         self.occupancy_list = [False] * 16
         self.authority = 0
-        self.suggested_speed = 0.0
+        self.suggested_speed_list = [0]
 
-        self.business_logic = BusinessObject.BusinessLogic(
+        self.business_logic = BusinessLogic(
             self.occupancy_list,
             self.switches_list,
             self.authority,
-            self.suggested_speed,
+            self.suggested_speed_list,
             self.plc_logic)
 
     def run(self) -> None:

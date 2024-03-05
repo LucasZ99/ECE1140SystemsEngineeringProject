@@ -11,13 +11,23 @@ class BusinessLogic(QObject):
     rr_crossing_signal = pyqtSignal(bool)
     light_signal = pyqtSignal(int)
 
-    def __init__(self, block_occupancy: list, switches_arr: list, authority: int, suggested_speed: float, plc_logic: PlcProgram):
+    def __init__(self, block_occupancy: list, switches_arr: list, authority: int, suggested_speed_list: list, plc_logic: PlcProgram):
         super().__init__()
         self.occupancy_list = block_occupancy
         self.switches_list = switches_arr
+
+        #TODO add lights_list to constructor
+
         self.authority = authority
-        self.suggested_speed = suggested_speed
+        self.suggested_speed_list = suggested_speed_list
         self.plc_logic = plc_logic
+
+    #TODO
+    def toggle_switch(self, index):
+        pass
+
+    def close_block(self, index):
+        pass
 
     # Must call this method whenever occupancy is updated
     @pyqtSlot(list)
@@ -46,9 +56,15 @@ class BusinessLogic(QObject):
     def authority_updated(self, block: int, is_authority: bool) -> None:
         print(f"Authority updated to {int(is_authority)}")
 
-    @pyqtSlot(float)
+    @pyqtSlot(list)
     def sug_speed_updated(self, sug_speed: float) -> None:
-        print(f"Suggested speed updated to {sug_speed}")
+        self.suggested_speed_list[0] = sug_speed
+
+        print(f"Suggested speed updated to {self.suggested_speed_list[0]}")
+
+    #TODO
+    def plc_sug_speed_updated(self, safe_speed_bool: bool) -> None:
+        pass
 
     def set_plc_filepath(self, plc_filepath: str) -> None:
         self.plc_logic.set_filepath(plc_filepath)

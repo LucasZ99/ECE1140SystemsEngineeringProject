@@ -4,7 +4,7 @@ from PyQt6.QtCore import pyqtSignal, QCoreApplication
 from PyQt6.QtWidgets import QMainWindow, QWidget, QPushButton, QLabel, QComboBox, QCheckBox, QGroupBox, \
     QLineEdit
 
-from BusinessObject import BusinessLogic
+from BusinessLogic import BusinessLogic
 
 
 class TbMainWindow(QMainWindow):
@@ -20,7 +20,7 @@ class TbMainWindow(QMainWindow):
         self.business_logic = business_logic
         self.block_list = np.copy(business_logic.occupancy_list)
         self.switches_list = business_logic.switches_list
-        self.sug_speed = business_logic.suggested_speed
+        self.sug_speed_list = business_logic.suggested_speed_list
 
         self.setObjectName("MainWindow")
         self.resize(369, 365)
