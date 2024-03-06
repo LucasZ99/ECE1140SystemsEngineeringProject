@@ -1,5 +1,7 @@
 #
+#
 # Pseudocode for array-based communication implementation
+#
 #
 
 # Import dependencies
@@ -70,3 +72,5 @@ if __name__ == "__main__":
     main()
 
 
+# Container class
+# getting and setting

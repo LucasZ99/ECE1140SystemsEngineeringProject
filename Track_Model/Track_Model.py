@@ -18,6 +18,8 @@ class TrackModel:
             if self.data[i, 16] == 0:
                 self.data[i, 16] = random.randint(1, 100)
                 self.data[i, 17] = random.randint(1, self.data[i, 16])
+        self.authority = []
+        self.speed = []
 
     def get_data(self):
         return self.data
@@ -123,3 +125,71 @@ class TrackModel:
             self.set_block_occupancy(block, 0)
         else:
             self.set_block_occupancy(block, presence)
+
+    #
+    #
+    # Communication for other modules
+    #
+    #
+
+    # RECEIVING (setters)
+
+    # track controller
+
+    def update_authority(self, authority: list[int]):
+        self.authority = authority
+
+    def update_speed(self, speed: list[float]):
+        self.speed = speed
+
+    def toggle_switch(self, block_id: int):
+        pass
+
+    def toggle_signal(self, block_id: int):
+        pass
+
+    def toggle_crossing(self, block_id: int):
+        pass
+
+    # train model
+
+    def train_spawned(self):
+        pass
+
+    def train_presence_changed(self, train_id: int):
+        pass
+
+    def set_disembarking_passengers(self, station_id: int, disembarking_passengers: int):
+        pass
+
+    # SENDING (getters)
+
+    # track controller
+
+    def get_tc_block_occupancy(self, starting_block: int, ending_block: int):
+        pass
+
+    # train model
+
+    def get_tm_authority(self, train_id: int) -> list[int]:
+        return self.authority
+
+    def get_tm_speed(self, train_id: int) -> list[float]:
+        return self.speed
+    
+    def get_tm_beacon(self, train_id: int) -> str:
+        pass
+
+    def get_tm_grade(self, train_id: int) -> int:
+        pass
+
+    def get_tm_elevation(self, train_id: int) -> float:
+        pass
+
+    def get_tm_underground_status(self, train_id: int) -> bool:
+        pass
+
+    def get_tm_embarking_passengers(self, station_block: int) -> int:
+        pass
+
+    # ctc
