@@ -47,7 +47,7 @@ buttons
 0           Actual Speed	m/s	How fast its actively going
 1           Commanded Speed	m/s	Safe speed	1	
 2           Vital Authority	m	Safe authority	2	
-constant    speed limit	m/s	speed thats safe; max
+beacon    speed limit	m/s	speed thats safe; max
 constant    Acceleration Limit	m/s^2	Acceleration thats safe; Max
 constant    Deacceleration Limit	m/s^2	Deacceleration thats safe; Max
 3           eBrake (Passenger)	Boolean	Passenger requested Emergency brake; 1:on, 0:otherwise	
