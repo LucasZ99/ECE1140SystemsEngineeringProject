@@ -156,6 +156,8 @@ class HW_UI_JEB382_PyFirmat():
         self.LED_EBRK       = LED_PyF(33)
         self.LED_SBRK       = LED_PyF(34)
         
+        self.Announcements=""
+        
         self.DISP = DISP_PyF()
         
         #TestBench
@@ -177,7 +179,8 @@ class HW_UI_JEB382_PyFirmat():
         self.Driver_arr[5] = self.TCK_Temp.read()
         self.Mode = self.BTN_Mode.read()
             
-    def updateDisplay(self):     
+    def updateDisplay(self):
+        '''
         self.LED_CabnLgt   .write(self.BTN_CabnLgt.read())
         self.LED_HeadLgt   .write(self.BTN_HeadLgt.read())
         self.LED_Door_L    .write(self.BTN_Door_L .read())
@@ -192,9 +195,30 @@ class HW_UI_JEB382_PyFirmat():
         self.LED_EBRK  .write( (bool(self.TrainModel_arr[5]) and not bool(self.Driver_arr[10])) or bool(self.Driver_arr[8]) )
         self.LED_SBRK  .write( bool(self.Driver_arr[9]) )
         
-        self.DISP.send(self.TrainModel_arr[-1][1:32])
+        self.DISP.send(self.TrainModel_arr[-1][1:32])'''
+        
+        #change outputs to out arr
+        self.LED_CabnLgt   .write( bool(self.output_arr[6])      )
+        self.LED_HeadLgt   .write( bool(self.output_arr[7])      )
+        self.LED_Door_L    .write( bool(self.output_arr[4]>1)    )
+        self.LED_Door_R    .write( bool(self.output_arr[4]%2)    )
+        self.LED_Pass_EB   .write( bool(self.TrainModel_arr[5])  )
+        self.LED_Track_Circ.write( bool(self.TrainModel_arr[6])  )
+        self.LED_Stat_Side2.write( bool(self.TrainModel_arr[7]>1) ) #_x 2,3
+        self.LED_Stat_Side1.write( bool(self.TrainModel_arr[7]%2) ) #x_ 1,3
+        self.LED_Sig_Fail  .write( bool(self.TrainModel_arr[-4]) )
+        self.LED_Eng_Fail  .write( bool(self.TrainModel_arr[-3]) )
+        self.LED_Brk_Fail  .write( bool(self.TrainModel_arr[-2]) )
+        self.LED_EBRK  .write( bool(self.output_arr[3]) )
+        self.LED_SBRK  .write( bool(self.output_arr[2]) )
+        
+        #decode message from beacon "(self.TrainModel_arr[-1]" in Update Calc into self.Announcements and display it
+        self.DISP.send(self.Announcements)
+        
+        
         
     def updateCalc(self):
+        #fill out self.output_arr and self.Announcements
         pass
         
     def updateTot(self):
