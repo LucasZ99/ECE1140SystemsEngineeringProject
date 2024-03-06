@@ -147,7 +147,6 @@ class TestBench_JEB382(QWidget):
             
     #--------
     def genbuttons(self):
-        self.buttons = []
         buttonNames1 = ["Passenger eBrake","Track Circuit State","Station Side","Signal Pickup Failure","Engine Failure","Brake Failure"]
                 
         # generates buttons with names from btnNames array
@@ -159,7 +158,6 @@ class TestBench_JEB382(QWidget):
             gen_but_tog(button)
             button.clicked.connect( functools.partial(self.gen_but_tog2,but=button,index=i+4) )#TODO
             if i not in [2,3]: self.layout.addWidget(button, i, 5, 1, 1)
-            self.buttons.append(button)
             
         '''self.PassEBRK = better_button_ret()
         self.PassEBRK.setChecked(bool(self.TrainModel_arr[i+4]))
@@ -177,13 +175,11 @@ class TestBench_JEB382(QWidget):
                     style_on="background-color: rgb(0, 224, 34); border: 2px solid rgb(30, 143, 47); border-radius: 4px",
                     style_off="background-color: rgb(222, 62, 38); border: 2px solid rgb(222, 0, 0); border-radius: 4px") 
         self.layout.addWidget(button, 2, 5, 1, 1)
-        self.buttons[1] = button
         
         button = better_button_ret()
         self.BTNF_station(button,start=True)#change layout
         button.clicked.connect( functools.partial(self.BTNF_station,but=button))
         self.layout.addWidget(button, 3, 5, 1, 1)
-        self.buttons[2] = button
         
     #++++++
     def gen_but_tog2(self, but, index=None, text1=None,text2=None, style_on=None,style_off=None):
@@ -229,11 +225,7 @@ class TestBench_JEB382(QWidget):
         else:
             print("JEB382 TB Hidden")
             if self.app: sys.exit(self.app.exec())
-    
-    def earlyclose(self):
-        sys.exit(self.app.exec())
-            
-    
+           
     #--------
     def gentxtbox(self):
         txtlab = better_label_ret("Beacon (128chars): 0x")

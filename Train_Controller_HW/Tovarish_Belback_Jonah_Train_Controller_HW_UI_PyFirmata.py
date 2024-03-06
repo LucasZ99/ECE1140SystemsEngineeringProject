@@ -2,7 +2,34 @@ from pyfirmata2 import ArduinoMega, util, STRING_DATA
 import time
 from Tovarish_Belback_Jonah_Train_Controller_Testbenchv2 import *#TestBench_JEB382
 from PyQt6.QtWidgets import *
-import sys
+#import sys
+
+
+#commanded speed: Auto/Manual: Turn into Verr, calc power with Kp Ki
+#double check array.txt lines up with I/O
+#if new indexes, add new LEDs???
+#change test bench to new I/O
+    #input text box of station name
+    #label below displays the output beacon with other given info
+#add txt file of look up table
+    #one per line?
+    #line number is index number, use '.split()'
+    #look at excel file
+    #python parser?
+
+#fill out rest of updatCalc()
+
+#doors open: cant move
+
+
+#max auth of 4 (no foresight)
+#auth=0: sits there (if station from beacon, open doors, else dont just sit)
+
+#when entering driver, reset to whats the auto array set
+
+
+
+
 
 global board
 board = ArduinoMega('COM7')
@@ -135,7 +162,7 @@ class HW_UI_JEB382_PyFirmat():
         if TestBench:
             self.HW_UI_fin(TestBench)
     
-    def updateOuts(self):
+    def updateRead(self):
         self.Driver_arr[3] = self.BTN_CabnLgt.read()
         self.Driver_arr[4] = self.BTN_HeadLgt.read()
         self.Driver_arr[6] = self.BTN_Door_L.read()
@@ -168,10 +195,10 @@ class HW_UI_JEB382_PyFirmat():
         self.DISP.send(self.TrainModel_arr[-1][1:32])
         
     def updateCalc(self):
-        return False
+        pass
         
     def updateTot(self):
-        self.updateOuts()
+        self.updateRead()
         self.updateCalc()
         self.updateDisplay()
         
