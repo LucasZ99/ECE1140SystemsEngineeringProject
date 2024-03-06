@@ -24,3 +24,9 @@ class TrainModelContainer:
 
     def physics_calculation(self):
         return
+
+    def add_train(self):
+        return
+
+    def remove_train(self, index):
+        return False
