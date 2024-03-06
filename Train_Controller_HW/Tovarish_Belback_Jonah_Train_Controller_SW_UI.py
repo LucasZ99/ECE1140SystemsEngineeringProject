@@ -182,8 +182,8 @@ class SW_UI_JEB382(QMainWindow):
                 self.SW_Driver_arr[10]= self.BTN_DisPaEB.isChecked()
                 
             if Arduino and self.Ware:
-                self.HW_UI_JEB382.updateOuts()
-                self.HW_UI_JEB382.updateDisplay()
+                #self.HW_UI_JEB382.updateOuts()
+                #self.HW_UI_JEB382.updateDisplay()
                 self.HW_Driver_arr = self.HW_UI_JEB382.Driver_arr
             
             

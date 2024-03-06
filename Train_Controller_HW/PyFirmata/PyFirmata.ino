@@ -22,6 +22,24 @@
 
   Last updated August 17th, 2017
 */
+//updates by Jonah Belback
+#include <LiquidCrystal_I2C.h>
+LiquidCrystal_I2C lcd(0x27,16,2);
+char *section1 = malloc(16*sizeof(char));
+char *section2 = malloc(16*sizeof(char));
+void stringDataCallback(char *stringData){
+  memcpy(section1, stringData     , 16 * sizeof(char));
+  memcpy(section2, stringData + 16, 16 * sizeof(char));
+  section1[16] = '\0';
+  section2[16] = '\0';
+  lcd.clear();
+
+  lcd.setCursor(0,0);
+  lcd.print(section1);
+  lcd.setCursor(0,1);
+  lcd.print(section2);
+}
+
 
 #include <Servo.h>
 #include <Wire.h>
@@ -754,6 +772,11 @@ void systemResetCallback()
 
 void setup()
 {
+  lcd.init();
+  lcd.clear();         
+  lcd.backlight();      // Make sure backlight is on
+  lcd.setCursor(0,0);//jonah belback
+
   Firmata.setFirmwareVersion(FIRMATA_FIRMWARE_MAJOR_VERSION, FIRMATA_FIRMWARE_MINOR_VERSION);
 
   Firmata.attach(ANALOG_MESSAGE, analogWriteCallback);
@@ -764,6 +787,7 @@ void setup()
   Firmata.attach(SET_DIGITAL_PIN_VALUE, setPinValueCallback);
   Firmata.attach(START_SYSEX, sysexCallback);
   Firmata.attach(SYSTEM_RESET, systemResetCallback);
+  Firmata.attach(STRING_DATA, stringDataCallback);//jonah belback
 
   // to use a port other than Serial, such as Serial1 on an Arduino Leonardo or Mega,
   // Call begin(baud) on the alternate serial port and pass it to Firmata to begin like this:
