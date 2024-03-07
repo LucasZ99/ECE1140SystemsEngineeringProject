@@ -1,7 +1,7 @@
 from datetime import date, datetime, timedelta
 from time import localtime, strftime, strptime, struct_time, time
 from PyQt6.QtCore import QSize, Qt, QTime, QTimer
-from PyQt6.QtWidgets import QMainWindow, QApplication, QWidget, QPushButton, QLabel, QLineEdit, QVBoxLayout, QGridLayout, QComboBox, QHBoxLayout, QTimeEdit, QTableWidget, QTableWidgetItem, QTabWidget
+from PyQt6.QtWidgets import QMainWindow, QApplication, QWidget, QPushButton, QLabel, QLineEdit, QVBoxLayout, QGridLayout, QComboBox, QHBoxLayout, QTimeEdit, QTableWidget, QTableWidgetItem, QTabWidget, QAbstractScrollArea
 from click import DateTime
 
 from CTC.CTCSchedule import Train, CTCSchedule
@@ -12,9 +12,9 @@ from CTC.TrackDataCSVParser import LineTrackDataCSVParser
 
 # from models import BlockModel
 
-class CTC_MainWindow(QMainWindow):
+class CTCMainWindow(QMainWindow):
     def __init__(self, ctc:CTC):
-        super(CTC_MainWindow, self).__init__()
+        super(CTCMainWindow, self).__init__()
 
         self.ctc = ctc
 
@@ -57,7 +57,7 @@ class CTC_MainWindow(QMainWindow):
             for block in self.ctc.get_blocks_and_stations(id):
                 block_list_name = ""
                 if block[1] != "":
-                    block_list_name = block[0] + "(STATION: %s)" % block[1]
+                    block_list_name = block[0] + " (STATION: %s)" % block[1]
                 else:
                     block_list_name = block[0]
                 destination_list_combo_box.addItem(block_list_name)
@@ -108,6 +108,10 @@ class CTC_MainWindow(QMainWindow):
             dispatch_train_schedule = QTableWidget()
             dispatch_train_schedule.setColumnCount(4)
             dispatch_train_schedule.setHorizontalHeaderLabels(["", "Station Name", "Time\n(min since prev. station departure)", "Arrival Time"])
+            dispatch_train_schedule.horizontalHeader().setStretchLastSection(False)
+            # dispatch_train_schedule.setSizeAdjustPolicy(
+            #     QAbstractScrollArea.AdjustToContentsOnFirstShow
+            # )
             self.dispatch_train_schedule_list.append(dispatch_train_schedule)
             # dispatch_train_schedule.setFixedWidth(dispatch_train_schedule.sizeHint().width())
             # dispatch_train_schedule_header = dispatch_train_schedule.horizontalHeader()
@@ -317,7 +321,7 @@ class CTC_MainWindow(QMainWindow):
 
             block, station = self.ctc.get_block_and_station(train.line, train.destination)
             dest_name = ""
-            if block != "":
+            if station != "":
                 dest_name = block + "(STATION: %s)" % station
             else:
                 dest_name = block
@@ -348,12 +352,13 @@ class CTC_MainWindow(QMainWindow):
         travel_time_s = 0
         arrival_time = QTime(self.departure_time_list[self.current_line_id()].time())
 
-        for stop_i in range(len(self.route)-1):
-            block_a = self.route[stop_i]
-            block_b = self.route[stop_i+1]
+        for stop_i in range(1, len(self.route)):
+            block_a = self.route[stop_i-1]
+            block_b = self.route[stop_i]
             # travel time to stop
             time_between_blocks_sec = self.ctc.get_travel_time_between_blocks_s(self.current_line_id(), block_a, block_b)
-            dispatch_train_schedule.setItem(stop_i, 2, QTableWidgetItem(str(timedelta(seconds=time_between_blocks_sec))))
+            minutes, seconds = divmod(time_between_blocks_sec, 60)
+            dispatch_train_schedule.setItem(stop_i, 2, QTableWidgetItem(str("%0.2d:%0.2d" % (minutes, seconds))))
 
             travel_time_s = travel_time_s + time_between_blocks_sec
 
@@ -374,27 +379,32 @@ class CTC_MainWindow(QMainWindow):
         # print("Destination Block: ", self.ctc.get_blocks(self.current_line_id())[selected_id - 1])
         # print(self.ctc.get_route_to_block(self.current_line_id(), "YARD", "B10"))
 
-        self.route = self.ctc.get_route_to_block(self.current_line_id(), "YARD", self.ctc.get_blocks(self.current_line_id())[selected_id - 1])
-        # print(self.route)
-
+        path = self.ctc.get_route_to_block(self.current_line_id(), "YARD", self.ctc.get_blocks(self.current_line_id())[selected_id - 1])
+        print(path)
+        self.route = []
 
         dispatch_train_schedule.setRowCount(0)
         if selected_id != 0:
-            for block in self.route:
+            for block in path:
                 station = self.ctc.get_station_name(self.current_line_id(), block)
-                if station != "":
-                    row_number = dispatch_train_schedule.rowCount()
-                    dispatch_train_schedule.insertRow(row_number)
-
-                    station_name = QTableWidgetItem(station)
-                    dispatch_train_schedule.setItem(row_number, 1, station_name)
-
-            if self.ctc.get_stations(line_id)[selected_id - 1] == "":
-                # self.route.append(self.ctc.get_blocks(line_id)[selected_id - 1])
+                # if station != "":
+                self.route.append(block)
                 row_number = dispatch_train_schedule.rowCount()
                 dispatch_train_schedule.insertRow(row_number)
-                station_name = QTableWidgetItem(self.ctc.get_blocks(line_id)[selected_id - 1])
+
+                station_name = QTableWidgetItem(block + " (" + station + ")")
                 dispatch_train_schedule.setItem(row_number, 1, station_name)
+
+            print(self.route)
+
+            # if self.ctc.get_stations(line_id)[selected_id - 1] == "":
+            #     # self.route.append(self.ctc.get_blocks(line_id)[selected_id - 1])
+
+
+            #     row_number = dispatch_train_schedule.rowCount()
+            #     dispatch_train_schedule.insertRow(row_number)
+            #     station_name = QTableWidgetItem(self.ctc.get_blocks(line_id)[selected_id - 1])
+            #     dispatch_train_schedule.setItem(row_number, 1, station_name)
 
     def select_line_to_dispatch(self, line_button)->None:
         line = self.dispatch_train_tab_widget.currentIndex()
@@ -409,14 +419,14 @@ class CTC_MainWindow(QMainWindow):
         stops_to_dest = self.ctc.get_stations(self.current_line)[:id]
         return stops_to_dest
 
-    def mode_switch_handler(self, mode_id):
+    def mode_switch_handler(self, mode):
         modes = ["Automatic Mode", "Manual Mode", "Maintenance Mode"]
-        self.mode = mode_id
+        self.mode = mode
         # disable automatic mode on switch from auto mode.
-        if(mode_id == 1 or mode_id == 2):
+        if(mode == 1 or mode == 2):
             self.ctc_mode_select.model().item(0).setEnabled(False)
 
-        print("CTC Switched to %s." % modes[mode_id])
+        print("CTC Switched to %s." % modes[mode])
 
     def update_running_trains_list(self):
         table = self.running_trains_table
@@ -428,9 +438,11 @@ class CTC_MainWindow(QMainWindow):
             table.insertRow(row)
             train_number = str(train.number)
             train_line = str(self.ctc.get_lines()[train.line])
+            destination = str(train.destination)
 
             table.setItem(row, 0, QTableWidgetItem(train_number))
             table.setItem(row, 1, QTableWidgetItem(train_line))
+            table.setItem(row, 2, QTableWidgetItem(destination))
 
     
 
@@ -496,7 +508,12 @@ class BlockTable(QTableWidget):
             self.setItem(id, 0, QTableWidgetItem(block_id))
             self.setItem(id, 6, QTableWidgetItem(str(block_length_ft)))
             self.setItem(id, 7, QTableWidgetItem(str(block_speed_limit_mph)))
-
+            
+            # set switch combobox if there is a switch
+            if block.switch_dest.__len__() > 0:
+                switch_combo_box = QComboBox()
+                switch_combo_box.addItems(block.switch_dest)
+                self.setCellWidget(id, 4, switch_combo_box)
 
     def search(self, search_term:str):
         self.setCurrentItem(None)
@@ -586,7 +603,7 @@ if __name__=="__main__":
     # track_layout_files = ["CTC/Green Line Track Data.csv", "CTC/Red Line Track Data.csv"]
     track_layout_files = ["CTC/Blue Line Track Data.csv"]
 
-    window = CTC_MainWindow(CTC(CTCSchedule(), [LineTrackDataCSVParser(track_layout).get_block_list() for track_layout in track_layout_files]))
+    window = CTCMainWindow(CTC(CTCSchedule(), [LineTrackDataCSVParser(track_layout).get_block_list() for track_layout in track_layout_files]))
     window.show()
 
     ctc_ui_app.exec()

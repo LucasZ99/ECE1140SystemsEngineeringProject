@@ -19,7 +19,7 @@ class CTCSchedule:
     """
     Returns the 
     """
-    def get_next_train_number(self):
+    def get_next_train_number(self)->int:
         return self.current_train_number
 
     """

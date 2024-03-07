@@ -105,15 +105,13 @@ class CTC:
         # print(self.track)
         print(origin_block_id, destination_block_id)
 
-        visited=set[str]()
-
         # paths = sorted(self.find_paths(line_id, origin_block_id, destination_block_id, visited), key=len)
         path = self.find_path(line_id, origin_block_id, destination_block_id)
         print(path)
 
         return path
 
-    def find_path(self, line_id:int, start, end, path=[])->list[str]:
+    def find_path(self, line_id:int, start:str, end:str, path=[])->list[str]:
         path = path + [start]
         if start == end:
             return path
@@ -124,28 +122,20 @@ class CTC:
                     return newpath
 
 
-    # # find all paths from start block to end block.
-    # def find_paths(self, line_id:int, start:str, end:str, visited:set[str], path:list[str]=[])->list[list[str]]:
-    #     visited.add(start)
-    #     path = []
-    #     path.append(start)
+    # find all paths from start block to end block.
+    def find_paths(self, line_id:int, start:str, end:str, path:list[str]=[])->list[list[str]]:
+        path = []
+        path.append(start)
 
-    #     if start == end:
-    #         return [path]
-        
-    #     if start not in self.track[line_id]:
-    #         return []
-    #     else:
-    #         paths = []
-    #         for block in self.track[line_id][start]:
-    #             if block not in visited:
-    #                 path.append(block)
-    #                 newpaths = self.find_paths(line_id, block, end, visited, path)
-    #                 for newpath in newpaths:
-    #                     paths.append(newpath)
-    #         visited.remove(start)
-
-    #     return paths
+        if start == end:
+            return [path]
+        paths = []
+        for block in self.track[line_id][start]:
+            if block not in path:
+                newpaths = self.find_paths(line_id, block, end, path)
+                for newpath in newpaths:
+                    paths.append(newpath)
+        return paths
 
     
     def get_travel_time_between_blocks_s(self, line_id:int, block_a:str, block_b:str)->float:
