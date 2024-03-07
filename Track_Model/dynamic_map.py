@@ -1,8 +1,8 @@
 from PyQt6.QtGui import QFont
 from PyQt6.QtWidgets import (
-    QWidget, QPushButton, QGridLayout
+    QWidget, QPushButton, QGridLayout, QApplication
 )
-
+import sys
 
 class DynamicMapSection(QPushButton):
     def __init__(self, text):
@@ -44,3 +44,11 @@ class DynamicMap(QWidget):
         self.setLayout(layout)
 
 
+##############################
+# Run app
+##############################
+
+# app = QApplication(sys.argv)
+# window = DynamicMap()
+# window.show()
+# sys.exit(app.exec())
