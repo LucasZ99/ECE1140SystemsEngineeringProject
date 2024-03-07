@@ -1,0 +1,244 @@
+import numpy as np
+import time
+# train object class
+
+
+class TrainController:
+    maxSpeed = 19.44  # 70 kmh in m/s
+    maxPower = 120  # in kW
+    accelLim = float(0.5)  # acceleration limit of the train based on 2/3 load
+    decelLim = float(-1.2)  # deceleration limit of the train based on 2/3 load
+    eBrakeDecelLim = float(-2.73)  # deceleration limit of the train emergency brake based on current capacity
+    KMH2ms = 3.6  # divide by this to go from KMH to m/s or multiply to go from m/s to KMH
+    mph2ms = 2.237  # divide by this to go from mph to m/s or multiply to go from m/s to mph
+    kW2HP = 1.34102 # multiply by this to go from kW to HP or divide to go from HP to kW
+    # TODO uk, uk-1 values array and ek ek-1 values array e is m/s and u is m
+
+    # testing arrays
+    # formatted as [uk, uk-1, ek, ek-1], "sampled" every 5 seconds from train model
+    arr = np.array([[1.25, 0, 0.5, 0], [6.25, 1.25, 1.5, 0.5], [15.625, 6.25, 2.25, 1.5], [26.25, 15.625, 2, 2.25],
+                    [31.875, 26.25, 0.25, 2], [26.875, 31.875, -2.25, 0.25], [10.625, 26.875, -4.25, -2.25]])
+
+    t_arr = np.array([[0.5, 0, 0.2, 0], [2, 0.5, 0.4, 0.2], [4.25, 2, 0.5, 0.4], [6.25, 4.25, 0.3, 0.5],
+                     [6.5, 6.25, -0.2, 0.3], [4.25, 6.5, -0.7, -0.2], [0, 4.25, -1, -0.7]])
+
+    # TODO train controller static data
+
+    def __init__(self):
+        # train mode, as input from driver
+        self.mode = bool(0)  # automatic or manual mode as bool: 0 automatic, 1 manual (0 default)
+        self.testBenchState = bool(0)  # state of test bench: 0 closed, 1 open (0 default)
+
+        # cabin environment, as inputs from driver
+        self.extLights = bool(0)  # headlights as bool: 0 off, 1 on (default 0)
+        self.intLights = bool(0)  # cabin lights as bool: 0 off, 1 on (default 0)
+        self.doorState = bool(0)  # door open/close status as bool: 0 closed, 1 opened (default 0)
+        self.doorL = bool(0)  # door control for left side doors: 0 closed, 1 opened (default 0)
+        self.doorR = bool(0)  # door control for right side doors: 0 close, 1 opened (default 0)
+
+        # cabin environment, as inputs from train model
+        self.cabinTemp = float(67)  # cabin thermostat temp as float, in Fahrenheit (default 67)
+
+        # environment information, as inputs from train model / beacon
+        self.station = str("")  # station name, parsed from beacon
+        self.doorSide = int(0)  # station door side: 0 neither, 1 left, 2 right, 3 both
+        self.isUnderground = bool(0)  # parsed from beacon, if the train is going underground
+
+        # fail states, as inputs from train model
+        self.signalFail = bool(0)  # track circuit signal pick up failure as bool: 0 no fail, 1 fail
+        self.engineFail = bool(0)  # engine failure as bool: 0 no fail, 1 fail
+        self.brakeFail = bool(0)  # brake failure as bool: 0 no fail, 1 fail
+
+        # PID gain values, as inputs from engineer
+        self.ki = float(40)  # integral gain as float,
+        self.kp = float(20)  # proportional gain as float,
+
+        # train model inputs
+        self.actualSpeed = float(0)  # actual speed of the train
+        self.cmdSpeed = float(31.0686)  # commanded vital speed of the train, as passed from wayside controller
+        self.speedLim = float(31.0686)  # speed limit of the current block, 50 kmh in mph, blue line speed lim
+        self.vitalAuth = float(10)  # vital authority for the train, as passed from wayside controller
+        self.passEBrake = bool(0)  # passenger emergency brake as bool: 0 off, 1 on
+        self.circuitPolarity = bool(0)  # track circuit state: 0 left, 1 right
+        self.beacon = str("")  # 128 byte message, as passed from track model
+
+        # train vital control, derived from train model inputs or driver/engineer inputs
+        self.currSpeed = float(0.5)  # referenced current speed from actual speed of train model
+        self.setPtSpeed = float(0)  # set point speed as determined by driver input
+        self.power = float(0)  # power of the train engine as determined by driver and engineer input
+        self.servBrake = bool(0)
+        self.eBrake = bool(0)  # application of emergency brake as bool: 0 off, 1 on
+
+        self.Vprev = float(0)  # velocity of previous step
+
+        # power calculation vars
+        self.uk = float(0)
+        self.uk1 = float(0)
+        self.ek = float
+        self.ek1 = float(0)
+
+        self.makeAnnouncement = bool(0)  # if announcement is to be made: 0 no, 1 yes
+
+    def settestbenchstate(self, newtestbenchstate):
+        self.testBenchState = newtestbenchstate
+        return
+
+    def setspeedlim(self, newspeedlim):
+        self.speedLim = newspeedlim
+        # TODO if curr speed greater than speed lim need to drop down speeds and power
+        if self.currSpeed > self.speedLim:
+            self.currSpeed = self.speedLim
+        return
+
+    def setvitalauth(self, newvitalauth):
+        self.vitalAuth = newvitalauth
+        return
+
+    def setaccellim(self, newaccellim):
+        self.accelLim = newaccellim
+        return
+
+    def setdecellim(self, newdecellim):
+        self.decelLim = newdecellim
+        return
+
+    def setbeacon(self, newbeacon):
+        self.beacon = newbeacon
+        return
+
+    def setcurrspeed(self, newcurrspeed):
+        self.currSpeed = newcurrspeed
+        return
+
+    def setsetptspeed(self, newsetptspeed):
+        if newsetptspeed > self.cmdSpeed:  # new setpt speed cannot exceed command speed, cap at cmd speed
+            newsetptspeed = self.cmdSpeed
+
+        if newsetptspeed > self.speedLim:  # new setpt speed cannot exceed speed lim, cap at speed lim
+            newsetptspeed = self.speedLim
+
+        if newsetptspeed != self.setPtSpeed:  # TODO need to update engine power
+            self.setPtSpeed = newsetptspeed
+        return
+
+    def setservbrake(self, newservbrake):
+        self.servBrake = newservbrake
+        return
+
+    def ebrakecontrol(self):
+        if self.eBrake == 0:  # ebrake is off
+            self.eBrake = 1  # enable ebrake
+            self.setPtSpeed = 0  # set speed of train to 0
+        elif self.eBrake == 1:  # ebrake is on
+            self.eBrake = 0  # disable ebrake
+        return
+
+    def passebrakecontrol(self):
+        if self.passEBrake == 0:  # ebrake is off
+            self.passEBrake = 1  # enable ebrake
+            self.setPtSpeed = 0  # set speed of train to 0
+        elif self.passEBrake == 1:  # ebrake is on
+            self.passEBrake = 0  # disable ebrake
+        return
+
+    def intlightscontrol(self):
+        if self.intLights == 0:
+            self.intLights = 1  # turn on cabin lights
+        elif self.intLights == 1:
+            self.intLights = 0  # turn off cabin lights
+        return
+
+    def extlightscontrol(self):
+        if self.extLights == 0:
+            self.extLights = 1  # turn on headlights
+        elif self.extLights == 1:
+            self.extLights = 0  # turn off headlights
+        return
+
+    def tempcontrol(self, temp):
+        self.cabinTemp = temp
+        return
+
+    def doorcontrol(self):
+        if self.doorState == 0:  # doors are closed
+            self.doorState = 1  # doors will be opened
+            if self.doorSide == 1:  # control doors on train left side
+                self.doorL = self.doorState  # open left side doors
+            elif self.doorSide == 2:  # control doors on train right side
+                self.doorR = self.doorState  # open right side doors
+            elif self.doorSide == 3 or self.doorSide == 0:  # control doors on both sides
+                self.doorL = self.doorState
+                self.doorR = self.doorState
+            else:  # doorSide = 0 (neither side), or a value that is not previously defined
+                self.doorcontrol()  # rerun doorcontrol to ensure doors are closed
+        elif self.doorState == 1:  # doors are already opened
+            self.doorState = 0  # doors will be closed
+            # close all doors
+            self.doorL = self.doorState
+            self.doorR = self.doorState
+        return
+
+    def circuitpolaritycontrol(self):
+        if self.circuitPolarity == 0:  # track is negative
+            self.circuitPolarity = 1  # switch to positive
+        elif self.circuitPolarity == 1:  # track is positive
+            self.circuitPolarity = 0  # switch to negative
+        return
+
+    def signalfailcontrol(self):
+        if self.signalFail == 0:
+            self.signalFail = 1  # enable failure
+        elif self.signalFail == 1:
+            self.signalFail = 0  # disable failure
+        return
+
+    def enginefailcontrol(self):
+        if self.engineFail == 0:
+            self.engineFail = 1  # enable failure
+        elif self.engineFail == 1:
+            self.engineFail = 0  # disable failure
+        return
+
+    def brakefailcontrol(self):
+        if self.brakeFail == 0:
+            self.brakeFail = 1  # enable failure
+        elif self.brakeFail == 1:
+            self.brakeFail = 0  # disable failure
+        return
+
+    def parsebeacon(self, beaconinfo):
+        pass
+
+    def failhandler(self):
+        if self.signalFail == 1 or self.engineFail == 1 or self.brakeFail == 1:
+            self.setPtSpeed = 0
+
+    def automode(self):
+        for i in range(0, 7):
+            # power cmd = ek * kp + uk * ki, converted to mph rounded to 3 decimal places
+            self.power = round(((self.arr[i, 2]*self.kp + self.arr[i, 0]*self.ki)/745.7), 3)
+
+            if self.power < 0:
+                self.servBrake = 1
+                print("service brake enabled")
+            elif self.power > 0:
+                self.servBrake = 0
+                print("service brake disabled")
+
+            self.currSpeed = self.t_arr[i, 0]  # speed recieved from train model
+            if self.ms2mph(self.currSpeed) > self.speedLim:
+                self.currSpeed = self.speedLim/self.mph2ms
+
+            print(f'power = {self.power} HP')
+            print(f'current speed = {self.ms2mph(self.currSpeed)} mph')
+            time.sleep(2)
+
+    def modeswitch(self):
+        if self.mode == 0:  # train in auto
+            self.mode = 1  # put into manual
+        elif self.mode == 1:  # train in manual
+            self.mode = 0  # put into auto
+        return
+
+    def ms2mph(self, ms):
+        return ms * self.mph2ms
