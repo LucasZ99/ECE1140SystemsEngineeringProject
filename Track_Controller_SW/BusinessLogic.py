@@ -59,9 +59,5 @@ class BusinessLogic(QObject):
 
         print(f"Suggested speed updated to {self.suggested_speed_list[0]}")
 
-    #TODO
-    def plc_sug_speed_updated(self, safe_speed_bool: bool) -> None:
-        pass
-
     def set_plc_filepath(self, plc_filepath: str) -> None:
         self.plc_logic.set_filepath(plc_filepath)

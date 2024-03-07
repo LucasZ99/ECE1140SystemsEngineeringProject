@@ -31,6 +31,8 @@ class TrackController(object):
         pass
 
     # Calling track model endpoints
+    def update_safe_speed(self, block_id, int, safe_speed_bool: bool) -> None:
+        pass
 
     # Calling ctc endpoints
     def update_ctc_occupancy(self):
