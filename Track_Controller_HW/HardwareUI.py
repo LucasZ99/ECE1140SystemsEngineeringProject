@@ -26,10 +26,10 @@ mode = 0
 modeButtonPressed = True
 switchButtonPressed = True
 
-currentDir = os.path.dirname(__file__)  # setting up dir to work in any location in a directory
-HWsubdir = os.path.join(os.path.dirname(__file__), 'HWUIData')
-HWsubdir = 'HWUIData'
-HWsubfolder = os.path.join(currentDir, HWsubdir)
+current_dir = os.path.dirname(__file__)  # setting up dir to work in any location in a directory
+hw_subdir = os.path.join(os.path.dirname(__file__), 'HWUIData')
+hw_subdir = 'HWUIData'
+hw_subfolder = os.path.join(current_dir, hw_subdir)
 
 # Library of Pins:
 bl1 = board.get_pin('d:28:o')
@@ -72,7 +72,7 @@ hex6.write(0)
 hex7.write(0)
 
 
-def flipSwitch(value):  # each time data is sent to board, checks for a valid range of button press then change sw state
+def flip_switch(value):  # each time data is sent to board, checks for a valid range of button press then change sw state
     global switchButtonPressed
     val = swFlip.read()
     if val >= 1 and mode == 1:  # check for valid button press
@@ -81,16 +81,16 @@ def flipSwitch(value):  # each time data is sent to board, checks for a valid ra
             global switches
             if switches[0] == 'R':
                 switches[0] = 'L'
-                sendToMain()
+                send_to_main()
             else:
                 switches[0] = 'R'
-                sendToMain()
+                send_to_main()
             time.sleep(.8)  # debounce
     else:
         switchButtonPressed = False
 
 
-def modeSwitch(value):  # each time data is sent to board, checks for a valid range of button press then updates mode
+def mode_switch(value):  # each time data is sent to board, checks for a valid range of button press then updates mode
     global modeButtonPressed
     val = swMode.read()
     if val >= 1:  # check for valid button press
@@ -99,18 +99,18 @@ def modeSwitch(value):  # each time data is sent to board, checks for a valid ra
             global mode
             if mode == 0:
                 mode = 1
-                sendToMain()
+                send_to_main()
             else:
                 mode = 0
-                sendToMain()
+                send_to_main()
             time.sleep(.8)  # debounce
     else:
         modeButtonPressed = False
 
 
 board.samplingOn(500)
-swMode.register_callback(modeSwitch)
-swFlip.register_callback(flipSwitch)
+swMode.register_callback(mode_switch)
+swFlip.register_callback(flip_switch)
 
 #swMode.enable_reporting()
 #swMode.mode = pyfirmata2.INPUT
@@ -118,20 +118,20 @@ swFlip.register_callback(flipSwitch)
 #it.start()
 
 
-class HWHandler(FileSystemEventHandler):  # watchdog behavior for the TB data
+class HWUI(FileSystemEventHandler):  # watchdog behavior for the TB data
 
     def on_modified(self, event):
-        self.assignHWData()
-        self.showHWData()
+        self.assign_hw_data()
+        self.show_hw_data()
 
-    def assignHWData(self):
+    def assign_hw_data(self):
         global switches
         global blocks
         global rrCrossing
         global trafficLights
         global mode
 
-        path = os.path.join(HWsubfolder, 'HWData.txt')
+        path = os.path.join(hw_subfolder, 'HWData.txt')
 
         with open(path, 'r') as file:
             # Read the contents of the file
@@ -144,7 +144,7 @@ class HWHandler(FileSystemEventHandler):  # watchdog behavior for the TB data
             print("Error occurred while assigning data:", e)
 
 
-    def showHWData(self):  # reads current vars and assigns those pins to the board
+    def show_hw_data(self):  # reads current vars and assigns those pins to the board
 
         binblocks = [1 if block == 'O' else 0 for block in blocks]
         binswitches = [1 if switch == 'R' else 0 for switch in switches]
@@ -196,8 +196,8 @@ class HWHandler(FileSystemEventHandler):  # watchdog behavior for the TB data
             hex7.write(0)
 
 
-def sendToMain():  # pushes the displayable data to the txt file that the main module is watching
-    with open(os.path.join(HWsubfolder, 'HWData.txt'), 'w') as file:
+def send_to_main():  # pushes the displayable data to the txt file that the main module is watching
+    with open(os.path.join(hw_subfolder, 'HWData.txt'), 'w') as file:
         file.write(f"switches = {switches}\n")
         file.write(f"blocks = {blocks}\n")
         file.write(f"rrCrossing = {rrCrossing}\n")
@@ -206,9 +206,9 @@ def sendToMain():  # pushes the displayable data to the txt file that the main m
 
 
 
-HW_handler = HWHandler()  # Setting up watchdog for Hardware
+HW_handler = HWUI()  # Setting up watchdog for Hardware
 HWObserver = Observer()
-HWObserver.schedule(HW_handler, HWsubfolder, recursive=True)
+HWObserver.schedule(HW_handler, hw_subfolder, recursive=True)
 HWObserver.start()
 
 
