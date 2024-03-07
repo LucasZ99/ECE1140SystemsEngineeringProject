@@ -122,6 +122,12 @@ class TrackModel:
             result.append(self.blocks[i].get_occupancy())
         return result
 
+    def tc_open_block(self, block_id):
+        pass
+
+    def tc_close_block(self, block_id):
+        pass
+
     def get_tm_authority(self, train_id: int) -> list[int]:
         return self.authority[self.trains[train_id].get_block_id()]
 
