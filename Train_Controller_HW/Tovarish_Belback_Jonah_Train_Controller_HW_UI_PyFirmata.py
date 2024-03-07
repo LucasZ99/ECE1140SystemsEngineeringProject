@@ -1,5 +1,5 @@
 from pyfirmata2 import ArduinoMega, util, STRING_DATA
-import time
+import time#replace with shared time module when created and we do integration
 from Tovarish_Belback_Jonah_Train_Controller_Testbenchv2 import *#TestBench_JEB382
 from PyQt6.QtWidgets import *
 #import sys
@@ -124,7 +124,7 @@ class HW_UI_JEB382_PyFirmat():
         
         
         #+-+-+-+-
-        self.init_clk = time.time()
+        self.init_clk = time.time()#replace with shared time module when created and we do integration
         
         #input sets
         self.TCK_Kp     = POT_PyF(0)
