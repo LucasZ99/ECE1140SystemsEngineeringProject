@@ -1,9 +1,9 @@
 from TrackController import TrackController
 from switching import Switch
-
+from Track_Model import Track_Model
 
 class TrackControllerContainer(object):
-    def __init__(self):
+    def __init__(self, track_model: Track_Model):
         # initialize track data
         self.occupancy_list = [False] * 150
         self.switch_list = \
@@ -16,6 +16,7 @@ class TrackControllerContainer(object):
         self.railway_crossing_blocks_list = [19, 108]
         self.speed_list = [0.0] * 150
         self.zero_speed_flag_list = [False] * 150
+        self.track_model = track_model
 
         # Controller specific initialization
         # Section A: blocks 1-32, 147-150
@@ -36,7 +37,7 @@ class TrackControllerContainer(object):
                 self.speed_list[block_id] = speed
             else:
                 self.speed_list[block_id] = 0
-            # TrackModel.updateSpeed(speed_list)
+            # self.track_model.updateSpeed(self.speed_list)
 
 
     def set_block_maintenance(self, line_id: int, block_index: int, open: bool) -> None:
