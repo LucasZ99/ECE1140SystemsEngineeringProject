@@ -9,16 +9,17 @@ import TrackControllerUI
 
 
 class TrackController(object):
-    def __init__(self):
+    def __init__(self, occupancy_list):
         self.switches_list = \
             [
                 Switch(5, 6, 11, 6),
             ]
 
         self.plc_logic = PLC_Logic.PlcProgram()
-        self.occupancy_list = [False] * 16
+        self.occupancy_list = occupancy_list
         self.authority = 0
         self.suggested_speed_list = [0]
+        self.zero_speed_flag_list = [False] * len(self.occupancy_list)
 
         self.business_logic = BusinessLogic(
             self.occupancy_list,
@@ -39,8 +40,8 @@ class TrackController(object):
         pass
 
     # CTC endpoints
-    def update_switch(self, line_id: int, block_id: int, switch_status: Switch) -> None:
-        pass
+    # def update_switch(self, line_id: int, block_id: int, switch_status: Switch) -> None:
+    #     pass
 
     def set_block_maintenance(self, line_id: int, block_index: int, open: bool) -> None:
         pass
@@ -53,7 +54,11 @@ class TrackController(object):
 
     # Track Model endpoints
     def update_occupancy(self, block_occupancy_list: list[bool]) -> None:
-        pass
+        # if the occupancy is changed, trigger the business layer and update attribute
+        if block_occupancy_list != self.occupancy_list:
+            self.zero_speed_flag_list = self.business_logic.occupancy_changed(block_occupancy_list)
+            self.occupancy_list = block_occupancy_list
+        return self.zero_speed_flag_list
 
     def show_ui(self):
         app = QApplication(sys.argv)
