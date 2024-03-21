@@ -200,21 +200,22 @@ class Window(QMainWindow):
 
         # Temperature Controls
         self.temperature_controls_group = QGroupBox("Temperature Controls")
+        self.temperature_controls_group.setMaximumSize(300, 200)
         tc_layout = QVBoxLayout()
 
         slider = QSlider(Qt.Orientation.Horizontal, self)
-        slider.setGeometry(50, 50, 100, 50)  # this isn't doing anything rn
+        slider.setFixedWidth(250)
         slider.setMinimum(-40)
         slider.setMaximum(120)
         slider.setTickPosition(QSlider.TickPosition.TicksBelow)
         slider.setTickInterval(5)
         slider.setValue(74)
         slider.valueChanged.connect(self.display_slider_value)
-        tc_layout.addWidget(slider)
 
+        tc_layout.addWidget(slider)
         self.slider_label = QLabel(self)
         tc_layout.addWidget(self.slider_label)
-        self.slider_label.setText("Environmental Temperature:\n74 °F")
+        self.slider_label.setText("74 °F")
 
         self.temperature_controls_group.setLayout(tc_layout)
         layout.addWidget(self.temperature_controls_group, 2, 3, 1, 1)

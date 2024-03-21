@@ -4,6 +4,11 @@
 
 .DS_Store
 
+# Python Environments
+1140-env/
+*env/
+
+
 
 
 

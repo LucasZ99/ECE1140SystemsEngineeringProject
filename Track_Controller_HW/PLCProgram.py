@@ -17,14 +17,14 @@ class PLC:  # watchdog behavior for the PLC data
         self.blocks = [True, True, True, True]
         self.mode = False  # False = auto mode,so the PLC can move everything. In False, PLC can only adjust rrCrossing and trafficLts
 
-    def assignPLCData(self, rrCross, traffLights, switch, block, mod):  # updates globals when passed the vals from main
+    def assign_plc_data(self, rrCross, traffLights, switch, block, mod):  # updates globals when passed the vals from main
         self.rrCrossing = rrCross
         self.trafficLights = traffLights
         self.switches = switch
         self.blocks = block
         self.mode = mod
 
-    def runPLCLogic(self):  # very simple operations done to show changes
+    def run_plc_logic(self):  # very simple operations done to show changes
         if self.blocks[1]:
             self.rrCrossing = True
         elif not self.blocks[1] and not self.blocks[2] and not self.blocks[3]:
@@ -34,7 +34,7 @@ class PLC:  # watchdog behavior for the PLC data
             self.switches[0] = not self.switches[0]
             self.trafficLights[0] = not self.trafficLights[0]
 
-    def PLCToMain(self):  # pushes the current data to main
+    def plc_to_main(self):  # pushes the current data to main
         return self.rrCrossing, self.trafficLights, self.switches
 
 print("I am the mystical magical PLC creature")
