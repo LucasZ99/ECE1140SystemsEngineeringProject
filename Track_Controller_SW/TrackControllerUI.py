@@ -61,6 +61,7 @@ class UI(QMainWindow):
         super(UI, self).__init__()
 
         self.switch_list_widget = None
+        self.block_number = None
         self.manual_mode_window = None
         # load ui
         loadUi('TrackController.ui', self)
@@ -76,7 +77,7 @@ class UI(QMainWindow):
         self.manual_mode = self.findChild(QPushButton, 'manual_mode')
         self.browse_button = self.findChild(QPushButton, 'browse')
         self.filename = self.findChild(QLabel, 'filename')
-        self.occupancy_disp = self.findChild(QLCDNumber, 'block_number')
+        # self.occupancy_disp = self.findChild(QListWidget, 'block_number')
         self.light_b6 = self.findChild(QPushButton, 'light_b6')
         self.light_b6.setStyleSheet("background-color: rgb(0, 224, 34)")
         self.light_b11 = self.findChild(QPushButton, 'light_b11')
@@ -147,8 +148,10 @@ class UI(QMainWindow):
 
     @pyqtSlot(list)
     def update_occupancy(self, occupancy_arr: list) -> None:
-        block = np.argmax(occupancy_arr)
-        self.occupancy_disp.display(block)
+        self.block_number.clear()
+        for index, occupancy in self.business_logic.block_indexes, occupancy_arr:
+            item = QListWidgetItem((index, occupancy))
+            self.switch_list_widget.addItem(item)
         self.show()
 
     @pyqtSlot(list)

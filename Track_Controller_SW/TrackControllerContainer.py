@@ -1,3 +1,5 @@
+from typing import List
+
 from TrackController import TrackController
 from switching import Switch
 from Track_Model import Track_Model
@@ -22,7 +24,7 @@ class TrackControllerContainer(object):
         # Section A: blocks 1-32, 147-150
         self.occupancy_list_A = self.occupancy_list[0:32] + self.occupancy_list[147:150]
 
-        self.trackControllerA = TrackController(self.occupancy_list_A)
+        self.trackControllerA = TrackController(occupancy_list=self.occupancy_list_A, section="A")
 
         # self.trackControllerB = TrackController()
         #
@@ -44,13 +46,16 @@ class TrackControllerContainer(object):
         pass
 
     def set_authority(self, line_id: int, block_id: int, authority: int) -> None:
-        # call trackmodel.update_authority endpoint directly
+        # call self.track_model.update_authority endpoint directly
         pass
 
     # Track Model Endpoint
-    def update_occupancy(self, block_occupancy_list: list[bool]) -> None:
+    def update_occupancy(self, block_occupancy_list: list) -> None:
         self.occupancy_list = block_occupancy_list
         self.occupancy_list_A = self.occupancy_list[0:32] + self.occupancy_list[147:150]
         zero_speed_flag_list_A = self.trackControllerA.update_occupancy(self.occupancy_list_A)
         self.zero_speed_flag_list[0:32] = zero_speed_flag_list_A[0:32]
         self.zero_speed_flag_list[147:] = zero_speed_flag_list_A[32:]
+
+        # self.track_model.updateSpeed(self.speed_list)
+

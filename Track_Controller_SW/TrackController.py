@@ -9,7 +9,7 @@ import TrackControllerUI
 
 
 class TrackController(object):
-    def __init__(self, occupancy_list):
+    def __init__(self, occupancy_list : list, section : str):
         self.switches_list = \
             [
                 Switch(5, 6, 11, 6),
@@ -20,13 +20,15 @@ class TrackController(object):
         self.authority = 0
         self.suggested_speed_list = [0]
         self.zero_speed_flag_list = [False] * len(self.occupancy_list)
+        self.section = section
 
         self.business_logic = BusinessLogic(
             self.occupancy_list,
             self.switches_list,
             self.authority,
             self.suggested_speed_list,
-            self.plc_logic)
+            self.plc_logic,
+            self.section)
 
     def run(self) -> None:
         pass
