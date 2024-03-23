@@ -248,7 +248,7 @@ class UITrain(QMainWindow):
         self.populate_values()
 
     def rec_speed_changed(self):
-        self.train.signals.set_commanded_speed(int(self.recSpeedValue_tb.text(), 16), self.train.failure.signal_pickup_failure)
+        self.train.signals.set_commanded_speed(float(self.recSpeedValue_tb.text()), self.train.failure.signal_pickup_failure)
         self.populate_values()
 
     def auth_changed(self):
@@ -350,8 +350,8 @@ class UITrain(QMainWindow):
         self.sFailCheck.setChecked(self.train.failure.signal_pickup_failure)
         self.bFailCheck.setChecked(self.train.failure.brake_failure)
 
-        self.recSpeedValue.setText(f'0x{self.train.signals.commanded_speed:02x}')
-        self.recSpeedValue_tb.setText(f'{self.train.signals.commanded_speed:02x}')
+        self.recSpeedValue.setText(f'{self.train.signals.commanded_speed: .2f}')
+        self.recSpeedValue_tb.setText(f'{self.train.signals.commanded_speed: .2f}')
 
         self.authValue.setText(f'0x{self.train.signals.authority:02x}')
         self.authValue_tb.setText(f'{self.train.signals.authority:02x}')
@@ -391,3 +391,4 @@ class UITrain(QMainWindow):
 app = QApplication(sys.argv)
 UIWindow = UITrain()
 app.exec()
+
