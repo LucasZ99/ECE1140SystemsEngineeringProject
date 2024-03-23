@@ -13,7 +13,6 @@ from Track_Controller_SW.switching import Switch
 
 
 class ManualMode(QWidget):
-
     switch_changed_signal = pyqtSignal(int)
 
     def __init__(self, business_logic: BusinessLogic):
@@ -24,11 +23,9 @@ class ManualMode(QWidget):
         self.business_logic = business_logic
         self.switches_list = np.copy(business_logic.switches_list)
 
-
         self.switch_button_group = QButtonGroup()
         button_id = 0
         for switch in self.switches_list:
-
             button = self.switch_button_ret(
                 size=200,
                 text1=f"Switch at Block {switch.block}")
@@ -42,6 +39,7 @@ class ManualMode(QWidget):
     def switch_button_pressed(self, button: QPushButton) -> None:
         QtCore.QMetaObject.invokeMethod(self, "switch_changed_signal",
                                         QtCore.Q_ARG(int, self.switch_button_group.id(button)))
+
     def switch_button_ret(self, size=None, text1=None, checkable=True, style1=None, style2=None):
         button = QPushButton()
         button.setCheckable(checkable)
@@ -93,13 +91,16 @@ class UI(QMainWindow):
         # Initialize switch list
         self.update_switch_list()
 
+        # Initialize occupancy list
+        self.update_occupancy()
+
         # define connections
         self.browse_button.clicked.connect(self.browse_files)
         self.manual_mode.clicked.connect(self.manual_mode_dialogue)
         self.tb_button.clicked.connect(self.open_tb)
 
         # outside signals
-        self.business_logic.occupancy_signal.connect(self.update_occupancy)
+        # self.business_logic.occupancy_signal.connect(self.update_occupancy)
         self.business_logic.switches_signal.connect(self.update_switches)
         self.business_logic.rr_crossing_signal.connect(self.activate_rr_crossing)
         self.business_logic.light_signal.connect(self.update_light)
@@ -146,13 +147,13 @@ class UI(QMainWindow):
             self.rr_crossing.setText("Railroad Crossing Inactive")
             self.rr_crossing.setStyleSheet("background-color: rgb(0, 224, 34)")
 
-    @pyqtSlot(list)
-    def update_occupancy(self, occupancy_arr: list) -> None:
+    # @pyqtSlot(list)
+    def update_occupancy(self) -> None:
         self.block_number.clear()
-        for index, occupancy in self.business_logic.block_indexes, occupancy_arr:
-            item = QListWidgetItem((index, occupancy))
-            self.switch_list_widget.addItem(item)
-        self.show()
+        for index, occupancy in zip(self.business_logic.block_indexes, self.business_logic.occupancy_list):
+        # for occupancy in self.business_logic.occupancy_list:
+            item = QListWidgetItem(str(index) + " " + str(occupancy))
+            self.block_number.addItem(item)
 
     @pyqtSlot(list)
     def update_switches(self, switches_arr: list[Switch]) -> None:

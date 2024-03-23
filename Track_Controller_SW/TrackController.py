@@ -55,11 +55,11 @@ class TrackController(object):
         pass
 
     # Track Model endpoints
-    def update_occupancy(self, block_occupancy_list: list[bool]) -> None:
+    def update_occupancy(self, block_occupancy_list: list[bool]):
         # if the occupancy is changed, trigger the business layer and update attribute
-        if block_occupancy_list != self.occupancy_list:
-            self.zero_speed_flag_list = self.business_logic.occupancy_changed(block_occupancy_list)
-            self.occupancy_list = block_occupancy_list
+        # if block_occupancy_list != self.occupancy_list:
+        self.zero_speed_flag_list = self.business_logic.occupancy_changed(block_occupancy_list)
+        self.occupancy_list = block_occupancy_list
         return self.zero_speed_flag_list
 
     def show_ui(self):
@@ -69,10 +69,10 @@ class TrackController(object):
         app.exec()
 
 
-def main():
-    track_controller = TrackController()
-    track_controller.show_ui()
-
-
-if __name__ == "__main__":
-    main()
+# def main():
+#     track_controller = TrackController()
+#     track_controller.show_ui()
+#
+#
+# if __name__ == "__main__":
+#     main()
