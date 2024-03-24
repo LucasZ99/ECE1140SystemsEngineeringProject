@@ -152,6 +152,8 @@ class TrackModel:
     def get_ctc_ticket_sales(self):
         pass
 
+# Communicating with UI
+
 
 # temp main
 t = TrackModel('Green Line.xlsx')

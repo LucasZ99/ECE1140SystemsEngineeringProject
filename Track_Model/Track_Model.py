@@ -68,7 +68,7 @@ class TrackModel:
     def get_station_table(self, section_id):
         relevant_section_data = self.get_section(section_id)[:, [9, 2, 10, 12, 16, 17]]
         arr = relevant_section_data.copy()
-        filtered_arr = arr[np.array(['Station' in str(x) for x in arr[:, 0]])]
+        filtered_arr = arr[np.array(['station' in str(x).lower() for x in arr[:, 0]])]
 
         return filtered_arr
 
@@ -193,3 +193,12 @@ class TrackModel:
         pass
 
     # ctc
+
+# TODO: get communication functions from track_model_2.0 (0%)
+# TODO: make initializing better (90%)
+# TODO: add a infrastructure values column
+
+
+# temp main
+# t = TrackModel('Blue Line.xlsx')
+# print(t.get_data())
