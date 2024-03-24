@@ -101,27 +101,6 @@
      <string>Filepath</string>
     </property>
    </widget>
-   <widget class="QLCDNumber" name="block_number">
-    <property name="geometry">
-     <rect>
-      <x>440</x>
-      <y>300</y>
-      <width>151</width>
-      <height>111</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>151</width>
-      <height>111</height>
-     </size>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>20</pointsize>
-     </font>
-    </property>
-   </widget>
    <widget class="QLabel" name="occupancy">
     <property name="geometry">
      <rect>
@@ -196,8 +175,8 @@
    <widget class="QPushButton" name="rr_crossing_button">
     <property name="geometry">
      <rect>
-      <x>430</x>
-      <y>430</y>
+      <x>450</x>
+      <y>500</y>
       <width>171</width>
       <height>61</height>
      </rect>
@@ -233,6 +212,16 @@
     </property>
     <property name="text">
      <string>Light Block 11</string>
+    </property>
+   </widget>
+   <widget class="QListWidget" name="block_number">
+    <property name="geometry">
+     <rect>
+      <x>410</x>
+      <y>300</y>
+      <width>256</width>
+      <height>192</height>
+     </rect>
     </property>
    </widget>
   </widget>
