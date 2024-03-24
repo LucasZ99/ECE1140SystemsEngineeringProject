@@ -219,8 +219,8 @@ class TrackModel:
 
     # track controller
 
-    def get_tc_block_occupancy(self):  # giving everything now
-        pass
+    def get_tc_block_occupancy(self) -> list[bool]:  # giving everything now
+        return self.data[1:, :].tolist()
 
     # train model
 
@@ -231,29 +231,33 @@ class TrackModel:
         return self.speed
     
     def get_tm_beacon(self, train_id: int) -> str:
-        pass
+        block_id = train_id
+        return self.data[block_id, 11]
 
     def get_tm_grade(self, train_id: int) -> int:
-        pass
+        block_id = train_id
+        return self.data[block_id, 4]
 
     def get_tm_elevation(self, train_id: int) -> float:
-        pass
+        block_id = train_id
+        return self.data[block_id, 6]
 
     def get_tm_underground_status(self, train_id: int) -> bool:
-        pass
+        block_id = train_id
+        return self.data[block_id]  # need underground status
 
     def get_tm_embarking_passengers(self, station_block: int) -> int:
-        pass
+        return self.data[station_block, 17]
 
     # ctc
 
     def get_ctc_ticket_sales(self):
-        pass
+        return random.randint(1000, 2000)
 
 
 # TODO: make initializing better (90%)
 # TODO: add a infrastructure values column
-# TODO: Write communication handlers
+# TODO: Write communication handlers (50%)
 
 # temp main
 # t = TrackModel('Blue Line.xlsx')
