@@ -15,9 +15,6 @@ class Train:
     def get_block_id(self):
         return self.block_id
 
-class Wayside:
-    def __init__(self):
-
 
 class Station:
     def __init__(self, block_id: int, s: str, station_side: str):

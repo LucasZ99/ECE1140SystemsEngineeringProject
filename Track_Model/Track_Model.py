@@ -6,9 +6,10 @@ import random
 
 class TrackModel:
     def __init__(self, file_name):
-        d = pd.read_excel(file_name, header=None)  # We will also load our header row, and block IDs will map to index
-        self.data = d.to_numpy()
-        self.check_data()
+        # d = pd.read_excel(file_name, header=None)  # We will also load our header row, and block IDs will map to index
+        # self.data = d.to_numpy()
+        # self.check_data()
+        self.data = self.set_data(file_name)
         self.line_name = self.data[0, 0]
         self.num_blocks = len(self.data)
         self.ticket_sales = 0
@@ -41,13 +42,56 @@ class TrackModel:
         return self.data[first_index:last_index, :]
 
     def set_data(self, file_name):
-        d = pd.read_excel(file_name, header=None)  # We will also load our header row, and block IDs will map to index
-        self.data = d.to_numpy()
-        self.check_data()
-        self.line_name = self.data[0, 0]
-        self.num_blocks = len(self.data)
+        d = pd.read_excel(file_name,
+                          header=None)  # We will also load our header row, and block IDs will map to index
+        data = d.to_numpy()
 
-    def set_block_occupancy(self, block, occupancy):
+        false_col = np.full((data.shape[0], 1), False, dtype=bool)
+        temp = np.full((data.shape[0], 1), 74, dtype=int)
+        new_data = np.hstack((data[:, 0:7], np.copy(false_col)))
+        new_data = np.hstack((new_data[:, 0:8], temp))
+        new_data = np.hstack((new_data, data[:, 7:]))
+        nan_array = np.full((data.shape[0], 1), np.nan, dtype=object)
+        new_data = np.hstack((new_data, nan_array))
+        new_data = np.hstack((new_data, np.copy(false_col)))
+        new_data = np.hstack((new_data, np.copy(false_col)))
+        new_data = np.hstack((new_data, np.copy(false_col)))
+        new_data = np.hstack((new_data, np.copy(nan_array)))
+        new_data = np.hstack((new_data, np.copy(nan_array)))
+        for i in range(0, new_data.shape[0]):
+            if 'station' in str(new_data[i, 9]).lower():
+                new_data[i, 12] = False
+                new_data[i, 16] = 0
+                new_data[i, 17] = 0
+                if i != 0:
+                    new_data[i - 1, 12] = False
+                if i != new_data.shape[0] - 2:
+                    new_data[i + 1, 12] = False
+
+        new_data[0, 7] = 'Block Occupancy'
+        new_data[0, 8] = 'Temperature'
+        new_data[0, 12] = 'Heaters'
+        new_data[0, 13] = 'Power Failure'
+        new_data[0, 14] = 'Track Circuit Failure'
+        new_data[0, 15] = 'Broken Rail Failure'
+        new_data[0, 16] = 'Ticket Sales'
+        new_data[0, 17] = 'Embarking'
+        # TODO: ADD INFRASTRUCTURE VALUE COLUMN w/ CORRECT INITIALIZATION
+        return new_data
+        # print(data)
+        # # Convert the NumPy array to a pandas DataFrame
+        # df = pd.DataFrame(data)
+        #
+        # # Define the filename for the Excel file
+        # excel_filename = "testing_output.xlsx"
+        #
+        # # Export the DataFrame to an Excel file
+        # df.to_excel(excel_filename, index=False,
+        #             header=False)  # index=False, header=False to exclude row and column labels
+        #
+        # print("Array data has been exported to:", excel_filename)
+
+    def set_block_occupancy(self, block: int, occupancy: bool):
         self.data[block, 7] = occupancy
 
     def check_data(self):  # update this in future to validate data further
@@ -68,7 +112,7 @@ class TrackModel:
     def get_station_table(self, section_id):
         relevant_section_data = self.get_section(section_id)[:, [9, 2, 10, 12, 16, 17]]
         arr = relevant_section_data.copy()
-        filtered_arr = arr[np.array(['Station' in str(x) for x in arr[:, 0]])]
+        filtered_arr = arr[np.array(['station' in str(x).lower() for x in arr[:, 0]])]
 
         return filtered_arr
 
@@ -81,6 +125,9 @@ class TrackModel:
     def set_env_temperature(self, temperature):
         self.environmental_temperature = temperature
         self.data[1:, 8] = temperature
+
+    def get_env_temperature(self, temperature):
+        return self.environmental_temperature
 
     def set_heaters(self, value):  # For now acts instantaneously, but may need to stimulate heating over time
         heaters = self.data[1:, 12]
@@ -151,6 +198,12 @@ class TrackModel:
     def toggle_crossing(self, block_id: int):
         pass
 
+    def open_block(self, block_id: int):
+        pass
+
+    def close_block(self, block_id: int):
+        pass
+
     # train model
 
     def train_spawned(self):
@@ -166,8 +219,8 @@ class TrackModel:
 
     # track controller
 
-    def get_tc_block_occupancy(self, starting_block: int, ending_block: int):
-        pass
+    def get_tc_block_occupancy(self) -> list[bool]:  # giving everything now
+        return self.data[1:, :].tolist()
 
     # train model
 
@@ -178,18 +231,34 @@ class TrackModel:
         return self.speed
     
     def get_tm_beacon(self, train_id: int) -> str:
-        pass
+        block_id = train_id
+        return self.data[block_id, 11]
 
     def get_tm_grade(self, train_id: int) -> int:
-        pass
+        block_id = train_id
+        return self.data[block_id, 4]
 
     def get_tm_elevation(self, train_id: int) -> float:
-        pass
+        block_id = train_id
+        return self.data[block_id, 6]
 
     def get_tm_underground_status(self, train_id: int) -> bool:
-        pass
+        block_id = train_id
+        return self.data[block_id]  # need underground status
 
     def get_tm_embarking_passengers(self, station_block: int) -> int:
-        pass
+        return self.data[station_block, 17]
 
     # ctc
+
+    def get_ctc_ticket_sales(self):
+        return random.randint(1000, 2000)
+
+
+# TODO: make initializing better (90%)
+# TODO: add a infrastructure values column
+# TODO: Write communication handlers (50%)
+
+# temp main
+# t = TrackModel('Blue Line.xlsx')
+# print(t.get_data())
