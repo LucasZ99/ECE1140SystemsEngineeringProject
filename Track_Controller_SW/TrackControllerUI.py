@@ -108,6 +108,7 @@ class UI(QMainWindow):
         # show the app
         self.show()
 
+    # @pyqtSlot(list)
     def update_switch_list(self):
         self.switch_list_widget.clear()
         for switch in self.business_logic.switches_list:

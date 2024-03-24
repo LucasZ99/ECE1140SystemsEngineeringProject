@@ -2,10 +2,12 @@ from typing import List
 
 from TrackController import TrackController
 from switching import Switch
-from Track_Model import Track_Model
+# from Track_Model import Track_Model_New
 
 class TrackControllerContainer(object):
-    def __init__(self):
+    def __init__(self,
+                 # track_model: Track_Model_New
+                 ):
         # initialize track data
         self.occupancy_list = [False] * 151
         self.switch_list = \
@@ -16,9 +18,10 @@ class TrackControllerContainer(object):
                 Switch(85, 86, 100, 86)
             ]
         self.railway_crossing_blocks_list = [19, 108]
-        self.speed_list = [0.0] * 150
-        self.zero_speed_flag_list = [False] * 150
+        self.speed_list = [0.0] * 151
+        self.zero_speed_flag_list = [False] * 151
         # self.track_model = track_model
+        self.authority_list = [0] * 151
 
         # Controller specific initialization
         # Section A: blocks 1-32, 147-150
@@ -39,14 +42,19 @@ class TrackControllerContainer(object):
                 self.speed_list[block_id] = speed
             else:
                 self.speed_list[block_id] = 0
-            # self.track_model.updateSpeed(self.speed_list)
+            # self.track_model.update_speed(self.speed_list)
 
+    def update_switch(self, line_id: int, block_id: int, switch_status: Switch) -> None:
+        pass
 
     def set_block_maintenance(self, line_id: int, block_index: int, open: bool) -> None:
         pass
+        # call self.track_model.open/close_block(block_index)
 
     def set_authority(self, line_id: int, block_id: int, authority: int) -> None:
-        # call self.track_model.update_authority endpoint directly
+        if line_id == 0:
+            self.authority_list[block_id] = authority
+            # self.track_model.update_authority(self.authority_list)
         pass
 
     # Track Model Endpoint
@@ -57,8 +65,6 @@ class TrackControllerContainer(object):
         zero_speed_flag_list_A = self.trackControllerA.update_occupancy(self.occupancy_list_A)
         self.zero_speed_flag_list[0:32] = zero_speed_flag_list_A[0:32]
         self.zero_speed_flag_list[147:] = zero_speed_flag_list_A[32:]
-
-        # self.track_model.updateSpeed(self.speed_list)
 
     def show_ui(self, section : str):
         if section == "A":
