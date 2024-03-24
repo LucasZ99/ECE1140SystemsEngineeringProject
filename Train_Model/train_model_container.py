@@ -12,11 +12,6 @@ class TrainModelContainer:
     passenger_return = dict()
     ui_list = list()
 
-    def __init__(self):
-        # app = QApplication(sys.argv)
-        # self.ui_list.append(new_train_ui.UITrain())
-        # app.exec()
-
     def track_model_inputs(self, input_list, index):
         # the list provided should have entries in this order: [commanded speed, vital authority, beacon, underground]
         if len(self.track_inputs) == 0:
@@ -83,6 +78,7 @@ class TrainModelContainer:
             self.train_list[1] = new_train_model.TrainModel()
             self.track_inputs[1] = [0.0, 0, "", False]
             self.controller_inputs[1] = [0.0, 0.0, False, False, False, "", True, False]
+
             index = 1
         else:
             index = max(self.train_list.keys()) + 1
@@ -101,53 +97,3 @@ class TrainModelContainer:
             self.controller_inputs.pop(index)
             return True
 
-
-container = TrainModelContainer()
-# container is empty
-print(container.track_model_inputs([0, 0, "", False], 23))
-print(container.train_controller_inputs([0, 0], 23))
-print(container.track_update_block([0, 0, 0], 23))
-print(container.track_update_passengers(23, 23))
-print(container.controller_update_temp(23, 23))
-print(container.remove_train(23))
-
-container.add_train()
-# container is not empty
-# [commanded speed, vital authority, beacon, underground]
-print(container.track_model_inputs([1, 1, "a", True], 1))
-print(f'[{container.train_list[1].signals.commanded_speed}, {container.train_list[1].signals.authority}, '
-      f'{container.train_list[1].signals.beacon}]')
-container.update_values()
-print(f'[{container.train_list[1].signals.commanded_speed}, {container.train_list[1].signals.authority}, '
-      f'{container.train_list[1].signals.beacon}]')
-print(container.track_model_inputs([0, 0, "", True], 2))
-
-# [commanded speed, power, service brake, emergency brake, left/right doors, announce station, cabin lights, headlights]
-print(container.train_controller_inputs([1, 1, True, True, 1, "a", False, True], 1))
-container.update_values()
-print(f'[{container.train_list[1].engine.power}, {container.train_list[1].brakes.service_brake}, '
-      f'{container.train_list[1].brakes.driver_ebrake}, {container.train_list[1].interior_functions.left_doors}, '
-      f'{container.train_list[1].interior_functions.right_doors}, '
-      f'{container.train_list[1].interior_functions.announcement}, '
-      f'{container.train_list[1].interior_functions.interior_lights}, '
-      f'{container.train_list[1].interior_functions.exterior_lights}]')
-print(container.train_controller_inputs([0, 0, False, False, 0, "", True, False], 2))
-
-print(container.track_update_block([1, 1, 1], 1))
-print(f'[{container.train_list[1].new_block.grade}, {container.train_list[1].new_block.elevation}, '
-      f'{container.train_list[1].new_block.block_length}]')
-print(container.track_update_block([0, 0, 0], 2))
-
-print(container.track_update_passengers(48, 1))
-print(container.track_update_passengers(48, 1))
-print(container.train_list[1].passengers.people_number)
-print(container.track_update_passengers(47, 2))
-
-print(container.controller_update_temp(70, 1))
-print(container.train_list[1].heater.target_temp)
-print(container.controller_update_temp(70, 2))
-
-container.physics_calculation(1)
-
-print(container.remove_train(2))
-print(container.remove_train(1))
