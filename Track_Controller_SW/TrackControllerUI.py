@@ -100,7 +100,7 @@ class UI(QMainWindow):
         self.tb_button.clicked.connect(self.open_tb)
 
         # outside signals
-        # self.business_logic.occupancy_signal.connect(self.update_occupancy)
+        self.business_logic.occupancy_signal.connect(self.update_occupancy)
         self.business_logic.switches_signal.connect(self.update_switches)
         self.business_logic.rr_crossing_signal.connect(self.activate_rr_crossing)
         self.business_logic.light_signal.connect(self.update_light)
@@ -148,8 +148,8 @@ class UI(QMainWindow):
             self.rr_crossing.setText("Railroad Crossing Inactive")
             self.rr_crossing.setStyleSheet("background-color: rgb(0, 224, 34)")
 
-    # @pyqtSlot(list)
-    def update_occupancy(self) -> None:
+    @pyqtSlot(list)
+    def update_occupancy(self, occupancy_list : list) -> None:
         self.block_number.clear()
         for index, occupancy in zip(self.business_logic.block_indexes, self.business_logic.occupancy_list):
         # for occupancy in self.business_logic.occupancy_list:
