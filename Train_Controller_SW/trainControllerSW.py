@@ -1,9 +1,12 @@
 import numpy as np
 import time
+import trainControllerSWContainer
+
 # train object class
 
 
 class TrainController:
+
     maxSpeed = 19.44  # 70 kmh in m/s
     maxPower = 120  # in kW
     accelLim = float(0.5)  # acceleration limit of the train based on 2/3 load
@@ -11,7 +14,7 @@ class TrainController:
     eBrakeDecelLim = float(-2.73)  # deceleration limit of the train emergency brake based on current capacity
     KMH2ms = 3.6  # divide by this to go from KMH to m/s or multiply to go from m/s to KMH
     mph2ms = 2.237  # divide by this to go from mph to m/s or multiply to go from m/s to mph
-    kW2HP = 1.34102 # multiply by this to go from kW to HP or divide to go from HP to kW
+    kW2HP = 1.34102  # multiply by this to go from kW to HP or divide to go from HP to kW
     # TODO uk, uk-1 values array and ek ek-1 values array e is m/s and u is m
 
     # testing arrays
@@ -23,8 +26,14 @@ class TrainController:
                      [6.5, 6.25, -0.2, 0.3], [4.25, 6.5, -0.7, -0.2], [0, 4.25, -1, -0.7]])
 
     # TODO train controller static data
+    # array for static map data
+    map_arr = np.array([[0, 0], [100, 45], [100, 45], [100, 45], [100, 45], [100, 45], [100, 45], [100, 45], [100, 45],
+                        [100, 45], [100, 45], [100, 45], [100, 45]])
 
     def __init__(self):
+        # self.TCcontainer = container.Container()  # for updating data values
+        # train model container  # update train values in update function
+
         # train mode, as input from driver
         self.mode = bool(0)  # automatic or manual mode as bool: 0 automatic, 1 manual (0 default)
         self.testBenchState = bool(0)  # state of test bench: 0 closed, 1 open (0 default)
@@ -40,7 +49,7 @@ class TrainController:
         self.cabinTemp = float(67)  # cabin thermostat temp as float, in Fahrenheit (default 67)
 
         # environment information, as inputs from train model / beacon
-        self.station = str("")  # station name, parsed from beacon
+        self.station = str("")  # station name, parsed from beacon / static data
         self.doorSide = int(0)  # station door side: 0 neither, 1 left, 2 right, 3 both
         self.isUnderground = bool(0)  # parsed from beacon, if the train is going underground
 
@@ -78,6 +87,10 @@ class TrainController:
         self.ek1 = float(0)
 
         self.makeAnnouncement = bool(0)  # if announcement is to be made: 0 no, 1 yes
+
+        self.outputs = dict(cmd_speed=self.cmdSpeed, power=self.power, service_brake=self.servBrake,
+                            emergency_brake=self.eBrake, door_side=self.doorSide, annoucement=self.makeAnnouncement,
+                            cabin_lights=self.intLights, headlights=self.extLights, cabin_temp=self.cabinTemp)
 
     def settestbenchstate(self, newtestbenchstate):
         self.testBenchState = newtestbenchstate
@@ -242,3 +255,7 @@ class TrainController:
 
     def ms2mph(self, ms):
         return ms * self.mph2ms
+
+    def updatetrain(self):
+        # update all values in output array and call train model container update function
+        pass

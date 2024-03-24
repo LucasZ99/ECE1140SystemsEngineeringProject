@@ -247,6 +247,29 @@ class Window(QMainWindow):
         self.upload_layout_group.setLayout(ul_layout)
         layout.addWidget(self.upload_layout_group, 2, 4, 1, 1)
 
+        # MAP FOR TESTING
+        self.map_group = QGroupBox("Map")
+        map_layout = QVBoxLayout()
+
+        self.map_table = QTableWidget()
+        self.map_table.setAlternatingRowColors(True)
+
+        m, n = self.track_model.get_data().shape
+        self.map_table.setRowCount(m - 1)
+        self.map_table.setColumnCount(n)
+        self.map_table.setHorizontalHeaderLabels(self.track_model.get_data()[0, :])
+        self.map_table.verticalHeader().setVisible(False)
+        self.map_table.setMinimumWidth(300)
+
+        for i in range(1, m):
+            for j in range(0, n):
+                self.map_table.setItem(i - 1, j, QTableWidgetItem(str(self.track_model.get_data()[i, j])))
+        ss_group_layout.addWidget(self.map_table)
+
+        map_layout.addWidget(self.map_table)
+        self.map_group.setLayout(map_layout)
+        layout.addWidget(self.map_group, 0, 2, 2, 3)
+
         # Test Bench Button
         self.test_bench_button = QPushButton("Test Bench")
         self.test_bench_button.clicked.connect(self.test_bench_button_clicked)
