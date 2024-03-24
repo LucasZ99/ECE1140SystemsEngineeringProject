@@ -13,7 +13,6 @@ from Track_Controller_SW.switching import Switch
 
 
 class ManualMode(QWidget):
-
     switch_changed_signal = pyqtSignal(int)
 
     def __init__(self, business_logic: BusinessLogic):
@@ -24,11 +23,9 @@ class ManualMode(QWidget):
         self.business_logic = business_logic
         self.switches_list = np.copy(business_logic.switches_list)
 
-
         self.switch_button_group = QButtonGroup()
         button_id = 0
         for switch in self.switches_list:
-
             button = self.switch_button_ret(
                 size=200,
                 text1=f"Switch at Block {switch.block}")
@@ -42,6 +39,7 @@ class ManualMode(QWidget):
     def switch_button_pressed(self, button: QPushButton) -> None:
         QtCore.QMetaObject.invokeMethod(self, "switch_changed_signal",
                                         QtCore.Q_ARG(int, self.switch_button_group.id(button)))
+
     def switch_button_ret(self, size=None, text1=None, checkable=True, style1=None, style2=None):
         button = QPushButton()
         button.setCheckable(checkable)
@@ -61,6 +59,7 @@ class UI(QMainWindow):
         super(UI, self).__init__()
 
         self.switch_list_widget = None
+        self.block_number = None
         self.manual_mode_window = None
         # load ui
         loadUi('TrackController.ui', self)
@@ -76,7 +75,7 @@ class UI(QMainWindow):
         self.manual_mode = self.findChild(QPushButton, 'manual_mode')
         self.browse_button = self.findChild(QPushButton, 'browse')
         self.filename = self.findChild(QLabel, 'filename')
-        self.occupancy_disp = self.findChild(QLCDNumber, 'block_number')
+        # self.occupancy_disp = self.findChild(QListWidget, 'block_number')
         self.light_b6 = self.findChild(QPushButton, 'light_b6')
         self.light_b6.setStyleSheet("background-color: rgb(0, 224, 34)")
         self.light_b11 = self.findChild(QPushButton, 'light_b11')
@@ -92,13 +91,16 @@ class UI(QMainWindow):
         # Initialize switch list
         self.update_switch_list()
 
+        # Initialize occupancy list
+        self.update_occupancy()
+
         # define connections
         self.browse_button.clicked.connect(self.browse_files)
         self.manual_mode.clicked.connect(self.manual_mode_dialogue)
         self.tb_button.clicked.connect(self.open_tb)
 
         # outside signals
-        self.business_logic.occupancy_signal.connect(self.update_occupancy)
+        # self.business_logic.occupancy_signal.connect(self.update_occupancy)
         self.business_logic.switches_signal.connect(self.update_switches)
         self.business_logic.rr_crossing_signal.connect(self.activate_rr_crossing)
         self.business_logic.light_signal.connect(self.update_light)
@@ -106,6 +108,7 @@ class UI(QMainWindow):
         # show the app
         self.show()
 
+    # @pyqtSlot(list)
     def update_switch_list(self):
         self.switch_list_widget.clear()
         for switch in self.business_logic.switches_list:
@@ -145,11 +148,13 @@ class UI(QMainWindow):
             self.rr_crossing.setText("Railroad Crossing Inactive")
             self.rr_crossing.setStyleSheet("background-color: rgb(0, 224, 34)")
 
-    @pyqtSlot(list)
-    def update_occupancy(self, occupancy_arr: list) -> None:
-        block = np.argmax(occupancy_arr)
-        self.occupancy_disp.display(block)
-        self.show()
+    # @pyqtSlot(list)
+    def update_occupancy(self) -> None:
+        self.block_number.clear()
+        for index, occupancy in zip(self.business_logic.block_indexes, self.business_logic.occupancy_list):
+        # for occupancy in self.business_logic.occupancy_list:
+            item = QListWidgetItem(str(index) + " " + str(occupancy))
+            self.block_number.addItem(item)
 
     @pyqtSlot(list)
     def update_switches(self, switches_arr: list[Switch]) -> None:

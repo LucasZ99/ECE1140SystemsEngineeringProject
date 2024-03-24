@@ -1,7 +1,7 @@
 import os
 import sys
 import functools
-import time
+import time#replace with shared time module when created and we do integration
 import threading
 import numpy
 
@@ -41,7 +41,7 @@ global glob_TB
 glob_TB = None
 
 class TestBench_JEB382(QWidget):
-    def __init__(self,numtrain,in_TrainModel_arr,app=None):#,verbose=False):
+    def __init__(self,numtrain,in_TrainModel_arr):#,app=None):#,verbose=False):
         super(TestBench_JEB382, self).__init__()
         self.setWindowTitle('TrainControllerHW TB #'+str(numtrain))
         self.setFixedSize(874, 316)
@@ -91,7 +91,7 @@ class TestBench_JEB382(QWidget):
         self.genbuttons()
         self.gentxtbox()
         self.Thread1_active = True
-        self.app = app
+        #self.app = app
     
     #--------
     def genTCKs(self):
@@ -224,7 +224,7 @@ class TestBench_JEB382(QWidget):
         if __name__ == "__main__": self.Thread1_active = False
         else:
             print("JEB382 TB Hidden")
-            if self.app: sys.exit(self.app.exec())
+            #if self.app: sys.exit(self.app.exec())
            
     #--------
     def gentxtbox(self):
