@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 import sys
-import trainController
+import trainControllerSW
 from PyQt5 import uic
 
 # create train object
