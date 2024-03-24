@@ -10,6 +10,7 @@ class TrackModel:
         # self.data = d.to_numpy()
         # self.check_data()
         self.data = self.set_data(file_name)
+        self.output_data_as_excel()
         self.line_name = self.data[0, 0]
         self.num_blocks = len(self.data)
         self.ticket_sales = 0
@@ -58,7 +59,27 @@ class TrackModel:
         new_data = np.hstack((new_data, np.copy(false_col)))
         new_data = np.hstack((new_data, np.copy(nan_array)))
         new_data = np.hstack((new_data, np.copy(nan_array)))
-        for i in range(0, new_data.shape[0]):
+        new_data = np.hstack((new_data, np.copy(nan_array)))
+        new_data = np.hstack((new_data, np.copy(false_col)))
+        new_data = np.hstack((new_data, np.copy(nan_array)))
+        # initialize signals from switch info
+        for i in range(1, new_data.shape[0]):
+            inf_list = str(new_data[i, 9]).lower().split(';')
+            for s in inf_list:
+                if 'switch' in s:
+                    s = s.lstrip('switch (,').rstrip(')')
+                    num_list = s.replace(',', '-').replace(' ', '').split('-')
+                    print(num_list)
+                    # this all could be replaced by removing block we're at if we trust the Excel
+                    unique, counts = np.unique(num_list, return_counts=True)
+                    num_dict = dict(zip(unique, counts))
+                    for n in unique:
+                        num = int(n)
+                        print(f'{num}, {num_dict[n]}')
+                        if num_dict[n] == 1:
+                            new_data[num, 20] = False
+
+        for i in range(1, new_data.shape[0]):
             if 'station' in str(new_data[i, 9]).lower():
                 new_data[i, 12] = False
                 new_data[i, 16] = 0
@@ -67,6 +88,10 @@ class TrackModel:
                     new_data[i - 1, 12] = False
                 if i != new_data.shape[0] - 2:
                     new_data[i + 1, 12] = False
+            if 'underground' in str(new_data[i, 9]).lower():
+                new_data[i, 19] = True
+            if 'switch' in str(new_data[i, 9]).lower() or 'railway crossing' in str(new_data[i, 9]).lower():
+                new_data[i, 18] = False
 
         new_data[0, 7] = 'Block Occupancy'
         new_data[0, 8] = 'Temperature'
@@ -76,20 +101,23 @@ class TrackModel:
         new_data[0, 15] = 'Broken Rail Failure'
         new_data[0, 16] = 'Ticket Sales'
         new_data[0, 17] = 'Embarking'
-        # TODO: ADD INFRASTRUCTURE VALUE COLUMN w/ CORRECT INITIALIZATION
+        new_data[0, 18] = 'Infrastructure Values'
+        new_data[0, 19] = 'Underground Status'
+        new_data[0, 20] = 'Signal Values'
         return new_data
-        # print(data)
-        # # Convert the NumPy array to a pandas DataFrame
-        # df = pd.DataFrame(data)
-        #
-        # # Define the filename for the Excel file
-        # excel_filename = "testing_output.xlsx"
-        #
-        # # Export the DataFrame to an Excel file
-        # df.to_excel(excel_filename, index=False,
-        #             header=False)  # index=False, header=False to exclude row and column labels
-        #
-        # print("Array data has been exported to:", excel_filename)
+
+    def output_data_as_excel(self):
+        # Convert the NumPy array to a pandas DataFrame
+        df = pd.DataFrame(self.data)
+
+        # Define the filename for the Excel file
+        excel_filename = "testing_output.xlsx"
+
+        # Export the DataFrame to an Excel file
+        df.to_excel(excel_filename, index=False,
+                    header=False)  # index=False, header=False to exclude row and column labels
+
+        print("Array data has been exported to:", excel_filename)
 
     def set_block_occupancy(self, block: int, occupancy: bool):
         self.data[block, 7] = occupancy
@@ -190,30 +218,30 @@ class TrackModel:
         self.speed = speed
 
     def toggle_switch(self, block_id: int):
-        pass
+        self.data[block_id, 18] = not self.data[block_id, 18]
 
     def toggle_signal(self, block_id: int):
-        pass
+        self.data[block_id, 18] = not self.data[block_id, 20]
 
     def toggle_crossing(self, block_id: int):
-        pass
+        self.data[block_id, 18] = not self.data[block_id, 18]
 
     def open_block(self, block_id: int):
-        pass
+        self.set_block_occupancy(block_id)
 
     def close_block(self, block_id: int):
-        pass
+        self.set_block_occupancy(block_id)
 
     # train model
 
     def train_spawned(self):
-        pass
+        print('Track Model train_spawned has been called')
 
     def train_presence_changed(self, train_id: int):
-        pass
+        print('Track Model train_presence_changed has been called')
 
     def set_disembarking_passengers(self, station_id: int, disembarking_passengers: int):
-        pass
+        print('Track Model set_disembarking_passengers has been called')
 
     # SENDING (getters)
 
@@ -254,9 +282,6 @@ class TrackModel:
     def get_ctc_ticket_sales(self):
         return random.randint(1000, 2000)
 
-
-# TODO: make initializing better (90%)
-# TODO: add a infrastructure values column
 # TODO: Write communication handlers (50%)
 
 # temp main
