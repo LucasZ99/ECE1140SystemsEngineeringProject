@@ -11,15 +11,14 @@ class Launcher_UI(QMainWindow):
         loadUi('launcher.ui', self)
         self.show()
 
-def show_launcher_ui():
-    app = QApplication(sys.argv)
-    ui = Launcher_UI()
-    ui.show()
-    app.exec()
+    def show_launcher_ui(self):
+        app = QApplication(sys.argv)
+        ui = Launcher_UI()
+        ui.show()
+        app.exec()
 
-def start_launcher_ui():
-    launcher_thread = threading.Thread(target=show_launcher_ui)
-    launcher_thread.start()
+    def start_launcher_ui(self):
+        launcher_thread = threading.Thread(target=self.show_launcher_ui)
+        launcher_thread.start()
 
-start_launcher_ui()
-print('Launcher started')
+
