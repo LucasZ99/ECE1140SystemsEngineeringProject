@@ -4,7 +4,7 @@ from PyQt6.QtCore import pyqtSignal, QCoreApplication
 from PyQt6.QtWidgets import QMainWindow, QWidget, QPushButton, QLabel, QComboBox, QCheckBox, QGroupBox, \
     QLineEdit
 
-from BusinessLogic import BusinessLogic
+from Track_Controller_SW.BusinessLogic import BusinessLogic
 
 
 class TbMainWindow(QMainWindow):

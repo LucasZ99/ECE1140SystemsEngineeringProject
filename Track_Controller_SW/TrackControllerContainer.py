@@ -1,7 +1,6 @@
-from typing import List
+from Track_Controller_SW import TrackController, Switch
 
-from TrackController import TrackController
-from switching import Switch
+
 # from Track_Model import Track_Model_New
 
 class TrackControllerContainer(object):
@@ -66,16 +65,16 @@ class TrackControllerContainer(object):
         self.zero_speed_flag_list[0:32] = zero_speed_flag_list_A[0:32]
         self.zero_speed_flag_list[147:] = zero_speed_flag_list_A[32:]
 
-    def show_ui(self, section : str):
+    def show_ui(self, section: str):
         if section == "A":
+            print("section A called")
             self.trackControllerA.show_ui()
-
 
 def main():
     trackControllerContainer = TrackControllerContainer()
-    trackControllerContainer.update_occupancy([True]*151)
+    trackControllerContainer.update_occupancy([True] * 151)
     trackControllerContainer.show_ui("A")
+
 
 if __name__ == "__main__":
     main()
-

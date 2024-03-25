@@ -47,22 +47,22 @@ class BusinessLogic(QObject):
         else:
             switch_2 = False
 
-        # execute the plc program when the occupancy changes
-        plc_result = self.plc_logic.execute_plc(
-            self.occupancy_list,
-            self.section,
-            # switch_1,
-            # switch_2
-        )
-
-        # post plc execution processing logic
-        if plc_result[1] != switch_1:
-            self.toggle_switch(0)
-        if plc_result[2] != switch_2:
-            self.toggle_switch(1)
-
-        # return the output of the plc program to the Track Controller object
-        return plc_result[0]
+        # # execute the plc program when the occupancy changes
+        # plc_result = self.plc_logic.execute_plc(
+        #     self.occupancy_list,
+        #     self.section,
+        #     # switch_1,
+        #     # switch_2
+        # )
+        #
+        # # post plc execution processing logic
+        # if plc_result[1] != switch_1:
+        #     self.toggle_switch(0)
+        # if plc_result[2] != switch_2:
+        #     self.toggle_switch(1)
+        #
+        # # return the output of the plc program to the Track Controller object
+        return [False] * 151
 
 
 

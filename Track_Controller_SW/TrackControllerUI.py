@@ -4,10 +4,10 @@ import numpy as np
 from PyQt6 import QtCore
 from PyQt6.QtCore import pyqtSignal, pyqtSlot
 from PyQt6.QtWidgets import QFileDialog, QMainWindow, QWidget, QVBoxLayout, QPushButton, QLabel, \
-    QLCDNumber, QListWidgetItem, QButtonGroup
+    QLCDNumber, QListWidgetItem, QButtonGroup, QListWidget
 from PyQt6.uic import loadUi
 
-import TestBench
+from Track_Controller_SW import TestBench
 from Track_Controller_SW.BusinessLogic import BusinessLogic
 from Track_Controller_SW.switching import Switch
 
@@ -21,7 +21,7 @@ class ManualMode(QWidget):
         self.setMinimumSize(200, 200)
         self.layout = QVBoxLayout(self)
         self.business_logic = business_logic
-        self.switches_list = np.copy(business_logic.switches_list)
+        self.switches_list = np.copy(self.business_logic.switches_list)
 
         self.switch_button_group = QButtonGroup()
         button_id = 0
@@ -56,13 +56,20 @@ class ManualMode(QWidget):
 
 class UI(QMainWindow):
     def __init__(self, business_logic):
+        get_occupancy_signal = pyqtSignal()
+
         super(UI, self).__init__()
 
         self.switch_list_widget = None
         self.block_number = None
         self.manual_mode_window = None
+
         # load ui
-        loadUi('TrackController.ui', self)
+        try:
+            loadUi('C:/Users/lucas/PycharmProjects/ece1140-tovarish/Track_Controller_SW/TrackController.ui', self)
+        except Exception as e:
+            print("Error with loading UI file: ", e)
+
 
         # Fix the size
         self.setFixedWidth(757)
@@ -80,10 +87,10 @@ class UI(QMainWindow):
         self.light_b6.setStyleSheet("background-color: rgb(0, 224, 34)")
         self.light_b11 = self.findChild(QPushButton, 'light_b11')
         self.light_b11.setStyleSheet("background-color: rgb(222, 62, 38)")
-
         self.rr_crossing = self.findChild(QPushButton, 'rr_crossing_button')
         self.rr_crossing.setStyleSheet("background-color: rgb(0, 224, 34)")
         self.tb_button = self.findChild(QPushButton, 'tb_button')
+        self.block_number = self.findChild(QListWidget, 'block_number')
 
         # Testbench
         self.tb_window = None
@@ -93,6 +100,7 @@ class UI(QMainWindow):
 
         # Initialize occupancy list
         self.update_occupancy()
+
 
         # define connections
         self.browse_button.clicked.connect(self.browse_files)
@@ -149,7 +157,7 @@ class UI(QMainWindow):
             self.rr_crossing.setStyleSheet("background-color: rgb(0, 224, 34)")
 
     @pyqtSlot(list)
-    def update_occupancy(self, occupancy_list : list) -> None:
+    def update_occupancy(self) -> None:
         self.block_number.clear()
         for index, occupancy in zip(self.business_logic.block_indexes, self.business_logic.occupancy_list):
         # for occupancy in self.business_logic.occupancy_list:
