@@ -1,13 +1,12 @@
-import functools
+from copy import copy
 
 import numpy as np
 from PyQt6 import QtCore
 from PyQt6.QtCore import pyqtSignal, pyqtSlot
 from PyQt6.QtWidgets import QFileDialog, QMainWindow, QWidget, QVBoxLayout, QPushButton, QLabel, \
-    QLCDNumber, QListWidgetItem, QButtonGroup
+    QListWidgetItem, QButtonGroup, QListWidget
 from PyQt6.uic import loadUi
 
-import TestBench
 from Track_Controller_SW.BusinessLogic import BusinessLogic
 from Track_Controller_SW.switching import Switch
 
@@ -21,7 +20,7 @@ class ManualMode(QWidget):
         self.setMinimumSize(200, 200)
         self.layout = QVBoxLayout(self)
         self.business_logic = business_logic
-        self.switches_list = np.copy(business_logic.switches_list)
+        self.switches_list = copy(self.business_logic.switches_list)
 
         self.switch_button_group = QButtonGroup()
         button_id = 0
@@ -56,13 +55,19 @@ class ManualMode(QWidget):
 
 class UI(QMainWindow):
     def __init__(self, business_logic):
-        super(UI, self).__init__()
 
+        super(UI, self).__init__()
+        self.fname = "filename"
+        self.block_indexes = None
         self.switch_list_widget = None
         self.block_number = None
         self.manual_mode_window = None
+
         # load ui
-        loadUi('TrackController.ui', self)
+        try:
+            loadUi('C:/Users/lucas/PycharmProjects/ece1140-tovarish/Track_Controller_SW/TrackController.ui', self)
+        except Exception as e:
+            print("Error with loading UI file: ", e)
 
         # Fix the size
         self.setFixedWidth(757)
@@ -80,24 +85,31 @@ class UI(QMainWindow):
         self.light_b6.setStyleSheet("background-color: rgb(0, 224, 34)")
         self.light_b11 = self.findChild(QPushButton, 'light_b11')
         self.light_b11.setStyleSheet("background-color: rgb(222, 62, 38)")
-
         self.rr_crossing = self.findChild(QPushButton, 'rr_crossing_button')
         self.rr_crossing.setStyleSheet("background-color: rgb(0, 224, 34)")
-        self.tb_button = self.findChild(QPushButton, 'tb_button')
+        # self.tb_button = self.findChild(QPushButton, 'tb_button')
+        self.block_number = self.findChild(QListWidget, 'block_number')
 
         # Testbench
-        self.tb_window = None
+        # self.tb_window = None
 
         # Initialize switch list
-        self.update_switch_list()
+        self.init_switch_list()
 
         # Initialize occupancy list
-        self.update_occupancy()
+        self.init_occupancy()
+
+        # Initialize filename
+        try:
+            self.filename.setText(self.business_logic.filepath)
+            self.filename.adjustSize()
+        except Exception as e:
+            print(e)
 
         # define connections
         self.browse_button.clicked.connect(self.browse_files)
         self.manual_mode.clicked.connect(self.manual_mode_dialogue)
-        self.tb_button.clicked.connect(self.open_tb)
+        # self.tb_button.clicked.connect(self.open_tb)
 
         # outside signals
         self.business_logic.occupancy_signal.connect(self.update_occupancy)
@@ -108,25 +120,58 @@ class UI(QMainWindow):
         # show the app
         self.show()
 
-    # @pyqtSlot(list)
-    def update_switch_list(self):
+    # must initialize with business object data, then have it dynamically update when running
+    def init_switch_list(self):
         self.switch_list_widget.clear()
         for switch in self.business_logic.switches_list:
             item = QListWidgetItem(switch.to_string())
             self.switch_list_widget.addItem(item)
 
-    def open_tb(self):
-        if self.tb_window is None or not self.tb_window.isVisible():
-            self.tb_window = TestBench.TbMainWindow(self.business_logic)
-            self.tb_window.occupancy_changed_signal.connect(self.business_logic.occupancy_changed)
-            self.tb_window.switch_changed_signal.connect(self.business_logic.switches_changed)
-            self.tb_window.authority_updated_signal.connect(self.business_logic.authority_updated)
-            self.tb_window.sug_speed_updated_signal.connect(self.business_logic.sug_speed_updated)
-            self.tb_window.show()
+    # dynamically updating endpoint called by business logic
+    @pyqtSlot(list)
+    def update_switches(self, switches_arr: list[Switch]) -> None:
+        self.switch_list_widget.clear()
+        for switch in switches_arr:
+            item = QListWidgetItem(switch.to_string())
+            self.switch_list_widget.addItem(item)
+
+    # must initialize with business object data, then have it dynamically update when running
+    def init_occupancy(self) -> None:
+        self.block_indexes = np.copy(self.business_logic.block_indexes)
+        self.block_number.clear()
+        for index, occupancy in zip(self.business_logic.block_indexes, self.business_logic.occupancy_list):
+            # for occupancy in self.business_logic.occupancy_list:
+            item = QListWidgetItem(str(index) + " " + str(occupancy))
+            self.block_number.addItem(item)
+
+    # dynamically updating endpoint called by business logic
+    @pyqtSlot(list)
+    def update_occupancy(self, occupancy_list : list) -> None:
+        self.block_number.clear()
+        for index, occupancy in zip(self.block_indexes, occupancy_list):
+            # for occupancy in self.business_logic.occupancy_list:
+            item = QListWidgetItem(str(index) + " " + str(occupancy))
+            self.block_number.addItem(item)
+
+    # def open_tb(self):
+    #     if self.tb_window is None or not self.tb_window.isVisible():
+    #
+    #         # create testbench ui object
+    #         self.tb_window = TestBench.TbMainWindow(self.business_logic)
+    #
+    #         self.tb_window.occupancy_changed_signal.connect(self.business_logic.occupancy_changed)
+    #         self.tb_window.switch_changed_signal.connect(self.business_logic.switches_changed)
+    #         self.tb_window.authority_updated_signal.connect(self.business_logic.authority_updated)
+    #         self.tb_window.sug_speed_updated_signal.connect(self.business_logic.sug_speed_updated)
+    #
+    #         #show test bench window
+    #         # self.tb_window.show()
+
 
     def manual_mode_dialogue(self):
         self.manual_mode_window = ManualMode(self.business_logic)
         self.manual_mode_window.switch_changed_signal.connect(self.business_logic.switches_changed)
+        self.manual_mode_window.adjustSize()
         self.manual_mode_window.show()
         self.show()
 
@@ -148,23 +193,8 @@ class UI(QMainWindow):
             self.rr_crossing.setText("Railroad Crossing Inactive")
             self.rr_crossing.setStyleSheet("background-color: rgb(0, 224, 34)")
 
-    @pyqtSlot(list)
-    def update_occupancy(self, occupancy_list : list) -> None:
-        self.block_number.clear()
-        for index, occupancy in zip(self.business_logic.block_indexes, self.business_logic.occupancy_list):
-        # for occupancy in self.business_logic.occupancy_list:
-            item = QListWidgetItem(str(index) + " " + str(occupancy))
-            self.block_number.addItem(item)
-
-    @pyqtSlot(list)
-    def update_switches(self, switches_arr: list[Switch]) -> None:
-        self.switch_list_widget.clear()
-        for switch in switches_arr:
-            item = QListWidgetItem(switch.to_string())
-            self.switch_list_widget.addItem(item)
-
     def browse_files(self):
-        fname, _ = QFileDialog.getOpenFileName(self, 'Open PLC File', 'C:/Users/lucas')
-        self.filename.setText(fname)
+        self.fname, _ = QFileDialog.getOpenFileName(self, 'Open PLC File', 'C:/Users/lucas')
+        self.filename.setText(self.fname)
         self.filename.adjustSize()
-        self.business_logic.set_plc_filepath(self.filename)
+        self.business_logic.set_plc_filepath(self.fname)
