@@ -149,19 +149,6 @@
      <string>Switch Position</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="tb_button">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>0</y>
-      <width>121</width>
-      <height>41</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Test Bench</string>
-    </property>
-   </widget>
    <widget class="QListWidget" name="switch_list_widget">
     <property name="geometry">
      <rect>
@@ -231,7 +218,7 @@
      <x>0</x>
      <y>0</y>
      <width>757</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuTrack_Controller_UI">

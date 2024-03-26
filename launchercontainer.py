@@ -23,6 +23,7 @@ class LauncherContainer(QObject):
 
         # Create signal connections
         launcher_ui.open_track_controller_ui_signal.connect(self.open_track_controller_ui)
+        launcher_ui.open_track_controller_tb_ui_signal.connect(self.open_track_controller_tb_ui)
 
         # Show launcher
         launcher_ui.show()
@@ -30,15 +31,10 @@ class LauncherContainer(QObject):
         # run event loop
         app.exec()
 
-    def create_launcher_ui(self):
-        launcher = LauncherUi()
-
-        # Connect signal to slot within the same thread
-        launcher.open_track_controller_ui_signal.connect(self.open_track_controller_ui)
-
-        launcher.show()
-
-    # @pyqtSlot(str)
     def open_track_controller_ui(self, section: str):
-        print("Signal received, section:", section)
+        print("Open Track Controller UI Signal received, section:", section)
         self.track_controller_container.show_ui(section)
+
+    def open_track_controller_tb_ui(self, section: str):
+        print("Open Track Controller TB UI Signal received, section:", section)
+        self.track_controller_container.show_testbench_ui(section)

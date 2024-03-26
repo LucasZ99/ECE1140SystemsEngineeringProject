@@ -25,13 +25,17 @@ class TrackControllerContainer(object):
         # Controller specific initialization
         # Section A: blocks 1-32, 147-150
         self.occupancy_list_A = self.occupancy_list[0:32] + self.occupancy_list[147:]
+        # Section B:
+        # self.occupancy_list_B = [devin fill it in]
+
+        # Section C: blocks 73:104
+        self.occupancy_list_C = self.occupancy_list[72:104]
 
         self.trackControllerA = TrackController(occupancy_list=self.occupancy_list_A, section="A")
 
-        # self.trackControllerB = TrackController()
-        #
-        #
-        # self.trackControllerC = TrackController()
+        # self.trackControllerB = TrackController() [devin fill it in]
+
+        self.trackControllerC = TrackController(occupancy_list=self.occupancy_list_C, section="C")
 
     # CTC Endpoints
     def command_speed(self, line_id: int, block_id: int, speed: float) -> None:
@@ -67,14 +71,27 @@ class TrackControllerContainer(object):
 
     def show_ui(self, section: str):
         if section == "A":
-            print("section A called")
+            print("Section A UI called")
             self.trackControllerA.show_ui()
+        if section == "B":
+            # [devin fill it in]
+            pass
+        if section == "C":
+            print("Section C UI called")
+            self.trackControllerC.show_ui()
 
-def main():
-    trackControllerContainer = TrackControllerContainer()
-    trackControllerContainer.update_occupancy([True] * 151)
-    trackControllerContainer.show_ui("A")
+    def show_testbench_ui(self, section: str):
+        if section == "A":
+            self.trackControllerA.show_testbench_ui()
+        if section == "C":
+            self.trackControllerC.show_testbench_ui()
 
 
-if __name__ == "__main__":
-    main()
+# def main():
+#     trackControllerContainer = TrackControllerContainer()
+#     trackControllerContainer.update_occupancy([True] * 151)
+#     trackControllerContainer.show_ui("A")
+#
+#
+# if __name__ == "__main__":
+#     main()
