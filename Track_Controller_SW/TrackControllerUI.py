@@ -1,5 +1,6 @@
 from copy import copy
 
+import os
 import numpy as np
 from PyQt6 import QtCore
 from PyQt6.QtCore import pyqtSignal, pyqtSlot
@@ -64,8 +65,10 @@ class UI(QMainWindow):
         self.manual_mode_window = None
 
         # load ui
+        current_dir = os.path.dirname(__file__)  # setting up to work in any dir
+        ui_path = os.path.join(current_dir, 'TrackController.ui')
         try:
-            loadUi('C:/Users/lucas/PycharmProjects/ece1140-tovarish/Track_Controller_SW/TrackController.ui', self)
+            loadUi(ui_path, self)
         except Exception as e:
             print("Error with loading UI file: ", e)
 
