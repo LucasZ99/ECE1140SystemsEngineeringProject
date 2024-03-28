@@ -1,13 +1,14 @@
+from PyQt6.QtCore import pyqtSlot, QObject
+
 from Track_Controller_SW import TrackController, Switch
 
 
 # from Track_Model import Track_Model_New
 
-class TrackControllerContainer(object):
-    def __init__(self,
-                 # track_model: Track_Model_New
-                 ):
+class TrackControllerContainer(QObject):
+    def __init__(self):
         # initialize track data
+        super().__init__()
         self.occupancy_list = [False] * 151
         self.switch_list = \
             [
@@ -36,6 +37,10 @@ class TrackControllerContainer(object):
         # self.trackControllerB = TrackController() [devin fill it in]
 
         self.trackControllerC = TrackController(occupancy_list=self.occupancy_list_C, section="C")
+
+        # Connect Signals:
+
+        self.trackControllerA.switch_changed_index_signal.connect(self.update_track_switch)
 
     # CTC Endpoints
     def command_speed(self, line_id: int, block_id: int, speed: float) -> None:
@@ -68,6 +73,14 @@ class TrackControllerContainer(object):
         zero_speed_flag_list_A = self.trackControllerA.update_occupancy(self.occupancy_list_A)
         self.zero_speed_flag_list[0:32] = zero_speed_flag_list_A[0:32]
         self.zero_speed_flag_list[147:] = zero_speed_flag_list_A[32:]
+
+    @pyqtSlot(int)
+    def update_track_switch(self, switch_block: int) -> None:
+        print(f"Updating Track Model switch at block: {switch_block}")
+        # self.track_model.toggle_switch(switch_block)
+
+
+
 
     def show_ui(self, section: str):
         if section == "A":

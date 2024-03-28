@@ -3,13 +3,19 @@ import threading
 
 from PyQt6.QtCore import QObject, pyqtSlot
 from PyQt6.QtWidgets import QApplication
+
+from SystemTime.SystemTime import SystemTime
+from SystemTime.SystemTimeContainer import SystemTimeContainer
 from Track_Controller_SW import TrackControllerContainer
 from launcherui import LauncherUi
 
 
 class LauncherContainer(QObject):
-    def __init__(self, track_controller_container: TrackControllerContainer):
+    def __init__(self,
+                 time_module: SystemTimeContainer,
+                 track_controller_container: TrackControllerContainer):
         super().__init__()
+        self.time_module = time_module
         self.track_controller_container = track_controller_container
 
     def init_launcher_ui(self):
@@ -22,6 +28,7 @@ class LauncherContainer(QObject):
         launcher_ui = LauncherUi()
 
         # Create signal connections
+        launcher_ui.open_time_module_ui_signal.connect(self.open_time_module_ui)
         launcher_ui.open_track_controller_ui_signal.connect(self.open_track_controller_ui)
         launcher_ui.open_track_controller_tb_ui_signal.connect(self.open_track_controller_tb_ui)
 
@@ -30,6 +37,10 @@ class LauncherContainer(QObject):
 
         # run event loop
         app.exec()
+
+    def open_time_module_ui(self):
+        print("Open Time Module UI Signal received")
+        self.time_module.show_ui()
 
     def open_track_controller_ui(self, section: str):
         print("Open Track Controller UI Signal received, section:", section)

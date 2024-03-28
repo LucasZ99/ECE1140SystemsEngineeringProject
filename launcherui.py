@@ -8,6 +8,7 @@ from PyQt6.uic import loadUi
 
 
 class LauncherUi(QMainWindow):
+    open_time_module_ui_signal = pyqtSignal()
     open_track_controller_ui_signal = pyqtSignal(str)
     open_track_controller_tb_ui_signal = pyqtSignal(str)
 
@@ -29,7 +30,11 @@ class LauncherUi(QMainWindow):
         self.track_controller_C_testbench_button = self.findChild(QPushButton, 'track_controller_C_testbench_button')
 
 
-        # connect button clicks to functionality
+        # Connect button clicks to functionality
+        # Time Module
+        self.time_module_button.clicked.connect(self.start_time_module_ui)
+
+        # Track Controller
         self.track_controller_A_button.clicked.connect(self.start_track_controller_sw_a_ui)
         self.track_controller_A_testbench_button.clicked.connect(self.start_track_controller_a_tb_ui)
         self.track_controller_C_button.clicked.connect(self.start_track_controller_sw_c_ui)
@@ -37,6 +42,11 @@ class LauncherUi(QMainWindow):
 
 
         self.show()
+
+
+    def start_time_module_ui(self):
+        self.open_time_module_ui_signal.emit()
+        print("Time module button clicked")
 
     def start_track_controller_sw_a_ui(self):
         self.open_track_controller_ui_signal.emit("A")

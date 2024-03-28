@@ -6,7 +6,6 @@ from PyQt6 import QtCore
 from PyQt6.QtCore import pyqtSignal, QCoreApplication, pyqtSlot
 from PyQt6.QtWidgets import QMainWindow, QWidget, QPushButton, QLabel, QComboBox, QCheckBox, QGroupBox, \
     QLineEdit
-from PyQt6.uic.properties import QtWidgets
 
 from Track_Controller_SW.BusinessLogic import BusinessLogic
 

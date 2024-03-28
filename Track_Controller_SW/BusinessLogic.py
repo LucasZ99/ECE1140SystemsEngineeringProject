@@ -9,16 +9,18 @@ class BusinessLogic(QObject):
     # Define Signals
     occupancy_signal = pyqtSignal(list)
     switches_signal = pyqtSignal(list)
+    switch_changed_index_signal = pyqtSignal(int)
     rr_crossing_signal = pyqtSignal(bool)
     light_signal = pyqtSignal(int)
 
-    def __init__(self, block_occupancy: list, switches_arr: list[Switch], suggested_speed_list: list, plc_logic: PlcProgram, block_indexes : list, section : str):
+    def __init__(self, block_occupancy: list, switches_arr: list[Switch], suggested_speed_list: list,
+                 plc_logic: PlcProgram, block_indexes: list, section: str):
         super().__init__()
         self.occupancy_list = block_occupancy
         self.switches_list = switches_arr
         self.zero_speed_flag_list = [False] * len(self.occupancy_list)
         self.filepath = None
-        #TODO add lights_list to constructor
+        # TODO add lights_list to constructor
 
         self.suggested_speed_list = suggested_speed_list
         self.plc_logic = plc_logic
@@ -53,9 +55,9 @@ class BusinessLogic(QObject):
         #
         # # post plc execution processing logic
         # if plc_result[1] != switch_1:
-        #     self.toggle_switch(0)
+        #     self.switches_changed(0)
         # if plc_result[2] != switch_2:
-        #     self.toggle_switch(1)
+        #     self.switches_changed(1)
         #
         # # return the output of the plc program to the Track Controller object
         return [False] * 151
@@ -68,13 +70,10 @@ class BusinessLogic(QObject):
 
     @pyqtSlot(int)
     def switches_changed(self, index: int) -> None:
-        print(f"Switch at b{self.switches_list[index].block} changed")
-        self.switches_list[index].toggle()
-        if self.switches_list[index].current_pos == self.switches_list[index].pos_a:
-            self.light_signal.emit(self.switches_list[index].pos_a)
-        else:
-            self.light_signal.emit(self.switches_list[index].pos_b)
 
+        print(f"Switch at b{self.switches_list[index].block} changed")
+        self.switch_changed_index_signal.emit(self.switches_list[index].block)
+        self.switches_list[index].toggle()
         self.switches_signal.emit(self.switches_list)
 
     @pyqtSlot(list)
