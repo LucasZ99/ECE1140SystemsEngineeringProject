@@ -1,6 +1,7 @@
 import sys
 import threading
 
+from PyQt6.QtCore import pyqtSignal, QObject
 from PyQt6.QtWidgets import QApplication
 
 from Track_Controller_SW.TestbenchContainer import TestbenchContainer
@@ -10,8 +11,11 @@ from Track_Controller_SW.PLC_Logic import PlcProgram
 from Track_Controller_SW.switching import Switch
 
 
-class TrackController(object):
+class TrackController(QObject):
+    switch_changed_index_signal = pyqtSignal(int)
+
     def __init__(self, occupancy_list: list, section: str):
+        super().__init__()
         if section == "A":
             self.block_indexes = [1, 2, 3, 4, 5, 6, 7, 8, 9,
                                   10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
@@ -49,7 +53,10 @@ class TrackController(object):
             self.section
         )
         self.testbench_container = TestbenchContainer(self.business_logic)
+        self.business_logic.switch_changed_index_signal.connect(self.send_switch_changed_index)
 
+    def send_switch_changed_index(self, switch_block: int):
+        self.switch_changed_index_signal.emit(switch_block)
     def run(self) -> None:
         pass
 
