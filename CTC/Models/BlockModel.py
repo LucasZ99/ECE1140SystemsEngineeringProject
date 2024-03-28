@@ -1,12 +1,15 @@
+from Track_Controller_SW import Switch
+
 class BlockModel:
-    def __init__(self, line:str, id:str, station_name:str, railroad_crossing:bool, switch_dest:list[str], length_m:float, speed_limit_kph:float):
+    def __init__(self, line:str, id:str, station_name:str, railroad_crossing:bool, switch:Switch | None, length_m:float, speed_limit_kph:float):
         self.line = line
         self.id = id
         self.station_name = station_name
         self.railroad_crossing = railroad_crossing
         self.length_m = length_m
         self.speed_limit_kph = speed_limit_kph
-        self.switch_dest = switch_dest
+        self.switch = switch
+        self.occupied = False
 
     def __str__(self):
         s = ""
