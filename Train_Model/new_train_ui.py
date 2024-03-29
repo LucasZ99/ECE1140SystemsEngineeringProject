@@ -5,7 +5,8 @@ from PyQt5.QtGui import QIcon
 import new_train_model
 from PyQt5 import uic
 from PyQt5.QtWidgets import (QMainWindow, QApplication, QLabel, QPushButton, QGroupBox,
-                             QCheckBox, QComboBox, QProgressBar, QLineEdit, QFileIconProvider)
+                             QCheckBox, QComboBox, QProgressBar, QLineEdit)
+from business_logic import BusinessLogic
 import random
 
 
@@ -23,6 +24,7 @@ class UITrain(QMainWindow):
         # declare the train object
         self.train_dict = dict()
         self.train = new_train_model.TrainModel()
+        self.business_logic = BusinessLogic()
 
         # define widgets
         self.physicsButton = self.findChild(QPushButton, "physicsButton")
@@ -117,6 +119,13 @@ class UITrain(QMainWindow):
         self.ebp = False
         self.switching_trains = False
 
+        self.business_logic.values_updated.connect(self.populate_values)
+        self.business_logic.temp_updated.connect(self.index_update)
+        self.business_logic.passengers_updated.connect(self.index_update)
+        self.business_logic.block_updated.connect(self.index_update)
+        self.business_logic.train_added.connect(self.train_added)
+        self.business_logic.train_removed.connect(self.train_removed)
+
         self.trainSelect.currentIndexChanged.connect(self.combo_selection)
         self.physicsButton.pressed.connect(self.physics_test)
         self.passengerButton.pressed.connect(self.passenger_test)
@@ -148,6 +157,22 @@ class UITrain(QMainWindow):
 
         # show the app
         self.show()
+
+    def index_update(self, index):
+        string = str(self.trainSelect.currentText())
+        if int(string[6:]) == index:
+            self.populate_values()
+
+    def train_added(self, index):
+        self.trainSelect.addItem(f'Train {index}')
+        print("im here")
+
+    def train_removed(self, index):
+        itemIndex = self.trainSelect.findText(f'Train {index}')
+        if itemIndex == -1:
+            return
+        else:
+            self.trainSelect.removeItem(itemIndex)
 
     def combo_selection(self):
         string = str(self.trainSelect.currentText())
