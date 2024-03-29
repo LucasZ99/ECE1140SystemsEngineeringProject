@@ -1,15 +1,21 @@
 import sys
+import threading
 
+from PyQt6.QtCore import pyqtSignal, QObject
 from PyQt6.QtWidgets import QApplication
 
-from BusinessLogic import BusinessLogic
-import PLC_Logic
-from switching import Switch
-import TrackControllerUI
+from Track_Controller_SW.TestbenchContainer import TestbenchContainer
+from Track_Controller_SW.TrackControllerUI import UI
+from Track_Controller_SW.BusinessLogic import BusinessLogic
+from Track_Controller_SW.PLC_Logic import PlcProgram
+from Track_Controller_SW.switching import Switch
 
 
-class TrackController(object):
+class TrackController(QObject):
+    switch_changed_index_signal = pyqtSignal(int)
+
     def __init__(self, occupancy_list: list, section: str):
+        super().__init__()
         if section == "A":
             self.block_indexes = [1, 2, 3, 4, 5, 6, 7, 8, 9,
                                   10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
@@ -32,9 +38,8 @@ class TrackController(object):
                     Switch(85, 86, 100, 86)
                 ]
 
-        self.plc_logic = PLC_Logic.PlcProgram()
+        self.plc_logic = PlcProgram()
         self.occupancy_list = occupancy_list
-        self.authority = 0
         self.suggested_speed_list = [0]
         self.zero_speed_flag_list = [False] * len(self.occupancy_list)
         self.section = section
@@ -42,13 +47,16 @@ class TrackController(object):
         self.business_logic = BusinessLogic(
             self.occupancy_list,
             self.switches_list,
-            self.authority,
             self.suggested_speed_list,
             self.plc_logic,
             self.block_indexes,
             self.section
         )
+        self.testbench_container = TestbenchContainer(self.business_logic)
+        self.business_logic.switch_changed_index_signal.connect(self.send_switch_changed_index)
 
+    def send_switch_changed_index(self, switch_block: int):
+        self.switch_changed_index_signal.emit(switch_block)
     def run(self) -> None:
         pass
 
@@ -69,15 +77,30 @@ class TrackController(object):
         return self.zero_speed_flag_list
 
     def show_ui(self):
-        app = QApplication(sys.argv)
-        ui = TrackControllerUI.UI(self.business_logic)
-        ui.show()
+        app = QApplication.instance()  # Get the QApplication instance
+
+        # app_flag = False
+        if app is None:
+            app = QApplication([])  # If QApplication instance doesn't exist, create a new one
+            # app_flag = True
+
+        print("before ui call")
+        self.ui = UI(self.business_logic)
+        print("before ui show")
+        self.ui.show()
+        print("After ui show")
+
+        # if app_flag is True:
         app.exec()
 
-# def main():
-#     track_controller = TrackController()
-#     track_controller.show_ui()
-#
-#
-# if __name__ == "__main__":
-#     main()
+    def show_testbench_ui(self):
+        self.testbench_container.show_ui()
+
+
+def main():
+    track_controller = TrackController([False]*36, "A")
+    track_controller.show_ui()
+
+
+if __name__ == "__main__":
+    main()
