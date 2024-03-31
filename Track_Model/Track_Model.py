@@ -250,7 +250,7 @@ class TrackModel(QObject):
     # track controller
 
     def get_tc_block_occupancy(self) -> list[bool]:  # giving everything now
-        return self.data[1:, :].tolist()
+        return self.data[1:, 7].tolist()
 
     # train model
 
