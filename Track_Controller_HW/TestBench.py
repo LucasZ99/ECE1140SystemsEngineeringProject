@@ -7,7 +7,11 @@
 import threading
 import sys
 import copy
+import sys
+import copy
 from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6.QtCore import pyqtSignal, QCoreApplication, pyqtSlot
+from PyQt6.QtWidgets import QMainWindow
 from PyQt6.QtCore import pyqtSignal, QCoreApplication, pyqtSlot
 from PyQt6.QtWidgets import QMainWindow
 import os
@@ -16,6 +20,43 @@ from Track_Controller_HW import SlotsSigs
 
 
 # Global Variables
+
+
+#current_dir = os.path.dirname(__file__)  # setting up dir to work in any location in a directory
+#tb_subdir = 'TBData'
+#tb_subfolder = os.path.join(current_dir, tb_subdir)
+#path = os.path.join(tb_subdir, 'TBData.txt')
+#print(tb_subfolder)
+
+
+class Tb_Ui(QMainWindow):
+    authority = 5
+    suggestedSpeed = [50]
+    numSwitches = 1
+    numBlocks = 105
+    switches = [False] * numSwitches
+    blocks = [False] * numBlocks
+
+    occupancy_changed_signal = pyqtSignal(list)
+    switch_changed_signal = pyqtSignal(list)
+    # authority_updated_signal = pyqtSignal(bool)
+    sug_speed_updated_signal = pyqtSignal(list)
+    
+    def __init__(self, slots_sigs: SlotsSigs):
+        super(Tb_Ui,self).__init__()
+        
+        self.slots_sigs = slots_sigs
+        self.slots_sigs.occupancy_signal.connect(self.occupancy_changed_signal)
+        self.slots_sigs.switches_signal.connect(self.switch_changed_signal)
+        self.slots_sigs.suggested_speed_signal.connect(self.sug_speed_updated_signal)
+        
+        
+        #print("Setting up UI...")
+        self.setObjectName("MainWindow")
+        self.resize(369, 365)
+        self.setMinimumSize(QtCore.QSize(369, 365))
+        self.setMaximumSize(QtCore.QSize(369, 365))
+        self.centralwidget = QtWidgets.QWidget(parent=self)
 
 
 #current_dir = os.path.dirname(__file__)  # setting up dir to work in any location in a directory
