@@ -18,11 +18,11 @@ from Track_Model_TB_UI import TestBenchWindow
 # Main Window
 ##############################
 class Window(QMainWindow):
-    def __init__(self):
+    def __init__(self, track_model):
         super().__init__()
         # Backend
         self.file_name = self.getFileName()
-        self.track_model = TrackModel(self.file_name)
+        self.track_model = track_model
         self.test_bench_window = TestBenchWindow()
         # Window Layout
         self.setWindowIcon(QIcon("icon.jpg"))
