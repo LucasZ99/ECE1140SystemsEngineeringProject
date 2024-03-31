@@ -17,7 +17,8 @@ def run_launcher():
     track_controller_container = TrackControllerContainer()
     launcher_container = LauncherContainer(
         time_module=time_module,
-        track_controller_container=track_controller_container)
+        track_controller_container=track_controller_container
+    )
 
     # Initialize and run the GUI within the main thread context
     launcher_container.init_launcher_ui()

@@ -69,9 +69,9 @@ class TrackControllerContainer(QObject):
     def update_occupancy(self, block_occupancy_list: list) -> None:
         self.occupancy_list = block_occupancy_list
         # CTC.update_block_occupancy(0, self.occupancy_list)
-        self.occupancy_list_A = self.occupancy_list[0:33]
+        self.occupancy_list_A = self.occupancy_list[0:32]
         zero_speed_flag_list_A = self.trackControllerA.update_occupancy(self.occupancy_list_A)
-        self.zero_speed_flag_list[0:33] = zero_speed_flag_list_A[0:33]
+        self.zero_speed_flag_list[0:32] = zero_speed_flag_list_A[0:32]
 
     @pyqtSlot(int)
     def update_track_switch(self, switch_block: int) -> None:
@@ -95,11 +95,11 @@ class TrackControllerContainer(QObject):
             self.trackControllerC.show_testbench_ui()
 
 
-# def main():
-#     trackControllerContainer = TrackControllerContainer()
-#     trackControllerContainer.update_occupancy([True] * 151)
-#     trackControllerContainer.show_ui("A")
-#
-#
-# if __name__ == "__main__":
-#     main()
+def main():
+    trackControllerContainer = TrackControllerContainer()
+    # trackControllerContainer.update_occupancy([True] * 151)
+    trackControllerContainer.show_ui("A")
+
+
+if __name__ == "__main__":
+    main()

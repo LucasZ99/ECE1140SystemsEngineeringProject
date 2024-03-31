@@ -18,7 +18,7 @@ class LauncherContainer(QObject):
         super().__init__()
         self.time_module = time_module
         self.track_controller_container = track_controller_container
-        self.track_model_window = Window()
+        # self.track_model_window = Window()
 
     def init_launcher_ui(self):
         app = QApplication.instance()
