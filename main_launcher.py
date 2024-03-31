@@ -4,7 +4,7 @@ import threading
 from PyQt6.QtWidgets import QApplication
 
 from SystemTime.SystemTimeContainer import SystemTimeContainer
-from Track_Controller_SW import TrackControllerContainer
+from Track_Controller_SW.TrackControllerContainer import TrackControllerContainer
 from launchercontainer import LauncherContainer
 
 

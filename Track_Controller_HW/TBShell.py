@@ -1,5 +1,6 @@
 from PyQt6.QtWidgets import QApplication
-from Track_Controller_HW import SlotsSigs, Tb_Ui
+
+from Track_Controller_HW import SlotsSigs
 
 
 class TB_Shell:
