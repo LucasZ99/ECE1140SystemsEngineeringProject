@@ -49,23 +49,23 @@ class TestBench_JEB382(QWidget):
         ICON = QIcon(os.getcwd()+"\icon.png")
         self.setWindowIcon(ICON)
         
+        print("TB")
+        print(in_TrainModel_arr)
+        
         #this array inputed as an init gets updated as UI is used
         #classes that created this TB have the array they passed locally update with it as well
-        if len(in_TrainModel_arr)<12:
+        if len(in_TrainModel_arr)<10:
             #if array is empty or missing values, autofills at end of missing indexes
-            t_TrainModel_arr = [0.0, 0.0, 0.0, 0.0, 0.0, False, False, 0, False, False,False,"00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"]
+            t_TrainModel_arr = [0.0, 0.0, 0.0, False, False, False, False, False, False,"00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"]
             in_TrainModel_arr = in_TrainModel_arr + t_TrainModel_arr[len(in_TrainModel_arr):]
         #if over, snips
-        elif len(in_TrainModel_arr)>12: in_TrainModel_arr = in_TrainModel_arr[0:-(len(in_TrainModel_arr)-12)]
+        elif len(in_TrainModel_arr)>10: in_TrainModel_arr = in_TrainModel_arr[0:-(len(in_TrainModel_arr)-12)]
         #ensure beacon arr indx is proper size
+        print(in_TrainModel_arr)
         if len(str(in_TrainModel_arr[-1]))<128:
             in_TrainModel_arr[-1] = "0"*(128-len(str(in_TrainModel_arr[-1])))+str(in_TrainModel_arr[-1])
         elif len(str(in_TrainModel_arr[-1]))>128:
             in_TrainModel_arr[-1] = str(in_TrainModel_arr[-1])[len(str(in_TrainModel_arr[-1]))-128:]
-        #checks door side state is within range
-        if in_TrainModel_arr[7] not in range(0,5):
-            in_TrainModel_arr[7]=0
-        self.statside=in_TrainModel_arr[7]
         #check tickboxes are within limit(0,100)
         limit1=0;limit2=100
         for i in range(0,4):
@@ -73,7 +73,7 @@ class TestBench_JEB382(QWidget):
             elif in_TrainModel_arr[i] > limit2: in_TrainModel_arr[i]=limit2
         
         self.TrainModel_arr = in_TrainModel_arr
-        #print(TrainModel_arr)
+        print(self.TrainModel_arr)
                 
         #self.resize(800, 600)
         self.layout = QGridLayout(self)
@@ -97,8 +97,8 @@ class TestBench_JEB382(QWidget):
     def genTCKs(self):
         
         self.ticks = []
-        tickNames1 = ["Actual Speed:","Commanded Speed","Vital Authority","Speed Limit","Accel Limit","Decel Limit"]
-        tickNames2 = ["MPH"          ,"MPH"            ,"Miles"          ,"MPH"        ,"MPH/s"      ,"MPH/s"]
+        tickNames1 = ["Actual Speed:","Commanded Speed","Vital Authority"]#,"Speed Limit","Accel Limit","Decel Limit"]
+        tickNames2 = ["MPH"          ,"MPH"            ,"Miles"          ]#,"MPH"        ,"MPH/s"      ,"MPH/s"]
         
         # generates tickboxes and names with names from array
         for i in range(1,len(tickNames1)+1):
@@ -126,7 +126,7 @@ class TestBench_JEB382(QWidget):
         self.TCK_VitAut.valueChanged.connect(lambda: self.TCKF(TCK=self.TCK_VitAut,index=2))
         self.layout.addWidget(self.TCK_VitAut, 3, 1, 1, 1)
         
-        self.TCK_SpdLmt = QDoubleSpinBox()
+        '''self.TCK_SpdLmt = QDoubleSpinBox()
         self.TCK_SpdLmt.setValue(self.TrainModel_arr[4])
         self.TCK_SpdLmt.valueChanged.connect(lambda: self.TCKF(TCK=self.TCK_SpdLmt,index=3))
         self.layout.addWidget(self.TCK_SpdLmt, 4, 1, 1, 1)
@@ -139,7 +139,7 @@ class TestBench_JEB382(QWidget):
         self.TCK_DeAccLmt = QDoubleSpinBox()
         self.TCK_DeAccLmt.setValue(self.TrainModel_arr[6])
         self.TCK_DeAccLmt.valueChanged.connect(lambda: self.TCKF(TCK=self.TCK_DeAccLmt,index=5))
-        self.layout.addWidget(self.TCK_DeAccLmt, 6, 1, 1, 1)
+        self.layout.addWidget(self.TCK_DeAccLmt, 6, 1, 1, 1)'''
     #++++++
     def TCKF(self,TCK,index):
         self.TrainModel_arr[index] = TCK.value()
@@ -147,17 +147,19 @@ class TestBench_JEB382(QWidget):
             
     #--------
     def genbuttons(self):
-        buttonNames1 = ["Passenger eBrake","Track Circuit State","Station Side","Signal Pickup Failure","Engine Failure","Brake Failure"]
+        #buttonNames1 = ["Passenger eBrake","Track Circuit State","Station Side","Signal Pickup Failure","Engine Failure","Brake Failure"]
+        buttonNames1 = ["Passenger eBrake","Track Circuit State","UnderGround", "Signal Pickup Failure","Engine Failure","Brake Failure"]
                 
         # generates buttons with names from btnNames array
         for i in range(1,len(buttonNames1)+1):
             label1 = better_label_ret(text=buttonNames1[i-1])
             self.layout.addWidget(label1, i, 4, 1, 1)
             button = better_button_ret()
-            button.setChecked(bool(self.TrainModel_arr[i+4]))
+            button.setChecked(bool(self.TrainModel_arr[i+2]))
             gen_but_tog(button)
-            button.clicked.connect( functools.partial(self.gen_but_tog2,but=button,index=i+4) )#TODO
-            if i not in [2,3]: self.layout.addWidget(button, i, 5, 1, 1)
+            button.clicked.connect( functools.partial(self.gen_but_tog2,but=button,index=i+2) )#TODO
+            if i not in [2]: self.layout.addWidget(button, i, 5, 1, 1)
+            print(i, i+2, buttonNames1[i-1])
             
         '''self.PassEBRK = better_button_ret()
         self.PassEBRK.setChecked(bool(self.TrainModel_arr[i+4]))
@@ -167,19 +169,19 @@ class TestBench_JEB382(QWidget):
         
         #adjust 1,2 ; Track Circuit State,Station Side
         button = better_button_ret()
-        button.clicked.connect( functools.partial(self.gen_but_tog2,but=button, index=6, text1="Left",text2="Right",
+        button.clicked.connect( functools.partial(self.gen_but_tog2,but=button, index=4, text1="Left",text2="Right",
                                                   style_on="background-color: rgb(0, 224, 34); border: 2px solid rgb(30, 143, 47); border-radius: 4px",
                                                   style_off="background-color: rgb(222, 62, 38); border: 2px solid rgb(222, 0, 0); border-radius: 4px") )
-        button.setChecked(bool(self.TrainModel_arr[6]))
+        button.setChecked(bool(self.TrainModel_arr[4]))
         gen_but_tog(but=button,text1="Left",text2="Right",
                     style_on="background-color: rgb(0, 224, 34); border: 2px solid rgb(30, 143, 47); border-radius: 4px",
                     style_off="background-color: rgb(222, 62, 38); border: 2px solid rgb(222, 0, 0); border-radius: 4px") 
         self.layout.addWidget(button, 2, 5, 1, 1)
         
-        button = better_button_ret()
+        '''button = better_button_ret()
         self.BTNF_station(button,start=True)#change layout
         button.clicked.connect( functools.partial(self.BTNF_station,but=button))
-        self.layout.addWidget(button, 3, 5, 1, 1)
+        self.layout.addWidget(button, 3, 5, 1, 1)'''
         
     #++++++
     def gen_but_tog2(self, but, index=None, text1=None,text2=None, style_on=None,style_off=None):
@@ -237,7 +239,11 @@ class TestBench_JEB382(QWidget):
         self.layout.addWidget(self.textbox, 13, 0, 1, 8)
     #+-+-+-+
     def textbox_update(self):
-        self.TrainModel_arr[-1] = self.textbox.text()
+        if len(self.textbox.text())<128:
+            self.TrainModel_arr[-1] = "0"*(128-len(self.textbox.text()))+self.textbox.text()
+        elif len(self.textbox.text())>128:
+            self.TrainModel_arr[-1] = self.textbox.text()[len(self.textbox.text())-128:]
+        else: self.TrainModel_arr[-1] = self.textbox.text()
             
  #--------#--------#--------#--------#--------
 def better_button_ret(sizeW=True,sizeH=24,checkable=True,text="Off",style="background-color: rgb(156, 156, 156); border: 2px solid rgb(100, 100, 100); border-radius: 6px"):
@@ -359,7 +365,7 @@ def test_TB():
         
 if __name__ == "__main__":
     numtrain=1
-    arr =[9]*30
+    arr =[]#[9]*0
     TB_fin(numtrain,arr)
     
     #TB_pyqtloop(numtrain,arr)

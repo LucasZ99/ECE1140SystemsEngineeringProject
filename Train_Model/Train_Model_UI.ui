@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>915</width>
+    <width>902</width>
     <height>511</height>
    </rect>
   </property>
@@ -747,7 +747,7 @@
       <enum>QFrame::NoFrame</enum>
      </property>
      <property name="text">
-      <string>0x...</string>
+      <string>...</string>
      </property>
     </widget>
     <widget class="QLabel" name="beaconValue">
@@ -1736,22 +1736,6 @@
       <string>Beacon Information:</string>
      </property>
     </widget>
-    <widget class="QLabel" name="recSpeedValue_tb">
-     <property name="geometry">
-      <rect>
-       <x>130</x>
-       <y>10</y>
-       <width>16</width>
-       <height>41</height>
-      </rect>
-     </property>
-     <property name="frameShape">
-      <enum>QFrame::NoFrame</enum>
-     </property>
-     <property name="text">
-      <string>0x</string>
-     </property>
-    </widget>
     <widget class="QLabel" name="authValue_tb">
      <property name="geometry">
       <rect>
@@ -2031,8 +2015,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>915</width>
-     <height>21</height>
+     <width>902</width>
+     <height>26</height>
     </rect>
    </property>
   </widget>
