@@ -1,4 +1,4 @@
-from PyQt5.QtCore import pyqtSignal, QObject, pyqtSlot
+from PyQt6.QtCore import pyqtSignal, QObject, pyqtSlot
 
 
 class TrainBusinessLogic(QObject):

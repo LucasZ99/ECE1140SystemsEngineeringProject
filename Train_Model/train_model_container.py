@@ -9,6 +9,7 @@ class TrainModelContainer:
     passenger_return = dict()
     ui_list = list()
     business_logic = TrainBusinessLogic()
+    num_cars = 1
 
     def __init__(self, bus=TrainBusinessLogic()):
         self.business_logic = bus
@@ -82,14 +83,14 @@ class TrainModelContainer:
 
     def add_train(self):
         if len(self.train_list) == 0:
-            self.train_list[1] = TrainModel()
+            self.train_list[1] = TrainModel(1, self.num_cars)
             self.track_inputs[1] = [0.0, 0, "", False]
             self.controller_inputs[1] = [0.0, 0.0, False, False, False, "", True, False]
 
             index = 1
         else:
             index = max(self.train_list.keys()) + 1
-            self.train_list[index] = TrainModel()
+            self.train_list[index] = TrainModel(index, self.num_cars)
             self.track_inputs[index] = [0.0, 0, "", False]
             self.controller_inputs[index] = [0.0, 0.0, False, False, False, "", True, False,]
 

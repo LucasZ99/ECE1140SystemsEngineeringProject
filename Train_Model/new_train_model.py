@@ -46,9 +46,9 @@ class TrainModel:
 
     def physics_calculation(self, time):
         if self.position > self.train_const.train_length()/2:
-            net_force = self.engine.force_from_engine(self.velocity, self.failure.engine_failure) + self.brakes.brake_force(self.failure.brake_failure) + self.new_block.grav_force()
+            net_force = self.engine.force_from_engine(self.velocity, self.failure.engine_failure) - self.brakes.brake_force(self.failure.brake_failure) + self.new_block.grav_force()
         else:
-            net_force = self.engine.force_from_engine(self.velocity, self.failure.engine_failure) + self.brakes.brake_force(self.failure.brake_failure) + self.new_block.grav_force()
+            net_force = self.engine.force_from_engine(self.velocity, self.failure.engine_failure) - self.brakes.brake_force(self.failure.brake_failure) + self.old_block.grav_force()
 
         # acceleration calculation
         new_acc = net_force / self.train_const.train_mass()

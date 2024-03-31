@@ -1,10 +1,10 @@
 import sys
 
-from PyQt5.QtGui import QIcon
+from PyQt6.QtGui import QIcon
 
 
-from PyQt5 import uic
-from PyQt5.QtWidgets import (QMainWindow, QApplication, QLabel, QPushButton, QGroupBox,
+from PyQt6 import uic
+from PyQt6.QtWidgets import (QMainWindow, QApplication, QLabel, QPushButton, QGroupBox,
                              QCheckBox, QComboBox, QProgressBar, QLineEdit)
 
 import random
@@ -21,6 +21,7 @@ class UITrain(QMainWindow):
         super(UITrain, self).__init__()
 
         # load the ui file
+        print("im here 1")
         uic.loadUi("Train_Model_UI.ui", self)
 
         # declare the train object
@@ -55,6 +56,7 @@ class UITrain(QMainWindow):
         self.widthValue = self.findChild(QLabel, "widthValue")
         self.carsValue = self.findChild(QLabel, "carsValue")
         self.trainMassValue = self.findChild(QLabel, "trainMassValue")
+        print("here 4")
         self.crewValue = self.findChild(QLabel, "crewValue")
         self.passValue = self.findChild(QLabel, "passValue")
 
@@ -89,6 +91,7 @@ class UITrain(QMainWindow):
         self.trainGroup_tb = self.findChild(QGroupBox, "trainGroup_tb")
         self.lengthValue_tb = self.findChild(QLabel, "lengthValue_tb")
         self.heightValue_tb = self.findChild(QLabel, "heightValue_tb")
+        print("here 3")
         self.widthValue_tb = self.findChild(QLabel, "widthValue_tb")
         self.carsValue_tb = self.findChild(QLineEdit, "carsTextBox")
         self.trainMassValue_tb = self.findChild(QLabel, "trainMassValue_tb")
@@ -156,6 +159,7 @@ class UITrain(QMainWindow):
         self.intLightValue_tb.stateChanged.connect(self.int_light_change)
         self.leftDoorValue_tb.stateChanged.connect(self.left_door_change)
         self.rightDoorValue_tb.stateChanged.connect(self.right_door_change)
+        print("here 2")
 
     def index_update(self, index):
         string = str(self.trainSelect.currentText())
@@ -438,5 +442,6 @@ class UITrain(QMainWindow):
 # initialize the app
 # app = QApplication(sys.argv)
 # UIWindow = UITrain()
+# UIWindow.show()
 # app.exec()
 

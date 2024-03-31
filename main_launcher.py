@@ -6,6 +6,7 @@ from PyQt6.QtWidgets import QApplication
 from SystemTime.SystemTimeContainer import SystemTimeContainer
 from Track_Controller_SW import TrackControllerContainer
 from launchercontainer import LauncherContainer
+from Train_Model import UITrain
 
 
 def run_launcher():
