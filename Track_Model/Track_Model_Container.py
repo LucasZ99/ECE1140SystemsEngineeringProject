@@ -1,13 +1,14 @@
 import os
 import sys
 
+from PyQt6.QtCore import QObject
 from PyQt6.QtWidgets import QApplication
 
 from Track_Model.Track_Model import TrackModel
 from Track_Model.Track_Model_UI import Window
 
 
-class TrackModelContainer(object):
+class TrackModelContainer(QObject):
     def __init__(self):
         self.track_model = TrackModel("./Track_Model/Green Line.xlsx")
         self.track_model_ui = Window(self.track_model)
@@ -34,22 +35,30 @@ class TrackModelContainer(object):
     # Track Controller
 
     def update_authority(self, authority: list[int]):
+        print('update authority called')
         self.track_model.update_authority(authority)
 
     def update_speed(self, speed: list[float]):
+        print('update speed called')
         self.track_model.update_speed(speed)
 
     def toggle_switch(self, block_id: int):
+        print('toggle switch called')
         self.track_model.toggle_switch(block_id)
 
     def toggle_signal(self, block_id: int):
+        print('toggle signal called')
         self.track_model.toggle_signal(block_id)
 
     def toggle_crossing(self, block_id: int):
+        print('toggle crossing called')
         self.track_model.toggle_crossing(block_id)
 
     def open_block(self, block_id: int):
+        print('open block called')
         self.track_model.open_block(block_id)
 
     def close_block(self, block_id: int):
+        print('close block called')
         self.track_model.close_block(block_id)
+
