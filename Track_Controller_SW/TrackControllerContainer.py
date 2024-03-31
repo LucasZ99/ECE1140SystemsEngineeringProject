@@ -2,12 +2,13 @@ from PyQt6.QtCore import pyqtSlot, QObject
 
 # from Track_Controller_HW.TrackControllerHW import TrackControllerHardware
 from Track_Controller_SW import TrackController, Switch
+from Track_Model.Track_Model_Container import TrackModelContainer
 
 
 # from Track_Model import Track_Model_New
 
 class TrackControllerContainer(QObject):
-    def __init__(self):
+    def __init__(self, track_model=TrackModelContainer):
         # initialize track data
         super().__init__()
         self.occupancy_list = [False] * 151
@@ -21,8 +22,9 @@ class TrackControllerContainer(QObject):
         self.railway_crossing_blocks_list = [19, 108]
         self.speed_list = [0.0] * 151
         self.zero_speed_flag_list = [False] * 151
-        # self.track_model = track_model
         self.authority_list = [0] * 151
+
+        self.track_model = track_model
 
         # Controller specific initialization
         # Section A: blocks 1-32, 147-150
@@ -67,6 +69,7 @@ class TrackControllerContainer(QObject):
 
     # Track Model Endpoint
     def update_occupancy(self, block_occupancy_list: list) -> None:
+        print("got the occupancy from track model")
         self.occupancy_list = block_occupancy_list
         # CTC.update_block_occupancy(0, self.occupancy_list)
         self.occupancy_list_A = self.occupancy_list[0:32]
@@ -76,7 +79,7 @@ class TrackControllerContainer(QObject):
     @pyqtSlot(int)
     def update_track_switch(self, switch_block: int) -> None:
         print(f"Updating Track Model switch at block: {switch_block}")
-        # self.track_model.toggle_switch(switch_block)
+        self.track_model.toggle_switch(switch_block)
 
     def show_ui(self, section: str):
         if section == "A":

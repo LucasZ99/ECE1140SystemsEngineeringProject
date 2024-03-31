@@ -24,7 +24,7 @@ class PlcProgram(object):
             print("Error:", e.output.decode('utf-8'))
 
 
-if __name__ == "__main__":
-    program = PlcProgram()
-    output = program.execute_plc([True, False, False], section="A")
-    print(output)
+# if __name__ == "__main__":
+#     program = PlcProgram()
+#     output = program.execute_plc([True, False, False], section="A")
+#     print(output)
