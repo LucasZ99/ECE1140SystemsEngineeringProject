@@ -13,5 +13,5 @@ class BlockModel:
 
     def __str__(self):
         s = ""
-        s += self.line + ", " + self.id + ", " + (self.station_name if len(self.station_name) > 0 else "None") + ", " + str(self.railroad_crossing) + ", " + (str(self.switch_dest) if len(self.switch_dest) > 0 else "None") + ", " + str(self.speed_limit_kph) + ", " + str(self.length_m)
+        s += self.line + ", " + self.id + ", " + (self.station_name if len(self.station_name) > 0 else "None") + ", " + str(self.railroad_crossing) + ", " + str(self.speed_limit_kph) + ", " + str(self.length_m)
         return s

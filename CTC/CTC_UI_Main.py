@@ -1,20 +1,23 @@
 from datetime import date, datetime, timedelta
-from time import localtime, strftime, strptime, struct_time, time
+from time import localtime, strftime, strptime, struct_time, time, ctime
 from PyQt6.QtCore import QSize, Qt, QTime, QTimer
-from PyQt6.QtWidgets import QMainWindow, QApplication, QWidget, QPushButton, QLabel, QLineEdit, QVBoxLayout, QGridLayout, QComboBox, QHBoxLayout, QTimeEdit, QTableWidget, QTableWidgetItem, QTabWidget, QAbstractScrollArea
+from PyQt6.QtWidgets import QMainWindow, QApplication, QWidget, QPushButton, QLabel, QLineEdit, QVBoxLayout, QGridLayout, QComboBox, QHBoxLayout, QDateTimeEdit, QTableWidget, QTableWidgetItem, QTabWidget, QAbstractScrollArea
 from click import DateTime
 
-from CTC.CTCSchedule import Train, CTCSchedule
-from CTC.CTC import CTC
-from CTC.CTCTime import get_current_time, get_current_time_hh_mm, get_current_time_hh_mm_str, get_current_time_qtime
+from CTC import CTC
+from Train import Train
 
-from CTC.TrackDataCSVParser import LineTrackDataCSVParser
+from Route import Route
+from SystemTime import SystemTime
+from Track import *
 
 # from models import BlockModel
 
 class CTCMainWindow(QMainWindow):
-    def __init__(self, ctc:CTC):
+    def __init__(self, ctc:CTC, system_time:SystemTime):
         super(CTCMainWindow, self).__init__()
+
+        self.system_time = system_time
 
         self.ctc = ctc
 
@@ -36,30 +39,30 @@ class CTCMainWindow(QMainWindow):
         self.disptach_train_tab_list = []
 
 
-        self.arrival_time_list:list[QTimeEdit] = []
-        self.departure_time_list:list[QTimeEdit] = []
+        self.arrival_time_list:list[QDateTimeEdit] = []
+        self.departure_time_list:list[QDateTimeEdit] = []
         self.depart_now_button_list:list[QPushButton] = []
         self.dispatch_train_schedule_list:list[QTableWidget] = []
         self.dispatch_button_list:list[QPushButton] = []
         self.train_id_label_list:list[QLabel] = []
 
         self.destination_selector_list:list[QComboBox] = []
-        for _ in self.ctc.get_lines():
+        for _ in LINES:
             self.disptach_train_tab_list.append(QWidget())
 
         for (id, tab) in enumerate(self.disptach_train_tab_list):
-            self.dispatch_train_tab_widget.addTab(self.disptach_train_tab_list[id], self.ctc.get_lines()[id] + " Line")
+            self.dispatch_train_tab_widget.addTab(self.disptach_train_tab_list[id], LINES[id])
 
             tab.layout = QVBoxLayout()
 
             destination_list_combo_box = QComboBox()
             destination_list_combo_box.addItem("Select Destination...")
-            for block in self.ctc.get_blocks_and_stations(id):
+            for block in BLOCK_NAMES[id]:
                 block_list_name = ""
-                if block[1] != "":
-                    block_list_name = block[0] + " (STATION: %s)" % block[1]
+                if BLOCK_NAMES[id][block] in STATIONS[id]:
+                    block_list_name = block + " (STATION: %s)" % STATIONS[id][BLOCK_NAMES[id][block]]
                 else:
-                    block_list_name = block[0]
+                    block_list_name = block
                 destination_list_combo_box.addItem(block_list_name)
 
             destination_list_combo_box.setFixedSize(destination_list_combo_box.sizeHint())
@@ -90,7 +93,7 @@ class CTCMainWindow(QMainWindow):
 
             # Train Number
             dispatch_train_train_number = QLabel()
-            dispatch_train_train_number.setText(f"Train Number: %d" % self.ctc.schedule.get_next_train_number())
+            dispatch_train_train_number.setText(f"Train Number: %d" % self.ctc.scheduled_trains.get_next_train_number())
             dispatch_train_train_number.setAlignment(Qt.AlignmentFlag.AlignCenter)
             f = dispatch_train_train_number.font()
             f.setPointSize(20)
@@ -119,7 +122,7 @@ class CTCMainWindow(QMainWindow):
             tab.layout.addWidget(dispatch_train_schedule)  
 
             # Dispatch Button
-            dispatch_train_button = QPushButton("Dispatch Train #%d" % self.ctc.schedule.get_next_train_number())
+            dispatch_train_button = QPushButton("Dispatch Train #%d" % self.ctc.scheduled_trains.get_next_train_number())
             dispatch_train_button.setEnabled(False)
             tab.layout.addWidget(dispatch_train_button)
             self.dispatch_button_list.append(dispatch_train_button)
@@ -137,12 +140,13 @@ class CTCMainWindow(QMainWindow):
         ctc_main_right_side = QVBoxLayout()
         ctc_main_right_side.setSpacing(10)
         ctc_main_layout_right_top_section = QHBoxLayout()
-        self.train_system_time = QLabel(get_current_time().strftime("%H:%M:%S"))
+        self.train_system_time = QLabel(strftime("%H:%M:%S", localtime(system_time.time())))
         train_system_time_font = self.train_system_time.font()
         train_system_time_font.setPointSize(30)
         self.train_system_time.setFont(train_system_time_font)
 
         # Update time every 1 second
+        # TODO fix time wiring
         time_timer = QTimer(self)
         time_timer.timeout.connect(self.timer_handler_1sec)
         time_timer.start(1000)
@@ -205,7 +209,7 @@ class CTCMainWindow(QMainWindow):
         block_table_search_bar.setFixedSize(block_table_search_bar.sizeHint())
 
         block_table_line_select = QComboBox()
-        block_table_line_select.addItems([line_name + " Line" for line_name in self.ctc.get_lines()])
+        block_table_line_select.addItems([line_name for line_name in LINES])
 
         block_table_header_layout = QHBoxLayout()
         block_table_header_layout.addWidget(block_table_label)
@@ -233,8 +237,8 @@ class CTCMainWindow(QMainWindow):
         ctc_main_layout_throughput.addWidget(QLabel("Trains Per Hour"), 0, 1)
         ctc_main_layout_throughput.addWidget(QLabel("# Ticket Sales Per Hour"), 0, 2)
 
-        for id, line in enumerate(self.ctc.get_lines()):
-            ctc_main_layout_throughput.addWidget(QLabel(line + " Line") , id + 1, 0)
+        for id, line in enumerate(LINES):
+            ctc_main_layout_throughput.addWidget(QLabel(line) , id + 1, 0)
         
         ctc_throughput_layout.addItem(ctc_main_layout_throughput)
         ctc_main_right_side_bottom.addItem(ctc_throughput_layout)
@@ -252,7 +256,7 @@ class CTCMainWindow(QMainWindow):
         self.setCentralWidget(main_layout_widget)
 
 
-        self.route = []
+        self.route:list[int] = []
 
     def current_line_id(self):
         return self.dispatch_train_tab_widget.currentIndex()
@@ -273,9 +277,9 @@ class CTCMainWindow(QMainWindow):
             self.list_stops_to_destination(selected_id)
             self.calculate_route_arrival_times()
 
-    def departure_time(self)->QTime:
+    def departure_time(self)->float:
         departure_time = self.departure_time_list[self.dispatch_train_tab_widget.currentIndex()].time()
-        return departure_time
+        return QTime(0, 0, 0).secsTo(departure_time)
 
     def clear_stops_list(self):
         dispatch_train_schedule = self.dispatch_train_schedule_list[self.dispatch_train_tab_widget.currentIndex()]
@@ -287,7 +291,7 @@ class CTCMainWindow(QMainWindow):
         self.update_train_number()
 
     def train_number(self):
-        return self.ctc.schedule.get_next_train_number()
+        return self.ctc.scheduled_trains.get_next_train_number()
     
     def update_train_number(self):
         for button, label in zip(self.dispatch_button_list, self.train_id_label_list):
@@ -297,13 +301,9 @@ class CTCMainWindow(QMainWindow):
     def schedule_train(self):
         # route
         # line
-        train = Train(self.ctc.schedule.get_next_train_number(), self.current_line_id(),
-                      self.route[-1],
-                      self.departure_time(),
-                      self.route
-                    )
+        train = Train(self.system_time, self.train_number(), self.current_line_id(), self.stops)
         
-        self.ctc.schedule.schedule_train(train)
+        self.ctc.scheduled_trains.schedule_train(train)
         self.reset_dispatch_panel()
         self.update_schedule()
 
@@ -311,29 +311,35 @@ class CTCMainWindow(QMainWindow):
     def clear_schedule(self):
         self.scheduled_trains_table.setRowCount(0)
 
+    def stop_name(self, line_id:int, block_id:int)->str:
+        stop_name = ""
+        if block_id in STATIONS[line_id] != "":
+            stop_name = str(block_id) + "(STATION: %s)" % STATIONS[line_id][block_id]
+        else:
+            stop_name = str(block_id)
+
+        return stop_name
+
     def update_schedule(self):
         self.clear_schedule()
-        for row, train in enumerate(self.ctc.schedule.get_schedule()):
+        for row, train in enumerate(self.ctc.scheduled_trains.get_schedule()):
             self.scheduled_trains_table.insertRow(row)
-            print(train.number)
-            number = QTableWidgetItem(str(train.number))
-            line = QTableWidgetItem(self.ctc.get_lines()[train.line])
+            print(train.id)
+            number = QTableWidgetItem(str(train.id))
+            line = QTableWidgetItem(LINES[train.line_id])
 
-            block, station = self.ctc.get_block_and_station(train.line, train.destination)
-            dest_name = ""
-            if station != "":
-                dest_name = block + "(STATION: %s)" % station
-            else:
-                dest_name = block
+            dest_block = train.get_destination().block
+            dest_name = self.stop_name(train.line_id, dest_block)
 
             dest = QTableWidgetItem(dest_name)
             # arr_time = QTableWidgetItem(train.)
             departure_time = QTableWidgetItem(train.departure_time.toString("HH:mm"))
-            first_stop = QTableWidgetItem(train.route[0])
+            first_stop_name = self.stop_name(train.line_id, train.get_next_stop())
+            first_stop = QTableWidgetItem(first_stop_name)
 
-            min_to_departure = str(int((QTime.currentTime().secsTo(train.departure_time)/60)))
+            min_to_departure = (train.departure_time() - self.system_time.time()) / 60
 
-            time_to_departure = QTableWidgetItem(min_to_departure)
+            time_to_departure = QTableWidgetItem(str(round(min_to_departure, 0)))
 
             self.scheduled_trains_table.setItem(row, 0, number)
             self.scheduled_trains_table.setItem(row, 1, line)
@@ -349,62 +355,63 @@ class CTCMainWindow(QMainWindow):
 
         print(self.route)
 
-        travel_time_s = 0
-        arrival_time = QTime(self.departure_time_list[self.current_line_id()].time())
+        route_arrival_time = self.arrival_time_list[self.current_line_id()].time()
 
-        for stop_i in range(1, len(self.route)):
-            block_a = self.route[stop_i-1]
-            block_b = self.route[stop_i]
-            # travel time to stop
-            time_between_blocks_sec = self.ctc.get_travel_time_between_blocks_s(self.current_line_id(), block_a, block_b)
-            minutes, seconds = divmod(time_between_blocks_sec, 60)
-            dispatch_train_schedule.setItem(stop_i, 2, QTableWidgetItem(str("%0.2d:%0.2d" % (minutes, seconds))))
+        # this is relative to midnight on the day of dispatch.
+        route_departure_time = self.departure_time_list[self.current_line_id()].time()
 
-            travel_time_s = travel_time_s + time_between_blocks_sec
+        current_time = localtime(self.system_time.time())
 
-            arrival_time = self.departure_time().addSecs(int(travel_time_s))
-            dispatch_train_schedule.setItem(stop_i, 3, QTableWidgetItem(arrival_time.toString("HH:mm")))
+        # if route_departure_time.hour() < current_time.tm_hour:
+        #     # next day
+        #     departure_time = 
+        # elif route_departure_time.hour() == current_time.tm_hour and route_departure_time.minute() < current_time.tm_min:
+        #     # next day
+        #     departure_
 
-            # dwell time for stop
-            travel_time_s += travel_time_s + 60
+        self.stops = Route().get_times_through_route(self.current_line_id(), self.route)
+        self.scheduled_stops = Route().schedule_route(self.current_line_id(), self.stops, departure_time, arrival_time)
+
+        for i, stop in enumerate(self.stops):
+            # table
+            arrival_time = strftime("%H:%M", strptime(ctime(stop.arrival_time)))
+            departure_time = strftime("%H:%M", strptime(ctime(stop.departure_time)))
+            dispatch_train_schedule.setItem(i, 2, QTableWidgetItem(arrival_time))
+
+            dispatch_train_schedule.setItem(i, 3, QTableWidgetItem(departure_time))
         
-        self.arrival_time_list[self.current_line_id()].setTime(arrival_time)
+        # self.arrival_time_list[self.current_line_id()].setTime(arrival_time)
 
     def list_stops_to_destination(self, selected_id)->None:
         line_id = self.dispatch_train_tab_widget.currentIndex()
         dispatch_train_schedule = self.dispatch_train_schedule_list[self.dispatch_train_tab_widget.currentIndex()]
 
 
-        print(self.ctc.get_blocks(self.current_line_id()))
-        # print("Destination Block: ", self.ctc.get_blocks(self.current_line_id())[selected_id - 1])
-        # print(self.ctc.get_route_to_block(self.current_line_id(), "YARD", "B10"))
+        self.route = Route().find_route(line_id, 0, selected_id)
+        print(self.route)
 
-        path = self.ctc.get_route_to_block(self.current_line_id(), "YARD", self.ctc.get_blocks(self.current_line_id())[selected_id - 1])
-        print(path)
-        self.route = []
 
         dispatch_train_schedule.setRowCount(0)
         if selected_id != 0:
-            for block in path:
-                station = self.ctc.get_station_name(self.current_line_id(), block)
-                # if station != "":
-                self.route.append(block)
+            for stop in self.route[:-1]:
+                stop_name = STATIONS[line_id][stop]
                 row_number = dispatch_train_schedule.rowCount()
                 dispatch_train_schedule.insertRow(row_number)
 
-                station_name = QTableWidgetItem(block + " (" + station + ")")
+                station_name = QTableWidgetItem(str(stop) + " (" + stop_name + ")")
                 dispatch_train_schedule.setItem(row_number, 1, station_name)
 
-            print(self.route)
+        dispatch_train_schedule.insertRow(dispatch_train_schedule.rowCount())
+        last_stop = self.route[-1]
 
-            # if self.ctc.get_stations(line_id)[selected_id - 1] == "":
-            #     # self.route.append(self.ctc.get_blocks(line_id)[selected_id - 1])
+        if last_stop in STATIONS[line_id]:
+            stop_name = STATIONS[line_id][last_stop]
+            station_name = QTableWidgetItem(str(last_stop) + " (" + stop_name + ")")
+        else:
+            station_name = QTableWidgetItem(str(last_stop))
 
+        dispatch_train_schedule.setItem(dispatch_train_schedule.rowCount(), 1, station_name)
 
-            #     row_number = dispatch_train_schedule.rowCount()
-            #     dispatch_train_schedule.insertRow(row_number)
-            #     station_name = QTableWidgetItem(self.ctc.get_blocks(line_id)[selected_id - 1])
-            #     dispatch_train_schedule.setItem(row_number, 1, station_name)
 
     def select_line_to_dispatch(self, line_button)->None:
         line = self.dispatch_train_tab_widget.currentIndex()
@@ -416,7 +423,7 @@ class CTCMainWindow(QMainWindow):
             self.current_line = line
 
     def get_stops_to_destination(self, id):
-        stops_to_dest = self.ctc.get_stations(self.current_line)[:id]
+        stops_to_dest = Route().find_route(self.current_line, 0, id)
         return stops_to_dest
 
     def mode_switch_handler(self, mode):
@@ -434,11 +441,11 @@ class CTCMainWindow(QMainWindow):
         # Clear table
         table.setRowCount(0)
 
-        for row, train in enumerate(self.running_trains):
+        for row, train in enumerate(self.ctc.running_trains):
             table.insertRow(row)
-            train_number = str(train.number)
-            train_line = str(self.ctc.get_lines()[train.line])
-            destination = str(train.destination)
+            train_number = str(train.id)
+            train_line = LINES[train.line_id]
+            destination = str(train.get_destination())
 
             table.setItem(row, 0, QTableWidgetItem(train_number))
             table.setItem(row, 1, QTableWidgetItem(train_line))
@@ -448,13 +455,14 @@ class CTCMainWindow(QMainWindow):
 
     # # Move dispatched trains to CTC
     def poll_schedule_for_trains_to_dispatch(self):
-        trains_to_dispatch = self.ctc.schedule.dispatch_trains(get_current_time_qtime())
-        print(len(self.ctc.schedule.get_schedule()), " trains in schedule")
-        print(len(trains_to_dispatch), " trains removed from queue")
-        print(len(self.ctc.schedule.get_schedule()), " trains left in schedule")
-        if(len(trains_to_dispatch) > 0):
-            self.running_trains.extend(trains_to_dispatch)
-        print("Dispatched trains:", self.running_trains.__len__())
+        # trains_to_dispatch = self.ctc.schedule.dispatch_trains(get_current_time_qtime())
+        # print(len(self.ctc.schedule.get_schedule()), " trains in schedule")
+        # print(len(trains_to_dispatch), " trains removed from queue")
+        # print(len(self.ctc.schedule.get_schedule()), " trains left in schedule")
+        # if(len(trains_to_dispatch) > 0):
+        #     self.running_trains.extend(trains_to_dispatch)
+        # print("Dispatched trains:", self.running_trains.__len__())
+        pass
 
     # Timer Functions
     def timer_handler_1sec(self):
@@ -464,7 +472,7 @@ class CTCMainWindow(QMainWindow):
         self.update_running_trains_list()
 
     def update_time(self):
-        current_time = get_current_time().strftime("%H:%M:%S")
+        current_time = strftime("%H:%M:%S", localtime(system_time.time()))
         # [label.setTime(get_current_time_qtime()) for label in self.departure_time_list]
         self.train_system_time.setText(current_time)
 
@@ -499,21 +507,22 @@ class BlockTable(QTableWidget):
         # clear rows
         self.setRowCount(0)
 
-        for id, block in enumerate(self.ctc.get_block_data(line_id)):
-            self.insertRow(id)
-            block_id = block.id
-            block_length_ft = block.length_m * 3.28084
-            block_speed_limit_mph = block.speed_limit_kph / 1.609
+        # TODO fix block data
+        for block in range(0, LENGTHS_SPEED_LIMITS.__len__()):
+            self.insertRow(block)
+            block_id = block
+            block_length_ft = float(LENGTHS_SPEED_LIMITS[line_id][block][LENGTH]) * 3.28084
+            block_speed_limit_mph = LENGTHS_SPEED_LIMITS[line_id][block][SPEED_LIMIT] / 1.609
 
-            self.setItem(id, 0, QTableWidgetItem(block_id))
-            self.setItem(id, 6, QTableWidgetItem(str(block_length_ft)))
-            self.setItem(id, 7, QTableWidgetItem(str(block_speed_limit_mph)))
+            self.setItem(block, 0, QTableWidgetItem(block_id))
+            self.setItem(block, 6, QTableWidgetItem(str(block_length_ft)))
+            self.setItem(block, 7, QTableWidgetItem(str(block_speed_limit_mph)))
             
             # set switch combobox if there is a switch
-            if block.switch_dest.__len__() > 0:
-                switch_combo_box = QComboBox()
-                switch_combo_box.addItems(block.switch_dest)
-                self.setCellWidget(id, 4, switch_combo_box)
+            # if block.switch_dest.__len__() > 0:
+            #     switch_combo_box = QComboBox()
+            #     switch_combo_box.addItems(block.switch_dest)
+            #     self.setCellWidget(id, 4, switch_combo_box)
 
     def search(self, search_term:str):
         self.setCurrentItem(None)
@@ -534,11 +543,10 @@ class DispatchArrivalTime(QWidget):
         self.dispatch_train_arrival_time_label = QLabel("Arrival Time")
         f = self.dispatch_train_arrival_time_label.font()
 
-        self.dispatch_train_arrival_time = QTimeEdit()
+        self.dispatch_train_arrival_time = QDateTimeEdit()
         self.dispatch_train_arrival_time.setDisplayFormat("HH:mm")
         self.dispatch_train_arrival_time.setDisabled(True)
         # self.dispatch_train_arrival_time.setInputMask("00:00")
-        hhmm = get_current_time_hh_mm_str()
         # dispatch_train_arrival_time.textEdited.
 
         self.dispatch_arrival_time_layout.addWidget(self.dispatch_train_arrival_time_label)
@@ -558,7 +566,7 @@ class DispatchDepartureTime(QWidget):
 
         self.dispatch_train_departure_time_label = QLabel("Departure Time")
 
-        self.dispatch_train_departure_time = QTimeEdit()
+        self.dispatch_train_departure_time = QDateTimeEdit()
         self.dispatch_train_departure_time.setDisplayFormat("HH:mm")
         # self.dispatch_train_departure_time.setFixedSize(self.dispatch_train_departure_time.sizeHint())
         # self.dispatch_train_departure_time.timeChanged.connect(self.update_time)
@@ -601,9 +609,11 @@ if __name__=="__main__":
     ctc_ui_app = QApplication([])
 
     # track_layout_files = ["CTC/Green Line Track Data.csv", "CTC/Red Line Track Data.csv"]
-    track_layout_files = ["CTC/Blue Line Track Data.csv"]
+    # track_layout_files = ["CTC/Blue Line Track Data.csv"]
 
-    window = CTCMainWindow(CTC(CTCSchedule(), [LineTrackDataCSVParser(track_layout).get_block_list() for track_layout in track_layout_files]))
+    system_time = SystemTime()
+
+    window = CTCMainWindow(CTC(system_time), system_time)
     window.show()
 
     ctc_ui_app.exec()
