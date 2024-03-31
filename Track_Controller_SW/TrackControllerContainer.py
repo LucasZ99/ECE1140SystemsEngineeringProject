@@ -1,6 +1,6 @@
 from PyQt6.QtCore import pyqtSlot, QObject
 
-from Track_Controller_HW.TrackControllerHW import TrackControllerHardware
+# from Track_Controller_HW.TrackControllerHW import TrackControllerHardware
 from Track_Controller_SW import TrackController, Switch
 
 
@@ -34,7 +34,7 @@ class TrackControllerContainer(QObject):
 
         self.trackControllerA = TrackController(occupancy_list=self.occupancy_list_A, section="A")
 
-        self.trackControllerB = TrackControllerHardware(occupancy_list=self.occupancy_list_B, section="B")
+        # self.trackControllerB = TrackControllerHardware(occupancy_list=self.occupancy_list_B, section="B")
 
         self.trackControllerC = TrackController(occupancy_list=self.occupancy_list_C, section="C")
 
@@ -89,8 +89,8 @@ class TrackControllerContainer(QObject):
     def show_testbench_ui(self, section: str):
         if section == "A":
             self.trackControllerA.show_testbench_ui()
-        if section == "B":
-            self.trackControllerB.show_testbench_ui()
+        # if section == "B":
+        #     # self.trackControllerB.show_testbench_ui()
         if section == "C":
             self.trackControllerC.show_testbench_ui()
 
