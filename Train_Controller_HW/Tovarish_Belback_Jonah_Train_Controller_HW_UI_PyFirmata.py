@@ -3,6 +3,7 @@ import time#replace with shared time module when created and we do integration
 from Tovarish_Belback_Jonah_Train_Controller_Testbenchv2 import *#TestBench_JEB382
 from PyQt6.QtWidgets import *
 #import sys
+import linecache
 
 
 #commanded speed: Auto/Manual: Turn into Verr, calc power with Kp Ki
@@ -28,10 +29,16 @@ from PyQt6.QtWidgets import *
 #when entering driver, reset to whats the auto array set
 
 
+#self.Mode 0: AUTO
+
+#need to calc when to deaccelerate based on total distance from authority (look ahead table?????)
 
 
 
-global board
+global board,Pmax,Acc_Lim,DeAcc_Lim
+Pmax=10000
+Acc_Lim=0.5
+DeAcc_Lim=1.2#train spec page (1.20 is service brake)
 board = ArduinoMega('COM7')
 
 #mini classes---------------------------------------------------------
@@ -96,25 +103,27 @@ class HW_UI_JEB382_PyFirmat():
         #-------adjust arrays-------
         #array inputed as an init gets updated as UI is used
         #classes that created this TB have the array they passed locally update with it as well
-        if len(in_TrainModel_arr)<12:
+        if len(in_TrainModel_arr)<10:
             #if array is empty or missing values, autofills at end of missing indexes
-            t_TrainModel_arr = [0.0, 0.0, 0.0, 0.0, 0.0, False, False, 0, False, False,False,"00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"]
+            t_TrainModel_arr = [0.0, 0.0, 0.0, False, False, False, False, False, False,"00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"]
             in_TrainModel_arr = in_TrainModel_arr + t_TrainModel_arr[len(in_TrainModel_arr):]
         #if over, snips
-        elif len(in_TrainModel_arr)>12: in_TrainModel_arr = in_TrainModel_arr[0:-(len(in_TrainModel_arr)-12)]
+        elif len(in_TrainModel_arr)>10: in_TrainModel_arr = in_TrainModel_arr[0:-(len(in_TrainModel_arr)-12)]
         #ensure beacon arr indx is proper size
-        if   len(str(in_TrainModel_arr[-1]))<128: in_TrainModel_arr[-1] = "0"*(128-len(str(in_TrainModel_arr[-1])))+str(in_TrainModel_arr[-1])
-        elif len(str(in_TrainModel_arr[-1]))>128: in_TrainModel_arr[-1] = str(in_TrainModel_arr[-1])[len(str(in_TrainModel_arr[-1]))-128:]
-        #checks door side state is within range
-        if in_TrainModel_arr[7] not in range(0,5): in_TrainModel_arr[7]=0
+        print("PYF")
+        print(in_TrainModel_arr)
+        if len(str(in_TrainModel_arr[-1]))<128:
+            in_TrainModel_arr[-1] = "0"*(128-len(str(in_TrainModel_arr[-1])))+str(in_TrainModel_arr[-1])
+        elif len(str(in_TrainModel_arr[-1]))>128:
+            in_TrainModel_arr[-1] = str(in_TrainModel_arr[-1])[len(str(in_TrainModel_arr[-1]))-128:]
         #check tickboxes are within limit(0,100)
         limit1=0;limit2=100
         for i in range(0,4):
             if   in_TrainModel_arr[i] < limit1: in_TrainModel_arr[i]=limit1
             elif in_TrainModel_arr[i] > limit2: in_TrainModel_arr[i]=limit2
         
-        #print(in_TrainModel_arr); print(len(in_TrainModel_arr))#debug
         self.TrainModel_arr = in_TrainModel_arr
+        print(self.TrainModel_arr)
         
         #Driver_arr, is output, the inputted arr is just used for the variable reference
         in_Driver_arr = [1.0, 1.0, 0.0, False, False, 0.0, False, False, False, False, False]
@@ -159,6 +168,12 @@ class HW_UI_JEB382_PyFirmat():
         self.Announcements=""
         
         self.DISP = DISP_PyF()
+        
+        #PowerCalc Inits
+        self.uk1=0
+        self.ek1=0
+        self.timeL=0
+        self.Pcmd=0
         
         #TestBench
         if TestBench:
@@ -218,8 +233,91 @@ class HW_UI_JEB382_PyFirmat():
         
         
     def updateCalc(self):
+        #self.output_arr=[1.0,1.0, False,False, False,False, False,False, 0.0, ""]
+        SB_temp = False
+        EB_temp = False
+        
+        
+        #get beacon if possible, overwrite current variable keeping track of what block train is on
+        #use beacon pickup order to decide which direction its going
+        #use beacon before station to decide if stoping at current block or next
+        #every block flips in polarity, +/- on edge
+        
+        
+        #beacon information from file
+        #Line       Section Block#      BlockLength     Speed Limit     Infrastructure
+        if self.TrainModel_arr[-1] != "":
+            particular_line = linecache.getline('Beacon_info.txt', int(self.TrainModel_arr[-1], 16))
+            #print(int(self.TrainModel_arr[-1], 16))
+        else: particular_line=""
+        #print("<"+particular_line+">")
+        particular_line =particular_line.split("\t")
+        #print(particular_line)
+        
+        
         #fill out self.output_arr and self.Announcements
+        #0   Commanded Speed	                m/s	        How fast the driver has commanded the train to go
+        if self.Mode: #Manual
+            self.output_arr[0] = self.Driver_arr[2]
+        else:
+            self.output_arr[0] = self.TrainModel_arr[1]
+        
+        #-----------------------------------------------------------------------------------------------------------------------
+        #1   Power                           Watts	    Engine power (Lec2 Slide61-65 pdf54-58)
+        if (self.output_arr[3] and self.output_arr[2]): #Brake overrides
+            self.output_arr[1] = 0
+        else:
+            currtime = time.time()#TODO:REPLACE WITH TIME MODULE
+            V_err = self.output_arr[0] - self.TrainModel_arr[4] #Verr=Vcmd-Vactual
+            T = currtime-self.timeL
+            global Pmax
+            if self.Pcmd < Pmax:
+                uk = self.uk1+( (T/2)*(V_err-self.ek1) )
+            else:
+                uk = self.uk1
+            self.Pcmd = (self.Driver_arr[0]*V_err) + (self.Driver_arr[1]*uk)
+            
+            if self.Pcmd > Pmax: self.Pcmd=Pmax
+            elif self.Pcmd < 0: self.Pcmd=0
+        
+        self.timeL = currtime
+        self.uk1 = uk
+        self.ek1 = V_err
+        
+        #-----------------------------------------------------------------------------------------------------------------------
+        #Look ahead algo (returns arr of total distance)
+        
+        
+        #2   On/Off Service Brake	        Boolean	    Slow down vital control from train controller
+        if not self.Mode:#auto
+            if self.TrainModel_arr[2] == 0: self.output_arr[2]=True
+            #edge case for Station Green Line Block 16
+        else:#manual
+            self.output_arr[2] = SB_temp or self.Driver_arr[9]
+            
+                
+        #3   On/Off Emergency Brake	        Boolean	    Emergency Slow down vital control from train controller
+        self.output_arr[3] = EB_temp or (self.TrainModel_arr[5] and not (self.Driver_arr[10]) ) or self.Driver_arr[8]
+        
+        #-----------------------------------------------------------------------------------------------------------------------
+        #4   Open/Close Left/Right Doors	    integer	    Which Doors to open; 0:none, 1:left, 2:right, 3:both
+        if self.Mode and (self.TrainModel_arr[0]==0):#not moving
+            self.output_arr[5] = self.Driver_arr[6]*2 + self.Driver_arr[7]
+            
+        #-----------------------------------------------------------------------------------------------------------------------
+        #5   Announce Stations	            String	    not "" make announcement of String; "" don't make announcement
+        #6   Cabin lights (interior)	        Boolean	    lights inside cabin; Automatically turned on from enviroment or toggled by driver; 1 on, 0 off
+        self.output_arr[6] = self.TrainModel_arr[5] or (self.Driver_arr[3] and self.Mode)
+        #7   headlights (exterior)	        Boolean	    Automatically turned on from enviroment or toggled by driver; 1 on, 0 off
+        self.output_arr[7] = self.TrainModel_arr[5] or (self.Driver_arr[4] and self.Mode)
+        
+        #-----------------------------------------------------------------------------------------------------------------------
+        #8   Cabin Temperature	            Fahrenheit  What temperature to make cabin
+        #x   Act On Faults/Failures	        N/A	        No specific unit, but a change in behavior represented in one of these other outputs
         pass
+    
+    #def Lookahead(self):
+    
         
     def updateTot(self):
         self.updateRead()
@@ -236,12 +334,19 @@ class HW_UI_JEB382_PyFirmat():
     #can call this just as its class, this implies its not getting information from a testbench which requires threading
     def HW_UI_mainloop_fast(self):
         time.sleep(2)
+        ptime = time.time()
         global printout
+        self.updateTot()
+        print(f"Driver TrainC #1:\t{self.Driver_arr}\t{'AUTO' if not self.Mode else 'MANUAL'}")
         while True:
             self.updateTot()
-            if printout == 1: print(f"Driver TrainC #1:\t{self.Driver_arr}\t{'AUTO' if self.Mode else 'MANUAL'}")
-            elif printout == 2: print(f"TrainModel TrainC #1:\t{self.TrainModel_arr}\t{'AUTO' if self.Mode else 'MANUAL'}")
-            elif printout == 3: print(f"Output TrainC #1:\t{self.Output_arr}\t{'AUTO' if self.Mode else 'MANUAL'}")
+            if time.time()-ptime%2==0: print("hi")
+            #if printout == 1: print(f"Driver TrainC #1:\t{self.Driver_arr}\t{'AUTO' if not self.Mode else 'MANUAL'}")
+            #elif printout == 2: print(f"TrainModel TrainC #1:\t{self.TrainModel_arr} {'AUTO' if not self.Mode else 'MANUAL'}")
+            #elif printout == 3: print(f"Output TrainC #1:\t{self.Output_arr}\t{'AUTO' if not self.Mode else 'MANUAL'}")
+            #print(self.Mode)
+            if self.Mode or not self.Mode: sys.stdout.write("")
+            
 
 
     def HW_UI_fin(self, TestBench=False):
@@ -259,9 +364,10 @@ if __name__ == "__main__":
     Arduino = True
     
     main_Driver_arr = []#[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-    main_TrainModel_arr = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0.0, 0.0,0.0,
-                           "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"]
-    main_output_arr =[] #[7.00]*90
+    #main_TrainModel_arr = [0.0, 0.0, 0.0, 0.0, False, False, False , False, False, False,
+    #                       "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"]
+    main_TrainModel_arr = []
+    main_output_arr = [] #[7.00]*90
     #w = HW_UI_JEB382_PyFirmat(main_Driver_arr,main_TrainModel_arr,True)
     
     it = util.Iterator(board)  
@@ -269,7 +375,7 @@ if __name__ == "__main__":
     
     #global glob_UI
     global printout
-    printout=1
+    printout=2
     #print("-1234567890abcdefghijklmnopqrstuvvvvv")
     glob_UI = HW_UI_JEB382_PyFirmat(main_Driver_arr,
                                     main_TrainModel_arr,

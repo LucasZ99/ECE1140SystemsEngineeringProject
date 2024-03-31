@@ -22,6 +22,8 @@ class TrackModel:
                 self.data[i, 17] = random.randint(1, self.data[i, 16])
         self.authority = []
         self.speed = []
+        self.train_dict = {}
+        self.train_count = 0
 
     def get_data(self):
         return self.data
@@ -60,6 +62,7 @@ class TrackModel:
         new_data = np.hstack((new_data, np.copy(nan_array)))
         new_data = np.hstack((new_data, np.copy(nan_array)))
         new_data = np.hstack((new_data, np.copy(nan_array)))
+        new_data = np.hstack((new_data, np.copy(nan_array)))
         new_data = np.hstack((new_data, np.copy(false_col)))
         new_data = np.hstack((new_data, np.copy(nan_array)))
         # initialize signals from switch info
@@ -77,21 +80,22 @@ class TrackModel:
                         num = int(n)
                         print(f'{num}, {num_dict[n]}')
                         if num_dict[n] == 1:
-                            new_data[num, 20] = False
+                            new_data[num, 21] = False
 
         for i in range(1, new_data.shape[0]):
             if 'station' in str(new_data[i, 9]).lower():
                 new_data[i, 12] = False
                 new_data[i, 16] = 0
                 new_data[i, 17] = 0
+                new_data[i, 18] = 0
                 if i != 0:
                     new_data[i - 1, 12] = False
                 if i != new_data.shape[0] - 2:
                     new_data[i + 1, 12] = False
             if 'underground' in str(new_data[i, 9]).lower():
-                new_data[i, 19] = True
+                new_data[i, 20] = True
             if 'switch' in str(new_data[i, 9]).lower() or 'railway crossing' in str(new_data[i, 9]).lower():
-                new_data[i, 18] = False
+                new_data[i, 19] = False
 
         new_data[0, 7] = 'Block Occupancy'
         new_data[0, 8] = 'Temperature'
@@ -101,9 +105,10 @@ class TrackModel:
         new_data[0, 15] = 'Broken Rail Failure'
         new_data[0, 16] = 'Ticket Sales'
         new_data[0, 17] = 'Embarking'
-        new_data[0, 18] = 'Infrastructure Values'
-        new_data[0, 19] = 'Underground Status'
-        new_data[0, 20] = 'Signal Values'
+        new_data[0, 18] = 'Disembarking'
+        new_data[0, 19] = 'Infrastructure Values'
+        new_data[0, 20] = 'Underground Status'
+        new_data[0, 21] = 'Signal Values'
         return new_data
 
     def output_data_as_excel(self):
@@ -218,13 +223,13 @@ class TrackModel:
         self.speed = speed
 
     def toggle_switch(self, block_id: int):
-        self.data[block_id, 18] = not self.data[block_id, 18]
+        self.data[block_id, 19] = not self.data[block_id, 19]
 
     def toggle_signal(self, block_id: int):
-        self.data[block_id, 18] = not self.data[block_id, 20]
+        self.data[block_id, 21] = not self.data[block_id, 21]
 
     def toggle_crossing(self, block_id: int):
-        self.data[block_id, 18] = not self.data[block_id, 18]
+        self.data[block_id, 19] = not self.data[block_id, 19]
 
     def open_block(self, block_id: int):
         self.set_block_occupancy(block_id)
@@ -235,13 +240,16 @@ class TrackModel:
     # train model
 
     def train_spawned(self):
-        print('Track Model train_spawned has been called')
+        self.train_count += 1
+        self.train_dict[self.train_count] = 62
+        # self.update_occupancy()
 
     def train_presence_changed(self, train_id: int):
-        print('Track Model train_presence_changed has been called')
+        self.train_dict[train_id] += 1
+        # self.update_occupancy()
 
     def set_disembarking_passengers(self, station_id: int, disembarking_passengers: int):
-        print('Track Model set_disembarking_passengers has been called')
+        self.data[station_id, 21] = disembarking_passengers
 
     # SENDING (getters)
 
@@ -272,7 +280,7 @@ class TrackModel:
 
     def get_tm_underground_status(self, train_id: int) -> bool:
         block_id = train_id
-        return self.data[block_id]  # need underground status
+        return self.data[block_id, 20]
 
     def get_tm_embarking_passengers(self, station_block: int) -> int:
         return self.data[station_block, 17]
@@ -282,7 +290,8 @@ class TrackModel:
     def get_ctc_ticket_sales(self):
         return random.randint(1000, 2000)
 
-# TODO: Write communication handlers (50%)
+# TODO: Section J will not exist, replace it with yard
+# Maybe give train model length if it struggles to calculate polarity
 
 # temp main
 # t = TrackModel('Blue Line.xlsx')

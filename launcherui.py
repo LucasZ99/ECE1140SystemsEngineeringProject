@@ -37,6 +37,7 @@ class LauncherUi(QMainWindow):
         # Track Controller
         self.track_controller_A_button.clicked.connect(self.start_track_controller_sw_a_ui)
         self.track_controller_A_testbench_button.clicked.connect(self.start_track_controller_a_tb_ui)
+        self.track_controller_B_testbench_button.clicked.connect(self.start_track_controller_b_tb_ui)
         self.track_controller_C_button.clicked.connect(self.start_track_controller_sw_c_ui)
         self.track_controller_C_testbench_button.clicked.connect(self.start_track_controller_c_tb_ui)
 
@@ -55,6 +56,10 @@ class LauncherUi(QMainWindow):
     def start_track_controller_a_tb_ui(self):
         self.open_track_controller_tb_ui_signal.emit("A")
         print("Track Controller TB A button clicked")
+
+    def start_track_controller_b_tb_ui(self):
+        self.open_track_controller_tb_ui_signal.emit("B")
+        print("Track Controller TB B button clicked")
 
     def start_track_controller_sw_c_ui(self):
         self.open_track_controller_ui_signal.emit("C")

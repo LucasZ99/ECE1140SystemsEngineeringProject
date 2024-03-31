@@ -1,16 +1,17 @@
-from PyQt6.QtCore import pyqtSlot, QObject
+import os
+import sys
 
 from Track_Controller_HW.TrackControllerHW import TrackControllerHardware
 from Track_Controller_SW import TrackController, Switch
 
-
 # from Track_Model import Track_Model_New
 
-class TrackControllerContainer(QObject):
-    def __init__(self):
+class TrackControllerContainer(object):
+    def __init__(self,
+                 # track_model: Track_Model_New
+                 ):
         # initialize track data
-        super().__init__()
-        self.occupancy_list = [False] * 151
+        self.occupancy_list = [True] * 151
         self.switch_list = \
             [
                 Switch(13, 12, 1, 12),
@@ -26,21 +27,17 @@ class TrackControllerContainer(QObject):
 
         # Controller specific initialization
         # Section A: blocks 1-32, 147-150
-        self.occupancy_list_A = self.occupancy_list[0:33]
+        self.occupancy_list_A = self.occupancy_list[0:32] + self.occupancy_list[147:]
         # Section B: blocks: 25-80 , 101-150
         self.occupancy_list_B = self.occupancy_list[24:80] + self.occupancy_list[100:]
         # Section C: blocks 73:104
-        self.occupancy_list_C = self.occupancy_list[76:104]
+        self.occupancy_list_C = self.occupancy_list[72:104]
 
         self.trackControllerA = TrackController(occupancy_list=self.occupancy_list_A, section="A")
 
         self.trackControllerB = TrackControllerHardware(occupancy_list=self.occupancy_list_B, section="B")
 
         self.trackControllerC = TrackController(occupancy_list=self.occupancy_list_C, section="C")
-
-        # Connect Signals:
-
-        self.trackControllerA.switch_changed_index_signal.connect(self.update_track_switch)
 
     # CTC Endpoints
     def command_speed(self, line_id: int, block_id: int, speed: float) -> None:
@@ -69,14 +66,10 @@ class TrackControllerContainer(QObject):
     def update_occupancy(self, block_occupancy_list: list) -> None:
         self.occupancy_list = block_occupancy_list
         # CTC.update_block_occupancy(0, self.occupancy_list)
-        self.occupancy_list_A = self.occupancy_list[0:33]
+        self.occupancy_list_A = self.occupancy_list[0:32] + self.occupancy_list[147:]
         zero_speed_flag_list_A = self.trackControllerA.update_occupancy(self.occupancy_list_A)
-        self.zero_speed_flag_list[0:33] = zero_speed_flag_list_A[0:33]
-
-    @pyqtSlot(int)
-    def update_track_switch(self, switch_block: int) -> None:
-        print(f"Updating Track Model switch at block: {switch_block}")
-        # self.track_model.toggle_switch(switch_block)
+        self.zero_speed_flag_list[0:32] = zero_speed_flag_list_A[0:32]
+        self.zero_speed_flag_list[147:] = zero_speed_flag_list_A[32:]
 
     def show_ui(self, section: str):
         if section == "A":
