@@ -20,7 +20,7 @@ class TrackControllerHardware(object):
 
     def __init__(self, occupancy_list: list, section: str):
         self.blocks = occupancy_list
-        self.slots_sigs = SlotsSigs.SlotsSigs(mode=self.mode, authority=self.authority, switches=self.switches,
+        self.slots_sigs = SlotsSigs(mode=self.mode, authority=self.authority, switches=self.switches,
                                               blocks=self.blocks, suggested_speed=self.suggested_speed,
                                               rr_crossing=self.rr_crossing, traffic_lights=self.traffic_lights)
 
