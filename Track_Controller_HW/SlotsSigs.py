@@ -17,10 +17,10 @@ class SlotsSigs(QObject):
                  suggested_speed: list, rr_crossing: list, traffic_lights: list):
         # assigning values to the signals
 
-        self.plc_import()  # import PLC
-        sys.path.append(self.plc_path)
-        import PLCProgram  # will never get to this point unless the PLC file is found
-        plc = PLCProgram.PLC()
+        #self.plc_import()  # import PLC
+        #sys.path.append(self.plc_path)
+        #import PLCProgram  # will never get to this point unless the PLC file is found
+        #plc = PLCProgram.PLC()
 
         super().__init__()
         self.mode = mode
