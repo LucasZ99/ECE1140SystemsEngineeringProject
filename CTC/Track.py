@@ -41,7 +41,7 @@ TRACK = [
         28: [27, 29],
 
         # Switch from Z150 to F 29:
-        150: [29],
+        150: [28],
 
         # Continuous track from G29 -> I -> Yard
         29: [30],
@@ -117,7 +117,7 @@ TRACK = [
         97: [98],
         98: [99],
         99: [100],
-        100: [86], 
+        100: [85], 
 
         # R -> Z149
         101: [102],
@@ -171,6 +171,9 @@ TRACK = [
         149: [150]
     }
 ]
+
+LENGTH = 0
+SPEED_LIMIT = 1
 
 LENGTHS_SPEED_LIMITS = [
     {
@@ -330,6 +333,7 @@ LENGTHS_SPEED_LIMITS = [
 
 STATIONS = [
     {
+        0: "YARD",
         2: "PIONEER",
         9: "EDGEBROOK",
         16: "STATION",
