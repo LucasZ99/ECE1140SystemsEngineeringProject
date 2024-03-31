@@ -1,8 +1,7 @@
 import numpy as np
 import time
 import trainControllerSWContainer
-
-# train object class
+# import train_model_container
 
 
 class TrainController:
@@ -31,8 +30,8 @@ class TrainController:
                         [100, 45], [100, 45], [100, 45], [100, 45]])
 
     def __init__(self):
-        # self.TCcontainer = container.Container()  # for updating data values
         # train model container  # update train values in update function
+        # self.trainModel = train_model_container.TrainModelContainer()
 
         # train mode, as input from driver
         self.mode = bool(0)  # automatic or manual mode as bool: 0 automatic, 1 manual (0 default)
@@ -90,7 +89,7 @@ class TrainController:
 
         self.outputs = dict(cmd_speed=self.cmdSpeed, power=self.power, service_brake=self.servBrake,
                             emergency_brake=self.eBrake, door_side=self.doorSide, annoucement=self.makeAnnouncement,
-                            cabin_lights=self.intLights, headlights=self.extLights, cabin_temp=self.cabinTemp)
+                            cabin_lights=self.intLights, headlights=self.extLights)
 
     def settestbenchstate(self, newtestbenchstate):
         self.testBenchState = newtestbenchstate
@@ -258,4 +257,19 @@ class TrainController:
 
     def updatetrain(self):
         # update all values in output array and call train model container update function
-        pass
+        # reference adjacent container (train model cntr)
+        # call update function to inject new values to train model
+        # 8 el array + cabin temp
+        self.outputs["cmd_speed"] = self.cmdSpeed
+        self.outputs["power"] = self.power
+        self.outputs["service_brake"] = self.servBrake
+        self.outputs["emergency_brake"] = self.eBrake
+        self.outputs["door_side"] = self.doorSide
+        self.outputs["announcement"] = self.makeAnnouncement
+        self.outputs["cabin_lights"] = self.intLights
+        self.outputs["headlights"] = self.extLights
+
+        # send stuff to trainModel (uncomment when integrating)
+        # trainModel.train_controller_inputs(self.outputs, 0)
+        # trainModel.controller_update_temp(self.cabinTemp, 0)
+        return

@@ -5,7 +5,7 @@ import trainControllerSW
 
 class Container:
     def __init__(self):
-        self.trainController = trainControllerSW.TrainController()
+        self.trainCtrl = trainControllerSW.TrainController()
         return
 
     #  receiver functions
@@ -24,7 +24,9 @@ class Container:
         return
 
     def actspeedfromtrain(self, newspeed):
-        pass
+        self.trainCtrl.actualSpeed = newspeed
+        # self.trainCtrl.powercontrol
+        return
 
     def cmdspeedfromtrain(self, newcmdspd):
         pass

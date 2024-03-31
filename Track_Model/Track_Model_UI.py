@@ -7,9 +7,9 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import Qt
-from Animated_Toggle import AnimatedToggle
+from Track_Model.animated_toggle import AnimatedToggle
 import sys
-from Track_Model import TrackModel
+from Track_Model.Track_Model import TrackModel
 from dynamic_map import DynamicMap
 from Track_Model_TB_UI import TestBenchWindow
 

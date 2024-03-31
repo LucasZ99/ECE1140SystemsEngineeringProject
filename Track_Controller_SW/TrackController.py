@@ -20,8 +20,7 @@ class TrackController(QObject):
             self.block_indexes = [1, 2, 3, 4, 5, 6, 7, 8, 9,
                                   10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
                                   20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
-                                  30, 31, 32,
-                                  147, 148, 149, 150]
+                                  30, 31, 32]
             self.switches_list = \
                 [
                     Switch(13, 12, 1, 12),
@@ -72,7 +71,11 @@ class TrackController(QObject):
 
     # Track Model endpoints
     def update_occupancy(self, block_occupancy_list: list[bool]):
-        self.zero_speed_flag_list = self.business_logic.occupancy_changed(block_occupancy_list)
+        if self.section == "A":
+            # update the zero_speed flag list
+            self.zero_speed_flag_list[29:33] = self.business_logic.occupancy_changed(block_occupancy_list)
+        # if self.section == "C":
+        #     self.zero_speed_flag_list[]
         self.occupancy_list = block_occupancy_list
         return self.zero_speed_flag_list
 
