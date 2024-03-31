@@ -70,7 +70,7 @@ class BusinessLogic(QObject):
 
         print(f"Switch at b{self.switches_list[index].block} changed")
         self.switch_changed_index_signal.emit(self.switches_list[index].block)
-        self.switches_list[index].toggle()integra
+        self.switches_list[index].toggle()
         self.switches_signal.emit(self.switches_list)
 
     @pyqtSlot(list)
