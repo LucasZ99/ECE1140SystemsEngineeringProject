@@ -1,5 +1,5 @@
-from CTCSchedule import CTCSchedule
-from Train import Train
+from CTC.CTCSchedule import CTCSchedule
+from CTC.Train import Train
 from SystemTime import SystemTime
 # from Track_Controller_SW.switching import Switch
 from PyQt6.QtCore import QObject

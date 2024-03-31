@@ -1,4 +1,4 @@
-from Train import Train
+from CTC.Train import Train
 from SystemTime import SystemTime
 
 class CTCSchedule:

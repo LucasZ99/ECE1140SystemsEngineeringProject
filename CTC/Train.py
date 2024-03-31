@@ -1,6 +1,6 @@
-from Route import Stop
+from CTC.Route import Stop
 from SystemTime import SystemTime
-from Track import MSSD, TRACK
+from CTC.Track import MSSD, TRACK
 
 class Train():
     def __init__(self, system_time:SystemTime, id:int, line_id:int, route:list[Stop]):

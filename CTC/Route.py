@@ -1,4 +1,4 @@
-from Track import *
+from CTC.Track import *
 
 class Stop:
     def __init__(self, block:int, arrival_time:float, departure_time:float):
