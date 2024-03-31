@@ -2,9 +2,12 @@ import pandas as pd
 import numpy as np
 import sys
 import random
+from PyQt6.QtCore import pyqtSignal, QObject
+from PyQt6.QtWidgets import QApplication
+from Track_Model.Track_Model_UI import Window
 
 
-class TrackModel:
+class TrackModel(QObject):
     def __init__(self, file_name):
         # d = pd.read_excel(file_name, header=None)  # We will also load our header row, and block IDs will map to index
         # self.data = d.to_numpy()
@@ -282,7 +285,27 @@ class TrackModel:
     def get_ctc_ticket_sales(self):
         return random.randint(1000, 2000)
 
+    # UI
+
+    def show_ui(self):
+        app = QApplication.instance()  # Get the QApplication instance
+
+        # app_flag = False
+        if app is None:
+            app = QApplication([])  # If QApplication instance doesn't exist, create a new one
+            # app_flag = True
+
+        print("before ui call")
+        ui = Window(self)
+        print("before ui show")
+        ui.show()
+        print("After ui show")
+
+        # if app_flag is True:
+        app.exec()
+
 # TODO: Section J will not exist, replace it with yard
+# TODO: Track model has a UI?
 # Maybe give train model length if it struggles to calculate polarity
 
 # temp main

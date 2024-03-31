@@ -54,5 +54,5 @@ class LauncherContainer(QObject):
 
     def open_track_model_ui(self):
         print("Open Track Model UI Signal received")
-        self.track_model_window.show()
+        self.track_model_window.show_ui()
 

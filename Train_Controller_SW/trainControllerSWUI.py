@@ -1,16 +1,16 @@
-import PyQt5.QtGui as QtGui
+import PyQt6.QtGui as QtGui
 import threading
 import time
 
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
+from PyQt6.QtWidgets import *
+from PyQt6.QtCore import *
+from PyQt6.QtGui import *
 import sys
 import trainControllerSW
-from PyQt5 import uic
+from PyQt6 import uic
 
 # create train object
-trainctrl = trainController.TrainController()
+trainctrl = trainControllerSW.TrainController()
 
 
 class UI(QMainWindow):
@@ -195,31 +195,31 @@ class UI(QMainWindow):
             self.refreshengine()
 
     def doorleft(self):
-        if trainctrl.doorSideide() == 0:
-            trainctrl.doorSide = (1)
+        if trainctrl.doorSide == 0:
+            trainctrl.doorSide = 1
             self.doorsLeft.setChecked(1)
-        elif trainctrl.getdoorside() == 1:
-            trainctrl.setdoorside(0)
+        elif trainctrl.doorSide == 1:
+            trainctrl.doorSide = 0
             self.doorsLeft.setChecked(0)
-        elif trainctrl.getdoorside() == 2:
-            trainctrl.setdoorside(3)
+        elif trainctrl.doorSide == 2:
+            trainctrl.doorSide = 3
             self.doorsLeft.setChecked(1)
-        elif trainctrl.getdoorside() == 3:
-            trainctrl.setdoorside(2)
+        elif trainctrl.doorSide == 3:
+            trainctrl.doorSide = 2
             self.doorsLeft.setChecked(0)
 
     def doorright(self):
-        if trainctrl.getdoorside() == 0:
-            trainctrl.setdoorside(2)
+        if trainctrl.doorSide == 0:
+            trainctrl.doorSide = 2
             self.doorsRight.setChecked(1)
-        elif trainctrl.getdoorside() == 1:
-            trainctrl.setdoorside(3)
+        elif trainctrl.doorSide == 1:
+            trainctrl.doorSide = 3
             self.doorsRight.setChecked(1)
-        elif trainctrl.getdoorside() == 2:
-            trainctrl.setdoorside(0)
+        elif trainctrl.doorSide == 2:
+            trainctrl.doorSide = 0
             self.doorsRight.setChecked(0)
-        elif trainctrl.getdoorside() == 3:
-            trainctrl.setdoorside(1)
+        elif trainctrl.doorSide == 3:
+            trainctrl.doorSide = 1
             self.doorsRight.setChecked(0)
 
     def beaconupdate(self):
@@ -236,13 +236,13 @@ class UI(QMainWindow):
 
     def doors(self):
         if self.doorsLeft.isChecked() and not self.doorsRight.isChecked():
-            trainctrl.setdoorside(1)
+            trainctrl.doorSide = 1
         elif not self.doorsLeft.isChecked() and self.doorsRight.isChecked():
-            trainctrl.setdoorside(2)
+            trainctrl.doorSide = 2
         elif self.doorsLeft.isChecked() and self.doorsRight.isChecked():
-            trainctrl.setdoorside(3)
+            trainctrl.doorSide = 3
         else:
-            trainctrl.setdoorside(0)
+            trainctrl.doorSide = 0
 
         trainctrl.doorcontrol()
 
@@ -325,4 +325,4 @@ class UI(QMainWindow):
 # initialize the app
 app = QApplication(sys.argv)
 UIWindow = UI()
-app.exec_()
+app.exec()
