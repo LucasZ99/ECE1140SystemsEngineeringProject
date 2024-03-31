@@ -9,7 +9,7 @@ from Track_Model.Track_Model_UI import Window
 
 class TrackModelContainer(object):
     def __init__(self):
-        self.track_model = TrackModel()
+        self.track_model = TrackModel("./Track_Model/Green Line.xlsx")
         self.track_model_ui = Window(self.track_model)
 
     def show_ui(self):

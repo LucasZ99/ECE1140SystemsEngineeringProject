@@ -7,10 +7,10 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import pyqtSignal
-from Animated_Toggle import AnimatedToggle
+from Track_Model.Animated_Toggle import AnimatedToggle
 import sys
-from Track_Model import TrackModel
-from dynamic_map import DynamicMap
+from Track_Model.Track_Model import TrackModel
+from Track_Model.dynamic_map import DynamicMap
 import numpy as np
 
 
