@@ -6,21 +6,17 @@ from PyQt6.QtWidgets import QApplication
 
 from SystemTime.SystemTime import SystemTime
 from SystemTime.SystemTimeContainer import SystemTimeContainer
-from Track_Controller_SW import TrackControllerContainer
+from Track_Controller_SW.TrackControllerContainer import TrackControllerContainer
 from Track_Model.Track_Model_Container import TrackModelContainer
 from launcherui import LauncherUi
 
 
 class LauncherContainer(QObject):
-    def __init__(self,
-                 time_module: SystemTimeContainer,
-                 track_controller_container: TrackControllerContainer,
-                 track_model_container: TrackModelContainer
-                 ):
+    def __init__(self):
         super().__init__()
-        self.time_module = time_module
-        self.track_controller_container = track_controller_container
-        self.track_model_container = track_model_container
+        self.time_module = SystemTimeContainer()
+        self.track_model_container = TrackModelContainer()
+        self.track_controller_container = TrackControllerContainer(track_model=self.track_model_container)
 
     def init_launcher_ui(self):
         app = QApplication.instance()
