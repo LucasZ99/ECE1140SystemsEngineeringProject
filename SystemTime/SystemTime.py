@@ -17,6 +17,7 @@ def update_time(timer_flag, update_interval, sys_time):
         while True:
             if python_time.time() >= start_time + update_interval.value:
                 break
+
         sys_time_float = sys_time_float + 0.1
         # print("time updated %f", sys_time_float)
         sys_time.value = sys_time_float  # 0.1 s precison
@@ -55,5 +56,3 @@ class SystemTime(QObject):
         self.__scale = multiplier
         self.__update_interval.value = 1.0 / (10 * self.__scale)
         print(f"multiplier set: {multiplier}")
-
-system_time = SystemTime()

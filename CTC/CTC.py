@@ -1,17 +1,21 @@
-from CTC.CTCSchedule import CTCSchedule
-from CTC.Train import Train
+from CTCSchedule import CTCSchedule
+from Train import Train
 from SystemTime import SystemTime
-from Track_Controller_SW.switching import Switch
+# from Track_Controller_SW.switching import Switch
 from PyQt6.QtCore import QObject
+
+class Switch:
+    pass
 
 class CTC(QObject):
     def __init__(self, system_time:SystemTime):
         super().__init__()
-        
         self.system_time = system_time
 
         self.scheduled_trains = CTCSchedule(system_time)
         self.dispatched_trains = CTCSchedule(system_time)
+
+        self.running_trains:list[Train] = []
         
 
     def set_block_to_maintenance_mode(self, line_id:int, block_id:int):

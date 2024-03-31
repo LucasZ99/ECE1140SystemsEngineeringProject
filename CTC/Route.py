@@ -1,4 +1,4 @@
-from Track import LENGTH, SPEED_LIMIT, STATIONS, TRACK, LENGTHS_SPEED_LIMITS
+from Track import *
 
 class Stop:
     def __init__(self, block:int, arrival_time:float, departure_time:float):
@@ -48,8 +48,8 @@ class Route:
                 for block1, block2 in zip(route_slice[:-1], route_slice[1:]):       
 
                     # calculate travel time - hr
-                    time_between_blocks += ((LENGTHS_SPEED_LIMITS[self.line_id][block1][LENGTH] / (LENGTHS_SPEED_LIMITS[self.line_id][block1][SPEED_LIMIT] * 1000)) / 2.0) \
-                            + ((LENGTHS_SPEED_LIMITS[self.line_id][block2][LENGTH] / (LENGTHS_SPEED_LIMITS[self.line_id][block2][SPEED_LIMIT] * 1000)) / 2.0)
+                    time_between_blocks += ((LENGTHS_SPEED_LIMITS[line_id][block1][LENGTH] / (LENGTHS_SPEED_LIMITS[line_id][block1][SPEED_LIMIT] * 1000)) / 2.0) \
+                            + ((LENGTHS_SPEED_LIMITS[line_id][block2][LENGTH] / (LENGTHS_SPEED_LIMITS[line_id][block2][SPEED_LIMIT] * 1000)) / 2.0)
                     
                     # convert hr to seconds
                 time_between_blocks *= 3600
@@ -66,23 +66,30 @@ class Route:
             travel_time += stop.arrival_time
 
         return travel_time
-
-    # returns 0 if proposed departure/arrival time pair are not possible. 1 if scheduled
-    def schedule_route(self, line_id, route:list[Stop], departure_time:float, arrival_time:float)->int:
+    
+    def is_route_schedulable(self, line_id, route:list[Stop], departure_time:float, arrival_time:float)->bool:
         proposed_travel_time = arrival_time - departure_time
         minimum_travel_time = self.get_route_travel_time(route)
 
         # route[-1].arrival time is going to be the time through the end of the route
         if proposed_travel_time < minimum_travel_time:
-            return 0
-        elif proposed_travel_time > minimum_travel_time:
-            
+            return False
+        else:
+            return True
+
+    # returns 0 if proposed departure/arrival time pair are not possible. 1 if scheduled
+    def schedule_route(self, line_id, route:list[Stop], departure_time:float, arrival_time:float)->list[Stop]:
+        proposed_travel_time = arrival_time - departure_time
+        minimum_travel_time = self.get_route_travel_time(route)
+
+        # route[-1].arrival time is going to be the time through the end of the route
+        if proposed_travel_time > minimum_travel_time:
             # figure out slowdown:
             route_slowdown_factor = proposed_travel_time / minimum_travel_time
 
             total_travel_time = departure_time
 
-            scheduled_route = []
+            scheduled_route:list[Stop] = []
 
             # Yard
             scheduled_route.append(Stop(0, departure_time, departure_time))
@@ -94,13 +101,11 @@ class Route:
 
                 total_travel_time += (stop.arrival_time * route_slowdown_factor) + 60
 
-            self.route = scheduled_route
-            self.line_id = line_id
-            return 1
+            return scheduled_route
         
         else:
 
-            scheduled_route = []
+            scheduled_route:list[Stop] = []
 
             # Yard
             scheduled_route.append(Stop(0, departure_time, departure_time))
@@ -113,7 +118,4 @@ class Route:
 
                 total_travel_time = stop.arrival_time + 60
 
-
-            self.route = scheduled_route
-            self.line_id = line_id
-            return 1
+            return scheduled_route

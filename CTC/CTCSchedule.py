@@ -1,7 +1,4 @@
-from PyQt6.QtCore import QObject, QTime
-from time import struct_time
-from CTC.CTCTime import *
-from CTC.Train import Train
+from Train import Train
 from SystemTime import SystemTime
 
 class CTCSchedule:
