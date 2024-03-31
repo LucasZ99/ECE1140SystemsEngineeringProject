@@ -7,18 +7,20 @@ from PyQt6.QtWidgets import QApplication
 from SystemTime.SystemTime import SystemTime
 from SystemTime.SystemTimeContainer import SystemTimeContainer
 from Track_Controller_SW import TrackControllerContainer
-from Track_Model.Track_Model_UI import Window
+from Track_Model.Track_Model_Container import TrackModelContainer
 from launcherui import LauncherUi
 
 
 class LauncherContainer(QObject):
     def __init__(self,
                  time_module: SystemTimeContainer,
-                 track_controller_container: TrackControllerContainer):
+                 track_controller_container: TrackControllerContainer,
+                 track_model_container: TrackModelContainer
+                 ):
         super().__init__()
         self.time_module = time_module
         self.track_controller_container = track_controller_container
-        # self.track_model_window = Window()
+        self.track_model_container = track_model_container
 
     def init_launcher_ui(self):
         app = QApplication.instance()
@@ -33,6 +35,7 @@ class LauncherContainer(QObject):
         launcher_ui.open_time_module_ui_signal.connect(self.open_time_module_ui)
         launcher_ui.open_track_controller_ui_signal.connect(self.open_track_controller_ui)
         launcher_ui.open_track_controller_tb_ui_signal.connect(self.open_track_controller_tb_ui)
+        launcher_ui.open_track_model_ui_signal.connect(self.open_track_model_ui)
 
         # Show launcher
         launcher_ui.show()
@@ -54,5 +57,5 @@ class LauncherContainer(QObject):
 
     def open_track_model_ui(self):
         print("Open Track Model UI Signal received")
-        self.track_model_window.show_ui()
+        self.track_model_container.show_ui()
 
