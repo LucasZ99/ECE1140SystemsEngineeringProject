@@ -1,12 +1,13 @@
 from PyQt6.QtWidgets import QApplication
 from CTC import CTC
-from CTC_UI_Main import CTCMainWindow
-from SystemTime import SystemTime
+from CTC.CTC_UI_Main import CTCMainWindow
+from SystemTime import SystemTimeContainer
+
 
 class CTCContainer:
-    def __init__(self, ctc:CTC, system_time:SystemTime):
-        self.ctc = ctc
-        self.system_time = system_time
+    def __init__(self, system_time_container: SystemTimeContainer):
+        self.system_time = system_time_container.system_time
+        self.ctc = CTC(self.system_time)
 
     def show_ui(self):
         app = QApplication.instance()  # Get the QApplication instance
@@ -25,6 +26,7 @@ class CTCContainer:
         # if app_flag is True:
         app.exec()
 
+
 if __name__ == "__main__":
     system_time = SystemTime()
-    CTCContainer(CTC(system_time), system_time).show_ui()    
+    CTCContainer(CTC(system_time), system_time).show_ui()

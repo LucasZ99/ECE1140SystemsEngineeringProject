@@ -1,7 +1,7 @@
 from PyQt6.QtCore import pyqtSlot, QObject
 
 # from Track_Controller_HW.TrackControllerHW import TrackControllerHardware
-from Track_Controller_SW import TrackController, Switch
+from Track_Controller_SW import TrackController, Switch, Light
 from Track_Model.Track_Model_Container import TrackModelContainer
 
 
@@ -19,6 +19,18 @@ class TrackControllerContainer(QObject):
                 Switch(77, 76, 101, 76),
                 Switch(85, 86, 100, 86)
             ]
+        self.lights_list = \
+        [
+            Light(12, True),
+            Light(1, False),
+            Light(29, True),
+            Light(150, False),
+            Light(76, True),
+            Light(101, False),
+            Light(86, True),
+            Light(100, False)
+        ]
+
         self.railway_crossing_blocks_list = [19, 108]
         self.speed_list = [0.0] * 151
         self.zero_speed_flag_list = [False] * 151

@@ -13,7 +13,7 @@ class BusinessLogic(QObject):
     rr_crossing_signal = pyqtSignal(bool)
     light_signal = pyqtSignal(int)
 
-    def __init__(self, block_occupancy: list, switches_arr: list[Switch], suggested_speed_list: list,
+    def __init__(self, block_occupancy: list, switches_arr: list[Switch], lights_list: list,
                  plc_logic: PlcProgram, block_indexes: list, section: str):
         super().__init__()
         self.occupancy_list = block_occupancy
@@ -22,7 +22,7 @@ class BusinessLogic(QObject):
         self.filepath = None
         # TODO add lights_list to constructor
 
-        self.suggested_speed_list = suggested_speed_list
+        self.lights_list = lights_list
         self.plc_logic = plc_logic
         self.num_blocks = len(block_occupancy)
         self.block_indexes = block_indexes
