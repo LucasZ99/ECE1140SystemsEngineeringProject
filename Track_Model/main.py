@@ -9,8 +9,8 @@ import numpy as np
 import random
 
 
-t = TrackModel('Blue Line.xlsx')
-print(t.get_data()[:, -1])
+t = TrackModel('Green Line.xlsx')
+
 app = QApplication([])
 window = Window()
 window.show()

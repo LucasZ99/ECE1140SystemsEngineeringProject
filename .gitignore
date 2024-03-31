@@ -150,7 +150,6 @@ env.bak/
 venv.bak/
 
 # Spyder project settings
-.spyderproject
 .spyproject
 
 # Rope project settings
@@ -257,3 +256,5 @@ fabric.properties
 
 # Android studio 3.1+ serialized cache file
 .idea/caches/build_file_checksums.ser
+.vscode/settings.json
+.vscode/launch.json

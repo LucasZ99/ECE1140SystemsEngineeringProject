@@ -1,3 +1,5 @@
+import time
+
 import people
 import random
 
@@ -16,6 +18,9 @@ class PassengerPeople(people.People):
             self.people_number = ppl
 
     def update_at_station(self, incoming, max_ppl):
+        random.seed(time.time())
         disembarking = random.randint(0, self.people_number)
         self.set_people(self.people_number - disembarking + incoming, max_ppl)
         return disembarking
+
+

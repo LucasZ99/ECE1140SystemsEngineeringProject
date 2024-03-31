@@ -1,10 +1,13 @@
+import sys
+from copy import copy
+
 import numpy as np
 from PyQt6 import QtCore
-from PyQt6.QtCore import pyqtSignal, QCoreApplication
+from PyQt6.QtCore import pyqtSignal, QCoreApplication, pyqtSlot
 from PyQt6.QtWidgets import QMainWindow, QWidget, QPushButton, QLabel, QComboBox, QCheckBox, QGroupBox, \
     QLineEdit
 
-from BusinessLogic import BusinessLogic
+from Track_Controller_SW.BusinessLogic import BusinessLogic
 
 
 class TbMainWindow(QMainWindow):
@@ -16,10 +19,10 @@ class TbMainWindow(QMainWindow):
     def __init__(self, business_logic: BusinessLogic):
         super(TbMainWindow, self).__init__()
 
-        self.authority = business_logic.authority
         self.business_logic = business_logic
-        self.block_list = np.copy(business_logic.occupancy_list)
-        self.switches_list = business_logic.switches_list
+        self.block_list = copy(business_logic.block_indexes)
+        self.occupancy_list = copy(business_logic.occupancy_list)
+        self.switches_list = copy(business_logic.switches_list)
         self.sug_speed_list = business_logic.suggested_speed_list
 
         self.setObjectName("MainWindow")
@@ -40,7 +43,8 @@ class TbMainWindow(QMainWindow):
         self.comboBox_3 = QComboBox(parent=self.centralwidget)
         self.comboBox_3.setGeometry(140, 40, 71, 22)
         self.comboBox_3.setObjectName("comboBox_3")
-        for i in range(len(self.block_list)):
+
+        for i in self.block_list:
             self.comboBox_3.addItem(f"Block {i}")
 
         self.groupBox = QGroupBox(parent=self.centralwidget)
@@ -54,8 +58,10 @@ class TbMainWindow(QMainWindow):
         self.comboBox = QComboBox(parent=self.groupBox)
         self.comboBox.setGeometry(130, 80, 81, 22)
         self.comboBox.setObjectName("comboBox")
-        for i in range(len(self.switches_list)):
-            self.comboBox.addItem(f"SW{i + 1}")
+
+        for i in self.switches_list:
+            self.comboBox.addItem(i.to_string())
+            self.comboBox.adjustSize()
 
         self.label_2 = QLabel(parent=self.groupBox)
         self.label_2.setGeometry(70, 30, 51, 20)
@@ -66,7 +72,7 @@ class TbMainWindow(QMainWindow):
         self.authority_check.setObjectName("authority_check")
 
         self.switch_button = QPushButton(parent=self.groupBox)
-        self.switch_button.setGeometry(230, 80, 60, 30)
+        self.switch_button.setGeometry(285, 75, 60, 30)
         self.switch_button.setObjectName("switch_button")
 
         self.label_6 = QLabel(parent=self.groupBox)
@@ -119,8 +125,11 @@ class TbMainWindow(QMainWindow):
         self.comboBox_3.currentIndexChanged.connect(self.bl_status_handler)
         self.authority_check.stateChanged.connect(self.auth_handler)
         self.sug_speed.editingFinished.connect(self.sug_speed_text_handler)
-        self.show()
 
+        # Outside events
+        self.business_logic.switches_signal.connect(self.update_switches)
+
+        self.show()
 
     def retranslate_ui(self, MainWindow):
         _translate = QCoreApplication.translate
@@ -138,63 +147,58 @@ class TbMainWindow(QMainWindow):
         self.checkBox_3.setText(_translate("MainWindow", "Occupied"))
         self.label_5.setText(_translate("MainWindow", "Suggested Speed:"))
 
+    @pyqtSlot(list)
+    def update_switches(self, switch_list: list):
+        self.comboBox.clear()
+        for switch in switch_list:
+            self.comboBox.addItem(switch.to_string())
+            self.comboBox.adjustSize()
 
     # Handlers:
     def sw_toggle_handler(self):
-        QtCore.QMetaObject.invokeMethod(self, "switch_changed_signal",
-                                        QtCore.Q_ARG(int, self.comboBox.currentIndex()))
+        self.business_logic.switches_changed(self.comboBox.currentIndex())
 
     def bl_status_handler(self):  # New block is selected from the dropdown menu
-        if self.block_list[self.comboBox_3.currentIndex()] == 'O':
-            self.checkBox_3.setChecked(True)
-        else:
+        if self.occupancy_list[self.comboBox_3.currentIndex()] == False:
             self.checkBox_3.setChecked(False)
+        else:
+            self.checkBox_3.setChecked(True)
+        pass
 
     def bl_occupancy_handler(self):  # The block occupancy status of a block is altered
 
         if self.checkBox_3.isChecked():
-            # re-assign occupancy to false
-            self.block_list = [False] * len(self.block_list)
-            self.block_list[self.comboBox_3.currentIndex()] = True
+            self.occupancy_list[self.comboBox_3.currentIndex()] = True
         else:
-            self.block_list[self.comboBox_3.currentIndex()] = False
+            self.occupancy_list[self.comboBox_3.currentIndex()] = False
 
-        self.update_occupancy(self.block_list)
+        self.business_logic.occupancy_changed(self.occupancy_list)
 
     def auth_handler(self):  # When the checkbox is changed for authority
-        if self.authority_check.isChecked():
-            QtCore.QMetaObject.invokeMethod(self, "authority_updated",
-                                            QtCore.Q_ARG(bool, True))
-        else:
-            QtCore.QMetaObject.invokeMethod(self, "authority_updated",
-                                            QtCore.Q_ARG(bool, False))
+        pass
 
     def sug_speed_text_handler(self):
-        text = self.sug_speed.text()  # checking to see if it is a valid integer
-        if text.isnumeric() or text.replace(".", "").isnumeric():  # text must be an int or float
-            value = float(text)
-            if value <= 0:
-                self.label_8.setText("must be a positive value")
-                self.label_8.setStyleSheet("color: red")
-                self.show_button.setEnabled(False)
-            else:
-                self.label_8.clear()
-                self.update_sug_speed(value)
-        else:
-            self.label_8.setText("must be a positive number")
-            self.label_8.setStyleSheet("color: red")
-            self.show_button.setEnabled(False)
+        # text = self.sug_speed.text()  # checking to see if it is a valid integer
+        # if text.isnumeric() or text.replace(".", "").isnumeric():  # text must be an int or float
+        #     value = float(text)
+        #     if value <= 0:
+        #         self.label_8.setText("must be a positive value")
+        #         self.label_8.setStyleSheet("color: red")
+        #         self.show_button.setEnabled(False)
+        #     else:
+        #         self.label_8.clear()
+        #         self.update_sug_speed(value)
+        # else:
+        #     self.label_8.setText("must be a positive number")
+        #     self.label_8.setStyleSheet("color: red")
+        #     self.show_button.setEnabled(False)
+        pass
 
     def update_sug_speed(self, value: float) -> None:
-        QtCore.QMetaObject.invokeMethod(self, "sug_speed_updated",
-                                        QtCore.Q_ARG(float, value))
+        pass
 
     def update_occupancy(self, blocks: list):
-        QtCore.QMetaObject.invokeMethod(self, "occupancy_changed_signal",
-                                        QtCore.Q_ARG(list, blocks))
+        pass
 
     def print_blocks(self):
-        print("-----------------")
-        print("BLOCK STATUS:")
-        print(f"Blocks: {self.block_list}")
-        print("-----------------")
+        pass
