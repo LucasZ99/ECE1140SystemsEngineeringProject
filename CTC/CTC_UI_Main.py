@@ -3,10 +3,8 @@ from time import localtime, strftime, strptime, struct_time, time, ctime
 from PyQt6.QtCore import QSize, Qt, QTime, QTimer
 from PyQt6.QtWidgets import QMainWindow, QApplication, QWidget, QPushButton, QLabel, QLineEdit, QVBoxLayout, QGridLayout, QComboBox, QHBoxLayout, QDateTimeEdit, QTableWidget, QTableWidgetItem, QTabWidget, QAbstractScrollArea
 from click import DateTime
-from numpy import block
 
 from CTC import CTC
-from CTCTime import get_current_time, get_current_time_hh_mm, get_current_time_hh_mm_str, get_current_time_qtime
 from Train import Train
 
 from Route import Route
@@ -142,7 +140,7 @@ class CTCMainWindow(QMainWindow):
         ctc_main_right_side = QVBoxLayout()
         ctc_main_right_side.setSpacing(10)
         ctc_main_layout_right_top_section = QHBoxLayout()
-        self.train_system_time = QLabel(get_current_time().strftime("%H:%M:%S"))
+        self.train_system_time = QLabel(strftime("%H:%M:%S", localtime(system_time.time())))
         train_system_time_font = self.train_system_time.font()
         train_system_time_font.setPointSize(30)
         self.train_system_time.setFont(train_system_time_font)
@@ -474,7 +472,7 @@ class CTCMainWindow(QMainWindow):
         self.update_running_trains_list()
 
     def update_time(self):
-        current_time = get_current_time().strftime("%H:%M:%S")
+        current_time = strftime("%H:%M:%S", localtime(system_time.time()))
         # [label.setTime(get_current_time_qtime()) for label in self.departure_time_list]
         self.train_system_time.setText(current_time)
 
@@ -549,7 +547,6 @@ class DispatchArrivalTime(QWidget):
         self.dispatch_train_arrival_time.setDisplayFormat("HH:mm")
         self.dispatch_train_arrival_time.setDisabled(True)
         # self.dispatch_train_arrival_time.setInputMask("00:00")
-        hhmm = get_current_time_hh_mm_str()
         # dispatch_train_arrival_time.textEdited.
 
         self.dispatch_arrival_time_layout.addWidget(self.dispatch_train_arrival_time_label)
