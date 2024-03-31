@@ -2,14 +2,13 @@ from datetime import date, datetime, timedelta
 from time import localtime, strftime, strptime, struct_time, time, ctime
 from PyQt6.QtCore import QSize, Qt, QDateTime, QTime, QTimer
 from PyQt6.QtWidgets import QMainWindow, QApplication, QWidget, QPushButton, QLabel, QLineEdit, QVBoxLayout, QGridLayout, QComboBox, QHBoxLayout, QTimeEdit, QTableWidget, QTableWidgetItem, QTabWidget, QAbstractScrollArea
-from click import DateTime
 
 from CTC import CTC
-from Train import Train
+from CTC.Train import Train
 
-from Route import Route
+from CTC.Route import Route
 from SystemTime import SystemTime
-from Track import *
+from CTC.Track import *
 
 # from models import BlockModel
 

@@ -128,8 +128,8 @@
    <widget class="QLabel" name="switch_pos">
     <property name="geometry">
      <rect>
-      <x>70</x>
-      <y>210</y>
+      <x>50</x>
+      <y>190</y>
       <width>271</width>
       <height>101</height>
      </rect>
@@ -152,8 +152,8 @@
    <widget class="QListWidget" name="switch_list_widget">
     <property name="geometry">
      <rect>
-      <x>50</x>
-      <y>280</y>
+      <x>60</x>
+      <y>270</y>
       <width>256</width>
       <height>192</height>
      </rect>
@@ -175,30 +175,30 @@
      <bool>false</bool>
     </property>
    </widget>
-   <widget class="QPushButton" name="light_b6">
+   <widget class="QPushButton" name="light_1_a">
     <property name="geometry">
      <rect>
-      <x>70</x>
-      <y>480</y>
-      <width>211</width>
+      <x>60</x>
+      <y>470</y>
+      <width>131</width>
       <height>61</height>
      </rect>
     </property>
     <property name="text">
-     <string>Light Block 6</string>
+     <string/>
     </property>
    </widget>
-   <widget class="QPushButton" name="light_b11">
+   <widget class="QPushButton" name="light_1_b">
     <property name="geometry">
      <rect>
-      <x>70</x>
-      <y>540</y>
-      <width>211</width>
+      <x>190</x>
+      <y>470</y>
+      <width>131</width>
       <height>61</height>
      </rect>
     </property>
     <property name="text">
-     <string>Light Block 11</string>
+     <string/>
     </property>
    </widget>
    <widget class="QListWidget" name="block_number">
@@ -211,6 +211,32 @@
      </rect>
     </property>
    </widget>
+   <widget class="QPushButton" name="light_2_a">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>530</y>
+      <width>131</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="light_b11_2">
+    <property name="geometry">
+     <rect>
+      <x>190</x>
+      <y>530</y>
+      <width>131</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -218,7 +244,7 @@
      <x>0</x>
      <y>0</y>
      <width>757</width>
-     <height>21</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuTrack_Controller_UI">

@@ -1,9 +1,7 @@
-import sys
-import threading
-
 from PyQt6.QtCore import pyqtSignal, QObject
 from PyQt6.QtWidgets import QApplication
 
+from Track_Controller_SW.lighting import Light
 from Track_Controller_SW.TestbenchContainer import TestbenchContainer
 from Track_Controller_SW.TrackControllerUI import UI
 from Track_Controller_SW.BusinessLogic import BusinessLogic
@@ -11,8 +9,11 @@ from Track_Controller_SW.PLC_Logic import PlcProgram
 from Track_Controller_SW.switching import Switch
 
 
+
+
 class TrackController(QObject):
     switch_changed_index_signal = pyqtSignal(int)
+    light_changed_signal = pyqtSignal(int)
 
     def __init__(self, occupancy_list: list, section: str):
         super().__init__()
@@ -26,6 +27,13 @@ class TrackController(QObject):
                     Switch(13, 12, 1, 12),
                     Switch(28, 29, 150, 29)
                 ]
+            self.lights_list = \
+                [
+                    Light(12, True),
+                    Light(1, False),
+                    Light(29, True),
+                    Light(150, False)
+                ]
         elif section == "C":
             self.block_indexes = [73, 74, 75, 76, 77, 78, 79,
                                   80, 81, 82, 83, 84, 85, 86, 87, 88, 89,
@@ -36,17 +44,23 @@ class TrackController(QObject):
                     Switch(77, 76, 101, 76),
                     Switch(85, 86, 100, 86)
                 ]
+            self.lights_list = \
+                [
+                    Light(76, True),
+                    Light(101, False),
+                    Light(86, True),
+                    Light(100, False)
+                ]
 
         self.plc_logic = PlcProgram()
         self.occupancy_list = occupancy_list
-        self.suggested_speed_list = [0]
         self.zero_speed_flag_list = [False] * len(self.occupancy_list)
         self.section = section
 
         self.business_logic = BusinessLogic(
             self.occupancy_list,
             self.switches_list,
-            self.suggested_speed_list,
+            self.lights_list,
             self.plc_logic,
             self.block_indexes,
             self.section

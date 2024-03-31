@@ -4,7 +4,7 @@ import threading
 from PyQt6.QtCore import QObject, pyqtSlot
 from PyQt6.QtWidgets import QApplication
 
-from SystemTime.SystemTime import SystemTime
+from CTC.CTCContainer import CTCContainer
 from SystemTime.SystemTimeContainer import SystemTimeContainer
 from Track_Controller_SW.TrackControllerContainer import TrackControllerContainer
 from Track_Model.Track_Model_Container import TrackModelContainer
@@ -17,6 +17,7 @@ class LauncherContainer(QObject):
         self.time_module = SystemTimeContainer()
         self.track_model_container = TrackModelContainer()
         self.track_controller_container = TrackControllerContainer(track_model=self.track_model_container)
+        self.CTC_container = CTCContainer(self.time_module)
 
     def init_launcher_ui(self):
         app = QApplication.instance()
