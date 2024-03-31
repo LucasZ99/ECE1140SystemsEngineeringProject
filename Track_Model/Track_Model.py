@@ -74,13 +74,10 @@ class TrackModel(QObject):
                 if 'switch' in s:
                     s = s.lstrip('switch (,').rstrip(')')
                     num_list = s.replace(',', '-').replace(' ', '').split('-')
-                    print(num_list)
-                    # this all could be replaced by removing block we're at if we trust the Excel
                     unique, counts = np.unique(num_list, return_counts=True)
                     num_dict = dict(zip(unique, counts))
                     for n in unique:
                         num = int(n)
-                        print(f'{num}, {num_dict[n]}')
                         if num_dict[n] == 1:
                             new_data[num, 21] = False
 
@@ -217,7 +214,9 @@ class TrackModel(QObject):
         self.speed = speed
 
     def toggle_switch(self, block_id: int):
+        print('track_model.toggle switch called')
         self.data[block_id, 19] = not self.data[block_id, 19]
+        print(f'switch value = {self.data[block_id, 19]}')
 
     def toggle_signal(self, block_id: int):
         self.data[block_id, 21] = not self.data[block_id, 21]
