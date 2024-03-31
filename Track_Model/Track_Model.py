@@ -4,6 +4,7 @@ import sys
 import random
 from PyQt6.QtCore import pyqtSignal, QObject
 from PyQt6.QtWidgets import QApplication
+
 from Track_Model.Track_Model_UI import Window
 
 
