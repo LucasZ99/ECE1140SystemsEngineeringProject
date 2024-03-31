@@ -21,9 +21,10 @@ class Brakes:
         return self.passenger_ebrake or self.driver_ebrake
 
     def brake_force(self, fail):
-        if self.driver_ebrake or self.passenger_ebrake:
-            return self.emergency_force
-        elif self.service_brake and (not fail):
-            return self.service_brake
-        else:
+        if fail:
             return 0
+        elif self.emergency_brake_status():
+            return self.emergency_force
+        elif self.service_brake:
+            return self.service_force
+        return 0

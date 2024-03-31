@@ -21,6 +21,7 @@ class UITrain(QMainWindow):
         uic.loadUi("Train_Model_UI.ui", self)
 
         # declare the train object
+        self.train_dict = dict()
         self.train = new_train_model.TrainModel()
 
         # define widgets
@@ -29,6 +30,7 @@ class UITrain(QMainWindow):
 
         self.primeGroup = self.findChild(QGroupBox, "primeGroup")
         self.trainSelect = self.findChild(QComboBox, "trainSelect")
+        self.trainSelect.clear()
         self.emerButton = self.findChild(QPushButton, "emerButton")
         self.tbCheck = self.findChild(QCheckBox, "tbCheck")
 
@@ -113,7 +115,9 @@ class UITrain(QMainWindow):
         self.opGroup_tb.hide()
         self.tb = False
         self.ebp = False
+        self.switching_trains = False
 
+        self.trainSelect.currentIndexChanged.connect(self.combo_selection)
         self.physicsButton.pressed.connect(self.physics_test)
         self.passengerButton.pressed.connect(self.passenger_test)
 
@@ -144,6 +148,14 @@ class UITrain(QMainWindow):
 
         # show the app
         self.show()
+
+    def combo_selection(self):
+        string = str(self.trainSelect.currentText())
+        index = int(string[6:])
+        self.train = self.train_dict[index]
+        self.switching_trains = True
+        self.populate_values()
+        self.switching_trains = False
 
     def tb_toggle(self):
         if self.tb:
@@ -184,12 +196,14 @@ class UITrain(QMainWindow):
         self.ebp = False
 
     def power_change(self):
-        self.train.engine.set_power(float(self.powerValue_tb.text()))
-        self.populate_values()
+        if not self.switching_trains:
+            self.train.engine.set_power(float(self.powerValue_tb.text()))
+            self.populate_values()
 
     def acc_change(self):
-        self.train.acceleration = float(self.accValue_tb.text()) / self.feet_per_meter
-        self.populate_values()
+        if not self.switching_trains:
+            self.train.acceleration = float(self.accValue_tb.text()) / self.feet_per_meter
+            self.populate_values()
 
     def speed_change(self):
         self.train.set_velocity(float(self.speedValue_tb.text()) * 5280 / self.feet_per_meter / 3600)
@@ -210,18 +224,21 @@ class UITrain(QMainWindow):
         self.populate_values()
 
     def pbrake_change(self):
-        if not self.ebp:
-            self.train.brakes.toggle_passenger_ebrake()
-            self.populate_values()
+        if not self.switching_trains:
+            if not self.ebp:
+                self.train.brakes.toggle_passenger_ebrake()
+                self.populate_values()
         self.ebp = False
 
     def sbrake_change(self):
-        self.train.brakes.toggle_service_brake()
-        self.populate_values()
+        if not self.switching_trains:
+            self.train.brakes.toggle_service_brake()
+            self.populate_values()
 
     def dbrake_change(self):
-        self.train.brakes.toggle_driver_ebrake()
-        self.populate_values()
+        if not self.switching_trains:
+            self.train.brakes.toggle_driver_ebrake()
+            self.populate_values()
 
     def cars_change(self):
         self.train.train_const.set_cars(int(self.carsValue_tb.text()))
@@ -236,19 +253,22 @@ class UITrain(QMainWindow):
         self.populate_values()
 
     def engine_change(self):
-        self.train.failure.toggle_engine()
-        self.populate_values()
+        if not self.switching_trains:
+            self.train.failure.toggle_engine()
+            self.populate_values()
 
     def signal_change(self):
-        self.train.failure.toggle_signal_pickup()
-        self.populate_values()
+        if not self.switching_trains:
+            self.train.failure.toggle_signal_pickup()
+            self.populate_values()
 
     def brake_change(self):
-        self.train.failure.toggle_brakes()
-        self.populate_values()
+        if not self.switching_trains:
+            self.train.failure.toggle_brakes()
+            self.populate_values()
 
     def rec_speed_changed(self):
-        self.train.signals.set_commanded_speed(int(self.recSpeedValue_tb.text(), 16), self.train.failure.signal_pickup_failure)
+        self.train.signals.set_commanded_speed(float(self.recSpeedValue_tb.text()), self.train.failure.signal_pickup_failure)
         self.populate_values()
 
     def auth_changed(self):
@@ -264,20 +284,24 @@ class UITrain(QMainWindow):
         self.populate_values()
 
     def ext_light_change(self):
-        self.train.interior_functions.toggle_exterior_lights()
-        self.populate_values()
+        if not self.switching_trains:
+            self.train.interior_functions.toggle_exterior_lights()
+            self.populate_values()
 
     def int_light_change(self):
-        self.train.interior_functions.toggle_interior_lights()
-        self.populate_values()
+        if not self.switching_trains:
+            self.train.interior_functions.toggle_interior_lights()
+            self.populate_values()
 
     def left_door_change(self):
-        self.train.interior_functions.toggle_left_doors()
-        self.populate_values()
+        if not self.switching_trains:
+            self.train.interior_functions.toggle_left_doors()
+            self.populate_values()
 
     def right_door_change(self):
-        self.train.interior_functions.toggle_right_doors()
-        self.populate_values()
+        if not self.switching_trains:
+            self.train.interior_functions.toggle_right_doors()
+            self.populate_values()
 
     def populate_values(self):
         self.powerValue.setText(f'{self.train.engine.power: .2f} W')
@@ -350,8 +374,8 @@ class UITrain(QMainWindow):
         self.sFailCheck.setChecked(self.train.failure.signal_pickup_failure)
         self.bFailCheck.setChecked(self.train.failure.brake_failure)
 
-        self.recSpeedValue.setText(f'0x{self.train.signals.commanded_speed:02x}')
-        self.recSpeedValue_tb.setText(f'{self.train.signals.commanded_speed:02x}')
+        self.recSpeedValue.setText(f'{self.train.signals.commanded_speed: .2f}')
+        self.recSpeedValue_tb.setText(f'{self.train.signals.commanded_speed: .2f}')
 
         self.authValue.setText(f'0x{self.train.signals.authority:02x}')
         self.authValue_tb.setText(f'{self.train.signals.authority:02x}')
@@ -388,6 +412,7 @@ class UITrain(QMainWindow):
 
 
 # initialize the app
-app = QApplication(sys.argv)
-UIWindow = UITrain()
-app.exec()
+# app = QApplication(sys.argv)
+# UIWindow = UITrain()
+# app.exec()
+

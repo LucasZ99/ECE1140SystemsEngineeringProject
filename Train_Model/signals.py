@@ -1,5 +1,5 @@
 class Signals:
-    def __init__(self, comm_speed=0, auth=0, beac=""):
+    def __init__(self, comm_speed=0.0, auth=0, beac=""):
         self.commanded_speed = comm_speed
         self.authority = auth
         self.beacon = beac
