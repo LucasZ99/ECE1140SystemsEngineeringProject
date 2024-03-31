@@ -186,25 +186,17 @@ class TrackModel:
         # this block can no longer be occupied if value = 1
 
     def set_occupancy_from_failures(self, block):
-        # broken rail takes priority as it is infinite resistance
-        # sets to 0 if no failures, so must account for train presence afterwords whenever using this function
         p = self.data[block, 13]
         tc = self.data[block, 14]
         br = self.data[block, 15]
 
-        if br:
-            self.set_block_occupancy(block, 0)
-        elif p or tc:
-            self.set_block_occupancy(block, 1)
-        else:
-            self.set_block_occupancy(block, 0)
+        if p or tc or br:
+            self.set_block_occupancy(block, True)
 
-    def set_occupancy_from_train_presence(self, block, presence):
-        br = self.data[block, 15]
-        if br:
-            self.set_block_occupancy(block, 0)
-        else:
-            self.set_block_occupancy(block, presence)
+    def set_occupancy_from_train_presence(self):
+        # key = train id, value = block id
+        for key, value in self.train_dict:
+            self.set_block_occupancy(value, True)
 
     #
     #
@@ -241,12 +233,12 @@ class TrackModel:
 
     def train_spawned(self):
         self.train_count += 1
-        self.train_dict[self.train_count] = 62
-        # self.update_occupancy()
+        self.train_dict[self.train_count] = 63
+        self.set_occupancy_from_train_presence()
 
     def train_presence_changed(self, train_id: int):
-        self.train_dict[train_id] += 1
-        # self.update_occupancy()
+        self.train_dict[train_id] += 1  # TODO: actually find next with adjacency list
+        self.set_occupancy_from_train_presence()
 
     def set_disembarking_passengers(self, station_id: int, disembarking_passengers: int):
         self.data[station_id, 21] = disembarking_passengers
