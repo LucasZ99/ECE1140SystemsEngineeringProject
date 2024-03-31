@@ -388,6 +388,7 @@ class Window(QMainWindow):
             for j in range(0, n):
                 self.table3.setItem(i, j, QTableWidgetItem(str(self.table3_data[i, j])))
 
+
     def section_refresh(self):
         # data
         self.table1_data = self.track_model.get_block_table(self.selected_section)

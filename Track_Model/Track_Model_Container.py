@@ -46,6 +46,7 @@ class TrackModelContainer(QObject):
     def toggle_switch(self, block_id: int):
         print('toggle switch called')
         self.track_model.toggle_switch(block_id)
+        self.track_model_ui.data_and_tables_refresh()
 
     def toggle_signal(self, block_id: int):
         print('toggle signal called')

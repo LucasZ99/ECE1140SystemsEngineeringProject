@@ -284,7 +284,7 @@ class TrackModel(QObject):
         return random.randint(1000, 2000)
 
 # TODO: Section J will not exist, replace it with yard
-# TODO: Track model has a UI?
+# TODO: refresh tables from UI in container every time setters are called
 # Maybe give train model length if it struggles to calculate polarity
 
 # temp main
