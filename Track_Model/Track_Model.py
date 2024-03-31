@@ -2,9 +2,12 @@ import pandas as pd
 import numpy as np
 import sys
 import random
+from PyQt6.QtCore import pyqtSignal, QObject
+from PyQt6.QtWidgets import QApplication
+from Track_Model.Track_Model_UI import Window
 
 
-class TrackModel:
+class TrackModel(QObject):
     def __init__(self, file_name):
         # d = pd.read_excel(file_name, header=None)  # We will also load our header row, and block IDs will map to index
         # self.data = d.to_numpy()
@@ -22,6 +25,8 @@ class TrackModel:
                 self.data[i, 17] = random.randint(1, self.data[i, 16])
         self.authority = []
         self.speed = []
+        self.train_dict = {}
+        self.train_count = 0
 
     def get_data(self):
         return self.data
@@ -60,6 +65,7 @@ class TrackModel:
         new_data = np.hstack((new_data, np.copy(nan_array)))
         new_data = np.hstack((new_data, np.copy(nan_array)))
         new_data = np.hstack((new_data, np.copy(nan_array)))
+        new_data = np.hstack((new_data, np.copy(nan_array)))
         new_data = np.hstack((new_data, np.copy(false_col)))
         new_data = np.hstack((new_data, np.copy(nan_array)))
         # initialize signals from switch info
@@ -77,21 +83,22 @@ class TrackModel:
                         num = int(n)
                         print(f'{num}, {num_dict[n]}')
                         if num_dict[n] == 1:
-                            new_data[num, 20] = False
+                            new_data[num, 21] = False
 
         for i in range(1, new_data.shape[0]):
             if 'station' in str(new_data[i, 9]).lower():
                 new_data[i, 12] = False
                 new_data[i, 16] = 0
                 new_data[i, 17] = 0
+                new_data[i, 18] = 0
                 if i != 0:
                     new_data[i - 1, 12] = False
                 if i != new_data.shape[0] - 2:
                     new_data[i + 1, 12] = False
             if 'underground' in str(new_data[i, 9]).lower():
-                new_data[i, 19] = True
+                new_data[i, 20] = True
             if 'switch' in str(new_data[i, 9]).lower() or 'railway crossing' in str(new_data[i, 9]).lower():
-                new_data[i, 18] = False
+                new_data[i, 19] = False
 
         new_data[0, 7] = 'Block Occupancy'
         new_data[0, 8] = 'Temperature'
@@ -101,9 +108,10 @@ class TrackModel:
         new_data[0, 15] = 'Broken Rail Failure'
         new_data[0, 16] = 'Ticket Sales'
         new_data[0, 17] = 'Embarking'
-        new_data[0, 18] = 'Infrastructure Values'
-        new_data[0, 19] = 'Underground Status'
-        new_data[0, 20] = 'Signal Values'
+        new_data[0, 18] = 'Disembarking'
+        new_data[0, 19] = 'Infrastructure Values'
+        new_data[0, 20] = 'Underground Status'
+        new_data[0, 21] = 'Signal Values'
         return new_data
 
     def output_data_as_excel(self):
@@ -181,25 +189,17 @@ class TrackModel:
         # this block can no longer be occupied if value = 1
 
     def set_occupancy_from_failures(self, block):
-        # broken rail takes priority as it is infinite resistance
-        # sets to 0 if no failures, so must account for train presence afterwords whenever using this function
         p = self.data[block, 13]
         tc = self.data[block, 14]
         br = self.data[block, 15]
 
-        if br:
-            self.set_block_occupancy(block, 0)
-        elif p or tc:
-            self.set_block_occupancy(block, 1)
-        else:
-            self.set_block_occupancy(block, 0)
+        if p or tc or br:
+            self.set_block_occupancy(block, True)
 
-    def set_occupancy_from_train_presence(self, block, presence):
-        br = self.data[block, 15]
-        if br:
-            self.set_block_occupancy(block, 0)
-        else:
-            self.set_block_occupancy(block, presence)
+    def set_occupancy_from_train_presence(self):
+        # key = train id, value = block id
+        for key, value in self.train_dict:
+            self.set_block_occupancy(value, True)
 
     #
     #
@@ -218,13 +218,13 @@ class TrackModel:
         self.speed = speed
 
     def toggle_switch(self, block_id: int):
-        self.data[block_id, 18] = not self.data[block_id, 18]
+        self.data[block_id, 19] = not self.data[block_id, 19]
 
     def toggle_signal(self, block_id: int):
-        self.data[block_id, 18] = not self.data[block_id, 20]
+        self.data[block_id, 21] = not self.data[block_id, 21]
 
     def toggle_crossing(self, block_id: int):
-        self.data[block_id, 18] = not self.data[block_id, 18]
+        self.data[block_id, 19] = not self.data[block_id, 19]
 
     def open_block(self, block_id: int):
         self.set_block_occupancy(block_id)
@@ -235,13 +235,16 @@ class TrackModel:
     # train model
 
     def train_spawned(self):
-        print('Track Model train_spawned has been called')
+        self.train_count += 1
+        self.train_dict[self.train_count] = 63
+        self.set_occupancy_from_train_presence()
 
     def train_presence_changed(self, train_id: int):
-        print('Track Model train_presence_changed has been called')
+        self.train_dict[train_id] += 1  # TODO: actually find next with adjacency list
+        self.set_occupancy_from_train_presence()
 
     def set_disembarking_passengers(self, station_id: int, disembarking_passengers: int):
-        print('Track Model set_disembarking_passengers has been called')
+        self.data[station_id, 21] = disembarking_passengers
 
     # SENDING (getters)
 
@@ -272,7 +275,7 @@ class TrackModel:
 
     def get_tm_underground_status(self, train_id: int) -> bool:
         block_id = train_id
-        return self.data[block_id]  # need underground status
+        return self.data[block_id, 20]
 
     def get_tm_embarking_passengers(self, station_block: int) -> int:
         return self.data[station_block, 17]
@@ -282,7 +285,28 @@ class TrackModel:
     def get_ctc_ticket_sales(self):
         return random.randint(1000, 2000)
 
-# TODO: Write communication handlers (50%)
+    # UI
+
+    def show_ui(self):
+        app = QApplication.instance()  # Get the QApplication instance
+
+        # app_flag = False
+        if app is None:
+            app = QApplication([])  # If QApplication instance doesn't exist, create a new one
+            # app_flag = True
+
+        print("before ui call")
+        ui = Window(self)
+        print("before ui show")
+        ui.show()
+        print("After ui show")
+
+        # if app_flag is True:
+        app.exec()
+
+# TODO: Section J will not exist, replace it with yard
+# TODO: Track model has a UI?
+# Maybe give train model length if it struggles to calculate polarity
 
 # temp main
 # t = TrackModel('Blue Line.xlsx')
