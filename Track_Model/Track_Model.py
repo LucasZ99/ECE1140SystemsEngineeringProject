@@ -5,8 +5,6 @@ import random
 from PyQt6.QtCore import pyqtSignal, QObject
 from PyQt6.QtWidgets import QApplication
 
-from Track_Model.Track_Model_UI import Window
-
 
 class TrackModel(QObject):
     def __init__(self, file_name):
@@ -252,7 +250,7 @@ class TrackModel(QObject):
     # track controller
 
     def get_tc_block_occupancy(self) -> list[bool]:  # giving everything now
-        return self.data[1:, :].tolist()
+        return self.data[1:, 7].tolist()
 
     # train model
 
@@ -285,25 +283,6 @@ class TrackModel(QObject):
 
     def get_ctc_ticket_sales(self):
         return random.randint(1000, 2000)
-
-    # UI
-
-    def show_ui(self):
-        app = QApplication.instance()  # Get the QApplication instance
-
-        # app_flag = False
-        if app is None:
-            app = QApplication([])  # If QApplication instance doesn't exist, create a new one
-            # app_flag = True
-
-        print("before ui call")
-        ui = Window(self)
-        print("before ui show")
-        ui.show()
-        print("After ui show")
-
-        # if app_flag is True:
-        app.exec()
 
 # TODO: Section J will not exist, replace it with yard
 # TODO: Track model has a UI?

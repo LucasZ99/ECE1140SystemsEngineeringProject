@@ -10,8 +10,8 @@ from PyQt6.QtCore import Qt
 from Track_Model.animated_toggle import AnimatedToggle
 import sys
 from Track_Model.Track_Model import TrackModel
-from dynamic_map import DynamicMap
-from Track_Model_TB_UI import TestBenchWindow
+from Track_Model.dynamic_map import DynamicMap
+from Track_Model.Track_Model_TB_UI import TestBenchWindow
 
 
 ##############################
@@ -21,7 +21,8 @@ class Window(QMainWindow):
     def __init__(self, track_model):
         super().__init__()
         # Backend
-        self.file_name = self.getFileName()
+        # self.file_name = self.getFileName()
+        self.file_name = 'Green Line.xlsx'
         self.track_model = track_model
         self.test_bench_window = TestBenchWindow()
         # Window Layout
