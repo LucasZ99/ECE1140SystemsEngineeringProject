@@ -45,35 +45,32 @@ class BusinessLogic(QObject):
         else:
             switch_2 = False
 
-        # # execute the plc program when the occupancy changes
-        # plc_result = self.plc_logic.execute_plc(
-        #     self.occupancy_list,
-        #     self.section,
-        #     # switch_1,
-        #     # switch_2
-        # )
-        #
-        # # post plc execution processing logic
-        # if plc_result[1] != switch_1:
-        #     self.switches_changed(0)
-        # if plc_result[2] != switch_2:
-        #     self.switches_changed(1)
-        #
-        # # return the output of the plc program to the Track Controller object
-        return [False] * 151
+        # execute the plc program when the occupancy changes
+        plc_result = self.plc_logic.execute_plc(
+            self.occupancy_list,
+        )
 
-        # TODO: Need to replace rr crossing logic
-        # if new_occupancy[3] is True:
-        #     self.rr_crossing_signal.emit(True)
-        # else:
-        #     self.rr_crossing_signal.emit(False)
+        # post plc execution processing logic
+        if plc_result[0] != switch_1:
+            self.switches_changed(0)
+        if plc_result[1] != switch_2:
+            self.switches_changed(1)
+
+        # rr crossing logic
+        if plc_result[2] is True:
+            self.rr_crossing_signal.emit(True)
+        else:
+            self.rr_crossing_signal.emit(False)
+
+        # return the zero speed flag update
+        return plc_result[3]
 
     @pyqtSlot(int)
     def switches_changed(self, index: int) -> None:
 
         print(f"Switch at b{self.switches_list[index].block} changed")
         self.switch_changed_index_signal.emit(self.switches_list[index].block)
-        self.switches_list[index].toggle()
+        self.switches_list[index].toggle()integra
         self.switches_signal.emit(self.switches_list)
 
     @pyqtSlot(list)

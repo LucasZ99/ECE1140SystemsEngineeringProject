@@ -72,7 +72,11 @@ class TrackController(QObject):
 
     # Track Model endpoints
     def update_occupancy(self, block_occupancy_list: list[bool]):
-        self.zero_speed_flag_list = self.business_logic.occupancy_changed(block_occupancy_list)
+        if self.section == "A":
+            # update the zero_speed flag list
+            self.zero_speed_flag_list[29:33] = self.business_logic.occupancy_changed(block_occupancy_list)
+        # if self.section == "C":
+        #     self.zero_speed_flag_list[]
         self.occupancy_list = block_occupancy_list
         return self.zero_speed_flag_list
 
