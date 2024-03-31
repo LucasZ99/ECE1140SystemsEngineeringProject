@@ -2,12 +2,14 @@ import sys
 
 from PyQt5.QtGui import QIcon
 
-import new_train_model
+
 from PyQt5 import uic
 from PyQt5.QtWidgets import (QMainWindow, QApplication, QLabel, QPushButton, QGroupBox,
                              QCheckBox, QComboBox, QProgressBar, QLineEdit)
-from business_logic import BusinessLogic
+
 import random
+
+from Train_Model import TrainModel, TrainBusinessLogic
 
 
 class UITrain(QMainWindow):
@@ -15,7 +17,7 @@ class UITrain(QMainWindow):
     tons_per_kilogram = 0.00110231
     feet_per_meter = 3.28084
 
-    def __init__(self):
+    def __init__(self, bus=TrainBusinessLogic()):
         super(UITrain, self).__init__()
 
         # load the ui file
@@ -23,8 +25,8 @@ class UITrain(QMainWindow):
 
         # declare the train object
         self.train_dict = dict()
-        self.train = new_train_model.TrainModel()
-        self.business_logic = BusinessLogic()
+        self.train = TrainModel()
+        self.business_logic = bus
 
         # define widgets
         self.physicsButton = self.findChild(QPushButton, "physicsButton")
@@ -154,9 +156,6 @@ class UITrain(QMainWindow):
         self.intLightValue_tb.stateChanged.connect(self.int_light_change)
         self.leftDoorValue_tb.stateChanged.connect(self.left_door_change)
         self.rightDoorValue_tb.stateChanged.connect(self.right_door_change)
-
-        # show the app
-        self.show()
 
     def index_update(self, index):
         string = str(self.trainSelect.currentText())

@@ -1,10 +1,12 @@
 import time
 
-import people
+
 import random
 
+from Train_Model.people import People
 
-class PassengerPeople(people.People):
+
+class PassengerPeople(People):
     def __init__(self, ppl=0, max_ppl=222):
         super().__init__(ppl)
         self.set_people(ppl, max_ppl)

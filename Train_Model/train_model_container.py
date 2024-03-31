@@ -1,6 +1,5 @@
 import sys
-from new_train_model import TrainModel
-from business_logic import BusinessLogic
+from Train_Model import TrainBusinessLogic, TrainModel
 
 
 class TrainModelContainer:
@@ -9,9 +8,10 @@ class TrainModelContainer:
     controller_inputs = dict()
     passenger_return = dict()
     ui_list = list()
-    business_logic = BusinessLogic()
+    business_logic = TrainBusinessLogic()
 
-    def __init__(self):
+    def __init__(self, bus=TrainBusinessLogic()):
+        self.business_logic = bus
         self.train_list = self.business_logic.train_list
 
     def track_model_inputs(self, input_list, index):

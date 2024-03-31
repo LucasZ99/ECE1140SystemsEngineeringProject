@@ -1,7 +1,7 @@
 from PyQt5.QtCore import pyqtSignal, QObject, pyqtSlot
 
 
-class BusinessLogic(QObject):
+class TrainBusinessLogic(QObject):
 
     # declare signals
     train_list = dict()
