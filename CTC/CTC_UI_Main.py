@@ -255,7 +255,6 @@ class CTCMainWindow(QMainWindow):
 
         self.setCentralWidget(main_layout_widget)
 
-
         self.route:list[int] = []
 
     def current_line_id(self):
@@ -472,7 +471,7 @@ class CTCMainWindow(QMainWindow):
         self.update_running_trains_list()
 
     def update_time(self):
-        current_time = strftime("%H:%M:%S", localtime(system_time.time()))
+        current_time = strftime("%H:%M:%S", localtime(self.system_time.time()))
         # [label.setTime(get_current_time_qtime()) for label in self.departure_time_list]
         self.train_system_time.setText(current_time)
 
