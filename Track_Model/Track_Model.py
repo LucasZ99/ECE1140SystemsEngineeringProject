@@ -285,6 +285,7 @@ class TrackModel(QObject):
 
 # TODO: Section J will not exist, replace it with yard
 # TODO: refresh tables from UI in container every time setters are called
+# TODO: for getters, emit a signal in track model to track model container for track controller container to catch
 # Maybe give train model length if it struggles to calculate polarity
 
 # temp main
