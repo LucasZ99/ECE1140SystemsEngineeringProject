@@ -1,6 +1,8 @@
 import numpy as np
 import time
-import trainControllerSWContainer
+
+from PyQt6.QtWidgets import QApplication
+
 # import train_model_container
 
 

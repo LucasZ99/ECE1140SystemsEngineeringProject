@@ -12,6 +12,7 @@ class LauncherUi(QMainWindow):
     open_track_controller_ui_signal = pyqtSignal(str)
     open_track_controller_tb_ui_signal = pyqtSignal(str)
     open_track_model_ui_signal = pyqtSignal()
+    open_train_controller_ui_signal = pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -30,7 +31,6 @@ class LauncherUi(QMainWindow):
         self.track_controller_B_testbench_button = self.findChild(QPushButton, 'track_controller_B_testbench_button')
         self.track_controller_C_testbench_button = self.findChild(QPushButton, 'track_controller_C_testbench_button')
 
-
         # Connect button clicks to functionality
         # Time Module
         self.time_module_button.clicked.connect(self.start_time_module_ui)
@@ -44,6 +44,9 @@ class LauncherUi(QMainWindow):
 
         # Track Model
         self.track_model_button.clicked.connect(self.start_track_model_ui)
+
+        # Train Controller
+        self.train_controller_button.clicked.connect(self.start_train_controller_ui)
 
         self.show()
 
@@ -74,6 +77,10 @@ class LauncherUi(QMainWindow):
     def start_track_model_ui(self):
         self.open_track_model_ui_signal.emit()
         print("Track Model ui button clicked")
+
+    def start_train_controller_ui(self):
+        self.open_train_controller_ui_signal.emit()
+        print("Train Controller ui button clicked")
 
 
 def show_launcher_ui():
