@@ -203,7 +203,7 @@ class Tb_Ui(QMainWindow):
         self.menubar = QtWidgets.QMenuBar(parent=self)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 369, 22))
         self.menubar.setObjectName("menubar")
-        self.setMenuBar(self.menubar)
+        # self.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(parent=self)
         self.statusbar.setObjectName("statusbar")
         self.setStatusBar(self.statusbar)
