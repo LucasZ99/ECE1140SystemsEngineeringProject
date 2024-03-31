@@ -12,6 +12,8 @@ class TrackModelContainer(object):
         self.track_model = TrackModel("./Track_Model/Green Line.xlsx")
         self.track_model_ui = Window(self.track_model)
 
+    # show ui
+
     def show_ui(self):
         app = QApplication.instance()  # Get the QApplication instance
 
@@ -26,3 +28,28 @@ class TrackModelContainer(object):
 
         # if app_flag is True:
         app.exec()
+
+    # endpoints
+
+    # Track Controller
+
+    def update_authority(self, authority: list[int]):
+        self.track_model.update_authority(authority)
+
+    def update_speed(self, speed: list[float]):
+        self.track_model.update_speed(speed)
+
+    def toggle_switch(self, block_id: int):
+        self.track_model.toggle_switch(block_id)
+
+    def toggle_signal(self, block_id: int):
+        self.track_model.toggle_signal(block_id)
+
+    def toggle_crossing(self, block_id: int):
+        self.track_model.toggle_crossing(block_id)
+
+    def open_block(self, block_id: int):
+        self.track_model.open_block(block_id)
+
+    def close_block(self, block_id: int):
+        self.track_model.close_block(block_id)
