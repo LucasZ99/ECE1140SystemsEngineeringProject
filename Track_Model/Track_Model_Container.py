@@ -8,34 +8,7 @@ class TrackModelContainer(object):
     def __init__(self,
                  # track_model: Track_Model_New
                  ):
-        # initialize track data
-        self.occupancy_list = [True] * 151
-        self.switch_list = \
-            [
-                Switch(13, 12, 1, 12),
-                Switch(28, 29, 150, 29),
-                Switch(77, 76, 101, 76),
-                Switch(85, 86, 100, 86)
-            ]
-        self.railway_crossing_blocks_list = [19, 108]
-        self.speed_list = [0.0] * 151
-        self.zero_speed_flag_list = [False] * 151
-        # self.track_model = track_model
-        self.authority_list = [0] * 151
-
-        # Controller specific initialization
-        # Section A: blocks 1-32, 147-150
-        self.occupancy_list_A = self.occupancy_list[0:32] + self.occupancy_list[147:]
-        # Section B: blocks: 25-80 , 101-150
-        self.occupancy_list_B = self.occupancy_list[24:80] + self.occupancy_list[100:]
-        # Section C: blocks 73:104
-        self.occupancy_list_C = self.occupancy_list[72:104]
-
-        self.trackControllerA = TrackController(occupancy_list=self.occupancy_list_A, section="A")
-
-        self.trackControllerB = TrackControllerHardware(occupancy_list=self.occupancy_list_B, section="B")
-
-        self.trackControllerC = TrackController(occupancy_list=self.occupancy_list_C, section="C")
+        self.track_model = TrackModel()
 
     # CTC Endpoints
     def command_speed(self, line_id: int, block_id: int, speed: float) -> None:
