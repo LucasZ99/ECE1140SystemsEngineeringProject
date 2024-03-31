@@ -4,6 +4,7 @@ from SystemTime import SystemTime
 # from Track_Controller_SW.switching import Switch
 from PyQt6.QtCore import QObject
 
+
 class Switch:
     pass
 
@@ -47,3 +48,4 @@ class CTC(QObject):
 
     def timer_handler(self):
         pass
+

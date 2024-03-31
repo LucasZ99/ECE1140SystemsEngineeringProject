@@ -15,6 +15,9 @@ import time
 serverAddress = ('192.168.1.184', 2222)
 bufferSize = 1024
 UDPClient = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+serverAddress = ('192.168.1.184', 2222)
+bufferSize = 1024
+UDPClient = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 # Vars
 switches = []

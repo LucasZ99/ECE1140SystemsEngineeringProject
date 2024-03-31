@@ -7,6 +7,7 @@ from SystemTime.SystemTimeContainer import SystemTimeContainer
 from Track_Controller_SW.TrackControllerContainer import TrackControllerContainer
 from Track_Model.Track_Model_Container import TrackModelContainer
 from launchercontainer import LauncherContainer
+from CTC import CTC
 
 
 def run_launcher():
