@@ -13,7 +13,7 @@ def run_plc(occupancy_list):
             zone_FED_occupied = True
             if i in range(17, 20):
                 rr_active = True
-    for i in range(29, 33):
+    for i in range(28, 32):
         if occupancy_list[i] is True:
             zero_speed_flags = [True] * 4
 

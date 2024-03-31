@@ -26,7 +26,7 @@ class TrackControllerContainer(QObject):
 
         # Controller specific initialization
         # Section A: blocks 1-32, 147-150
-        self.occupancy_list_A = self.occupancy_list[0:33]
+        self.occupancy_list_A = self.occupancy_list[0:32]
         # Section B: blocks: 25-80 , 101-150
         self.occupancy_list_B = self.occupancy_list[24:80] + self.occupancy_list[100:]
         # Section C: blocks 73:104
