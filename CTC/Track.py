@@ -1,5 +1,7 @@
 from CTC.Models import BlockModel
 
+MINIMUM_SAFE_STOPPING_DISTANCE = 4
+MSSD = 4
 
 GREEN_LINE = 0
 
@@ -8,6 +10,7 @@ LINES = ["Green Line"]
 TRACK = [
     # Green line: line 0
     {   
+        -1: [0],
         # Section C -> A
         12: [11],
         11: [10],
