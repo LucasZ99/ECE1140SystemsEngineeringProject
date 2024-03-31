@@ -12,7 +12,8 @@ from PyQt6.QtCore import pyqtSignal, QCoreApplication, pyqtSlot
 from PyQt6.QtWidgets import QMainWindow
 import os
 
-from Track_Controller_HW.SlotsSigs import SlotsSigs
+from Track_Controller_HW import SlotsSigs
+
 
 # Global Variables
 

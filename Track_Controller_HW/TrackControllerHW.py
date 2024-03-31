@@ -1,10 +1,10 @@
 import time
 import os
 import sys
-from Track_Controller_HW import TBShell
-#from Track_Controller_HW import HardwareUI
-from Track_Controller_HW import SlotsSigs
+
 import socket
+
+from Track_Controller_HW import SlotsSigs, TBShell
 
 
 class TrackControllerHardware(object):
