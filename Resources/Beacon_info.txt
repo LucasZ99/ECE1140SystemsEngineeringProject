@@ -1,0 +1,241 @@
+Blue	A	1	50	50	
+Blue	A	2	50	50	
+Blue	A	3	50	50
+Blue	A	4	50	50	
+Blue	A	5	50	50  
+Blue	B	6	50	50
+Blue	B	7	50	50	
+Blue	B	8	50	50	
+Blue	B	9	50	50
+Blue	B	10	50	50	Station B
+Blue	C	11	50	50
+Blue	C	12	50	50	
+Blue	C	13	50	50	
+Blue	C	14	50	50
+Blue	C	15	50	50	Station C
+Red A	1	50	40		
+Red	A	2	50	40		
+Red	A	3	50	40		
+Red	B	4	50	40		
+Red	B	5	50	40		
+Red	B	6	50	40		
+Red	C	7	75	40	SHADYSIDE
+Red	C	8	75	40		
+Red	C	9	75	40
+Red	D	10	75	40		
+Red	D	11	75	40
+Red	D	12	75	40		
+Red	E	13	70	40		
+Red	E	14	60	40		
+Red	E	15	60	40	
+Red	F	16	50	40	HERRON AVE
+Red	F	17	200	55		
+Red	F	18	400	70		
+Red	F	19	400	70		
+Red	F	20	200	70		
+Red	G	21	100	55	SWISSVILLE
+Red	G	22	100	55		
+Red	G	23	100	55		
+Red	H	24	50	70
+Red	H	25	50	70	PENN STATION
+Red	H	26	50	70
+Red	H	27	50	70
+Red	H	28	50	70
+Red	H	29	60	70
+Red	H	30	60	70
+Red	H	31	50	70
+Red	H	32	50	70
+Red	H	33	50	70
+Red	H	34	50	70
+Red	H	35	50	70  STEEL PLAZA
+Red	H	36	50	70
+Red	H	37	50	70
+Red	H	38	50	70
+Red	H	39	50	70
+Red	H	40	60	70
+Red	H	41	60	70
+Red	H	42	50	70
+Red	H	43	50	70
+Red	H	44	50	70
+Red	H	45	50	70	FIRST AVE
+Red	I	46	75	70
+Red	I	47	75	70
+Red	I	48	75	70	STATION SQUARE
+Red	J	49	50	60		
+Red	J	50	50	60		
+Red	J	51	50	55		
+Red	J	52	43.2	55
+Red	J	53	50	55		
+Red	J	54	50	55		
+Red	K	55	75	55		
+Red	K	56	75	55		
+Red	K	57	75	55		
+Red	L	58	75	55		
+Red	L	59	75	55		
+Red	L	60	75	55	SOUTH HILLS JUNCTION
+Red	M	61	75	55		
+Red	M	62	75	55		
+Red	M	63	75	55		
+Red	N	64	75	55		
+Red	N	65	75	55		
+Red	N	66	75	55		
+Red	O	67	50	55
+Red	P	68	50	55
+Red	P	69	50	55
+Red	P	70	50	55
+Red	Q	71	50	55
+Red	R	72	50	55
+Red	S	73	50	55
+Red	S	74	50	55
+Red	S	75	50	55
+Red	T	76	50	55
+Green	A	1	100	45		
+Green	A	2	100	45	PIONEER
+Green	A	3	100	45		
+Green	B	4	100	45		
+Green	B	5	100	45		
+Green	B	6	100	45		
+Green	C	7	100	45		
+Green	C	8	100	45		
+Green	C	9	100	45	EDGEBROOK
+Green	C	10	100	45		
+Green	C	11	100	45		
+Green	C	12	100	45
+Green	D	13	150	70		
+Green	D	14	150	70		
+Green	D	15	150	70		
+Green	D	16	150	70	STATION
+Green	E	17	150	60		
+Green	E	18	150	60		
+Green	E	19	150	60
+Green	E	20	150	60		
+Green	F	21	300	70		
+Green	F	22	300	70	WHITED
+Green	F	23	300	70		
+Green	F	24	300	70		
+Green	F	25	200	70		
+Green	F	26	100	70		
+Green	F	27	50	30		
+Green	F	28	50	30
+Green	G	29	50	30		
+Green	G	30	50	30		
+Green	G	31	50	30	SOUTH BANK
+Green	G	32	50	30		
+Green	H	33	50	30		
+Green	H	34	50	30		
+Green	H	35	50	30		
+Green	I	36	50	30
+Green	I	37	50	30
+Green	I	38	50	30
+Green	I	39	50	30	CENTRAL
+Green	I	40	50	30
+Green	I	41	50	30
+Green	I	42	50	30
+Green	I	43	50	30
+Green	I	44	50	30
+Green	I	45	50	30
+Green	I	46	50	30
+Green	I	47	50	30
+Green	I	48	50	30	INGLEWOOD
+Green	I	49	50	30
+Green	I	50	50	30
+Green	I	51	50	30
+Green	I	52	50	30
+Green	I	53	50	30
+Green	I	54	50	30
+Green	I	55	50	30
+Green	I	56	50	30
+Green	I	57	50	30	OVERBROOK
+Green	J	58	50	30
+Green	J	59	50	30		
+Green	J	60	50	30		
+Green	J	61	50	30		
+Green	J	62	50	30
+Green	K	63	100	70		
+Green	K	64	100	70		
+Green	K	65	200	70	GLENBURY
+Green	K	66	200	70		
+Green	K	67	100	40		
+Green	K	68	100	40		
+Green	L	69	100	40		
+Green	L	70	100	40		
+Green	L	71	100	40		
+Green	L	72	100	40		
+Green	L	73	100	40	DORMONT
+Green	M	74	100	40		
+Green	M	75	100	40		
+Green	M	76	100	40
+Green	N	77	300	70	MT LEBANON
+Green	N	78	300	70		
+Green	N	79	300	70		
+Green	N	80	300	70		
+Green	N	81	300	70		
+Green	N	82	300	70		
+Green	N	83	300	70		
+Green	N	84	300	70		
+Green	N	85	300	70
+Green	O	86	100	25		
+Green	O	87	86.6	25		
+Green	O	88	100	25	POPLAR
+Green	P	89	75	25		
+Green	P	90	75	25		
+Green	P	91	75	25		
+Green	P	92	75	25		
+Green	P	93	75	25		
+Green	P	94	75	25		
+Green	P	95	75	25		
+Green	P	96	75	25	  CASTLE SHANNON
+Green	P	97	75	25		
+Green	Q	98	75	25		
+Green	Q	99	75	25		
+Green	Q	100	75	25		
+Green	R	101	35	26		
+Green	S	102	100	28		
+Green	S	103	100	28		
+Green	S	104	80	28		
+Green	T	105	100	28	DORMONT
+Green	T	106	100	28		
+Green	T	107	90	28		
+Green	T	108	100	28	
+Green	T	109	100	28		
+Green	U	110	100	30		
+Green	U	111	100	30		
+Green	U	112	100	30		
+Green	U	113	100	30		
+Green	U	114	162	30	GLENBURY
+Green	U	115	100	30		
+Green	U	116	100	30		
+Green	V	117	50	15		
+Green	V	118	50	15		
+Green	V	119	40	15		
+Green	V	120	50	15		
+Green	V	121	50	15		
+Green	W	122	50	20
+Green	W	123	50	20	OVERBROOK
+Green	W	124	50	20
+Green	W	125	50	20
+Green	W	126	50	20
+Green	W	127	50	20
+Green	W	128	50	20
+Green	W	129	50	20
+Green	W	130	50	20
+Green	W	131	50	20
+Green	W	132	50	20	INGLEWOOD
+Green	W	133	50	20
+Green	W	134	50	20
+Green	W	135	50	20
+Green	W	136	50	20
+Green	W	137	50	20
+Green	W	138	50	20
+Green	W	139	50	20
+Green	W	140	50	20
+Green	W	141	50	20	CENTRAL
+Green	W	142	50	20
+Green	W	143	50	20
+Green	X	144	50	20		
+Green	X	145	50	20		
+Green	X	146	50	20		
+Green	Y	147	50	20		
+Green	Y	148	184	20		
+Green	Y	149	40	20		
+Green	Z	150	35	20		
