@@ -279,7 +279,6 @@ class TrackModel(QObject):
         return self.data[station_block, 17]
 
     # ctc
-
     def get_ctc_ticket_sales(self):
         return random.randint(1000, 2000)
 

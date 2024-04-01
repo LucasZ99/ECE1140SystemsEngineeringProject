@@ -38,6 +38,7 @@ class TrackModelContainer(QObject):
     def update_authority(self, authority: list[int]):
         print('update authority called')
         self.track_model.update_authority(authority)
+        # TODO: Add refresh UI
 
     def update_speed(self, speed: list[float]):
         print('update speed called')
