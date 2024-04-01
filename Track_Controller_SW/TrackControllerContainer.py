@@ -1,12 +1,14 @@
 from PyQt6.QtCore import pyqtSlot, QObject
 
-from Track_Controller_SW import TrackController, Switch
+from Track_Controller_HW import TrackControllerHardware
+from Track_Controller_SW import TrackController, Switch, Light
+from Track_Model.Track_Model_Container import TrackModelContainer
 
 
 # from Track_Model import Track_Model_New
 
 class TrackControllerContainer(QObject):
-    def __init__(self):
+    def __init__(self, track_model=TrackModelContainer):
         # initialize track data
         super().__init__()
         self.occupancy_list = [False] * 151
@@ -17,24 +19,36 @@ class TrackControllerContainer(QObject):
                 Switch(77, 76, 101, 76),
                 Switch(85, 86, 100, 86)
             ]
+        self.lights_list = \
+        [
+            Light(12, True),
+            Light(1, False),
+            Light(29, True),
+            Light(150, False),
+            Light(76, True),
+            Light(101, False),
+            Light(86, True),
+            Light(100, False)
+        ]
+
         self.railway_crossing_blocks_list = [19, 108]
         self.speed_list = [0.0] * 151
         self.zero_speed_flag_list = [False] * 151
-        # self.track_model = track_model
         self.authority_list = [0] * 151
+
+        self.track_model = track_model
 
         # Controller specific initialization
         # Section A: blocks 1-32, 147-150
-        self.occupancy_list_A = self.occupancy_list[0:32] + self.occupancy_list[147:]
-        # Section B:
-        # self.occupancy_list_B = [devin fill it in]
-
+        self.occupancy_list_A = self.occupancy_list[0:32]
+        # Section B: blocks: 25-80 , 101-150
+        self.occupancy_list_B = self.occupancy_list[24:80] + self.occupancy_list[100:]
         # Section C: blocks 73:104
-        self.occupancy_list_C = self.occupancy_list[72:104]
+        self.occupancy_list_C = self.occupancy_list[76:104]
 
         self.trackControllerA = TrackController(occupancy_list=self.occupancy_list_A, section="A")
 
-        # self.trackControllerB = TrackController() [devin fill it in]
+        self.trackControllerB = TrackControllerHardware(occupancy_list=self.occupancy_list_B, section="B")
 
         self.trackControllerC = TrackController(occupancy_list=self.occupancy_list_C, section="C")
 
@@ -67,28 +81,22 @@ class TrackControllerContainer(QObject):
 
     # Track Model Endpoint
     def update_occupancy(self, block_occupancy_list: list) -> None:
+        print("got the occupancy from track model")
         self.occupancy_list = block_occupancy_list
         # CTC.update_block_occupancy(0, self.occupancy_list)
-        self.occupancy_list_A = self.occupancy_list[0:32] + self.occupancy_list[147:]
+        self.occupancy_list_A = self.occupancy_list[0:32]
         zero_speed_flag_list_A = self.trackControllerA.update_occupancy(self.occupancy_list_A)
         self.zero_speed_flag_list[0:32] = zero_speed_flag_list_A[0:32]
-        self.zero_speed_flag_list[147:] = zero_speed_flag_list_A[32:]
 
     @pyqtSlot(int)
     def update_track_switch(self, switch_block: int) -> None:
         print(f"Updating Track Model switch at block: {switch_block}")
-        # self.track_model.toggle_switch(switch_block)
-
-
-
+        self.track_model.toggle_switch(switch_block)
 
     def show_ui(self, section: str):
         if section == "A":
             print("Section A UI called")
             self.trackControllerA.show_ui()
-        if section == "B":
-            # [devin fill it in]
-            pass
         if section == "C":
             print("Section C UI called")
             self.trackControllerC.show_ui()
@@ -96,15 +104,17 @@ class TrackControllerContainer(QObject):
     def show_testbench_ui(self, section: str):
         if section == "A":
             self.trackControllerA.show_testbench_ui()
+        if section == "B":
+            self.trackControllerB.show_testbench_ui()
         if section == "C":
             self.trackControllerC.show_testbench_ui()
 
 
-# def main():
-#     trackControllerContainer = TrackControllerContainer()
-#     trackControllerContainer.update_occupancy([True] * 151)
-#     trackControllerContainer.show_ui("A")
-#
-#
-# if __name__ == "__main__":
-#     main()
+def main():
+    trackControllerContainer = TrackControllerContainer()
+    # trackControllerContainer.update_occupancy([True] * 151)
+    trackControllerContainer.show_ui("A")
+
+
+if __name__ == "__main__":
+    main()

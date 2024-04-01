@@ -2,9 +2,11 @@ import pandas as pd
 import numpy as np
 import sys
 import random
+from PyQt6.QtCore import pyqtSignal, QObject
+from PyQt6.QtWidgets import QApplication
 
 
-class TrackModel:
+class TrackModel(QObject):
     def __init__(self, file_name):
         # d = pd.read_excel(file_name, header=None)  # We will also load our header row, and block IDs will map to index
         # self.data = d.to_numpy()
@@ -72,13 +74,10 @@ class TrackModel:
                 if 'switch' in s:
                     s = s.lstrip('switch (,').rstrip(')')
                     num_list = s.replace(',', '-').replace(' ', '').split('-')
-                    print(num_list)
-                    # this all could be replaced by removing block we're at if we trust the Excel
                     unique, counts = np.unique(num_list, return_counts=True)
                     num_dict = dict(zip(unique, counts))
                     for n in unique:
                         num = int(n)
-                        print(f'{num}, {num_dict[n]}')
                         if num_dict[n] == 1:
                             new_data[num, 21] = False
 
@@ -186,25 +185,17 @@ class TrackModel:
         # this block can no longer be occupied if value = 1
 
     def set_occupancy_from_failures(self, block):
-        # broken rail takes priority as it is infinite resistance
-        # sets to 0 if no failures, so must account for train presence afterwords whenever using this function
         p = self.data[block, 13]
         tc = self.data[block, 14]
         br = self.data[block, 15]
 
-        if br:
-            self.set_block_occupancy(block, 0)
-        elif p or tc:
-            self.set_block_occupancy(block, 1)
-        else:
-            self.set_block_occupancy(block, 0)
+        if p or tc or br:
+            self.set_block_occupancy(block, True)
 
-    def set_occupancy_from_train_presence(self, block, presence):
-        br = self.data[block, 15]
-        if br:
-            self.set_block_occupancy(block, 0)
-        else:
-            self.set_block_occupancy(block, presence)
+    def set_occupancy_from_train_presence(self):
+        # key = train id, value = block id
+        for key, value in self.train_dict:
+            self.set_block_occupancy(value, True)
 
     #
     #
@@ -223,7 +214,9 @@ class TrackModel:
         self.speed = speed
 
     def toggle_switch(self, block_id: int):
+        print('track_model.toggle switch called')
         self.data[block_id, 19] = not self.data[block_id, 19]
+        print(f'switch value = {self.data[block_id, 19]}')
 
     def toggle_signal(self, block_id: int):
         self.data[block_id, 21] = not self.data[block_id, 21]
@@ -241,12 +234,12 @@ class TrackModel:
 
     def train_spawned(self):
         self.train_count += 1
-        self.train_dict[self.train_count] = 62
-        # self.update_occupancy()
+        self.train_dict[self.train_count] = 63
+        self.set_occupancy_from_train_presence()
 
     def train_presence_changed(self, train_id: int):
-        self.train_dict[train_id] += 1
-        # self.update_occupancy()
+        self.train_dict[train_id] += 1  # TODO: actually find next with adjacency list
+        self.set_occupancy_from_train_presence()
 
     def set_disembarking_passengers(self, station_id: int, disembarking_passengers: int):
         self.data[station_id, 21] = disembarking_passengers
@@ -256,7 +249,7 @@ class TrackModel:
     # track controller
 
     def get_tc_block_occupancy(self) -> list[bool]:  # giving everything now
-        return self.data[1:, :].tolist()
+        return self.data[1:, 7].tolist()
 
     # train model
 
@@ -291,6 +284,8 @@ class TrackModel:
         return random.randint(1000, 2000)
 
 # TODO: Section J will not exist, replace it with yard
+# TODO: refresh tables from UI in container every time setters are called
+# TODO: for getters, emit a signal in track model to track model container for track controller container to catch
 # Maybe give train model length if it struggles to calculate polarity
 
 # temp main

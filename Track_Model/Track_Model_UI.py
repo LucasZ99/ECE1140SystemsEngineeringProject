@@ -7,22 +7,23 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import Qt
-from Animated_Toggle import AnimatedToggle
+from Track_Model.animated_toggle import AnimatedToggle
 import sys
-from Track_Model import TrackModel
-from dynamic_map import DynamicMap
-from Track_Model_TB_UI import TestBenchWindow
+from Track_Model.Track_Model import TrackModel
+from Track_Model.dynamic_map import DynamicMap
+from Track_Model.Track_Model_TB_UI import TestBenchWindow
 
 
 ##############################
 # Main Window
 ##############################
 class Window(QMainWindow):
-    def __init__(self):
+    def __init__(self, track_model):
         super().__init__()
         # Backend
-        self.file_name = self.getFileName()
-        self.track_model = TrackModel(self.file_name)
+        # self.file_name = self.getFileName()
+        self.file_name = 'Green Line.xlsx'
+        self.track_model = track_model
         self.test_bench_window = TestBenchWindow()
         # Window Layout
         self.setWindowIcon(QIcon("icon.jpg"))
@@ -386,6 +387,7 @@ class Window(QMainWindow):
         for i in range(0, m):
             for j in range(0, n):
                 self.table3.setItem(i, j, QTableWidgetItem(str(self.table3_data[i, j])))
+
 
     def section_refresh(self):
         # data

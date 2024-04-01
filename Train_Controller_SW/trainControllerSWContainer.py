@@ -1,12 +1,27 @@
-import trainControllerSW
-
 # container class for calling everything from train
+import sys
+
+from PyQt6.QtWidgets import QApplication
+
+from Train_Controller_SW import trainControllerSW, trainControllerSWUI
+from Train_Controller_SW.trainControllerSWUI import UI
 
 
 class Container:
     def __init__(self):
-        self.trainController = trainControllerSW.TrainController()
-        return
+        self.trainCtrl = trainControllerSW.TrainController()
+
+    def show_ui(self):
+        app = QApplication.instance()
+
+        if app is None:
+            app = QApplication([])
+
+        self.ui = UI(self.trainCtrl)
+
+        self.ui.show()
+
+        app.exec()
 
     #  receiver functions
 
@@ -24,7 +39,9 @@ class Container:
         return
 
     def actspeedfromtrain(self, newspeed):
-        pass
+        self.trainCtrl.actualSpeed = newspeed
+        # self.trainCtrl.powercontrol
+        return
 
     def cmdspeedfromtrain(self, newcmdspd):
         pass
@@ -46,3 +63,12 @@ class Container:
 
     def beaconfromtrain(self, newbeacon):
         pass
+
+
+def main():
+    trainctrlcntr = Container()
+    trainctrlcntr.show_ui()
+
+
+if __name__ == "__main__":
+    main()

@@ -63,6 +63,7 @@ class UI(QMainWindow):
         self.switch_list_widget = None
         self.block_number = None
         self.manual_mode_window = None
+        self.lights_list = None
 
         # load ui
         current_dir = os.path.dirname(__file__)  # setting up to work in any dir
@@ -84,10 +85,14 @@ class UI(QMainWindow):
         self.browse_button = self.findChild(QPushButton, 'browse')
         self.filename = self.findChild(QLabel, 'filename')
         # self.occupancy_disp = self.findChild(QListWidget, 'block_number')
-        self.light_b6 = self.findChild(QPushButton, 'light_b6')
-        self.light_b6.setStyleSheet("background-color: rgb(0, 224, 34)")
-        self.light_b11 = self.findChild(QPushButton, 'light_b11')
-        self.light_b11.setStyleSheet("background-color: rgb(222, 62, 38)")
+        self.light_1_a = self.findChild(QPushButton, 'light_1_a')
+        self.light_1_a.setStyleSheet("background-color: rgb(0, 224, 34)")
+        self.light_1_b = self.findChild(QPushButton, 'light_1_b')
+        self.light_1_b.setStyleSheet("background-color: rgb(222, 62, 38)")
+        self.light_2_a = self.findChild(QPushButton, 'light_2_a')
+        self.light_2_a.setStyleSheet("background-color: rgb(0, 224, 34)")
+        self.light_2_b = self.findChild(QPushButton, 'light_2_b')
+        self.light_2_b.setStyleSheet("background-color: rgb(222, 62, 38)")
         self.rr_crossing = self.findChild(QPushButton, 'rr_crossing_button')
         self.rr_crossing.setStyleSheet("background-color: rgb(0, 224, 34)")
         # self.tb_button = self.findChild(QPushButton, 'tb_button')
@@ -101,6 +106,9 @@ class UI(QMainWindow):
 
         # Initialize occupancy list
         self.init_occupancy()
+
+        # Initialize lights
+        self.init_lights()
 
         # Initialize filename
         try:
@@ -156,20 +164,8 @@ class UI(QMainWindow):
             item = QListWidgetItem(str(index) + " " + str(occupancy))
             self.block_number.addItem(item)
 
-    # def open_tb(self):
-    #     if self.tb_window is None or not self.tb_window.isVisible():
-    #
-    #         # create testbench ui object
-    #         self.tb_window = TestBench.TbMainWindow(self.business_logic)
-    #
-    #         self.tb_window.occupancy_changed_signal.connect(self.business_logic.occupancy_changed)
-    #         self.tb_window.switch_changed_signal.connect(self.business_logic.switches_changed)
-    #         self.tb_window.authority_updated_signal.connect(self.business_logic.authority_updated)
-    #         self.tb_window.sug_speed_updated_signal.connect(self.business_logic.sug_speed_updated)
-    #
-    #         #show test bench window
-    #         # self.tb_window.show()
-
+    def init_lights(self):
+        self.lights_list = self.business_logic.lights_list
 
     def manual_mode_dialogue(self):
         self.manual_mode_window = ManualMode(self.business_logic)
@@ -182,10 +178,10 @@ class UI(QMainWindow):
     def update_light(self, light_num: int) -> None:
         if light_num == 6:
             self.light_b6.setStyleSheet("background-color: rgb(0, 224, 34)")  # Green
-            self.light_b11.setStyleSheet("background-color: rgb(222, 62, 38)")  # Red
+            self.light_1_b.setStyleSheet("background-color: rgb(222, 62, 38)")  # Red
         elif light_num == 11:
             self.light_b6.setStyleSheet("background-color: rgb(222, 62, 38)")
-            self.light_b11.setStyleSheet("background-color: rgb(0, 224, 34)")
+            self.light_1_b.setStyleSheet("background-color: rgb(0, 224, 34)")
 
     @pyqtSlot(bool)
     def activate_rr_crossing(self, active_bool: bool) -> None:
