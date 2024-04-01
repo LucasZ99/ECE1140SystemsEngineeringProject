@@ -85,7 +85,6 @@ class UI(QMainWindow):
         self.browse_button = self.findChild(QPushButton, 'browse')
         self.filename = self.findChild(QLabel, 'filename')
         # self.occupancy_disp = self.findChild(QListWidget, 'block_number')
-
         self.light_1_a = self.findChild(QPushButton, 'light_1_a')
         self.light_1_a.setStyleSheet("background-color: rgb(0, 224, 34)")
         self.light_1_b = self.findChild(QPushButton, 'light_1_b')
@@ -94,12 +93,10 @@ class UI(QMainWindow):
         self.light_2_a.setStyleSheet("background-color: rgb(0, 224, 34)")
         self.light_2_b = self.findChild(QPushButton, 'light_2_b')
         self.light_2_b.setStyleSheet("background-color: rgb(222, 62, 38)")
-
         self.rr_crossing = self.findChild(QPushButton, 'rr_crossing_button')
         self.rr_crossing.setStyleSheet("background-color: rgb(0, 224, 34)")
         # self.tb_button = self.findChild(QPushButton, 'tb_button')
         self.block_number = self.findChild(QListWidget, 'block_number')
-
 
         # Testbench
         # self.tb_window = None

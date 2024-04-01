@@ -9,6 +9,7 @@ from SystemTime.SystemTimeContainer import SystemTimeContainer
 from Track_Controller_SW.TrackControllerContainer import TrackControllerContainer
 from Track_Model.Track_Model_Container import TrackModelContainer
 from launcherui import LauncherUi
+from Train_Controller_SW.trainControllerSWContainer import Container
 
 
 class LauncherContainer(QObject):
@@ -20,6 +21,8 @@ class LauncherContainer(QObject):
         self.CTC_container = CTCContainer(self.time_module
                                           #self.track_controller_container
                                           )
+        self.CTC_container = CTCContainer(self.time_module)
+        self.trainControllerSWContainer = Container()
 
     def init_launcher_ui(self):
         app = QApplication.instance()
@@ -35,6 +38,7 @@ class LauncherContainer(QObject):
         launcher_ui.open_track_controller_ui_signal.connect(self.open_track_controller_ui)
         launcher_ui.open_track_controller_tb_ui_signal.connect(self.open_track_controller_tb_ui)
         launcher_ui.open_track_model_ui_signal.connect(self.open_track_model_ui)
+        launcher_ui.open_train_controller_ui_signal.connect(self.open_train_controller_sw_ui)
 
         # Show launcher
         launcher_ui.show()
@@ -57,4 +61,8 @@ class LauncherContainer(QObject):
     def open_track_model_ui(self):
         print("Open Track Model UI Signal received")
         self.track_model_container.show_ui()
+
+    def open_train_controller_sw_ui(self):
+        print("Open Train Controller SW UI Signal received")
+        self.trainControllerSWContainer.show_ui()
 
