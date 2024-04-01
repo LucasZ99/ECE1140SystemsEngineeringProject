@@ -85,6 +85,7 @@ class UI(QMainWindow):
         self.browse_button = self.findChild(QPushButton, 'browse')
         self.filename = self.findChild(QLabel, 'filename')
         # self.occupancy_disp = self.findChild(QListWidget, 'block_number')
+
         self.light_1_a = self.findChild(QPushButton, 'light_1_a')
         self.light_1_a.setStyleSheet("background-color: rgb(0, 224, 34)")
         self.light_1_b = self.findChild(QPushButton, 'light_1_b')
@@ -93,10 +94,12 @@ class UI(QMainWindow):
         self.light_2_a.setStyleSheet("background-color: rgb(0, 224, 34)")
         self.light_2_b = self.findChild(QPushButton, 'light_2_b')
         self.light_2_b.setStyleSheet("background-color: rgb(222, 62, 38)")
+
         self.rr_crossing = self.findChild(QPushButton, 'rr_crossing_button')
         self.rr_crossing.setStyleSheet("background-color: rgb(0, 224, 34)")
         # self.tb_button = self.findChild(QPushButton, 'tb_button')
         self.block_number = self.findChild(QListWidget, 'block_number')
+
 
         # Testbench
         # self.tb_window = None
@@ -165,7 +168,14 @@ class UI(QMainWindow):
             self.block_number.addItem(item)
 
     def init_lights(self):
-        self.lights_list = self.business_logic.lights_list
+        self.lights_list = np.copy(self.business_logic.lights_list)
+        self.light_1_a.setText(f"Light @ b{self.lights_list[0].block}")
+        self.light_1_b.setText(f"Light @ b{self.lights_list[1].block}")
+        self.light_2_a.setText(f"Light @ b{self.lights_list[2].block}")
+        self.light_2_b.setText(f"Light @ b{self.lights_list[3].block}")
+
+
+
 
     def manual_mode_dialogue(self):
         self.manual_mode_window = ManualMode(self.business_logic)
