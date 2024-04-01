@@ -1,8 +1,12 @@
 import sys
-from Train_Model import TrainBusinessLogic, TrainModel
+
+from PyQt6.QtCore import QObject
+from PyQt6.QtWidgets import QApplication
+
+from Train_Model import TrainBusinessLogic, TrainModel, UITrain
 
 
-class TrainModelContainer:
+class TrainModelContainer(QObject):
 
     track_inputs = dict()
     controller_inputs = dict()
@@ -10,8 +14,12 @@ class TrainModelContainer:
     ui_list = list()
     business_logic = TrainBusinessLogic()
     num_cars = 1
+    ui1: UITrain
+    ui2: UITrain
+    ui3: UITrain
 
     def __init__(self, bus=TrainBusinessLogic()):
+        super().__init__()
         self.business_logic = bus
         self.train_list = self.business_logic.train_list
 
@@ -106,5 +114,17 @@ class TrainModelContainer:
             self.controller_inputs.pop(index)
             self.business_logic.train_removed.emit(index)
             return True
+
+    def show_ui(self):
+        app = QApplication.instance()
+
+        if app is None:
+            app = QApplication([])
+
+        self.ui = UITrain(self.business_logic)
+        self.ui.show()
+
+        app.exec()
+
 
 

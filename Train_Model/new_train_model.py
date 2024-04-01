@@ -11,6 +11,9 @@ from Train_Model.block import Block
 
 
 class TrainModel:
+    max_force = 48065.673
+    min_force = 127380.52
+
     def __init__(self, numid=0, cars=1):
         self.ID = numid
         self.position = 0.0
@@ -49,6 +52,11 @@ class TrainModel:
             net_force = self.engine.force_from_engine(self.velocity, self.failure.engine_failure) - self.brakes.brake_force(self.failure.brake_failure) + self.new_block.grav_force()
         else:
             net_force = self.engine.force_from_engine(self.velocity, self.failure.engine_failure) - self.brakes.brake_force(self.failure.brake_failure) + self.old_block.grav_force()
+
+        if net_force >= self.max_force:
+            net_force = self.max_force
+        elif net_force < self.min_force:
+            net_force = self.min_force
 
         # acceleration calculation
         new_acc = net_force / self.train_const.train_mass()
