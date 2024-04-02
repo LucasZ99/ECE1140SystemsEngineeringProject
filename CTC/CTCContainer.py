@@ -16,8 +16,8 @@ class CTCContainer(QObject):
 
         self.track_controller_container_ref.occupancy_updated_signal.connect(self.update_occupancy)
         self.track_controller_container_ref.switch_toggled_signal.connect(self.update_switch_state)
-        self.track_controller_container_ref.lights_updted_signal.connect(self.update_lights)
-        self.track_controller_container_ref.rr_crossed_signal.connect(self.update_rr_crossings)
+        self.track_controller_container_ref.lights_updated_signal.connect(self.update_lights)
+        self.track_controller_container_ref.rr_crossing_toggled_signal.connect(self.update_rr_crossings)
 
 
     def show_ui(self):
@@ -45,7 +45,7 @@ class CTCContainer(QObject):
     def update_switch_state(self, switch: int):
         pass
 
-    @pyqtSlot(int)
+    @pyqtSlot(list)
     def update_lights(self, light: int):
         pass
 
