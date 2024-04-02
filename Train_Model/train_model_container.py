@@ -1,16 +1,27 @@
 import sys
-import new_train_model
-import new_train_ui
-from PyQt5.QtWidgets import (QApplication)
+
+from PyQt6.QtCore import QObject
+from PyQt6.QtWidgets import QApplication
+
+from Train_Model import TrainBusinessLogic, TrainModel, UITrain
 
 
-class TrainModelContainer:
+class TrainModelContainer(QObject):
 
-    train_list = dict()
     track_inputs = dict()
     controller_inputs = dict()
     passenger_return = dict()
     ui_list = list()
+    business_logic = TrainBusinessLogic()
+    num_cars = 1
+    ui1: UITrain
+    ui2: UITrain
+    ui3: UITrain
+
+    def __init__(self, bus=TrainBusinessLogic()):
+        super().__init__()
+        self.business_logic = bus
+        self.train_list = self.business_logic.train_list
 
     def track_model_inputs(self, input_list, index):
         # the list provided should have entries in this order: [commanded speed, vital authority, beacon, underground]
@@ -49,43 +60,49 @@ class TrainModelContainer:
             self.train_list[i].interior_functions.announcement = self.controller_inputs[i][5]
             self.train_list[i].interior_functions.interior_lights = self.controller_inputs[i][6]
             self.train_list[i].interior_functions.exterior_lights = self.controller_inputs[i][7]
+        self.business_logic.values_updated.emit()
 
     def track_update_block(self, block_vals, index):
         if not (index in self.train_list.keys()):
             return False
         # block_vals should be a list as such: [grade, elevation, block length]
         self.train_list[index].update_blocks(block_vals)
+        self.business_logic.block_updated.emit(index)
         return True
 
     def track_update_passengers(self, num, index):
         if not (index in self.train_list.keys()):
             return False
         self.passenger_return[index] = self.train_list[index].passengers.update_at_station(num, self.train_list[index].train_const.max_passengers())
+        self.business_logic.passengers_updated(index)
         return True
 
     def controller_update_temp(self, num, index):
         if not (index in self.train_list.keys()):
             return False
         self.train_list[index].heater.update_target(num)
+        self.business_logic.temp_updated(index)
         return True
 
     def physics_calculation(self, time):
         for i in self.train_list:
             self.train_list[i].physics_calculation(time)
+        self.business_logic.values_updated.emit()
 
     def add_train(self):
         if len(self.train_list) == 0:
-            self.train_list[1] = new_train_model.TrainModel()
+            self.train_list[1] = TrainModel(1, self.num_cars)
             self.track_inputs[1] = [0.0, 0, "", False]
             self.controller_inputs[1] = [0.0, 0.0, False, False, False, "", True, False]
 
             index = 1
         else:
             index = max(self.train_list.keys()) + 1
-            self.train_list[index] = new_train_model.TrainModel()
+            self.train_list[index] = TrainModel(index, self.num_cars)
             self.track_inputs[index] = [0.0, 0, "", False]
             self.controller_inputs[index] = [0.0, 0.0, False, False, False, "", True, False,]
 
+        self.business_logic.train_added.emit(index)
         return index
 
     def remove_train(self, index):
@@ -95,5 +112,19 @@ class TrainModelContainer:
             self.train_list.pop(index)
             self.track_inputs.pop(index)
             self.controller_inputs.pop(index)
+            self.business_logic.train_removed.emit(index)
             return True
+
+    def show_ui(self):
+        app = QApplication.instance()
+
+        if app is None:
+            app = QApplication([])
+
+        self.ui = UITrain(self.business_logic)
+        self.ui.show()
+
+        app.exec()
+
+
 

@@ -1,35 +1,36 @@
-import random
-import math
-import people
-import passenger_people
-import train_construction
-import engine
-import heater
-import signals
-import failures
-import interior_functions
-import brakes
-import block
+from Train_Model.passenger_people import PassengerPeople
+from Train_Model.people import People
+from Train_Model.train_construction import TrainConstruction
+from Train_Model.engine import Engine
+from Train_Model.heater import Heater
+from Train_Model.signals import Signals
+from Train_Model.failures import Failures
+from Train_Model.interior_functions import InteriorFunctions
+from Train_Model.brakes import Brakes
+from Train_Model.block import Block
 
 
 class TrainModel:
+    max_force = 48065.673
+    min_force = 127380.52
+
     def __init__(self, numid=0, cars=1):
         self.ID = numid
         self.position = 0.0
         self.velocity = 0.0  # in m/s
         self.acceleration = 0.0  # in m/s
 
-        self.crew = people.People()
-        self.passengers = passenger_people.PassengerPeople()
-        self.train_const = train_construction.TrainConstruction(cars)
-        self.engine = engine.Engine()
-        self.heater = heater.Heater()
-        self.signals = signals.Signals()
-        self.failure = failures.Failures()
-        self.interior_functions = interior_functions.InteriorFunctions()
-        self.brakes = brakes.Brakes()
-        self.old_block = block.Block()
-        self.new_block = block.Block()
+        self.crew = People()
+        self.passengers = PassengerPeople()
+        self.train_const = TrainConstruction(cars)
+        self.engine = Engine()
+        self.heater = Heater()
+        self.signals = Signals()
+        self.failure = Failures()
+        self.interior_functions = InteriorFunctions()
+        self.brakes = Brakes()
+        self.old_block = Block()
+        self.new_block = Block()
 
     # noinspection PyPep8Naming
 
@@ -48,9 +49,14 @@ class TrainModel:
 
     def physics_calculation(self, time):
         if self.position > self.train_const.train_length()/2:
-            net_force = self.engine.force_from_engine(self.velocity, self.failure.engine_failure) + self.brakes.brake_force(self.failure.brake_failure) + self.new_block.grav_force()
+            net_force = self.engine.force_from_engine(self.velocity, self.failure.engine_failure) - self.brakes.brake_force(self.failure.brake_failure) + self.new_block.grav_force()
         else:
-            net_force = self.engine.force_from_engine(self.velocity,self.failure.engine_failure) + self.brakes.brake_force(self.failure.brake_failure) + self.new_block.grav_force()
+            net_force = self.engine.force_from_engine(self.velocity, self.failure.engine_failure) - self.brakes.brake_force(self.failure.brake_failure) + self.old_block.grav_force()
+
+        if net_force >= self.max_force:
+            net_force = self.max_force
+        elif net_force < self.min_force:
+            net_force = self.min_force
 
         # acceleration calculation
         new_acc = net_force / self.train_const.train_mass()
