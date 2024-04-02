@@ -1,4 +1,4 @@
-from PyQt6.QtCore import QObject
+from PyQt6.QtCore import QObject, pyqtSlot
 from PyQt6.QtWidgets import QApplication
 from CTC import CTC
 from CTC.CTC_UI_Main import CTCMainWindow
@@ -14,7 +14,11 @@ class CTCContainer(QObject):
         self.system_time = system_time_container.system_time
         self.ctc = CTC(self.system_time)
 
-        # self.track_controller_container.occupancy_updated_green_signal.connect(self.update_occupancy)
+        self.track_controller_container_ref.occupancy_updated_signal.connect(self.update_occupancy)
+        self.track_controller_container_ref.switch_toggled_signal.connect(self.update_switch_state)
+        self.track_controller_container_ref.lights_updated_signal.connect(self.update_lights)
+        self.track_controller_container_ref.rr_crossing_toggled_signal.connect(self.update_rr_crossings)
+
 
     def show_ui(self):
         app = QApplication.instance()  # Get the QApplication instance
@@ -33,12 +37,26 @@ class CTCContainer(QObject):
         # if app_flag is True:
         app.exec()
 
-        # @pyqtSlot(list)
-        # def update_occupancy(self, occupancy_list):
+    @pyqtSlot(list)
+    def update_occupancy(self, occupancy_list: list):
+        pass
+
+    @pyqtSlot(int)
+    def update_switch_state(self, switch: int):
+        pass
+
+    @pyqtSlot(list)
+    def update_lights(self, light: int):
+        pass
+
+    @pyqtSlot(int)
+    def update_rr_crossings(self, rr_crossing: int):
+        pass
+
         # TODO: change update_block_occupancy to take a list instead of blocks:
         #     self.ctc.update_block_occupancy(line_id=0, occupancy_list=occupancy_list)
 
 
-if __name__ == "__main__":
-    system_time = SystemTime()
-    CTCContainer(CTC(system_time), system_time).show_ui()
+# if __name__ == "__main__":
+#     system_time = SystemTime()
+#     CTCContainer(CTC(system_time), system_time).show_ui()
