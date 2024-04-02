@@ -37,4 +37,4 @@ class PLC:  # watchdog behavior for the PLC data
     def plc_to_main(self):  # pushes the current data to main
         return self.rrCrossing, self.trafficLights, self.switches
 
-print("I am the mystical magical PLC creature")
+    #print("I am the mystical magical PLC creature")

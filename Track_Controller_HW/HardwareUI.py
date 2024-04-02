@@ -12,50 +12,20 @@
 import os
 import socket
 import time
-serverAddress = ('192.168.1.184', 2222)
-bufferSize = 1024
-UDPClient = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-serverAddress = ('192.168.1.184', 2222)
-bufferSize = 1024
-UDPClient = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
-# Vars
-switches = []
-blocks = []
-rrCrossing = []
-trafficLights = []
-mode = False
-modeButtonPressed = True
-switchButtonPressed = True
 
 
+class HWUI:
+    def __init__(self):  # create connection to server
+        self.serverAddress = ('192.168.1.184', 2222)
+        self.bufferSize = 1024
+        self.UDPClient = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        print("HW started")
 
-class HWUI():  # watchdog behavior for the TB data
-
-    def on_modified(self, event):
-        self.assign_hw_data()
-        self.show_hw_data()
-
-    def assign_hw_data(self):
-        global switches
-        global blocks
-        global rrCrossing
-        global trafficLights
-        global mode
-
-
-
-    def show_hw_data(self):  # send data through server to Pi
-        block_send = ''.join(map(str, map(int, blocks)))
-        block = block_send.encode('utf-8')
-
-        UDPClient.sendto(block, serverAddress)
-
-
-def send_to_main():  # pushes the displayable data to the txt file that the main module is watching
-
-
-
-    print("HW started")
-
+    def show_hw_data(self, blocks, mode, rr_cross, switches):  # send data through server to Pi
+        data_to_send = ''.join('1' if block else '0' for block in blocks)
+        data_to_send += '1' if mode else '0'  # Represent mode
+        data_to_send += '1' if rr_cross else '0'  # Represent rr_cross
+        data_to_send += '1' if switches else '0'  # Represent switches
+        self.UDPClient.sendto(data_to_send.encode('utf-8'), self.serverAddress)
+        print("Data sent to Pi")
 

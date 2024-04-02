@@ -2,6 +2,8 @@ from PyQt6.QtCore import QObject, pyqtSignal
 from PyQt6.QtCore import pyqtSlot
 import os
 import sys
+from Track_Controller_HW import PLCProgram
+from Track_Controller_HW.HardwareUI import HWUI
 
 current_dir = os.path.dirname(__file__)  # setting up dir to work in any location in a directory
 
@@ -14,7 +16,7 @@ class SlotsSigs(QObject):
     rr_crossing_signal = pyqtSignal(list)
 
     def __init__(self, mode: bool, authority: list, switches: list, blocks: list,
-                 suggested_speed: list, rr_crossing: list, traffic_lights: list):
+                 suggested_speed: list, rr_crossing: list):
         # assigning values to the signals
 
         #self.plc_import()  # import PLC
@@ -29,24 +31,29 @@ class SlotsSigs(QObject):
         self.blocks = blocks
         self.suggested_speed = suggested_speed
         self.rr_crossing = rr_crossing
-        self.traffic_lights = traffic_lights
+        self.hw_ui = HWUI()
 
     # Signal to update the occupancy
     @pyqtSlot(list)
     def new_occupancy(self, new_occupancy: list):
         print("new occupancy")
+        self.blocks = new_occupancy
+        self.hw_ui.show_hw_data(self.blocks, self.mode, self.rr_crossing, self.switches)
         self.occupancy_signal.emit(new_occupancy)
 
     # Signal to update the switches
     @pyqtSlot(list)
     def new_switches(self, new_switches: list):
         print("switch moved")
+        self.switches = new_switches
+        self.hw_ui.show_hw_data(self.blocks, self.mode, self.rr_crossing, self.switches)
         self.switches_signal.emit(new_switches)
 
     # Signal to update the suggested speed
     @pyqtSlot(list)
     def new_speed(self, new_speed: list):
         print("suggested speed changed")
+        self.suggested_speed = new_speed
         self.suggested_speed_signal.emit(new_speed)
 
     def plc_import(self):  # guarded import of PLC, checking for existence in a specified folder of a USB drive
@@ -71,3 +78,7 @@ class SlotsSigs(QObject):
         except Exception as e:
             print("Something went wrong while trying to import", e)
             sys.exit(1)
+
+    def send_to_hw(self):
+        print("Sending data to HW")
+        self.hw_ui.show_hw_data(self.blocks, self.mode, self.rr_crossing, self.switches)

@@ -28,21 +28,20 @@ from Track_Controller_HW import SlotsSigs
 
 
 class Tb_Ui(QMainWindow):
-    authority = 5
-    suggestedSpeed = [50]
-    numSwitches = 1
-    numBlocks = 105
-    switches = [False] * numSwitches
-    blocks = [False] * numBlocks
 
     occupancy_changed_signal = pyqtSignal(list)
     switch_changed_signal = pyqtSignal(list)
-    # authority_updated_signal = pyqtSignal(bool)
+    authority_updated_signal = pyqtSignal(bool)
     sug_speed_updated_signal = pyqtSignal(list)
     
     def __init__(self, slots_sigs: SlotsSigs):
         super(Tb_Ui, self).__init__()
-        
+
+        self.authority = slots_sigs.authority
+        self.suggestedSpeed = slots_sigs.suggested_speed
+        self.switches = slots_sigs.switches
+        self.blocks = slots_sigs.blocks
+
         self.slots_sigs = slots_sigs
         self.slots_sigs.occupancy_signal.connect(self.occupancy_changed_signal)
         self.slots_sigs.switches_signal.connect(self.switch_changed_signal)
@@ -72,21 +71,9 @@ class Tb_Ui(QMainWindow):
         self.blOccDropdown = QtWidgets.QComboBox(parent=self.centralwidget)
         self.blOccDropdown.setGeometry(QtCore.QRect(140, 40, 71, 22))
         self.blOccDropdown.setObjectName("blOccDropdown")
-        self.blOccDropdown.addItem("")
-        self.blOccDropdown.addItem("")
-        self.blOccDropdown.addItem("")
-        self.blOccDropdown.addItem("")
-        self.blOccDropdown.addItem("")
-        self.blOccDropdown.addItem("")
-        self.blOccDropdown.addItem("")
-        self.blOccDropdown.addItem("")
-        self.blOccDropdown.addItem("")
-        self.blOccDropdown.addItem("")
-        self.blOccDropdown.addItem("")
-        self.blOccDropdown.addItem("")
-        self.blOccDropdown.addItem("")
-        self.blOccDropdown.addItem("")
-        self.blOccDropdown.addItem("")
+        for i, block_val in enumerate(self.blocks):
+            self.blOccDropdown.addItem(f"Block {i}")
+
 
         self.groupBox = QtWidgets.QGroupBox(parent=self.centralwidget)
         self.groupBox.setGeometry(QtCore.QRect(9, 89, 351, 233))
@@ -204,21 +191,6 @@ class Tb_Ui(QMainWindow):
         self.setWindowTitle(_translate("self", "Track Controller Test Bench"))
         self.apply.setText(_translate("self", "Apply"))
         self.blOccLabel.setText(_translate("self", "Block Occupancy:"))
-        self.blOccDropdown.setItemText(0, _translate("self", "Block 1"))
-        self.blOccDropdown.setItemText(1, _translate("self", "Block 2"))
-        self.blOccDropdown.setItemText(2, _translate("self", "Block 3"))
-        self.blOccDropdown.setItemText(3, _translate("self", "Block 4"))
-        self.blOccDropdown.setItemText(4, _translate("self", "Block 5"))
-        self.blOccDropdown.setItemText(5, _translate("self", "Block 6"))
-        self.blOccDropdown.setItemText(6, _translate("self", "Block 7"))
-        self.blOccDropdown.setItemText(7, _translate("self", "Block 8"))
-        self.blOccDropdown.setItemText(8, _translate("self", "Block 9"))
-        self.blOccDropdown.setItemText(9, _translate("self", "Block 10"))
-        self.blOccDropdown.setItemText(10, _translate("self", "Block 11"))
-        self.blOccDropdown.setItemText(11, _translate("self", "Block 12"))
-        self.blOccDropdown.setItemText(12, _translate("self", "Block 13"))
-        self.blOccDropdown.setItemText(13, _translate("self", "Block 14"))
-        self.blOccDropdown.setItemText(14, _translate("self", "Block 15"))
         self.groupBox.setTitle(_translate("self", "Inputs from CTC:"))
         self.swSelLabel.setText(_translate("self", "Switch Selction:"))
         self.swSelDropdown.setItemText(0, _translate("self", "SW1"))

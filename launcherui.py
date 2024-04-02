@@ -14,6 +14,7 @@ class LauncherUi(QMainWindow):
     open_track_model_ui_signal = pyqtSignal()
     open_train_controller_ui_signal = pyqtSignal()
     open_train_model_ui_signal = pyqtSignal()
+    open_ctc_ui_signal = pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -36,6 +37,9 @@ class LauncherUi(QMainWindow):
         # Time Module
         self.time_module_button.clicked.connect(self.start_time_module_ui)
 
+        # CTC
+        self.CTC_button.clicked.connect(self.start_ctc_ui)
+
         # Track Controller
         self.track_controller_A_button.clicked.connect(self.start_track_controller_sw_a_ui)
         self.track_controller_A_testbench_button.clicked.connect(self.start_track_controller_a_tb_ui)
@@ -55,6 +59,10 @@ class LauncherUi(QMainWindow):
     def start_time_module_ui(self):
         self.open_time_module_ui_signal.emit()
         print("Time module button clicked")
+
+    def start_ctc_ui(self):
+        self.open_ctc_ui_signal.emit()
+        print("CTC button clicked")
 
     def start_track_controller_sw_a_ui(self):
         self.open_track_controller_ui_signal.emit("A")
