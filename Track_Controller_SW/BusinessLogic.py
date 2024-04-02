@@ -12,6 +12,7 @@ class BusinessLogic(QObject):
     switch_changed_index_signal = pyqtSignal(int)
     rr_crossing_signal = pyqtSignal(bool)
     light_signal = pyqtSignal(int)
+    lights_list_signal = pyqtSignal(list)
 
     def __init__(self, block_occupancy: list, switches_arr: list[Switch], lights_list: list,
                  plc_logic: PlcProgram, block_indexes: list, section: str):
@@ -72,6 +73,8 @@ class BusinessLogic(QObject):
             self.rr_crossing_signal.emit(True)
         else:
             self.rr_crossing_signal.emit(False)
+
+        self.lights_list_signal.emit(self.lights_list)
 
         # return the zero speed flag update
         return plc_result[3]

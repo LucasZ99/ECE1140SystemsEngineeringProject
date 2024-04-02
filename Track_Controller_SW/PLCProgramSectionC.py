@@ -5,7 +5,6 @@ import json
 def run_plc(occupancy_list):
     two_way_occupied = False
     loop_occupied = False
-    rr_active = False
     zero_speed_flags = [False] * 4
 
     # check if loop is occupied
@@ -39,7 +38,7 @@ def run_plc(occupancy_list):
         switch_loop = True
         switch_entry = False
 
-    return [switch_entry, switch_loop, rr_active, zero_speed_flags]
+    return [switch_entry, switch_loop, False, zero_speed_flags]
 
 
 def main():
