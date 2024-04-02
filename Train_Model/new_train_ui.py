@@ -1,12 +1,15 @@
 import sys
 
-from PyQt5.QtGui import QIcon
+from PyQt6.QtGui import QIcon
 
-import new_train_model
-from PyQt5 import uic
-from PyQt5.QtWidgets import (QMainWindow, QApplication, QLabel, QPushButton, QGroupBox,
-                             QCheckBox, QComboBox, QProgressBar, QLineEdit, QFileIconProvider)
+import os
+from PyQt6 import uic
+from PyQt6.QtWidgets import (QMainWindow, QApplication, QLabel, QPushButton, QGroupBox,
+                             QCheckBox, QComboBox, QProgressBar, QLineEdit)
+
 import random
+
+from Train_Model import TrainModel, TrainBusinessLogic
 
 
 class UITrain(QMainWindow):
@@ -14,15 +17,21 @@ class UITrain(QMainWindow):
     tons_per_kilogram = 0.00110231
     feet_per_meter = 3.28084
 
-    def __init__(self):
+    def __init__(self, bus=TrainBusinessLogic()):
         super(UITrain, self).__init__()
 
         # load the ui file
-        uic.loadUi("Train_Model_UI.ui", self)
+        current_dir = os.path.dirname(__file__)  # setting up to work in any dir
+        ui_path = os.path.join(current_dir, 'Train_Model_UI.ui')
+        try:
+            uic.loadUi(ui_path, self)
+        except Exception as e:
+            print("Error with loading UI file: ", e)
 
         # declare the train object
         self.train_dict = dict()
-        self.train = new_train_model.TrainModel()
+        self.train = TrainModel()
+        self.business_logic = bus
 
         # define widgets
         self.physicsButton = self.findChild(QPushButton, "physicsButton")
@@ -107,7 +116,12 @@ class UITrain(QMainWindow):
         self.populate_values()
 
         # define behavior
-        self.emerButton.setIcon(QIcon("red_triangle.png"))
+        current_dir = os.path.dirname(__file__)  # setting up to work in any dir
+        icon_path = os.path.join(current_dir, 'red_triangle.png')
+        try:
+            self.emerButton.setIcon(QIcon(icon_path))
+        except Exception as e:
+            print("Error with loading Icon file: ", e)
 
         self.phyGroup_tb.hide()
         self.trainGroup_tb.hide()
@@ -116,6 +130,13 @@ class UITrain(QMainWindow):
         self.tb = False
         self.ebp = False
         self.switching_trains = False
+
+        self.business_logic.values_updated.connect(self.populate_values)
+        self.business_logic.temp_updated.connect(self.index_update)
+        self.business_logic.passengers_updated.connect(self.index_update)
+        self.business_logic.block_updated.connect(self.index_update)
+        self.business_logic.train_added.connect(self.train_added)
+        self.business_logic.train_removed.connect(self.train_removed)
 
         self.trainSelect.currentIndexChanged.connect(self.combo_selection)
         self.physicsButton.pressed.connect(self.physics_test)
@@ -146,8 +167,20 @@ class UITrain(QMainWindow):
         self.leftDoorValue_tb.stateChanged.connect(self.left_door_change)
         self.rightDoorValue_tb.stateChanged.connect(self.right_door_change)
 
-        # show the app
-        self.show()
+    def index_update(self, index):
+        string = str(self.trainSelect.currentText())
+        if int(string[6:]) == index:
+            self.populate_values()
+
+    def train_added(self, index):
+        self.trainSelect.addItem(f'Train {index}')
+
+    def train_removed(self, index):
+        itemIndex = self.trainSelect.findText(f'Train {index}')
+        if itemIndex == -1:
+            return
+        else:
+            self.trainSelect.removeItem(itemIndex)
 
     def combo_selection(self):
         string = str(self.trainSelect.currentText())
@@ -414,5 +447,6 @@ class UITrain(QMainWindow):
 # initialize the app
 # app = QApplication(sys.argv)
 # UIWindow = UITrain()
+# UIWindow.show()
 # app.exec()
 

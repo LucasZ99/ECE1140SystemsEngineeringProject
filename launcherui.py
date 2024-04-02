@@ -13,6 +13,7 @@ class LauncherUi(QMainWindow):
     open_track_controller_tb_ui_signal = pyqtSignal(str)
     open_track_model_ui_signal = pyqtSignal()
     open_train_controller_ui_signal = pyqtSignal()
+    open_train_model_ui_signal = pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -41,6 +42,7 @@ class LauncherUi(QMainWindow):
         self.track_controller_B_testbench_button.clicked.connect(self.start_track_controller_b_tb_ui)
         self.track_controller_C_button.clicked.connect(self.start_track_controller_sw_c_ui)
         self.track_controller_C_testbench_button.clicked.connect(self.start_track_controller_c_tb_ui)
+        self.train_model_button.clicked.connect(self.start_train_model_ui)
 
         # Track Model
         self.track_model_button.clicked.connect(self.start_track_model_ui)
@@ -81,6 +83,10 @@ class LauncherUi(QMainWindow):
     def start_train_controller_ui(self):
         self.open_train_controller_ui_signal.emit()
         print("Train Controller ui button clicked")
+
+    def start_train_model_ui(self):
+        self.open_train_model_ui_signal.emit()
+        print("Train Model ui button clicked")
 
 
 def show_launcher_ui():

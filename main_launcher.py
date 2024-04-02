@@ -4,6 +4,7 @@ import threading
 from PyQt6.QtWidgets import QApplication
 
 from launchercontainer import LauncherContainer
+from Train_Model import UITrain
 
 
 def run_launcher():
