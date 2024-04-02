@@ -50,7 +50,6 @@ class TrackModel(QObject):
         self.full_path = ([0] + path_63_to_100 + path_85_to_77 + path_101_to_150 + path_28_to_13 + path_12_to_1 +
                           path_13_to_57)
 
-
     def get_data(self):
         return self.data
 
@@ -264,18 +263,20 @@ class TrackModel(QObject):
         self.train_dict_relative[self.train_count] = 0
         self.train_dict[self.train_count] = self.full_path[0]
         self.set_occupancy_from_train_presence()
+        print(f'new train spawned, train_count = {self.train_count}')
 
     def train_presence_changed(self, train_id: int):
-        self.train_dict_relative[train_id] += 1
-        if self.train_dict_relative[train_id] > 170:
+        if self.train_dict_relative[train_id] >= 170:
             # train goes back to yard
+            print('train going back to yard...')
             self.train_count -= 1
             del self.train_dict_relative[train_id]
             del self.train_dict[train_id]
         else:
+            self.train_dict_relative[train_id] += 1
             self.train_dict[train_id] = self.full_path[self.train_dict_relative[train_id]]
             self.set_occupancy_from_train_presence()
-            print(self.train_dict)
+            print(f'train {train_id} moved to {self.train_dict[train_id]}')
 
     def set_disembarking_passengers(self, station_id: int, disembarking_passengers: int):
         self.data[station_id, 21] = disembarking_passengers
