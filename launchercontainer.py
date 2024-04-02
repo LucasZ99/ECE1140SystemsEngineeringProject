@@ -10,7 +10,7 @@ from Track_Controller_SW.TrackControllerContainer import TrackControllerContaine
 from Track_Model.Track_Model_Container import TrackModelContainer
 from launcherui import LauncherUi
 from Train_Controller_SW.trainControllerSWContainer import Container
-from Train_Controller_HW.trainControllerHWContainer import Container
+from Train_Controller_HW.trainControllerHWContainer import TrainControler_HW_Container
 from Train_Model import TrainModelContainer
 
 
@@ -25,7 +25,7 @@ class LauncherContainer(QObject):
                                           )
         self.CTC_container = CTCContainer(self.time_module)
         self.trainControllerSWContainer = Container()
-        self.trainControllerHWContainer = Container()
+        self.trainControllerHWContainer = TrainControler_HW_Container()
         self.train_model_container = TrainModelContainer()
 
     def init_launcher_ui(self):

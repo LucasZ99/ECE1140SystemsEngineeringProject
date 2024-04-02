@@ -12,7 +12,7 @@ else:
     from .Tovarish_Belback_Jonah_Train_Controller_HW_UI_PyFirmata import *
 
 
-class Container:
+class TrainControler_HW_Container:
     def __init__(self,Testbench=False):
         self.main_Driver_arr = []
         self.main_TrainModel_arr = []
