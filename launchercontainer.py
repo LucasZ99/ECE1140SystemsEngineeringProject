@@ -42,6 +42,7 @@ class LauncherContainer(QObject):
         launcher_ui.open_track_model_ui_signal.connect(self.open_track_model_ui)
         launcher_ui.open_train_controller_ui_signal.connect(self.open_train_controller_ui)
         launcher_ui.open_train_model_ui_signal.connect(self.open_train_model_ui)
+        launcher_ui.open_ctc_ui_signal.connect(self.open_ctc_ui)
 
         # Show launcher
         launcher_ui.show()
@@ -52,6 +53,10 @@ class LauncherContainer(QObject):
     def open_time_module_ui(self):
         print("Open Time Module UI Signal received")
         self.time_module.show_ui()
+
+    def open_ctc_ui(self):
+        print("Open CTC UI Signal received")
+        self.ctc_container.show_ui()
 
     def open_track_controller_ui(self, section: str):
         print("Open Track Controller UI Signal received, section:", section)

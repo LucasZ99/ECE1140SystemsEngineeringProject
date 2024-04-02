@@ -9,12 +9,15 @@ from Track_Model.Track_Model_UI import Window
 
 
 class TrackModelContainer(QObject):
+
+    # Signals
+    new_block_occupancy_signal = pyqtSignal(list)
+
     def __init__(self):
         super().__init__()
         self.track_model = TrackModel("./Track_Model/Green Line.xlsx")
         self.track_model_ui = Window(self.track_model)
         # signals
-        self.new_block_occupancy_signal = pyqtSignal(list)
         self.track_model.new_block_occupancy_signal.connect(self.new_block_occupancy)
 
     # show ui
@@ -38,7 +41,7 @@ class TrackModelContainer(QObject):
 
     # Track Controller
 
-        # Receiving inputs
+    # Receiving inputs
 
     def update_authority(self, authority: list[int]):
         print('update authority called')
@@ -70,11 +73,12 @@ class TrackModelContainer(QObject):
         self.track_model.close_block(block_id)
 
         # Emitting signals
+
     def new_block_occupancy(self, block_occupancy: list[bool]):
         self.new_block_occupancy_signal.emit(block_occupancy)
 
     # Train Model
 
-        # Catching signals
+    # Catching signals
 
-        # Sending outputs
+    # Sending outputs
