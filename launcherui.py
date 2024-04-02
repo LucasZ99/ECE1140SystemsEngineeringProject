@@ -27,7 +27,8 @@ class LauncherUi(QMainWindow):
         self.track_controller_B_button = self.findChild(QPushButton, 'track_controller_b_button')
         self.track_controller_C_button = self.findChild(QPushButton, 'track_controller_c_button')
         self.track_model_button = self.findChild(QPushButton, 'track_model_button')
-        self.train_controller_button = self.findChild(QPushButton, 'train_controller_button')
+        self.train_controller_button = self.findChild(QPushButton, 'train_controller_button_SW')
+        #self.train_controller_button_HW = self.findChild(QPushButton, 'train_controller_button_HW')
         self.train_model_button = self.findChild(QPushButton, 'train_model_button')
         self.track_controller_A_testbench_button = self.findChild(QPushButton, 'track_controller_A_testbench_button')
         self.track_controller_B_testbench_button = self.findChild(QPushButton, 'track_controller_B_testbench_button')
@@ -91,6 +92,10 @@ class LauncherUi(QMainWindow):
     def start_train_controller_ui(self):
         self.open_train_controller_ui_signal.emit()
         print("Train Controller ui button clicked")
+
+    '''def start_train_controller_HW_ui(self):
+        self.open_train_controller_HW_ui_signal.emit()
+        print("Train Controller HW ui button clicked")'''
 
     def start_train_model_ui(self):
         self.open_train_model_ui_signal.emit()

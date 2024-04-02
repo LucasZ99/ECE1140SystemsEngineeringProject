@@ -9,7 +9,7 @@ from SystemTime.SystemTimeContainer import SystemTimeContainer
 from Track_Controller_SW.TrackControllerContainer import TrackControllerContainer
 from Track_Model.Track_Model_Container import TrackModelContainer
 from launcherui import LauncherUi
-from Train_Controller_SW.trainControllerSWContainer import Container
+from trainControllerTot_Container import TrainControler_Tot_Container
 from Train_Model import TrainModelContainer
 
 
@@ -19,8 +19,11 @@ class LauncherContainer(QObject):
         self.time_module = SystemTimeContainer()
         self.track_model_container = TrackModelContainer()
         self.track_controller_container = TrackControllerContainer(track_model=self.track_model_container)
-        self.ctc_container = CTCContainer(self.time_module, self.track_controller_container)
-        self.trainControllerSWContainer = Container()
+        self.CTC_container = CTCContainer(self.time_module
+                                          #self.track_controller_container
+                                          )
+        self.CTC_container = CTCContainer(self.time_module)
+        self.trainControllerContainer = TrainControler_Tot_Container()
         self.train_model_container = TrainModelContainer()
 
     def init_launcher_ui(self):
@@ -37,7 +40,7 @@ class LauncherContainer(QObject):
         launcher_ui.open_track_controller_ui_signal.connect(self.open_track_controller_ui)
         launcher_ui.open_track_controller_tb_ui_signal.connect(self.open_track_controller_tb_ui)
         launcher_ui.open_track_model_ui_signal.connect(self.open_track_model_ui)
-        launcher_ui.open_train_controller_ui_signal.connect(self.open_train_controller_sw_ui)
+        launcher_ui.open_train_controller_ui_signal.connect(self.open_train_controller_ui)
         launcher_ui.open_train_model_ui_signal.connect(self.open_train_model_ui)
         launcher_ui.open_ctc_ui_signal.connect(self.open_ctc_ui)
 
@@ -67,9 +70,9 @@ class LauncherContainer(QObject):
         print("Open Track Model UI Signal received")
         self.track_model_container.show_ui()
 
-    def open_train_controller_sw_ui(self):
-        print("Open Train Controller SW UI Signal received")
-        self.trainControllerSWContainer.show_ui()
+    def open_train_controller_ui(self):
+        print("Open Train Controller HW UI Signal received")
+        self.TrainControler_Tot_Container.show_ui()
 
     def open_train_model_ui(self):
         print("Open Train Model UI Signal received")
