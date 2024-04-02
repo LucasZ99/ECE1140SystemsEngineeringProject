@@ -2,7 +2,7 @@ import sys
 
 from PyQt6.QtGui import QIcon
 
-
+import os
 from PyQt6 import uic
 from PyQt6.QtWidgets import (QMainWindow, QApplication, QLabel, QPushButton, QGroupBox,
                              QCheckBox, QComboBox, QProgressBar, QLineEdit)
@@ -21,8 +21,12 @@ class UITrain(QMainWindow):
         super(UITrain, self).__init__()
 
         # load the ui file
-        print("im here 1")
-        uic.loadUi("Train_Model_UI.ui", self)
+        current_dir = os.path.dirname(__file__)  # setting up to work in any dir
+        ui_path = os.path.join(current_dir, 'Train_Model_UI.ui')
+        try:
+            uic.loadUi(ui_path, self)
+        except Exception as e:
+            print("Error with loading UI file: ", e)
 
         # declare the train object
         self.train_dict = dict()
@@ -56,7 +60,6 @@ class UITrain(QMainWindow):
         self.widthValue = self.findChild(QLabel, "widthValue")
         self.carsValue = self.findChild(QLabel, "carsValue")
         self.trainMassValue = self.findChild(QLabel, "trainMassValue")
-        print("here 4")
         self.crewValue = self.findChild(QLabel, "crewValue")
         self.passValue = self.findChild(QLabel, "passValue")
 
@@ -91,7 +94,6 @@ class UITrain(QMainWindow):
         self.trainGroup_tb = self.findChild(QGroupBox, "trainGroup_tb")
         self.lengthValue_tb = self.findChild(QLabel, "lengthValue_tb")
         self.heightValue_tb = self.findChild(QLabel, "heightValue_tb")
-        print("here 3")
         self.widthValue_tb = self.findChild(QLabel, "widthValue_tb")
         self.carsValue_tb = self.findChild(QLineEdit, "carsTextBox")
         self.trainMassValue_tb = self.findChild(QLabel, "trainMassValue_tb")
@@ -114,7 +116,12 @@ class UITrain(QMainWindow):
         self.populate_values()
 
         # define behavior
-        self.emerButton.setIcon(QIcon("red_triangle.png"))
+        current_dir = os.path.dirname(__file__)  # setting up to work in any dir
+        icon_path = os.path.join(current_dir, 'red_triangle.png')
+        try:
+            self.emerButton.setIcon(QIcon(icon_path))
+        except Exception as e:
+            print("Error with loading Icon file: ", e)
 
         self.phyGroup_tb.hide()
         self.trainGroup_tb.hide()
@@ -159,7 +166,6 @@ class UITrain(QMainWindow):
         self.intLightValue_tb.stateChanged.connect(self.int_light_change)
         self.leftDoorValue_tb.stateChanged.connect(self.left_door_change)
         self.rightDoorValue_tb.stateChanged.connect(self.right_door_change)
-        print("here 2")
 
     def index_update(self, index):
         string = str(self.trainSelect.currentText())
@@ -168,7 +174,6 @@ class UITrain(QMainWindow):
 
     def train_added(self, index):
         self.trainSelect.addItem(f'Train {index}')
-        print("im here")
 
     def train_removed(self, index):
         itemIndex = self.trainSelect.findText(f'Train {index}')
