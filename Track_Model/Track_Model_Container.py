@@ -77,6 +77,7 @@ class TrackModelContainer(QObject):
         # Emitting signals
 
     def new_block_occupancy(self, block_occupancy: list[bool]):
+        print('new block occupancy called from track model container')
         self.new_block_occupancy_signal.emit(block_occupancy)
 
     # Train Model
