@@ -1,15 +1,20 @@
 # container class for calling everything from train
 import sys
+import threading
 
 from PyQt6.QtWidgets import QApplication
 
-from Train_Controller_SW import trainControllerSW, trainControllerSWUI
+from Train_Controller_SW import trainControllerSW
 from Train_Controller_SW.trainControllerSWUI import UI
 
 
 class Container:
     def __init__(self):
         self.trainCtrl = trainControllerSW.TrainController()
+
+        # actions for automatic mode launch
+        # threading.Thread(target=self.trainCtrl.automode).start()  # uncomment this to see how auto mode will start
+        # threading.Thread(target=self.powerrefresh).start()
 
     def show_ui(self):
         app = QApplication.instance()
@@ -20,6 +25,7 @@ class Container:
         self.ui = UI(self.trainCtrl)
 
         self.ui.show()
+        # self.ui.refreshengine()
 
         app.exec()
 

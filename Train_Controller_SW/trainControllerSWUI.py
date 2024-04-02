@@ -31,11 +31,6 @@ class UI(QMainWindow):
         self.setFixedWidth(810)
         self.setFixedHeight(545)
 
-        # actions for automatic mode launch
-        threading.Thread(target=self.trainctrl.automode).start()
-        self.refreshengine()
-        # threading.Thread(target=self.powerrefresh).start()
-
         self.extLights.setEnabled(False)
         self.intLights.setEnabled(False)
         self.temp.setEnabled(False)
