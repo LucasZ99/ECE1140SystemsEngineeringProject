@@ -10,16 +10,14 @@ class CTCSchedule:
         self.system_time = system_time
 
     """
-    Returns the 
+    Returns the next train number to be dispatched to the next
     """
-
     def get_next_train_number(self) -> int:
         return self.current_train_number
 
     """
     Add a train to the queue of trains to be dispatched and sort the trains by departure time.
     """
-
     def schedule_train(self, train: Train) -> None:
         print("Train Scheduled.")
         print("Departure time: ", train.departure_time())
@@ -43,12 +41,15 @@ class CTCSchedule:
         trains_to_dispatch = []
         for train in self.train_list:
             # round to this current minute 
-            if (round(train.departure_time(), -2) == round(self.system_time.time(), -2)):
+            if round(train.departure_time(), -2) == round(self.system_time.time(), -2):
                 print("Train added to dispatch list")
                 trains_to_dispatch.append(train)
 
         return trains_to_dispatch
 
+    """
+    Returns a list of trains that are to be dispatched at the time called
+    """
     def dispatch_trains(self) -> list[Train]:
         dispatch_list = self.get_trains_to_dispatch()[:]
         for train in dispatch_list:
