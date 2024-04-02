@@ -1,9 +1,10 @@
 from pyfirmata2 import ArduinoMega, util, STRING_DATA
 import time#replace with shared time module when created and we do integration
-from Tovarish_Belback_Jonah_Train_Controller_Testbenchv2 import *#TestBench_JEB382
+#from Tovarish_Belback_Jonah_Train_Controller_Testbenchv2 import *#TestBench_JEB382
 from PyQt6.QtWidgets import *
 #import sys
 import linecache
+import threading
 
 
 #commanded speed: Auto/Manual: Turn into Verr, calc power with Kp Ki
@@ -96,6 +97,9 @@ class HW_UI_JEB382_PyFirmat():
         
         #TODO: ADJUST LENGTH AND INDEX BASED ON I/O dictionary
         
+        #it = util.Iterator(board)  
+        #it.start()
+        
         
         in_output_arr = [1.0,1.0, False,False, False,False, False,False, 0.0, ""]
         self.output_arr = in_output_arr
@@ -176,8 +180,8 @@ class HW_UI_JEB382_PyFirmat():
         self.Pcmd=0
         
         #TestBench
-        if TestBench:
-            self.HW_UI_fin(TestBench)
+        #if TestBench:
+        #self.HW_UI_fin(TestBench,2)
     
     def updateRead(self):
         self.Driver_arr[3] = self.BTN_CabnLgt.read()
@@ -242,6 +246,7 @@ class HW_UI_JEB382_PyFirmat():
         #use beacon pickup order to decide which direction its going
         #use beacon before station to decide if stoping at current block or next
         #every block flips in polarity, +/- on edge
+        distance_to_station=0
         
         
         #beacon information from file
@@ -253,6 +258,18 @@ class HW_UI_JEB382_PyFirmat():
         #print("<"+particular_line+">")
         particular_line =particular_line.split("\t")
         #print(particular_line)
+        
+        displace_buffer=10
+        #service
+        t1=( (0-float(self.TrainModel_arr[0]))/(-1.2 ) )*(5/18)
+        s1=0.5*(0+float(self.TrainModel_arr[0]))*t1*(5/18)#1/2 * u * t * conversion of km/hr to m/s
+        #emergency
+        t2=( (0-float(self.TrainModel_arr[0]))/(-2.73) )*(5/18)
+        s2=0.5*(0+float(self.TrainModel_arr[0]))*t2*(5/18)#1/2 * u * t * conversion of km/hr to m/s
+        
+        #if authority<4 and distance to station <= s1 + buffer: serivce brake, power=0, commanded speed=0
+        #elif authority<4 and distance to station <= s1: emergency brake, power=0, commanded speed=0
+        #else:
         
         
         #fill out self.output_arr and self.Announcements
@@ -332,25 +349,25 @@ class HW_UI_JEB382_PyFirmat():
 
     #[{!!!!!!!!!!!!!!!!!!!!!!!!}]
     #can call this just as its class, this implies its not getting information from a testbench which requires threading
-    def HW_UI_mainloop_fast(self):
+    def HW_UI_mainloop_fast(self,printout):
         time.sleep(2)
         ptime = time.time()
-        global printout
+        #global printout
         self.updateTot()
         print(f"Driver TrainC #1:\t{self.Driver_arr}\t{'AUTO' if not self.Mode else 'MANUAL'}")
         while True:
             self.updateTot()
-            if time.time()-ptime%2==0: print("hi")
-            #if printout == 1: print(f"Driver TrainC #1:\t{self.Driver_arr}\t{'AUTO' if not self.Mode else 'MANUAL'}")
-            #elif printout == 2: print(f"TrainModel TrainC #1:\t{self.TrainModel_arr} {'AUTO' if not self.Mode else 'MANUAL'}")
-            #elif printout == 3: print(f"Output TrainC #1:\t{self.Output_arr}\t{'AUTO' if not self.Mode else 'MANUAL'}")
+            #if time.time()-ptime%2==0: print("hi")
+            if printout == 1: print(f"Driver TrainC #1:\t{self.Driver_arr}\t{'AUTO' if not self.Mode else 'MANUAL'}")
+            elif printout == 2: print(f"TrainModel TrainC #1:\t{self.TrainModel_arr} {'AUTO' if not self.Mode else 'MANUAL'}")
+            elif printout == 3: print(f"Output TrainC #1:\t{self.Output_arr}\t{'AUTO' if not self.Mode else 'MANUAL'}")
             #print(self.Mode)
-            if self.Mode or not self.Mode: sys.stdout.write("")
+            #if self.Mode or not self.Mode: sys.stdout.write("")
             
 
 
-    def HW_UI_fin(self, TestBench=False):
-        t1 = threading.Thread(target=self.HW_UI_mainloop_fast, args=())
+    def HW_UI_fin(self, TestBench=False, printout=3):
+        t1 = threading.Thread(target=self.HW_UI_mainloop_fast, args=(printout))
         t1.start()
         
         if TestBench:
@@ -358,6 +375,17 @@ class HW_UI_JEB382_PyFirmat():
             t2.start()
             t2.join()
         t1.join()
+        
+def TC_HW_init(driver,trainmodel,output,TestB=False):
+    Arduino = True
+    
+    it = util.Iterator(board)  
+    it.start()
+    
+    return  HW_UI_JEB382_PyFirmat(driver,
+                                    trainmodel,
+                                    output,
+                                    TestB)
 
 
 if __name__ == "__main__":
@@ -374,8 +402,8 @@ if __name__ == "__main__":
     it.start()
     
     #global glob_UI
-    global printout
-    printout=2
+    #global printout
+    #printout=2
     #print("-1234567890abcdefghijklmnopqrstuvvvvv")
     glob_UI = HW_UI_JEB382_PyFirmat(main_Driver_arr,
                                     main_TrainModel_arr,
