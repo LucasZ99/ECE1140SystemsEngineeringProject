@@ -9,6 +9,7 @@ from PyQt6.QtWidgets import QApplication
 class TrackModel(QObject):
     # signals
     new_block_occupancy_signal = pyqtSignal(list)
+    new_ticket_sales_signal = pyqtSignal(int)
 
     def __init__(self, file_name):
         super().__init__()
@@ -318,9 +319,10 @@ class TrackModel(QObject):
     def get_tm_embarking_passengers(self, station_block: int) -> int:
         return self.data[station_block, 17]
 
-    # ctc
-    def get_ctc_ticket_sales(self):
-        return random.randint(1000, 2000)
+    # ctc (technically still track controller)
+    def emit_ctc_ticket_sales(self) -> list[bool]:
+        self.new_ticket_sales_signal.emit(self.ticket_sales)
+        return self.ticket_sales
 
 # TODO: Section J will not exist, replace it with yard
 # TODO: refresh tables from UI in container every time setters are called

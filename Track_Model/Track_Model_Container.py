@@ -12,6 +12,7 @@ class TrackModelContainer(QObject):
 
     # Signals
     new_block_occupancy_signal = pyqtSignal(list)
+    new_ticket_sales_signal = pyqtSignal(int)
 
     def __init__(self):
         super().__init__()
@@ -20,6 +21,7 @@ class TrackModelContainer(QObject):
 
         # connect internal signals
         self.track_model.new_block_occupancy_signal.connect(self.new_block_occupancy)
+        self.track_model.new_ticket_sales_signal.connect(self.new_ticket_sales)
         # connect external signals
         # self.train_model.signal.connect(self.function)
     # show ui
@@ -80,6 +82,9 @@ class TrackModelContainer(QObject):
         print('new block occupancy called from track model container')
         self.new_block_occupancy_signal.emit(block_occupancy)
 
+    def new_ticket_sales(self, ticket_sales: int):
+        print('new ticket sales called from track model container')
+        self.new_ticket_sales_signal.emit(ticket_sales)
     # Train Model
 
     # Catching signals
