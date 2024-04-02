@@ -17,9 +17,11 @@ class TrackModelContainer(QObject):
         super().__init__()
         self.track_model = TrackModel("./Track_Model/Green Line.xlsx")
         self.track_model_ui = Window(self.track_model)
-        # signals
-        self.track_model.new_block_occupancy_signal.connect(self.new_block_occupancy)
 
+        # connect internal signals
+        self.track_model.new_block_occupancy_signal.connect(self.new_block_occupancy)
+        # connect external signals
+        # self.train_model.signal.connect(self.function)
     # show ui
 
     def show_ui(self):

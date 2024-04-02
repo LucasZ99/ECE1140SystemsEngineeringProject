@@ -215,13 +215,15 @@ class TrackModel(QObject):
             self.set_block_occupancy(block, True)
         else:
             self.set_block_occupancy(block, False)
-        # self.emit_tc_block_occupancy()
+        print('PRE EMIT')
+        self.emit_tc_block_occupancy()
+        print('POST EMIT')
 
     def set_occupancy_from_train_presence(self):
         # key = train id, value = block id
         for key in self.train_dict:
             self.set_block_occupancy(self.train_dict[key], True)
-        # self.emit_tc_block_occupancy()
+        self.emit_tc_block_occupancy()
 
     #
     #
@@ -285,7 +287,8 @@ class TrackModel(QObject):
 
     # track controller
 
-    def get_tc_block_occupancy(self) -> list[bool]:  # giving everything now
+    def emit_tc_block_occupancy(self) -> list[bool]:  # giving everything now
+        self.new_block_occupancy_signal.emit(self.data[1:, 7].tolist())
         return self.data[1:, 7].tolist()
 
     # train model
