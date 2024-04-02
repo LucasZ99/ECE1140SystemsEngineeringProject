@@ -24,8 +24,29 @@ class TrackModel(QObject):
                 self.data[i, 17] = random.randint(1, self.data[i, 16])
         self.authority = []
         self.speed = []
+        self.train_dict_relative = {}
         self.train_dict = {}
         self.train_count = 0
+
+        # hardcoded
+        # Step 1: 12 to 1
+        path_12_to_1 = list(range(12, 0, -1))
+        # Step 2: 13 to 57
+        path_13_to_57 = list(range(13, 58))
+        # Step 3: 0
+        # Step 4: 63 to 100
+        path_63_to_100 = list(range(63, 101))
+        # Step 5: 85 to 77
+        path_85_to_77 = list(range(85, 76, -1))
+        # Step 6: 101 to 150
+        path_101_to_150 = list(range(101, 151))
+        # Step 7: 28 to 13
+        path_28_to_13 = list(range(28, 12, -1))
+        # Combining all paths, with explicit jumps where needed
+        self.full_path = ([0] + path_63_to_100 + path_85_to_77 + path_101_to_150 + path_28_to_13 + path_12_to_1 +
+                          path_13_to_57)
+        # signals
+        self.new_block_occupancy_signal = pyqtSignal(list)
 
     def get_data(self):
         return self.data
@@ -130,6 +151,7 @@ class TrackModel(QObject):
         if len(self.data) == 0:
             print('***\nExiting, Data input is empty\n***')
             exit()
+
     # is working for initialization but not for setting data
 
     def get_block_table(self, section_id):
@@ -138,7 +160,7 @@ class TrackModel(QObject):
         # everything comes from data except occupancy (from train model) and temp (from temp controls)
         # but even those values will be stored in our data
         block_table[0, :] = ['Block', 'Length', 'Grade', 'Speed Limit', 'Elevation', 'Occupancy', 'Temperature']
-        block_table[1:n+1, 0:7] = self.get_section(section_id)[:, 2:9]
+        block_table[1:n + 1, 0:7] = self.get_section(section_id)[:, 2:9]
         return block_table
 
     def get_station_table(self, section_id):
@@ -151,7 +173,7 @@ class TrackModel(QObject):
     def get_infrastructure_table(self, section_id):
         arr = self.get_section(section_id)[:, [9, 2, 11]]
         filtered_arr = arr[~np.isnan(np.array([len(str(x)) if isinstance(x, str) else x for x in arr[:, 0]])) & (
-                    np.char.find(arr[:, 0].astype(str), "Station") == -1)]
+                np.char.find(arr[:, 0].astype(str), "Station") == -1)]
         return filtered_arr
 
     def set_env_temperature(self, temperature):
@@ -169,7 +191,7 @@ class TrackModel(QObject):
             heaters[heaters == 1] = 0
         for i in range(0, len(heaters)):
             if heaters[i] == 1:
-                self.data[i+1, 8] = 90
+                self.data[i + 1, 8] = 90
 
     def set_power_failure(self, block, value):
         self.data[block, 13] = value
@@ -182,20 +204,22 @@ class TrackModel(QObject):
     def set_broken_rail_failure(self, block, value):
         self.data[block, 15] = value
         self.set_occupancy_from_failures(block)
-        # this block can no longer be occupied if value = 1
 
     def set_occupancy_from_failures(self, block):
         p = self.data[block, 13]
         tc = self.data[block, 14]
         br = self.data[block, 15]
-
         if p or tc or br:
             self.set_block_occupancy(block, True)
+        else:
+            self.set_block_occupancy(block, False)
+        # self.emit_tc_block_occupancy()
 
     def set_occupancy_from_train_presence(self):
         # key = train id, value = block id
-        for key, value in self.train_dict:
-            self.set_block_occupancy(value, True)
+        for key in self.train_dict:
+            self.set_block_occupancy(self.train_dict[key], True)
+        # self.emit_tc_block_occupancy()
 
     #
     #
@@ -234,12 +258,21 @@ class TrackModel(QObject):
 
     def train_spawned(self):
         self.train_count += 1
-        self.train_dict[self.train_count] = 63
+        self.train_dict_relative[self.train_count] = 0
+        self.train_dict[self.train_count] = self.full_path[0]
         self.set_occupancy_from_train_presence()
 
     def train_presence_changed(self, train_id: int):
-        self.train_dict[train_id] += 1  # TODO: actually find next with adjacency list
-        self.set_occupancy_from_train_presence()
+        self.train_dict_relative[train_id] += 1
+        if self.train_dict_relative[train_id] > 170:
+            # train goes back to yard
+            self.train_count -= 1
+            del self.train_dict_relative[train_id]
+            del self.train_dict[train_id]
+        else:
+            self.train_dict[train_id] = self.full_path[self.train_dict_relative[train_id]]
+            self.set_occupancy_from_train_presence()
+            print(self.train_dict)
 
     def set_disembarking_passengers(self, station_id: int, disembarking_passengers: int):
         self.data[station_id, 21] = disembarking_passengers
@@ -258,7 +291,7 @@ class TrackModel(QObject):
 
     def get_tm_speed(self, train_id: int) -> list[float]:
         return self.speed
-    
+
     def get_tm_beacon(self, train_id: int) -> str:
         block_id = train_id
         return self.data[block_id, 11]

@@ -464,13 +464,13 @@ path_101_to_150 = list(range(101, 151))
 path_28_to_13 = list(range(28, 12, -1))
 
 # Combining all paths, with explicit jumps where needed
-full_path = path_12_to_1 + \
-            path_13_to_57 + \
-            [0] + \
+full_path = [0] + \
             path_63_to_100 + \
             path_85_to_77 + \
             path_101_to_150 + \
-            path_28_to_13
+            path_28_to_13 + \
+            path_12_to_1 + \
+            path_13_to_57
 
 # Printing the full path
 print(full_path)

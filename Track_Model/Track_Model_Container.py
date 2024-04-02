@@ -1,7 +1,7 @@
 import os
 import sys
 
-from PyQt6.QtCore import QObject
+from PyQt6.QtCore import QObject, pyqtSignal
 from PyQt6.QtWidgets import QApplication
 
 from Track_Model.Track_Model import TrackModel
@@ -13,6 +13,9 @@ class TrackModelContainer(QObject):
         super().__init__()
         self.track_model = TrackModel("./Track_Model/Green Line.xlsx")
         self.track_model_ui = Window(self.track_model)
+        # signals
+        self.new_block_occupancy_signal = pyqtSignal(list)
+        self.track_model.new_block_occupancy_signal.connect(self.new_block_occupancy)
 
     # show ui
 
@@ -35,6 +38,8 @@ class TrackModelContainer(QObject):
 
     # Track Controller
 
+        # Receiving inputs
+
     def update_authority(self, authority: list[int]):
         print('update authority called')
         self.track_model.update_authority(authority)
@@ -47,7 +52,6 @@ class TrackModelContainer(QObject):
     def toggle_switch(self, block_id: int):
         print('toggle switch called')
         self.track_model.toggle_switch(block_id)
-        self.track_model_ui.data_and_tables_refresh()
 
     def toggle_signal(self, block_id: int):
         print('toggle signal called')
@@ -65,3 +69,12 @@ class TrackModelContainer(QObject):
         print('close block called')
         self.track_model.close_block(block_id)
 
+        # Emitting signals
+    def new_block_occupancy(self, block_occupancy: list[bool]):
+        self.new_block_occupancy_signal.emit(block_occupancy)
+
+    # Train Model
+
+        # Catching signals
+
+        # Sending outputs
