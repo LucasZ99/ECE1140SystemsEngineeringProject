@@ -148,7 +148,7 @@ class UI(QMainWindow):
 
     # must initialize with business object data, then have it dynamically update when running
     def init_occupancy(self) -> None:
-        self.block_indexes = np.copy(self.business_logic.block_indexes)
+        self.block_indexes = copy(self.business_logic.block_indexes)
         self.block_number.clear()
         for index, occupancy in zip(self.business_logic.block_indexes, self.business_logic.occupancy_list):
             # for occupancy in self.business_logic.occupancy_list:
@@ -165,11 +165,34 @@ class UI(QMainWindow):
             self.block_number.addItem(item)
 
     def init_lights(self):
-        self.lights_list = np.copy(self.business_logic.lights_list)
+        self.lights_list = copy(self.business_logic.lights_list)
         self.light_1_a.setText(f"Light @ b{self.lights_list[0].block}")
         self.light_1_b.setText(f"Light @ b{self.lights_list[1].block}")
         self.light_2_a.setText(f"Light @ b{self.lights_list[2].block}")
         self.light_2_b.setText(f"Light @ b{self.lights_list[3].block}")
+
+    # only the signal that should be green is sent
+    @pyqtSlot(int)
+    def update_light(self, light_num: int) -> None:
+        if light_num == 0:
+            # set light_1_a green
+            self.light_1_a.setStyleSheet("background-color: rgb(0, 224, 34)")
+            self.light_1_b.setStyleSheet("background-color: rgb(222, 62, 38)")
+        elif light_num == 1:
+            # set light_1_b green
+            self.light_1_b.setStyleSheet("background-color: rgb(0, 224, 34)")
+            self.light_1_a.setStyleSheet("background-color: rgb(222, 62, 38)")
+        elif light_num == 2:
+            # set light_2_a green
+            self.light_2_a.setStyleSheet("background-color: rgb(0, 224, 34)")
+            self.light_2_b.setStyleSheet("background-color: rgb(222, 62, 38)")
+        elif light_num == 3:
+            # set light_2_b green
+            self.light_2_b.setStyleSheet("background-color: rgb(0, 224, 34)")
+            self.light_2_a.setStyleSheet("background-color: rgb(222, 62, 38)")
+
+
+
 
     def manual_mode_dialogue(self):
         self.manual_mode_window = ManualMode(self.business_logic)
@@ -178,14 +201,7 @@ class UI(QMainWindow):
         self.manual_mode_window.show()
         self.show()
 
-    @pyqtSlot(int)
-    def update_light(self, light_num: int) -> None:
-        if light_num == 6:
-            self.light_b6.setStyleSheet("background-color: rgb(0, 224, 34)")  # Green
-            self.light_1_b.setStyleSheet("background-color: rgb(222, 62, 38)")  # Red
-        elif light_num == 11:
-            self.light_b6.setStyleSheet("background-color: rgb(222, 62, 38)")
-            self.light_1_b.setStyleSheet("background-color: rgb(0, 224, 34)")
+
 
     @pyqtSlot(bool)
     def activate_rr_crossing(self, active_bool: bool) -> None:
