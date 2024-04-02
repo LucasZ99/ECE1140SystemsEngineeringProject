@@ -7,7 +7,11 @@ from PyQt6.QtWidgets import QApplication
 
 
 class TrackModel(QObject):
+    # signals
+    new_block_occupancy_signal = pyqtSignal(list)
+
     def __init__(self, file_name):
+        super().__init__()
         # d = pd.read_excel(file_name, header=None)  # We will also load our header row, and block IDs will map to index
         # self.data = d.to_numpy()
         # self.check_data()
@@ -45,8 +49,7 @@ class TrackModel(QObject):
         # Combining all paths, with explicit jumps where needed
         self.full_path = ([0] + path_63_to_100 + path_85_to_77 + path_101_to_150 + path_28_to_13 + path_12_to_1 +
                           path_13_to_57)
-        # signals
-        self.new_block_occupancy_signal = pyqtSignal(list)
+
 
     def get_data(self):
         return self.data
