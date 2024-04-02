@@ -36,11 +36,15 @@ import threading
 
 
 
-global board,Pmax,Acc_Lim,DeAcc_Lim
+global board,Pmax,Acc_Lim,DeAcc_Lim,NoHW
 Pmax=10000
 Acc_Lim=0.5
 DeAcc_Lim=1.2#train spec page (1.20 is service brake)
-board = ArduinoMega('COM7')
+try:
+    board = ArduinoMega('COM7')
+except:
+    NoHW=True
+    print("No Train Controller HW detected: Arduino COM")
 
 #mini classes---------------------------------------------------------
 class LED_PyF():
@@ -140,38 +144,44 @@ class HW_UI_JEB382_PyFirmat():
         self.init_clk = time.time()#replace with shared time module when created and we do integration
         
         #input sets
-        self.TCK_Kp     = POT_PyF(0)
-        self.TCK_Ki     = POT_PyF(1)
-        self.TCK_CmdSpd = POT_PyF(2)
-        self.TCK_Temp   = POT_PyF(3)
+        try:
+            self.TCK_Kp     = POT_PyF(0)
+            self.TCK_Ki     = POT_PyF(1)
+            self.TCK_CmdSpd = POT_PyF(2)
+            self.TCK_Temp   = POT_PyF(3)
+            
+            self.BTN_CabnLgt = BTN_PyF(38)
+            self.BTN_HeadLgt = BTN_PyF(39)#
+            self.BTN_Door_L  = BTN_PyF(42)
+            self.BTN_Door_R  = BTN_PyF(44)#
+            self.BTN_EBRK    = BTN_PyF(46)
+            self.BTN_SBRK    = BTN_PyF(48)#
+            self.BTN_DisPaEB = BTN_PyF(50)#
+            self.BTN_Mode    = BTN_PyF(52)#
+            
+            #LEDs
+            self.LED_CabnLgt    = LED_PyF(22)
+            self.LED_HeadLgt    = LED_PyF(23)
+            self.LED_Door_L     = LED_PyF(24)
+            self.LED_Door_R     = LED_PyF(25)
+            self.LED_Pass_EB    = LED_PyF(26)
+            self.LED_Track_Circ = LED_PyF(27)
+            self.LED_Stat_Side2 = LED_PyF(28)
+            self.LED_Stat_Side1 = LED_PyF(29)
+            self.LED_Sig_Fail   = LED_PyF(30)
+            self.LED_Eng_Fail   = LED_PyF(31)
+            self.LED_Brk_Fail   = LED_PyF(32)
+            self.LED_EBRK       = LED_PyF(33)
+            self.LED_SBRK       = LED_PyF(34)
+            
+            self.Announcements=""
+            
+            self.DISP = DISP_PyF()
         
-        self.BTN_CabnLgt = BTN_PyF(38)
-        self.BTN_HeadLgt = BTN_PyF(39)#
-        self.BTN_Door_L  = BTN_PyF(42)
-        self.BTN_Door_R  = BTN_PyF(44)#
-        self.BTN_EBRK    = BTN_PyF(46)
-        self.BTN_SBRK    = BTN_PyF(48)#
-        self.BTN_DisPaEB = BTN_PyF(50)#
-        self.BTN_Mode    = BTN_PyF(52)#
-        
-        #LEDs
-        self.LED_CabnLgt    = LED_PyF(22)
-        self.LED_HeadLgt    = LED_PyF(23)
-        self.LED_Door_L     = LED_PyF(24)
-        self.LED_Door_R     = LED_PyF(25)
-        self.LED_Pass_EB    = LED_PyF(26)
-        self.LED_Track_Circ = LED_PyF(27)
-        self.LED_Stat_Side2 = LED_PyF(28)
-        self.LED_Stat_Side1 = LED_PyF(29)
-        self.LED_Sig_Fail   = LED_PyF(30)
-        self.LED_Eng_Fail   = LED_PyF(31)
-        self.LED_Brk_Fail   = LED_PyF(32)
-        self.LED_EBRK       = LED_PyF(33)
-        self.LED_SBRK       = LED_PyF(34)
-        
-        self.Announcements=""
-        
-        self.DISP = DISP_PyF()
+        except:
+            global NoHW
+            NoHW = True
+            print("No Train Controller HW detected")
         
         #PowerCalc Inits
         self.uk1=0
@@ -339,9 +349,11 @@ class HW_UI_JEB382_PyFirmat():
     
         
     def updateTot(self):
-        self.updateRead()
-        self.updateCalc()
-        self.updateDisplay()
+        global NoHW
+        if not NoHW:
+            self.updateRead()
+            self.updateCalc()
+            self.updateDisplay()
         
     def __del__(self):
         print('HW_UI_JEB382_PyFirmat: Destructor called')
@@ -355,14 +367,13 @@ class HW_UI_JEB382_PyFirmat():
         time.sleep(2)
         #ptime = time.time()
         #global printout
-        self.updateTot()
-        print(f"Driver TrainC #1:\t{self.Driver_arr}\t{'AUTO' if not self.Mode else 'MANUAL'}")
-        while True:
+        global NoHW
+        while True or not NoHW:
             self.updateTot()
             #if time.time()-ptime%2==0: print("hi")
-            if self.printout == 1: print(f"Driver TrainC #1:\t{self.Driver_arr}\t{'AUTO' if not self.Mode else 'MANUAL'}")
-            elif self.printout == 2: print(f"TrainModel TrainC #1:\t{self.TrainModel_arr} {'AUTO' if not self.Mode else 'MANUAL'}")
-            elif self.printout == 3: print(f"Output TrainC #1:\t{self.output_arr}\t{'AUTO' if not self.Mode else 'MANUAL'}")
+            if self.printout == 1 and not NoHW: print(f"Driver TrainC #1:\t{self.Driver_arr}\t{'AUTO' if not self.Mode else 'MANUAL'}")
+            elif self.printout == 2 and not NoHW: print(f"TrainModel TrainC #1:\t{self.TrainModel_arr} {'AUTO' if not self.Mode else 'MANUAL'}")
+            elif self.printout == 3 and not NoHW: print(f"Output TrainC #1:\t{self.output_arr}\t{'AUTO' if not self.Mode else 'MANUAL'}")
             #print(self.Mode)
             #if self.Mode or not self.Mode: sys.stdout.write("")
             
@@ -402,8 +413,11 @@ if __name__ == "__main__":
     main_output_arr = [] #[7.00]*90
     #w = HW_UI_JEB382_PyFirmat(main_Driver_arr,main_TrainModel_arr,True)
     
-    it = util.Iterator(board)  
-    it.start()
+    try:
+        it = util.Iterator(board)  
+        it.start()
+    except:
+        print("No Train Controller HW detected: util.Iterator")
     
     #global glob_UI
     #global printout
