@@ -46,10 +46,10 @@ class TrainControler_HW_Container:
         self.trainCtrl.updateDisplay()  #update arduino display
         return self.main_output_arr
 
-def main():
-    trainctrlcntr = Container()
+def TrainC_HW_main():
+    trainctrlcntr = TrainControler_HW_Container()
     trainctrlcntr.show_ui()
 
 
 if __name__ == "__main__":
-    main()
+    TrainC_HW_main()

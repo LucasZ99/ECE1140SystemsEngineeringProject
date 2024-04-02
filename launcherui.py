@@ -12,8 +12,7 @@ class LauncherUi(QMainWindow):
     open_track_controller_ui_signal = pyqtSignal(str)
     open_track_controller_tb_ui_signal = pyqtSignal(str)
     open_track_model_ui_signal = pyqtSignal()
-    open_train_controller_SW_ui_signal = pyqtSignal()
-    open_train_controller_HW_ui_signal = pyqtSignal()
+    open_train_controller_ui_signal = pyqtSignal()
     open_train_model_ui_signal = pyqtSignal()
 
     def __init__(self):
@@ -27,8 +26,8 @@ class LauncherUi(QMainWindow):
         self.track_controller_B_button = self.findChild(QPushButton, 'track_controller_b_button')
         self.track_controller_C_button = self.findChild(QPushButton, 'track_controller_c_button')
         self.track_model_button = self.findChild(QPushButton, 'track_model_button')
-        self.train_controller_button_SW = self.findChild(QPushButton, 'train_controller_button_SW')
-        self.train_controller_button_HW = self.findChild(QPushButton, 'train_controller_button_HW')
+        self.train_controller_button = self.findChild(QPushButton, 'train_controller_button_SW')
+        #self.train_controller_button_HW = self.findChild(QPushButton, 'train_controller_button_HW')
         self.train_model_button = self.findChild(QPushButton, 'train_model_button')
         self.track_controller_A_testbench_button = self.findChild(QPushButton, 'track_controller_A_testbench_button')
         self.track_controller_B_testbench_button = self.findChild(QPushButton, 'track_controller_B_testbench_button')
@@ -50,8 +49,7 @@ class LauncherUi(QMainWindow):
         self.track_model_button.clicked.connect(self.start_track_model_ui)
 
         # Train Controller
-        self.train_controller_button_SW.clicked.connect(self.start_train_controller_SW_ui)
-        self.train_controller_button_HW.clicked.connect(self.start_train_controller_HW_ui)
+        self.train_controller_button.clicked.connect(self.start_train_controller_ui)
 
         self.show()
 
@@ -83,13 +81,13 @@ class LauncherUi(QMainWindow):
         self.open_track_model_ui_signal.emit()
         print("Track Model ui button clicked")
 
-    def start_train_controller_SW_ui(self):
-        self.open_train_controller_SW_ui_signal.emit()
-        print("Train Controller SW ui button clicked")
+    def start_train_controller_ui(self):
+        self.open_train_controller_ui_signal.emit()
+        print("Train Controller ui button clicked")
 
-    def start_train_controller_HW_ui(self):
+    '''def start_train_controller_HW_ui(self):
         self.open_train_controller_HW_ui_signal.emit()
-        print("Train Controller HW ui button clicked")
+        print("Train Controller HW ui button clicked")'''
 
     def start_train_model_ui(self):
         self.open_train_model_ui_signal.emit()
