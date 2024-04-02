@@ -67,7 +67,6 @@ class BusinessLogic(QObject):
             else:
                 self.light_signal.emit(3)
 
-
         # rr crossing logic
         if plc_result[2] is True:
             self.rr_crossing_signal.emit(True)

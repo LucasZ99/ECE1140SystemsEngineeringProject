@@ -4,7 +4,7 @@ import json
 
 def run_plc(occupancy_list):
     # check for occupancy in 2 way section
-    zone_FED_occupied = False
+    two_way_occupied = False
     # check for occupancy in loop
     loop_occupied = False
     rr_active = False
@@ -15,7 +15,7 @@ def run_plc(occupancy_list):
     for i in range(12, 27):
         # if there is an occupancy
         if occupancy_list[i] is True:
-            zone_FED_occupied = True
+            two_way_occupied = True
             if i in range(17, 20):
                 rr_active = True
     for i in range(28, 32):
@@ -23,18 +23,20 @@ def run_plc(occupancy_list):
             zero_speed_flags = [True] * 4
 
     # Switching logic
-    if zone_FED_occupied is False:
+    # if the two-way section is not occupied
+    if two_way_occupied is False:
+        # if the entire section isn't occupied,
         if loop_occupied is False:
-            switch_1 = True
-            switch_2 = False
+            switch_loop = True
+            switch_entry = False
         else:
-            switch_1 = False
-            switch_2 = True
+            switch_loop = False
+            switch_entry = True
     else:
-        switch_1 = True
-        switch_2 = True
+        switch_loop = True
+        switch_entry = True
 
-    return [switch_1, switch_2, rr_active, zero_speed_flags]
+    return [switch_loop, switch_entry, rr_active, zero_speed_flags]
 
 
 def main():
