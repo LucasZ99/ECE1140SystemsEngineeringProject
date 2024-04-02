@@ -1,4 +1,4 @@
-from PyQt6.QtCore import pyqtSignal, QObject
+from PyQt6.QtCore import pyqtSignal, QObject, pyqtSlot
 from PyQt6.QtWidgets import QApplication
 
 from Track_Controller_SW.lighting import Light
@@ -12,7 +12,8 @@ from Track_Controller_SW.switching import Switch
 class TrackController(QObject):
 
     switch_changed_index_signal = pyqtSignal(int)
-    light_changed_signal = pyqtSignal(int)
+    rr_crossing_signal = pyqtSignal(bool)
+    lights_list_changed_signal = pyqtSignal(list)
 
     def __init__(self, occupancy_list: list, section: str):
         super().__init__()
@@ -65,10 +66,23 @@ class TrackController(QObject):
             self.section
         )
         self.testbench_container = TestbenchContainer(self.business_logic)
-        self.business_logic.switch_changed_index_signal.connect(self.send_switch_changed_index)
 
+        self.business_logic.switch_changed_index_signal.connect(self.send_switch_changed_index)
+        self.business_logic.rr_crossing_signal.connect(self.rr_crossing_updated)
+        self.business_logic.lights_list_signal.connect(self.lights_list_updated)
+
+    @pyqtSlot(int)
     def send_switch_changed_index(self, switch_block: int):
         self.switch_changed_index_signal.emit(switch_block)
+
+    @pyqtSlot(bool)
+    def rr_crossing_updated(self, rr_crossing_active: bool):
+        self.rr_crossing_signal.emit(rr_crossing_active)
+
+    @pyqtSlot(list)
+    def lights_list_updated(self, lights_list: list):
+        self.lights_list = lights_list
+        self.lights_list_changed_signal.emit(lights_list)
 
     def run(self) -> None:
         pass
