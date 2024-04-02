@@ -39,12 +39,17 @@ class TrackControllerContainer(QObject):
         self.track_model = track_model
 
         # Controller specific initialization
-        # Section A: blocks 1-32, 147-150
+        # Section A: blocks 1-32
+        # Switches at block 13 and 28
         self.occupancy_list_A = self.occupancy_list[0:32]
         # Section B: blocks: 25-80 , 101-150
+        # change this to [28:78] to be able to observe the switch positions at sections G(b28) and N(b77)
+        # remember python slicing is [inclusive:exclusive] which is why it's [28:78]
+        # also change the other boundary to [101:]
         self.occupancy_list_B = self.occupancy_list[24:80] + self.occupancy_list[100:]
-        # Section C: blocks 73:104
-        self.occupancy_list_C = self.occupancy_list[76:104]
+        # Section C: blocks 77:104
+        # Switches at block 77 and 85
+        self.occupancy_list_C = self.occupancy_list[77:105]
 
         self.trackControllerA = TrackController(occupancy_list=self.occupancy_list_A, section="A")
 

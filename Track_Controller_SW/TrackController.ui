@@ -224,7 +224,7 @@
      <string/>
     </property>
    </widget>
-   <widget class="QPushButton" name="light_b11_2">
+   <widget class="QPushButton" name="light_2_b">
     <property name="geometry">
      <rect>
       <x>190</x>
