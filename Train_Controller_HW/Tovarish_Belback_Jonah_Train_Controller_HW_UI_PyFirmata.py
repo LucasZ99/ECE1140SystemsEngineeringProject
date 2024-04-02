@@ -1,6 +1,6 @@
 from pyfirmata2 import ArduinoMega, util, STRING_DATA
 import time#replace with shared time module when created and we do integration
-#from Tovarish_Belback_Jonah_Train_Controller_Testbenchv2 import *#TestBench_JEB382
+if __name__ == "__main__": from Tovarish_Belback_Jonah_Train_Controller_Testbenchv2 import *#TestBench_JEB382
 from PyQt6.QtWidgets import *
 #import sys
 import linecache
@@ -180,8 +180,10 @@ class HW_UI_JEB382_PyFirmat():
         self.Pcmd=0
         
         #TestBench
-        #if TestBench:
-        #self.HW_UI_fin(TestBench,2)
+        self.printout = 3
+        if __name__ == "__main__" and TestBench:
+            #self.printout = 3
+            self.HW_UI_fin(TestBench)
     
     def updateRead(self):
         self.Driver_arr[3] = self.BTN_CabnLgt.read()
@@ -349,25 +351,27 @@ class HW_UI_JEB382_PyFirmat():
 
     #[{!!!!!!!!!!!!!!!!!!!!!!!!}]
     #can call this just as its class, this implies its not getting information from a testbench which requires threading
-    def HW_UI_mainloop_fast(self,printout):
+    def HW_UI_mainloop_fast(self):
         time.sleep(2)
-        ptime = time.time()
+        #ptime = time.time()
         #global printout
         self.updateTot()
         print(f"Driver TrainC #1:\t{self.Driver_arr}\t{'AUTO' if not self.Mode else 'MANUAL'}")
         while True:
             self.updateTot()
             #if time.time()-ptime%2==0: print("hi")
-            if printout == 1: print(f"Driver TrainC #1:\t{self.Driver_arr}\t{'AUTO' if not self.Mode else 'MANUAL'}")
-            elif printout == 2: print(f"TrainModel TrainC #1:\t{self.TrainModel_arr} {'AUTO' if not self.Mode else 'MANUAL'}")
-            elif printout == 3: print(f"Output TrainC #1:\t{self.Output_arr}\t{'AUTO' if not self.Mode else 'MANUAL'}")
+            if self.printout == 1: print(f"Driver TrainC #1:\t{self.Driver_arr}\t{'AUTO' if not self.Mode else 'MANUAL'}")
+            elif self.printout == 2: print(f"TrainModel TrainC #1:\t{self.TrainModel_arr} {'AUTO' if not self.Mode else 'MANUAL'}")
+            elif self.printout == 3: print(f"Output TrainC #1:\t{self.output_arr}\t{'AUTO' if not self.Mode else 'MANUAL'}")
             #print(self.Mode)
             #if self.Mode or not self.Mode: sys.stdout.write("")
             
 
 
-    def HW_UI_fin(self, TestBench=False, printout=3):
-        t1 = threading.Thread(target=self.HW_UI_mainloop_fast, args=(printout))
+    def HW_UI_fin(self, TestBench=False):
+        print(f"HW_UI_fin: {TestBench},\t{self.printout}")
+        
+        t1 = threading.Thread(target=self.HW_UI_mainloop_fast, args=())
         t1.start()
         
         if TestBench:

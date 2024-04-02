@@ -4,8 +4,12 @@ import numpy
 
 from PyQt6.QtWidgets import QApplication
 
-from .Tovarish_Belback_Jonah_Train_Controller_Testbenchv2 import *
-from .Tovarish_Belback_Jonah_Train_Controller_HW_UI_PyFirmata import *
+if __name__ == "__main__":
+    from Tovarish_Belback_Jonah_Train_Controller_Testbenchv2 import *
+    from Tovarish_Belback_Jonah_Train_Controller_HW_UI_PyFirmata import *
+else:
+    from .Tovarish_Belback_Jonah_Train_Controller_Testbenchv2 import *
+    from .Tovarish_Belback_Jonah_Train_Controller_HW_UI_PyFirmata import *
 
 
 class Container:
@@ -18,7 +22,7 @@ class Container:
         self.trainCtrl = TC_HW_init(self.main_Driver_arr, self.main_TrainModel_arr, self.main_output_arr, Testbench)
         #HW_UI_JEB382_PyFirmat(self.main_Driver_arr, self.main_TrainModel_arr, self.main_output_arr, Testbench)
 
-    def show_ui(self,printout=3):
+    def show_ui(self):
         #it = util.Iterator(board)  
         #it.start()
         
@@ -27,15 +31,19 @@ class Container:
         #printout 1: Driver
         #printout 2: TrainModel
         #printout 3: Output
-        self.trainCtrl.HW_UI_fin(self.TB,printout)
+        self.trainCtrl.HW_UI_fin(self.TB)
 
     #  receiver functions
 
     #TrainModel
     def updatevalues(self, inputs):
+        #update train controller with Train Model
         self.main_TrainModel_arr = numpy.copy(inputs)
-    
-    def output(self):
+        self.trainCtrl.updateRead() #get driver inputs
+        self.trainCtrl.updateDisplay()  #update arduino display
+        
+        #update output array to handoff to Train Model
+        self.trainCtrl.updateTot()
         return self.main_output_arr
 
 def main():
