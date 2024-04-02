@@ -9,9 +9,8 @@ from Track_Controller_SW.PLC_Logic import PlcProgram
 from Track_Controller_SW.switching import Switch
 
 
-
-
 class TrackController(QObject):
+
     switch_changed_index_signal = pyqtSignal(int)
     light_changed_signal = pyqtSignal(int)
 
@@ -35,7 +34,7 @@ class TrackController(QObject):
                     Light(150, False)
                 ]
         elif section == "C":
-            self.block_indexes = [76, 77, 78, 79,
+            self.block_indexes = [77, 78, 79,
                                   80, 81, 82, 83, 84, 85, 86, 87, 88, 89,
                                   90, 91, 92, 93, 94, 95, 96, 97, 98, 99,
                                   100, 101, 102, 103, 104]
@@ -70,6 +69,7 @@ class TrackController(QObject):
 
     def send_switch_changed_index(self, switch_block: int):
         self.switch_changed_index_signal.emit(switch_block)
+
     def run(self) -> None:
         pass
 
@@ -87,9 +87,9 @@ class TrackController(QObject):
     def update_occupancy(self, block_occupancy_list: list[bool]):
         if self.section == "A":
             # update the zero_speed flag list
-            self.zero_speed_flag_list[29:33] = self.business_logic.occupancy_changed(block_occupancy_list)
-        # if self.section == "C":
-        #     self.zero_speed_flag_list[]
+            self.zero_speed_flag_list[23:27] = self.business_logic.occupancy_changed(block_occupancy_list)
+        if self.section == "C":
+            self.zero_speed_flag_list[77:81] = self.business_logic.occupancy_changed(block_occupancy_list)
         self.occupancy_list = block_occupancy_list
         return self.zero_speed_flag_list
 
@@ -115,7 +115,7 @@ class TrackController(QObject):
 
 
 def main():
-    track_controller = TrackController([False]*36, "A")
+    track_controller = TrackController([False] * 36, "A")
     track_controller.show_ui()
 
 
