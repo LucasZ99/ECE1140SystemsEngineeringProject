@@ -20,7 +20,6 @@ class BusinessLogic(QObject):
         self.switches_list = switches_arr
         self.zero_speed_flag_list = [False] * len(self.occupancy_list)
         self.filepath = None
-        # TODO add lights_list to constructor
 
         self.lights_list = lights_list
         self.plc_logic = plc_logic
@@ -53,8 +52,21 @@ class BusinessLogic(QObject):
         # post plc execution processing logic
         if plc_result[0] != switch_1:
             self.switches_changed(0)
+            self.lights_list[0].toggle()
+            self.lights_list[1].toggle()
+            if self.lights_list[0].val is True:
+                self.light_signal.emit(0)
+            else:
+                self.light_signal.emit(1)
         if plc_result[1] != switch_2:
             self.switches_changed(1)
+            self.lights_list[2].toggle()
+            self.lights_list[3].toggle()
+            if self.lights_list[2].val is True:
+                self.light_signal.emit(2)
+            else:
+                self.light_signal.emit(3)
+
 
         # rr crossing logic
         if plc_result[2] is True:
@@ -72,12 +84,6 @@ class BusinessLogic(QObject):
         self.switch_changed_index_signal.emit(self.switches_list[index].block)
         self.switches_list[index].toggle()
         self.switches_signal.emit(self.switches_list)
-
-    @pyqtSlot(list)
-    def sug_speed_updated(self, sug_speed: float) -> None:
-        self.suggested_speed_list[0] = sug_speed
-
-        print(f"Suggested speed updated to {self.suggested_speed_list[0]}")
 
     def set_plc_filepath(self, plc_filepath: str) -> None:
         self.plc_logic.set_filepath(plc_filepath)

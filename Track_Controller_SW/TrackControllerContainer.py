@@ -66,6 +66,7 @@ class TrackControllerContainer(QObject):
 
         # Connect Internal Signals:
         self.trackControllerA.switch_changed_index_signal.connect(self.update_track_switch)
+        self.trackControllerC.switch_changed_index_signal.connect(self.update_track_switch)
 
         # Connect external signals:
         self.track_model.new_block_occupancy_signal.connect(self.update_occupancy)
@@ -116,6 +117,7 @@ class TrackControllerContainer(QObject):
     @pyqtSlot(int)
     def update_track_switch(self, switch_block: int) -> None:
         print(f"Updating Track Model switch at block: {switch_block}")
+        # emit ctc signal
         self.track_model.toggle_switch(switch_block)
 
     def show_ui(self, section: str):
