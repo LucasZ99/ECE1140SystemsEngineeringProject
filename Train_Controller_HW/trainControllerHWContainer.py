@@ -40,10 +40,10 @@ class Container:
         #update train controller with Train Model
         self.main_TrainModel_arr = numpy.copy(inputs)
         self.trainCtrl.updateRead() #get driver inputs
-        self.trainCtrl.updateDisplay()  #update arduino display
         
         #update output array to handoff to Train Model
         self.trainCtrl.updateTot()
+        self.trainCtrl.updateDisplay()  #update arduino display
         return self.main_output_arr
 
 def main():
