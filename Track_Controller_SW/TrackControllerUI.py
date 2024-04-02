@@ -171,9 +171,6 @@ class UI(QMainWindow):
         self.light_2_a.setText(f"Light @ b{self.lights_list[2].block}")
         self.light_2_b.setText(f"Light @ b{self.lights_list[3].block}")
 
-
-
-
     def manual_mode_dialogue(self):
         self.manual_mode_window = ManualMode(self.business_logic)
         self.manual_mode_window.switch_changed_signal.connect(self.business_logic.switches_changed)
