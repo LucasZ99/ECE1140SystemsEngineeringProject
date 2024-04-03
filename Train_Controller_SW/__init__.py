@@ -1,3 +1,3 @@
 from .trainControllerSW import TrainController
-from .trainControllerSWContainer import Container
+from .trainControllerSWContainer import TrainControllerSWContainer
 from .trainControllerSWUI import UI

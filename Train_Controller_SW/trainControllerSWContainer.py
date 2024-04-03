@@ -8,7 +8,7 @@ from Train_Controller_SW import trainControllerSW
 from Train_Controller_SW.trainControllerSWUI import UI
 
 
-class Container:
+class TrainControllerSWContainer:
     def __init__(self):
         self.trainCtrl = trainControllerSW.TrainController()
 
