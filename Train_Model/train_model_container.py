@@ -5,6 +5,7 @@ from PyQt6.QtWidgets import QApplication
 
 from Train_Model import TrainBusinessLogic, TrainModel, UITrain
 import trainControllerTot_Container
+from SystemTime import SystemTimeContainer
 
 
 class TrainModelContainer(QObject):
@@ -16,11 +17,13 @@ class TrainModelContainer(QObject):
     new_train_added = pyqtSignal(int)
     train_enters_new_block = pyqtSignal(int)
 
-    def __init__(self, bus: TrainBusinessLogic(), controller: trainControllerTot_Container):
+    def __init__(self, bus: TrainBusinessLogic(), controller: trainControllerTot_Container, time: SystemTimeContainer):
         super().__init__()
         self.business_logic = bus
         self.train_list = self.business_logic.train_list
         self.controller = controller
+        self.time_keeper = time
+        self.time = self.time_keeper.system_time.time()
 
     def track_model_inputs(self, input_list, index):
         # the list provided should have entries in this order: [commanded speed, vital authority, beacon, underground]
