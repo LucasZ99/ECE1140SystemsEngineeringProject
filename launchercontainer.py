@@ -10,7 +10,7 @@ from Track_Controller_SW.TrackControllerContainer import TrackControllerContaine
 from Track_Model.Track_Model_Container import TrackModelContainer
 from launcherui import LauncherUi
 from trainControllerTot_Container import TrainController_Tot_Container
-from Train_Model import TrainModelContainer
+from Train_Model import TrainModelContainer, TrainBusinessLogic
 
 
 class LauncherContainer(QObject):
@@ -21,7 +21,7 @@ class LauncherContainer(QObject):
         self.track_controller_container = TrackControllerContainer(track_model=self.track_model_container)
         self.ctc_container = CTCContainer(self.time_module, self.track_controller_container)
         self.trainControllerContainer = TrainController_Tot_Container()
-        self.train_model_container = TrainModelContainer()
+        self.train_model_container = TrainModelContainer(TrainBusinessLogic(), self.trainControllerContainer, self.time_module)
 
     def init_launcher_ui(self):
         app = QApplication.instance()
