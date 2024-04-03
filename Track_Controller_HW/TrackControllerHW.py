@@ -1,13 +1,11 @@
 import time
 import os
 import sys
-
+from PyQt6.QtCore import pyqtSignal, QObject, pyqtSlot
 from Track_Controller_HW import SlotsSigs, TBShell
 
 
-
-
-class TrackControllerHardware(object):
+class TrackControllerHardware(QObject):
     mode = False
     num_switches = 1
     num_blocks = 107
@@ -18,7 +16,10 @@ class TrackControllerHardware(object):
     stops = [False] * num_blocks
     rr_crossing = [False] * 1
 
+    rr_crossing_signal = pyqtSignal(bool)
+
     def __init__(self, occupancy_list: list, section: str):
+        super().__init__()
         self.blocks = occupancy_list
         self.slots_sigs = SlotsSigs(mode=self.mode, authority=self.authority, switches=self.switches,
                                               blocks=self.blocks, suggested_speed=self.suggested_speed,
@@ -37,9 +38,14 @@ class TrackControllerHardware(object):
         print("Showing TestBench UI")
         self.tb_shell.show_ui()
 
+    @pyqtSlot(bool)
+    def rr_crossing_updated(self, rr_crossing_new_val: bool):
+        print("rr cross updated")
+        self.rr_crossing = rr_crossing_new_val
+
 
 if __name__ == '__main__':
-    track_controller_hw = TrackControllerHardware(occupancy_list=[True] * 105, section="A")
+    track_controller_hw = TrackControllerHardware(occupancy_list=[True] * 105, section="B")
     track_controller_hw.show_testbench_ui()
     #track_controller_hw.send_to_hw()
     #print("HW data sent successfully")
