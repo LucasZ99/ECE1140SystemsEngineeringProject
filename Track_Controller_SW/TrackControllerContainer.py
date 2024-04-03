@@ -123,6 +123,7 @@ class TrackControllerContainer(QObject):
     @pyqtSlot(int)
     def update_track_switch(self, switch_block: int) -> None:
         print(f"Updating Track Model switch at block: {switch_block}")
+
         # emit ctc signal
         self.track_model.toggle_switch(switch_block)
 
@@ -130,8 +131,8 @@ class TrackControllerContainer(QObject):
     def update_rr_crossing_status_A(self, rr_crossing_status: bool) -> None:
         # if the previous status does not equal updated status, send the signal
         # and update the track model
-        if self.railway_crossing_list[0] != rr_crossing_status:
-            self.railway_crossing_list[0] = rr_crossing_status
+        if self.railway_crossing_vals_list[0] != rr_crossing_status:
+            self.railway_crossing_vals_list[0] = rr_crossing_status
             # emit for CTC
             self.rr_crossing_toggled_signal.emit(self.railway_crossing_blocks_list[0])
             # call track model endpoint
