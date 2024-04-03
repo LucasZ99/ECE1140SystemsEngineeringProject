@@ -148,7 +148,7 @@ class TrackControllerContainer(QObject):
         if self.railway_crossing_vals_list[1] != rr_crossing_status:
             self.railway_crossing_vals_list[1] = rr_crossing_status
             # emit for CTC
-            self.rr_crossing_toggled_signal.emit(1)
+            self.rr_crossing_toggled_signal.emit(self.railway_crossing_blocks_list[1])
             # call track model endpoint
             self.track_model.toggle_crossing(self.railway_crossing_blocks_list[1])
 

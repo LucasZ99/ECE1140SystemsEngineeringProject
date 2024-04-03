@@ -27,7 +27,7 @@ class SystemTime(QObject):
                 if python_time.time() >= start_time + self.__update_interval:
                     break
 
-            self.__sys_time += self.__update_interval
+            self.__sys_time += 1
             self.update_time_signal.emit()
 
     def __del__(self):
