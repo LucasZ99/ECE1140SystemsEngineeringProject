@@ -48,8 +48,9 @@ class TrackModel(QObject):
         # Step 7: 28 to 13
         path_28_to_13 = list(range(28, 12, -1))
         # Combining all paths, with explicit jumps where needed
-        self.full_path = ([0] + path_63_to_100 + path_85_to_77 + path_101_to_150 + path_28_to_13 + path_12_to_1 +
+        self.full_path = (path_63_to_100 + path_85_to_77 + path_101_to_150 + path_28_to_13 + path_12_to_1 +
                           path_13_to_57)
+        print(self.full_path)
 
     def get_data(self):
         return self.data
@@ -148,6 +149,7 @@ class TrackModel(QObject):
         print("Array data has been exported to:", excel_filename)
 
     def set_block_occupancy(self, block: int, occupancy: bool):
+        print(block)
         self.data[block, 7] = occupancy
 
     def check_data(self):  # update this in future to validate data further

@@ -81,6 +81,7 @@ class TrackModelContainer(QObject):
     def new_block_occupancy(self, block_occupancy: list[bool]):
         print('new block occupancy called from track model container')
         self.new_block_occupancy_signal.emit(block_occupancy)
+        print('track model passed')
 
     def new_ticket_sales(self, ticket_sales: int):
         print('new ticket sales called from track model container')
