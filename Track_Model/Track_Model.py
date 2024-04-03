@@ -52,7 +52,7 @@ class TrackModel(QObject):
         # Combining all paths, with explicit jumps where needed
         self.full_path = (path_63_to_100 + path_85_to_77 + path_101_to_150 + path_28_to_13 + path_12_to_1 +
                           path_13_to_57)
-        print(self.full_path)
+        # print(self.full_path)
 
     def get_data(self):
         return self.data
@@ -151,7 +151,7 @@ class TrackModel(QObject):
         print("Array data has been exported to:", excel_filename)
 
     def set_block_occupancy(self, block: int, occupancy: bool):
-        print(block)
+        # print(block)
         self.data[block, 7] = occupancy
 
     def check_data(self):  # update this in future to validate data further
@@ -220,9 +220,7 @@ class TrackModel(QObject):
             self.set_block_occupancy(block, True)
         else:
             self.set_block_occupancy(block, False)
-        print('PRE EMIT')
         self.emit_tc_block_occupancy()
-        print('POST EMIT')
 
     def set_occupancy_from_train_presence(self):
         # set occupancy false
@@ -255,9 +253,7 @@ class TrackModel(QObject):
         self.speed = speed
 
     def toggle_switch(self, block_id: int):
-        print('track_model.toggle switch called')
         self.data[block_id, 19] = not self.data[block_id, 19]
-        print(f'switch value = {self.data[block_id, 19]}')
 
     def toggle_signal(self, block_id: int):
         self.data[block_id, 21] = not self.data[block_id, 21]
@@ -313,23 +309,28 @@ class TrackModel(QObject):
         return self.speed
 
     def get_tm_beacon(self, train_id: int) -> str:
-        block_id = train_id
+        block_id = self.train_dict[train_id]
         return self.data[block_id, 11]
 
     def get_tm_grade(self, train_id: int) -> int:
-        block_id = train_id
+        block_id = self.train_dict[train_id]
         return self.data[block_id, 4]
 
     def get_tm_elevation(self, train_id: int) -> float:
-        block_id = train_id
+        block_id = self.train_dict[train_id]
         return self.data[block_id, 6]
 
     def get_tm_underground_status(self, train_id: int) -> bool:
-        block_id = train_id
+        block_id = self.train_dict[train_id]
         return self.data[block_id, 20]
 
-    def get_tm_embarking_passengers(self, station_block: int) -> int:
-        return self.data[station_block, 17]
+    def get_tm_embarking_passengers(self, train_id: int) -> int:
+        block_id = self.train_dict[train_id]
+        return self.data[block_id, 17]
+    
+    def get_tm_block_length(self, train_id: int):
+        block_id = self.train_dict[train_id]
+        return self.data[block_id, 3]
 
     # ctc (technically still track controller)
     def emit_ctc_ticket_sales(self) -> list[bool]:

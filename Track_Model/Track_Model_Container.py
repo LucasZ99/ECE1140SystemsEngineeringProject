@@ -6,6 +6,7 @@ from PyQt6.QtWidgets import QApplication
 
 from Track_Model.Track_Model import TrackModel
 from Track_Model.Track_Model_UI import Window
+from Train_Model import TrainModelContainer
 
 
 class TrackModelContainer(QObject):
@@ -14,8 +15,10 @@ class TrackModelContainer(QObject):
     new_block_occupancy_signal = pyqtSignal(list)
     new_ticket_sales_signal = pyqtSignal(int)
 
-    def __init__(self):
+    def __init__(self, train_model_container: TrainModelContainer):
         super().__init__()
+        self.train_model_container = train_model_container
+
         self.track_model = TrackModel("./Track_Model/Green Line.xlsx")
         self.track_model_ui = Window(self.track_model)
 
@@ -23,9 +26,9 @@ class TrackModelContainer(QObject):
         self.track_model.new_block_occupancy_signal.connect(self.new_block_occupancy)
         self.track_model.new_ticket_sales_signal.connect(self.new_ticket_sales)
         # connect external signals
-        # self.train_model.signal.connect(self.function)
-    # show ui
+        self.train_model_container.new_train_added.connect(self.train_spawned)
 
+    # show ui
     def show_ui(self):
         app = QApplication.instance()  # Get the QApplication instance
 
@@ -49,11 +52,15 @@ class TrackModelContainer(QObject):
 
     def update_authority(self, authority: list[int]):
         print('update authority called')
-        self.track_model.update_authority(authority)
+        self.track_model.update_authority(authority)  # update our track model object
+        self.train_model_container.track_model_inputs(
+            [self.track_model.get_tm_speed, self.track_model.get_tm_authority])  # send new info to train model
 
     def update_speed(self, speed: list[float]):
         print('update speed called')
-        self.track_model.update_speed(speed)
+        self.track_model.update_speed(speed)  # update our track model object
+        self.train_model_container.track_model_inputs(
+            [self.track_model.get_tm_speed, self.track_model.get_tm_authority])  # send new info to train model
 
     def toggle_switch(self, block_id: int):
         print('toggle switch called')
@@ -94,5 +101,26 @@ class TrackModelContainer(QObject):
     # Train Model
 
     # Catching signals
+    def train_spawned(self, index):
+        print('train spawned called')
+        self.track_model.train_spawned()
+        self.train_model_container.track_update_block([
+            self.track_model.get_tm_grade(index),
+            self.track_model.get_tm_elevation(index),
+            self.track_model.get_tm_block_length(index),
+            self.track_model.get_tm_underground_status(index),
+            self.track_model.get_tm_beacon(index)
+        ], index)
 
-    # Sending outputs
+    def train_presence_changed(self, index):
+        print('train presence changed called')
+        self.track_model.train_presence_changed()
+        self.train_model_container.track_update_block([
+            self.track_model.get_tm_grade(index),
+            self.track_model.get_tm_elevation(index),
+            self.track_model.get_tm_block_length(index),
+            self.track_model.get_tm_underground_status(index),
+            self.track_model.get_tm_beacon(index)
+        ], index)
+
+    # Sending outputs are done any time we get new authority/speed or enter a new block
