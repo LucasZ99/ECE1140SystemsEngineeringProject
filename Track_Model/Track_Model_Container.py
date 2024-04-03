@@ -12,14 +12,18 @@ class TrackModelContainer(QObject):
 
     # Signals
     new_block_occupancy_signal = pyqtSignal(list)
+    new_ticket_sales_signal = pyqtSignal(int)
 
     def __init__(self):
         super().__init__()
         self.track_model = TrackModel("./Track_Model/Green Line.xlsx")
         self.track_model_ui = Window(self.track_model)
-        # signals
-        self.track_model.new_block_occupancy_signal.connect(self.new_block_occupancy)
 
+        # connect internal signals
+        self.track_model.new_block_occupancy_signal.connect(self.new_block_occupancy)
+        self.track_model.new_ticket_sales_signal.connect(self.new_ticket_sales)
+        # connect external signals
+        # self.train_model.signal.connect(self.function)
     # show ui
 
     def show_ui(self):
@@ -75,8 +79,13 @@ class TrackModelContainer(QObject):
         # Emitting signals
 
     def new_block_occupancy(self, block_occupancy: list[bool]):
+        print('new block occupancy called from track model container')
         self.new_block_occupancy_signal.emit(block_occupancy)
+        print('track model passed')
 
+    def new_ticket_sales(self, ticket_sales: int):
+        print('new ticket sales called from track model container')
+        self.new_ticket_sales_signal.emit(ticket_sales)
     # Train Model
 
     # Catching signals
