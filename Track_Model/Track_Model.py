@@ -7,9 +7,11 @@ from PyQt6.QtWidgets import QApplication
 
 
 class TrackModel(QObject):
-    # signals
+    # external signals
     new_block_occupancy_signal = pyqtSignal(list)
     new_ticket_sales_signal = pyqtSignal(int)
+    # internal signals (to UI)
+    refresh_map_signal = pyqtSignal()
 
     def __init__(self, file_name):
         super().__init__()
