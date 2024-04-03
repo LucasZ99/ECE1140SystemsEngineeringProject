@@ -38,6 +38,12 @@ class SystemTime(QObject):
         sys_time = self.__sys_time
         return sys_time
 
+    def play(self):
+        pass
+
+    def pause(self):
+        pass
+
     def set_multiplier(self, multiplier: float) -> None:
         self.__scale = multiplier
         self.__update_interval = 1.0 / (1 * self.__scale)

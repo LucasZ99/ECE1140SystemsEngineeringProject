@@ -68,8 +68,8 @@ class TrackControllerContainer(QObject):
         # Connect Internal Signals:
         self.trackControllerA.switch_changed_index_signal.connect(self.update_track_switch)
         self.trackControllerA.rr_crossing_signal.connect(self.update_rr_crossing_status_A)
-        self.trackControllerA.lights_list_changed_signal.connect(self.update_lights_status)
-        self.trackControllerC.lights_list_changed_signal.connect(self.update_lights_status)
+        self.trackControllerA.lights_list_A_changed_signal.connect(self.update_lights_A_status)
+        self.trackControllerC.lights_list_C_changed_signal.connect(self.update_lights_C_status)
         self.trackControllerC.switch_changed_index_signal.connect(self.update_track_switch)
 
         # Connect external signals:
@@ -138,13 +138,26 @@ class TrackControllerContainer(QObject):
             self.track_model.toggle_crossing(self.railway_crossing_blocks_list[0])
 
     @pyqtSlot(list)
-    def update_lights_status(self, lights_list: list[Light]) -> None:
+    def update_lights_A_status(self, lights_list: list[Light]) -> None:
         # emit new list to ctc
         # update changed signals to track model
         for i in range(len(lights_list)):
             if lights_list[i].val != self.lights_list[i].val:
                 self.track_model.toggle_signal(lights_list[i].block)
                 self.lights_updated_signal.emit(lights_list[i].block)
+
+        self.lights_list[0:4] = lights_list[0:4]
+
+    @pyqtSlot(list)
+    def update_lights_C_status(self, lights_list: list[Light]) -> None:
+        # emit new list to ctc
+        # update changed signals to track model
+        for i in range(len(lights_list)):
+            if lights_list[i].val != self.lights_list[i+4].val:
+                self.track_model.toggle_signal(lights_list[i].block)
+                self.lights_updated_signal.emit(lights_list[i].block)
+
+        self.lights_list[4:7] = lights_list[0:4]
 
     def show_ui(self, section: str):
         if section == "A":
