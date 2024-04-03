@@ -29,9 +29,11 @@ class UITrain(QMainWindow):
             print("Error with loading UI file: ", e)
 
         # declare the train object
-        self.train_dict = dict()
         self.train = TrainModel()
         self.business_logic = bus
+        self.train_dict = self.business_logic.train_list
+
+
 
         # define widgets
         self.physicsButton = self.findChild(QPushButton, "physicsButton")
@@ -40,6 +42,8 @@ class UITrain(QMainWindow):
         self.primeGroup = self.findChild(QGroupBox, "primeGroup")
         self.trainSelect = self.findChild(QComboBox, "trainSelect")
         self.trainSelect.clear()
+        for i in self.train_dict.keys():
+            self.trainSelect.addItem(f'Train {i}')
         self.emerButton = self.findChild(QPushButton, "emerButton")
         self.tbCheck = self.findChild(QCheckBox, "tbCheck")
 
@@ -122,6 +126,7 @@ class UITrain(QMainWindow):
             self.emerButton.setIcon(QIcon(icon_path))
         except Exception as e:
             print("Error with loading Icon file: ", e)
+
 
         self.phyGroup_tb.hide()
         self.trainGroup_tb.hide()

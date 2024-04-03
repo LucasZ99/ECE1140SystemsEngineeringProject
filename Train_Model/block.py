@@ -1,12 +1,10 @@
 import math
 
-
-
 class Block:
     # constant
     acc_due_to_gravity = 9.81  # in m/s^2
 
-    def __init__(self, length=0.0, grd=0.0, elev=0.0):
+    def __init__(self, length=50.0, grd=0.0, elev=0.0):
         self.grade = grd
         self.elevation = elev
         self.block_length = length
