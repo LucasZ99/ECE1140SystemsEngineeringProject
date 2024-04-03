@@ -18,7 +18,6 @@ class ContainerTB(QMainWindow):
     def __init__(self, container: TrainModelContainer):
         super(ContainerTB, self).__init__()
         self.container = container
-        self.container.show_ui()
 
         # load the ui file
         current_dir = os.path.dirname(__file__)  # setting up to work in any dir
@@ -28,14 +27,20 @@ class ContainerTB(QMainWindow):
         except Exception as e:
             print("Error with loading UI file: ", e)
         # buttons
+        self.uiButton = self.findChild(QPushButton, "uiButton")
+        self.uiButton.clicked.connect(self.container_ui)
+
         self.trackButton = self.findChild(QPushButton, "tracButton")
         self.trackButton.clicked.connect(self.track_pressed)
+
         self.controllerButton = self.findChild(QPushButton, "controllerButton")
         self.blockButton = self.findChild(QPushButton, "blockButton")
         self.passButton = self.findChild(QPushButton, "passButton")
         self.tempButton = self.findChild(QPushButton, "tempButton")
         self.physButton = self.findChild(QPushButton, "physButton")
         self.addButton = self.findChild(QPushButton, "addButton")
+        self.addButton.clicked.connect(self.add_trn)
+
         self.removeButton = self.findChild(QPushButton, "removeButton")
 
         # line edits
@@ -53,6 +58,9 @@ class ContainerTB(QMainWindow):
 
         self.show()
 
+    def container_ui(self):
+        self.container.show_ui()
+
     def track_pressed(self):
         lst = str(self.trackInput.text()).split(",", -1)
         if len(lst) != 2:
@@ -62,8 +70,11 @@ class ContainerTB(QMainWindow):
         input_lst.append(float(lst[0]))
         self.container.track_model_inputs(input_lst, 1)
 
+    def add_trn(self):
+        self.container.add_train()
 
-contain = TrainModelContainer(TrainBusinessLogic, TrainController_Tot_Container(True), SystemTimeContainer())
+
+contain = TrainModelContainer(TrainBusinessLogic(), TrainController_Tot_Container(True), SystemTimeContainer())
 app = QApplication(sys.argv)
 ui = ContainerTB(contain)
 app.exec()

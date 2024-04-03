@@ -36,12 +36,17 @@ class TrainModelContainer(QObject):
                                                                self.train_list[index].failure.signal_pickup_failure)
             self.train_list[index].signals.set_authority(input_list[1],
                                                          self.train_list[index].failure.signal_pickup_failure)
-            self.controller.updatevalues([self.train_list[index].velocity, self.train_list[index].signals.authority,
-                                          self.train_list[index].signals.commanded_speed,
-                                          self.train_list[index].brakes.passenger_ebrake,
-                                          self.train_list[index].track_circuit, self.train_list[index].underground,
-                                          self.train_list[index].signals.beacon])
-            self.business_logic.update_values()
+
+            self.business_logic.values_updated.emit()
+            try:
+                self.controller.updatevalues([self.train_list[index].velocity, self.train_list[index].signals.authority,
+                                              self.train_list[index].signals.commanded_speed,
+                                              self.train_list[index].brakes.passenger_ebrake,
+                                              self.train_list[index].track_circuit, self.train_list[index].underground,
+                                              self.train_list[index].signals.beacon])
+            except Exception as e:
+                print(e)
+
             return True
 
     def train_controller_inputs(self, input_list, index):
@@ -62,7 +67,7 @@ class TrainModelContainer(QObject):
             self.train_list[index].interior_functions.announcement = input_list[5]
             self.train_list[index].interior_functions.interior_lights = input_list[6]
             self.train_list[index].interior_functions.exterior_lights = input_list[7]
-            self.business_logic.update_values()
+            self.business_logic.values_updated.emit()
             return True
 
     def track_update_block(self, block_vals, index):
@@ -104,7 +109,7 @@ class TrainModelContainer(QObject):
                                           self.train_list[i].brakes.passenger_ebrake,
                                           self.train_list[i].track_circuit, self.train_list[i].underground,
                                           self.train_list[i].signals.beacon])
-        self.business_logic.update_values()
+        self.business_logic.values_updated.emit()
 
     def add_train(self):
         if len(self.train_list) == 0:
