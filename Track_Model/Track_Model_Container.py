@@ -50,7 +50,6 @@ class TrackModelContainer(QObject):
     def update_authority(self, authority: list[int]):
         print('update authority called')
         self.track_model.update_authority(authority)
-        # TODO: Add refresh UI
 
     def update_speed(self, speed: list[float]):
         print('update speed called')
@@ -59,22 +58,27 @@ class TrackModelContainer(QObject):
     def toggle_switch(self, block_id: int):
         print('toggle switch called')
         self.track_model.toggle_switch(block_id)
+        self.track_model_ui.refresh()
 
     def toggle_signal(self, block_id: int):
         print('toggle signal called')
         self.track_model.toggle_signal(block_id)
+        self.track_model_ui.refresh()
 
     def toggle_crossing(self, block_id: int):
         print('toggle crossing called')
         self.track_model.toggle_crossing(block_id)
+        self.track_model_ui.refresh()
 
     def open_block(self, block_id: int):
         print('open block called')
         self.track_model.open_block(block_id)
+        self.track_model_ui.refresh()
 
     def close_block(self, block_id: int):
         print('close block called')
         self.track_model.close_block(block_id)
+        self.track_model_ui.refresh()
 
         # Emitting signals
 
@@ -86,6 +90,7 @@ class TrackModelContainer(QObject):
     def new_ticket_sales(self, ticket_sales: int):
         print('new ticket sales called from track model container')
         self.new_ticket_sales_signal.emit(ticket_sales)
+
     # Train Model
 
     # Catching signals
