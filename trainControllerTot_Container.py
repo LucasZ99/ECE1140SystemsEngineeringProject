@@ -3,12 +3,14 @@ import sys
 import numpy
 
 from PyQt6.QtWidgets import QApplication
+from PyQt6.QtCore import pyqtSlot, pyqtSignal
 
 from Train_Controller_SW.trainControllerSWContainer import TrainControllerSWContainer
 from Train_Controller_HW.trainControllerHWContainer import TrainControler_HW_Container
 
 
 class TrainController_Tot_Container:
+
     def __init__(self,Ware = True):
         # Ware:
         # False: HW
@@ -21,9 +23,10 @@ class TrainController_Tot_Container:
 
     #  receiver functions
 
-    #TrainModel
+    # TrainModel
     def updatevalues(self, inputs):
         return self.trainCtrl.updatevalues(inputs)
+
 
 def TrainC_main():
     trainctrlcntr = TrainController_Tot_Container()

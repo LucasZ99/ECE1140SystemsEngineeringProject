@@ -1,8 +1,6 @@
 import numpy as np
 import time
 
-from PyQt6.QtWidgets import QApplication
-
 # import train_model_container
 
 
@@ -47,7 +45,7 @@ class TrainController:
         self.doorR = bool(0)  # door control for right side doors: 0 close, 1 opened (default 0)
 
         # cabin environment, as inputs from train model
-        self.cabinTemp = float(67)  # cabin thermostat temp as float, in Fahrenheit (default 67)
+        self.cabinTemp = float(68)  # cabin thermostat temp as float, in Fahrenheit (default 68)
 
         # environment information, as inputs from train model / beacon
         self.station = str("")  # station name, parsed from beacon / static data
@@ -108,14 +106,6 @@ class TrainController:
         self.vitalAuth = newvitalauth
         return
 
-    def setaccellim(self, newaccellim):
-        self.accelLim = newaccellim
-        return
-
-    def setdecellim(self, newdecellim):
-        self.decelLim = newdecellim
-        return
-
     def setbeacon(self, newbeacon):
         self.beacon = newbeacon
         return
@@ -142,7 +132,7 @@ class TrainController:
     def ebrakecontrol(self):
         if self.eBrake == 0:  # ebrake is off
             self.eBrake = 1  # enable ebrake
-            self.setPtSpeed = 0  # set speed of train to 0
+            self.power = 0  # kill power
         elif self.eBrake == 1:  # ebrake is on
             self.eBrake = 0  # disable ebrake
         return
@@ -150,7 +140,7 @@ class TrainController:
     def passebrakecontrol(self):
         if self.passEBrake == 0:  # ebrake is off
             self.passEBrake = 1  # enable ebrake
-            self.setPtSpeed = 0  # set speed of train to 0
+            self.power = 0  # kill power
         elif self.passEBrake == 1:  # ebrake is on
             self.passEBrake = 0  # disable ebrake
         return
@@ -222,6 +212,12 @@ class TrainController:
 
     def parsebeacon(self, beaconinfo):
         pass
+
+    def testbenchcontrol(self):
+        if self.testBenchState == 0:
+            self.testBenchState = 1
+        elif self.testBenchState == 1:
+            self.testBenchState = 0
 
     def failhandler(self):
         if self.signalFail == 1 or self.engineFail == 1 or self.brakeFail == 1:

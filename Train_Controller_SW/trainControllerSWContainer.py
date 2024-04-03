@@ -3,14 +3,21 @@ import sys
 import threading
 
 from PyQt6.QtWidgets import QApplication
+from PyQt6.QtCore import pyqtSignal, pyqtSlot
 
 from Train_Controller_SW import trainControllerSW
 from Train_Controller_SW.trainControllerSWUI import UI
 
 
 class TrainControllerSWContainer:
+
+    # Signals
+    new_train_values_signal = pyqtSignal(dict, int)
+    new_train_temp_signal = pyqtSignal(float, int)
+
     def __init__(self):
         self.trainCtrl = trainControllerSW.TrainController()
+
 
         # actions for automatic mode launch
         # threading.Thread(target=self.trainCtrl.automode).start()  # uncomment this to see how auto mode will start
@@ -24,23 +31,37 @@ class TrainControllerSWContainer:
 
         self.ui = UI(self.trainCtrl)
 
-        self.ui.show()
+        self.ui.show()  # this unresolved reference is fine
         # self.ui.refreshengine()
 
         app.exec()
 
-    #  receiver functions
+    # sender functions
+    def sendvaluetotrain(self, outputs, index):
+        self.new_train_values_signal.emit(outputs, 1)
 
-    def updatevalues(self, inputs):
+    def sendtemp(self, cabintemp):
+        self.new_train_temp_signal.emit(cabintemp, 1)
+
+    # receiver functions
+
+    #  end point for train sending new values
+    def getvaluesfromtrain(self, inputs):
 
         self.actspeedfromtrain(inputs[0])
         self.cmdspeedfromtrain(inputs[1])
         self.authorityfromtrain(inputs[2])
         self.passebrakefromtrain(inputs[3])
         self.polarityfromtrain(inputs[4])
-        self.doorsidefromtrain(inputs[5])
-        self.undergroundfromtrain(inputs[6])
-        self.beaconfromtrain(inputs[7])
+        self.undergroundfromtrain(inputs[5])
+        self.beaconfromtrain(inputs[6])
+
+        # do values calculations
+        # blah blah blah
+
+        # send signal with updated values
+        # self.new_train_valeues_signal.emit(outputs, 1)
+        # self.new_train_temp_signal.emit(cabintemp, 1)
 
         return
 
@@ -72,7 +93,7 @@ class TrainControllerSWContainer:
 
 
 def main():
-    trainctrlcntr = Container()
+    trainctrlcntr = TrainControllerSWContainer()
     trainctrlcntr.show_ui()
 
 
