@@ -251,12 +251,12 @@ class HW_UI_JEB382_PyFirmat():
         self.LED_SBRK  .write( bool(self.output_arr[2]) )'''
         self.LED_CabnLgt   .write( bool(self.output_arr[6])      )
         self.LED_HeadLgt   .write( bool(self.output_arr[7])      )
-        self.LED_Door_L    .write( bool(self.output_arr[4]>1)    )
-        self.LED_Door_R    .write( bool(self.output_arr[4]%2)    )
+        self.LED_Door_L    .write( bool(self.output_arr[4]%2)    )
+        self.LED_Door_R    .write( bool(self.output_arr[4]>1)    )
         self.LED_Pass_EB   .write( bool(self.TrainModel_arr[3])  )
         self.LED_Track_Circ.write( bool(self.TrainModel_arr[4])  )
-        self.LED_Stat_Side2.write( bool(self.output_arr[4]>1) ) #_x 2,3
-        self.LED_Stat_Side1.write( bool(self.output_arr[4]%2) ) #x_ 1,3
+        self.LED_Stat_Side2.write( bool(self.stat_Dside%2) ) #_x 2,3
+        self.LED_Stat_Side1.write( bool(self.stat_Dside>1) ) #x_ 1,3
         #self.LED_Sig_Fail  .write( bool(self.TrainModel_arr[-4]) )
         #self.LED_Eng_Fail  .write( bool(self.TrainModel_arr[-3]) )
         #self.LED_Brk_Fail  .write( bool(self.TrainModel_arr[-2]) )
@@ -304,11 +304,14 @@ class HW_UI_JEB382_PyFirmat():
                 if "Left" in particular_line[6]: self.stat_Dside+=1
                 if "Right" in particular_line[6]: self.stat_Dside+=2
                 
-        
+        self.output_arr[5] = ""
         if app_stat != "" and linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum).split("\t")[5][:7] != "STATION":
             self.Announcements = "APP:"+app_stat[:12]
         elif app_stat != "" and linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum).split("\t")[5][:7] == "STATION":
             self.Announcements = "NOW:"+app_stat[:12]
+            self.output_arr[5] = app_stat
+            
+        
         
         #print("<"+self.Announcements+">")
         #print(distance_to_station)
@@ -396,15 +399,15 @@ class HW_UI_JEB382_PyFirmat():
         
         #-----------------------------------------------------------------------------------------------------------------------
         #4   Open/Close Left/Right Doors	    integer	    Which Doors to open; 0:none, 1:left, 2:right, 3:both
-        if self.Mode and (self.TrainModel_arr[0]==0):
+        if not self.Mode and (self.TrainModel_arr[0]==0):
             self.output_arr[4] = self.stat_Dside
             
-        elif not self.Mode and (self.TrainModel_arr[0]==0):#not moving manual
-            self.output_arr[4] = self.Driver_arr[6]*2 + self.Driver_arr[7]
+        elif self.Mode and (self.TrainModel_arr[0]==0):#not moving manual
+            self.output_arr[4] = self.Driver_arr[6] + self.Driver_arr[7]*2
             
         #-----------------------------------------------------------------------------------------------------------------------
         #5   Announce Stations	            String	    not "" make announcement of String; "" don't make announcement
-        #do in display
+        #earlier
         
         
         #6   Cabin lights (interior)	        Boolean	    lights inside cabin; Automatically turned on from enviroment or toggled by driver; 1 on, 0 off
@@ -435,6 +438,11 @@ class HW_UI_JEB382_PyFirmat():
             self.updateRead()
             self.updateCalc()
             self.updateDisplay()
+            
+            if __name__ != "__main__":
+                print(f"\nDriver TrainC #1:\t{self.Driver_arr}\t{'AUTO' if not self.Mode else 'MANUAL'}")
+                print(f"TrainModel TrainC #1:\t{self.TrainModel_arr} {'AUTO' if not self.Mode else 'MANUAL'}")
+                print(f"Output TrainC #1:\t{self.output_arr}\t{'AUTO' if not self.Mode else 'MANUAL'}")
         
     def __del__(self):
         print('HW_UI_JEB382_PyFirmat: Destructor called')
@@ -450,7 +458,7 @@ class HW_UI_JEB382_PyFirmat():
         #global printout
         global NoHW
         prin=True
-        while True or not NoHW:
+        while True and not NoHW:
             
             with open('TrainC_HW_bugfix.txt', 'w') as f: f.write('Hi')
             
@@ -462,6 +470,11 @@ class HW_UI_JEB382_PyFirmat():
                 if self.printout == 1 and not NoHW: print(f"Driver TrainC #1:\t{self.Driver_arr}\t{'AUTO' if not self.Mode else 'MANUAL'}")
                 elif self.printout == 2 and not NoHW: print(f"TrainModel TrainC #1:\t{self.TrainModel_arr} {'AUTO' if not self.Mode else 'MANUAL'}")
                 elif self.printout == 3 and not NoHW: print(f"Output TrainC #1:\t{self.output_arr}\t{'AUTO' if not self.Mode else 'MANUAL'}")
+                
+                if not NoHW:
+                    print(f"\nDriver TrainC #1:\t{self.Driver_arr}\t{'AUTO' if not self.Mode else 'MANUAL'}")
+                    print(f"TrainModel TrainC #1:\t{self.TrainModel_arr} {'AUTO' if not self.Mode else 'MANUAL'}")
+                    print(f"Output TrainC #1:\t{self.output_arr}\t{'AUTO' if not self.Mode else 'MANUAL'}")
             elif (int(time.time())-int(ptime))%2!=0:
                 prin=True
             #print(self.Mode)
