@@ -16,7 +16,7 @@ import time
 
 class HWUI:
     def __init__(self):  # create connection to server
-        self.serverAddress = ('192.168.1.184', 2222)
+        self.serverAddress = ('172.20.10.5', 2222)
         self.bufferSize = 1024
         self.UDPClient = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         print("HW started")

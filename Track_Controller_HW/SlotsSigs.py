@@ -13,10 +13,10 @@ class SlotsSigs(QObject):
     occupancy_signal = pyqtSignal(list)
     switches_signal = pyqtSignal(list)
     suggested_speed_signal = pyqtSignal(list)
-    rr_crossing_signal = pyqtSignal(list)
+    rr_crossing_signal = pyqtSignal(bool)
 
     def __init__(self, mode: bool, authority: list, switches: list, blocks: list,
-                 suggested_speed: list, rr_crossing: list):
+                 suggested_speed: list, rr_crossing: bool):
         # assigning values to the signals
 
         #self.plc_import()  # import PLC
@@ -38,6 +38,8 @@ class SlotsSigs(QObject):
     def new_occupancy(self, new_occupancy: list):
         print("new occupancy")
         self.blocks = new_occupancy
+        print(self.blocks)
+        #self.blocks))
         self.hw_ui.show_hw_data(self.blocks, self.mode, self.rr_crossing, self.switches)
         self.occupancy_signal.emit(new_occupancy)
 
@@ -48,6 +50,13 @@ class SlotsSigs(QObject):
         self.switches = new_switches
         self.hw_ui.show_hw_data(self.blocks, self.mode, self.rr_crossing, self.switches)
         self.switches_signal.emit(new_switches)
+
+    @pyqtSlot(bool)
+    def rr_crossing_toggled_signal(self, new_rr_crossing: bool):
+        print("rr cross toggled")
+        self.rr_crossing = new_rr_crossing
+        self.hw_ui.show_hw_data(self.blocks, self)
+        self.rr_crossing_signal.emit(new_rr_crossing)
 
     # Signal to update the suggested speed
     @pyqtSlot(list)
