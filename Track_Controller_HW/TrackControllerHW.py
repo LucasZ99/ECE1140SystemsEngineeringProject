@@ -5,8 +5,6 @@ from PyQt6.QtCore import pyqtSignal, QObject, pyqtSlot
 from Track_Controller_HW import SlotsSigs, TBShell
 
 
-
-
 class TrackControllerHardware(QObject):
     mode = False
     num_switches = 1
@@ -32,7 +30,6 @@ class TrackControllerHardware(QObject):
 
     def update_occupancy(self, block_occupancy_list: list):
         self.blocks = block_occupancy_list
-        print("----")
         self.stops = self.slots_sigs.new_occupancy(block_occupancy_list)
         print(self.blocks)
         return self.stops

@@ -117,8 +117,11 @@ class TrackControllerContainer(QObject):
         zero_speed_flag_list_B = self.trackControllerB.update_occupancy(self.occupancy_list_B)
         zero_speed_flag_list_C = self.trackControllerC.update_occupancy(self.occupancy_list_C)
         self.zero_speed_flag_list[0:len(self.occupancy_list_A)] = zero_speed_flag_list_A[0:len(self.occupancy_list_A)]
-        self.zero_speed_flag_list[28:78] = zero_speed_flag_list_B[0:50] + zero_speed_flag_list_B[
-                                                                          101:len(self.occupancy_list_B)]
+        print("zero speed flag list length: ", len(self.zero_speed_flag_list))
+        #print("zero speed flag list B: ", self.zero_speed_flag_list_B)
+        #print("zero speed flag list B length: ", len(self.zero_speed_flag_list_B))
+        #self.zero_speed_flag_list[28:78] = zero_speed_flag_list_B[0:50]
+        #self.zero_speed_flag_list[101:len(self.occupancy_list_B)] = zero_speed_flag_list_B[51:len(self.occupancy_list_B)]
         self.zero_speed_flag_list[77:(77 + len(self.occupancy_list_C))] = zero_speed_flag_list_C[
                                                                           0:len(self.occupancy_list_C)]
 
@@ -144,6 +147,7 @@ class TrackControllerContainer(QObject):
     def update_rr_crossing_status_B(self, rr_crossing_status:bool) -> None:
         if self.railway_crossing_vals_list[1] != rr_crossing_status:
             self.railway_crossing_vals_list[1] = rr_crossing_status
+            # emit for CTC
             self.rr_crossing_toggled_signal.emit(1)
             # call track model endpoint
             self.track_model.toggle_crossing(self.railway_crossing_blocks_list[1])

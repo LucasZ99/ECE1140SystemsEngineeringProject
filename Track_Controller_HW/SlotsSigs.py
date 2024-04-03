@@ -2,7 +2,6 @@ from PyQt6.QtCore import QObject, pyqtSignal
 from PyQt6.QtCore import pyqtSlot
 import os
 import sys
-from Track_Controller_HW import PLCProgram
 from Track_Controller_HW.HardwareUI import HWUI
 
 current_dir = os.path.dirname(__file__)  # setting up dir to work in any location in a directory
@@ -19,10 +18,10 @@ class SlotsSigs(QObject):
                  suggested_speed: list, rr_crossing: bool):
         # assigning values to the signals
 
-        #self.plc_import()  # import PLC
-        #sys.path.append(self.plc_path)
-        #import PLCProgram  # will never get to this point unless the PLC file is found
-        #plc = PLCProgram.PLC()
+        self.plc_import()  # import PLC
+        sys.path.append(self.plc_path)
+        import PLCProgram  # will never get to this point unless the PLC file is found
+        self.plc = PLCProgram.PLC()
 
         super().__init__()
         self.mode = mode
@@ -32,14 +31,15 @@ class SlotsSigs(QObject):
         self.suggested_speed = suggested_speed
         self.rr_crossing = rr_crossing
         self.hw_ui = HWUI()
+        self.stops = [False] * len(self.blocks)
 
     # Signal to update the occupancy
     @pyqtSlot(list)
     def new_occupancy(self, new_occupancy: list):
         print("new occupancy")
         self.blocks = new_occupancy
-        print(self.blocks)
-        #self.blocks))
+        self.plc.assign_vals(self.blocks, self.switches, self.rr_crossing, self.mode)
+        self.stops, self.blocks, self.rr_crossing = self.plc.run_plc_logic()
         self.hw_ui.show_hw_data(self.blocks, self.mode, self.rr_crossing, self.switches)
         self.occupancy_signal.emit(new_occupancy)
 
@@ -67,7 +67,7 @@ class SlotsSigs(QObject):
 
     def plc_import(self):  # guarded import of PLC, checking for existence in a specified folder of a USB drive
         print("running PLC import wizard...")
-        path = 'F:/PLC'
+        path = os.path.join(os.path.dirname(__file__), 'PLC')
         file = 'PLCProgram.py'
 
         try:  # guarded import of PLC prog
@@ -82,7 +82,7 @@ class SlotsSigs(QObject):
                     print("Correct path is " + path)
                     sys.exit(1)
             else:
-                print("No flash drive inserted... exiting")  # No drive found
+                print("No PLC installed... exiting")  # No drive found
                 sys.exit(1)
         except Exception as e:
             print("Something went wrong while trying to import", e)

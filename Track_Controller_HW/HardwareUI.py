@@ -16,10 +16,10 @@ import time
 
 class HWUI:
     def __init__(self):  # create connection to server
-        self.serverAddress = ('172.20.10.5', 2222)
+        self.serverAddress = ('192.168.1.184', 2222)
         self.bufferSize = 1024
         self.UDPClient = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        print("HW started")
+        print("Track Controller HW UI started...")
 
     def show_hw_data(self, blocks, mode, rr_cross, switches):  # send data through server to Pi
         data_to_send = ''.join('1' if block else '0' for block in blocks)
