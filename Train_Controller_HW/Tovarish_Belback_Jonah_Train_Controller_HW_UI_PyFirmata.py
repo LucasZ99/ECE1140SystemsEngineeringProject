@@ -371,9 +371,11 @@ class HW_UI_JEB382_PyFirmat():
                 if self.Pcmd > Pmax: self.Pcmd=Pmax
                 elif self.Pcmd < 0: self.Pcmd=0
             
-            self.timeL = currtime
-            self.uk1 = uk
-            self.ek1 = V_err
+                self.timeL = currtime
+                self.uk1 = uk
+                self.ek1 = V_err
+            
+                self.output_arr[1] = self.Pcmd
             
             #-----------------------------------------------------------------------------------------------------------------------
             #Look ahead algo (returns arr of total distance)
