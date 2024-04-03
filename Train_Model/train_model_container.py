@@ -26,7 +26,7 @@ class TrainModelContainer(QObject):
         self.time = self.time_keeper.system_time.time()
 
     def track_model_inputs(self, input_list, index):
-        # the list provided should have entries in this order: [commanded speed, vital authority, beacon, underground]
+        # the list provided should have entries in this order: [commanded speed, vital authority]
         if len(self.train_list) == 0:
             return False
         elif not (index in self.train_list.keys()):
@@ -36,12 +36,11 @@ class TrainModelContainer(QObject):
                                                                self.train_list[index].failure.signal_pickup_failure)
             self.train_list[index].signals.set_authority(input_list[1],
                                                          self.train_list[index].failure.signal_pickup_failure)
-            self.train_list[index].signals.beacon = input_list[2]
-            self.train_list[index].underground = input_list[3]
-            # [actual speed, authority, received speed, pbrake, track circuit, underground, beacon]
-            self.controller.updatevalues([self.train_list[index].velocity, input_list[1], input_list[0],
+            self.controller.updatevalues([self.train_list[index].velocity, self.train_list[index].signals.authority,
+                                          self.train_list[index].signals.commanded_speed,
                                           self.train_list[index].brakes.passenger_ebrake,
-                                          self.train_list[index].track_circuit, input_list[3], input_list[2]])
+                                          self.train_list[index].track_circuit, self.train_list[index].underground,
+                                          self.train_list[index].signals.beacon])
             self.business_logic.values_updated.emit()
             return True
 
@@ -69,8 +68,14 @@ class TrainModelContainer(QObject):
     def track_update_block(self, block_vals, index):
         if not (index in self.train_list.keys()):
             return False
-        # block_vals should be a list as such: [grade, elevation, block length]
-        self.train_list[index].update_blocks(block_vals)
+        # block_vals should be a list as such: [grade, elevation, block length, underground, beacon]
+        self.train_list[index].update_blocks(block_vals[:4])
+        self.train_list[index].signals.beacon = block_vals[4]
+        self.controller.updatevalues([self.train_list[index].velocity, self.train_list[index].signals.authority,
+                                      self.train_list[index].signals.commanded_speed,
+                                      self.train_list[index].brakes.passenger_ebrake,
+                                      self.train_list[index].track_circuit, self.train_list[index].underground,
+                                      self.train_list[index].signals.beacon])
         self.business_logic.block_updated.emit(index)
         return True
 
