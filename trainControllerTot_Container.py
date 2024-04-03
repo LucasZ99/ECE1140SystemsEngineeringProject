@@ -23,6 +23,7 @@ class TrainControler_Tot_Container:
 
     #TrainModel
     def updatevalues(self, inputs):
+        # [actual speed, authority, received speed, pbrake, track circuit, underground, beacon]
         return self.trainCtrl.updatevalues(inputs)
 
 def TrainC_main():
