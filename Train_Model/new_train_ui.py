@@ -29,9 +29,11 @@ class UITrain(QMainWindow):
             print("Error with loading UI file: ", e)
 
         # declare the train object
-        self.train_dict = dict()
         self.train = TrainModel()
         self.business_logic = bus
+        self.train_dict = self.business_logic.train_list
+
+
 
         # define widgets
         self.physicsButton = self.findChild(QPushButton, "physicsButton")
@@ -40,6 +42,8 @@ class UITrain(QMainWindow):
         self.primeGroup = self.findChild(QGroupBox, "primeGroup")
         self.trainSelect = self.findChild(QComboBox, "trainSelect")
         self.trainSelect.clear()
+        for i in self.train_dict.keys():
+            self.trainSelect.addItem(f'Train {i}')
         self.emerButton = self.findChild(QPushButton, "emerButton")
         self.tbCheck = self.findChild(QCheckBox, "tbCheck")
 
@@ -123,6 +127,7 @@ class UITrain(QMainWindow):
         except Exception as e:
             print("Error with loading Icon file: ", e)
 
+
         self.phyGroup_tb.hide()
         self.trainGroup_tb.hide()
         self.transGroup_tb.hide()
@@ -131,7 +136,7 @@ class UITrain(QMainWindow):
         self.ebp = False
         self.switching_trains = False
 
-        self.business_logic.values_updated.connect(self.populate_values)
+        self.business_logic.values_updated.connect(self.values_updated)
         self.business_logic.temp_updated.connect(self.index_update)
         self.business_logic.passengers_updated.connect(self.index_update)
         self.business_logic.block_updated.connect(self.index_update)
@@ -167,10 +172,13 @@ class UITrain(QMainWindow):
         self.leftDoorValue_tb.stateChanged.connect(self.left_door_change)
         self.rightDoorValue_tb.stateChanged.connect(self.right_door_change)
 
+    def values_updated(self):
+        self.populate_values()
     def index_update(self, index):
         string = str(self.trainSelect.currentText())
         if int(string[6:]) == index:
             self.populate_values()
+        print(self.train.ID)
 
     def train_added(self, index):
         self.trainSelect.addItem(f'Train {index}')

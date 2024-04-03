@@ -16,10 +16,11 @@ class TrainControler_HW_Container:
     def __init__(self,Testbench=False):
         self.main_Driver_arr = []
         self.main_TrainModel_arr = []
-        self.main_output_arr = []
+        self.outputs = []
         self.TB= Testbench
+        self.cabin_temp=68
     
-        self.trainCtrl = TC_HW_init(self.main_Driver_arr, self.main_TrainModel_arr, self.main_output_arr, Testbench)
+        self.trainCtrl = TC_HW_init(self.main_Driver_arr, self.main_TrainModel_arr, self.outputs, Testbench)
         #HW_UI_JEB382_PyFirmat(self.main_Driver_arr, self.main_TrainModel_arr, self.main_output_arr, Testbench)
 
     def show_ui(self):
@@ -39,12 +40,14 @@ class TrainControler_HW_Container:
     def updatevalues(self, inputs):
         #update train controller with Train Model
         self.main_TrainModel_arr = numpy.copy(inputs)
-        self.trainCtrl.updateRead() #get driver inputs
+        #self.trainCtrl.updateRead() #get driver inputs
         
         #update output array to handoff to Train Model
         self.trainCtrl.updateTot()
-        self.trainCtrl.updateDisplay()  #update arduino display
-        return self.main_output_arr
+        #self.trainCtrl.updateDisplay()  #update arduino display
+        self.outputs = self.main_output_arr[:-1]
+        self.cabin_temp = self.main_output_arr[-1]
+        #return self.main_output_arr[:-1]
 
 def TrainC_HW_main():
     trainctrlcntr = TrainControler_HW_Container()

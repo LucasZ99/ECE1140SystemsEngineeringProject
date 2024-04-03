@@ -1,72 +1,85 @@
 import sys
 
-from PyQt6.QtCore import QObject
+from PyQt6.QtCore import QObject, pyqtSignal
 from PyQt6.QtWidgets import QApplication
 
 from Train_Model import TrainBusinessLogic, TrainModel, UITrain
+from trainControllerTot_Container import TrainController_Tot_Container
+from SystemTime import SystemTimeContainer
 
 
 class TrainModelContainer(QObject):
 
-    track_inputs = dict()
-    controller_inputs = dict()
     passenger_return = dict()
     ui_list = list()
     business_logic = TrainBusinessLogic()
     num_cars = 1
-    ui1: UITrain
-    ui2: UITrain
-    ui3: UITrain
+    new_train_added = pyqtSignal(int)
+    train_enters_new_block = pyqtSignal(int)
 
-    def __init__(self, bus=TrainBusinessLogic()):
+    def __init__(self, bus: TrainBusinessLogic(), controller: TrainController_Tot_Container, time: SystemTimeContainer):
         super().__init__()
         self.business_logic = bus
         self.train_list = self.business_logic.train_list
+        self.controller = controller
+        self.controller.new_train_values_signal.connect(self.train_controller_inputs)
+        self,controller.new_train_temp_signal.connect(self.controller_update_temp)
+        self.time_keeper = time
+        self.time = self.time_keeper.system_time.time()
 
     def track_model_inputs(self, input_list, index):
-        # the list provided should have entries in this order: [commanded speed, vital authority, beacon, underground]
-        if len(self.track_inputs) == 0:
+        # the list provided should have entries in this order: [commanded speed, vital authority]
+        if len(self.train_list) == 0:
             return False
-        elif not (index in self.track_inputs.keys()):
+        elif not (index in self.train_list.keys()):
             return False
         else:
-            self.track_inputs[index] = input_list
+            self.train_list[index].signals.set_commanded_speed(input_list[0],
+                                                               self.train_list[index].failure.signal_pickup_failure)
+            self.train_list[index].signals.set_authority(input_list[1],
+                                                         self.train_list[index].failure.signal_pickup_failure)
+
+            self.controller.getvaluesfromtrain([self.train_list[index].velocity, self.train_list[index].signals.authority,
+                                          self.train_list[index].signals.commanded_speed,
+                                          self.train_list[index].brakes.passenger_ebrake,
+                                          self.train_list[index].track_circuit, self.train_list[index].underground,
+                                          self.train_list[index].signals.beacon])
+            self.physics_calculation()
+            self.business_logic.values_updated.emit()
             return True
 
     def train_controller_inputs(self, input_list, index):
         # the list provided should have the entries in this order: [commanded speed, power, service brake,
         # emergency brake, left/right doors, announce station, cabin lights, headlights]
-        if len(self.controller_inputs) == 0:
+        if len(self.train_list) == 0:
             return False
-        if not (index in self.controller_inputs.keys()):
+        if not (index in self.train_list.keys()):
             return False
         else:
-            self.controller_inputs[index] = input_list
-            return True
-
-    def update_values(self):
-        for i in self.train_list.keys():
-            # track input list : [commanded speed, vital authority, beacon,  underground]
-            self.train_list[i].signals.set_commanded_speed(self.track_inputs[i][0], self.train_list[i].failure.signal_pickup_failure)
-            self.train_list[i].signals.set_authority(self.track_inputs[i][1], self.train_list[i].failure.signal_pickup_failure)
-            self.train_list[i].signals.beacon = self.track_inputs[i][2]
             # train controller inputs: [commanded speed, power, service brake, emergency brake, left/right doors,
             # announce station, cabin lights, headlights]
-            self.train_list[i].engine.set_power(self.controller_inputs[i][1])
-            self.train_list[i].brakes.service_brake = self.controller_inputs[i][2]
-            self.train_list[i].brakes.driver_ebrake = self.controller_inputs[i][3]
-            self.train_list[i].interior_functions.left_doors = (int(self.controller_inputs[i][4] % 2) == 1)
-            self.train_list[i].interior_functions.right_doors = (int(self.controller_inputs[i][4] / 2) == 1)
-            self.train_list[i].interior_functions.announcement = self.controller_inputs[i][5]
-            self.train_list[i].interior_functions.interior_lights = self.controller_inputs[i][6]
-            self.train_list[i].interior_functions.exterior_lights = self.controller_inputs[i][7]
-        self.business_logic.values_updated.emit()
+            self.train_list[index].engine.set_power(input_list[1])
+            self.train_list[index].brakes.service_brake = input_list[2]
+            self.train_list[index].brakes.driver_ebrake = input_list[3]
+            self.train_list[index].interior_functions.left_doors = (int(input_list[4] % 2) == 1)
+            self.train_list[index].interior_functions.right_doors = (int(input_list[4] / 2) == 1)
+            self.train_list[index].interior_functions.announcement = input_list[5]
+            self.train_list[index].interior_functions.interior_lights = input_list[6]
+            self.train_list[index].interior_functions.exterior_lights = input_list[7]
+            self.business_logic.values_updated.emit()
+            return True
 
     def track_update_block(self, block_vals, index):
         if not (index in self.train_list.keys()):
             return False
-        # block_vals should be a list as such: [grade, elevation, block length]
-        self.train_list[index].update_blocks(block_vals)
+        # block_vals should be a list as such: [grade, elevation, block length, underground, beacon]
+        self.train_list[index].update_blocks(block_vals[:4])
+        self.train_list[index].signals.beacon = block_vals[4]
+        self.controller.getvaluesfromtrain([self.train_list[index].velocity, self.train_list[index].signals.authority,
+                                      self.train_list[index].signals.commanded_speed,
+                                      self.train_list[index].brakes.passenger_ebrake,
+                                      self.train_list[index].track_circuit, self.train_list[index].underground,
+                                      self.train_list[index].signals.beacon])
         self.business_logic.block_updated.emit(index)
         return True
 
@@ -81,28 +94,35 @@ class TrainModelContainer(QObject):
         if not (index in self.train_list.keys()):
             return False
         self.train_list[index].heater.update_target(num)
-        self.business_logic.temp_updated(index)
+        self.physics_calculation()
+        self.business_logic.temp_updated.emit(index)
         return True
 
-    def physics_calculation(self, time):
+    def physics_calculation(self):
+        interval = self.time_keeper.system_time.time() - self.time
+        self.time = self.time_keeper.system_time.time()
         for i in self.train_list:
-            self.train_list[i].physics_calculation(time)
+            self.train_list[i].physics_calculation(interval)
+            if self.train_list[i].position > self.train_list[i].new_block.block_length:
+                self.train_list[i].track_circuit = not self.train_list[i].track_circuit
+                self.train_enters_new_block.emit(i)
+            self.controller.getvaluesfromtrain([self.train_list[i].velocity, self.train_list[i].signals.authority,
+                                          self.train_list[i].signals.commanded_speed,
+                                          self.train_list[i].brakes.passenger_ebrake,
+                                          self.train_list[i].track_circuit, self.train_list[i].underground,
+                                          self.train_list[i].signals.beacon])
         self.business_logic.values_updated.emit()
 
     def add_train(self):
         if len(self.train_list) == 0:
             self.train_list[1] = TrainModel(1, self.num_cars)
-            self.track_inputs[1] = [0.0, 0, "", False]
-            self.controller_inputs[1] = [0.0, 0.0, False, False, False, "", True, False]
-
             index = 1
         else:
             index = max(self.train_list.keys()) + 1
             self.train_list[index] = TrainModel(index, self.num_cars)
-            self.track_inputs[index] = [0.0, 0, "", False]
-            self.controller_inputs[index] = [0.0, 0.0, False, False, False, "", True, False,]
 
         self.business_logic.train_added.emit(index)
+        self.new_train_added.emit(index)
         return index
 
     def remove_train(self, index):
@@ -110,8 +130,6 @@ class TrainModelContainer(QObject):
             return False
         else:
             self.train_list.pop(index)
-            self.track_inputs.pop(index)
-            self.controller_inputs.pop(index)
             self.business_logic.train_removed.emit(index)
             return True
 
@@ -125,6 +143,3 @@ class TrainModelContainer(QObject):
         self.ui.show()
 
         app.exec()
-
-
-

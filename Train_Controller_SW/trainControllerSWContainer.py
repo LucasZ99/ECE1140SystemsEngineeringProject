@@ -9,9 +9,11 @@ from Train_Controller_SW.trainControllerSWUI import UI
 
 
 class TrainControllerSWContainer:
+
     def __init__(self):
         self.trainCtrl = trainControllerSW.TrainController()
-
+        self.outputs = list()
+        self.cabin_temp = 68
         # actions for automatic mode launch
         # threading.Thread(target=self.trainCtrl.automode).start()  # uncomment this to see how auto mode will start
         # threading.Thread(target=self.powerrefresh).start()
@@ -24,23 +26,19 @@ class TrainControllerSWContainer:
 
         self.ui = UI(self.trainCtrl)
 
-        self.ui.show()
+        self.ui.show()  # this unresolved reference is fine
         # self.ui.refreshengine()
 
         app.exec()
 
-    #  receiver functions
+    # receiver functions
 
+    #  end point for train sending new values
     def updatevalues(self, inputs):
 
-        self.actspeedfromtrain(inputs[0])
-        self.cmdspeedfromtrain(inputs[1])
-        self.authorityfromtrain(inputs[2])
-        self.passebrakefromtrain(inputs[3])
-        self.polarityfromtrain(inputs[4])
-        self.doorsidefromtrain(inputs[5])
-        self.undergroundfromtrain(inputs[6])
-        self.beaconfromtrain(inputs[7])
+        # update values, perform all new calcs, and send back list of new values
+        self.outputs = self.trainCtrl.updater(inputs)
+        self.cabin_temp = self.trainCtrl.getcabintemp()
 
         return
 
@@ -72,7 +70,7 @@ class TrainControllerSWContainer:
 
 
 def main():
-    trainctrlcntr = Container()
+    trainctrlcntr = TrainControllerSWContainer()
     trainctrlcntr.show_ui()
 
 

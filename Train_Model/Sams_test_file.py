@@ -1,10 +1,6 @@
-import sys
-from PyQt6.QtWidgets import QApplication, QMainWindow
-from Train_Model import UITrain
-
-ui: UITrain
-
-if ui is None:
-    ui = UITrain()
-
-ui.isHidden()
+string = "0, 0, False, False, 0, , True, False"
+lst = string.split(",", -1)
+print(lst)
+print(int(lst[0]))
+print(int(lst[1]))
+print(bool(lst[2]))

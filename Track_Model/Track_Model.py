@@ -7,9 +7,11 @@ from PyQt6.QtWidgets import QApplication
 
 
 class TrackModel(QObject):
-    # signals
+    # external signals
     new_block_occupancy_signal = pyqtSignal(list)
     new_ticket_sales_signal = pyqtSignal(int)
+    # internal signals (to UI)
+    refresh_map_signal = pyqtSignal()
 
     def __init__(self, file_name):
         super().__init__()
@@ -223,11 +225,19 @@ class TrackModel(QObject):
         print('POST EMIT')
 
     def set_occupancy_from_train_presence(self):
+        # set occupancy false
+        self.data[1:, 7] = np.full((self.data.shape[0]-1), False, dtype=bool)
+        # for all blocks
+        # TODO: self.set_occupancy_from_failures() asap rocky
         # key = train id, value = block id
         for key in self.train_dict:
             self.set_block_occupancy(self.train_dict[key], True)
         self.emit_tc_block_occupancy()
 
+    # communication to ui
+
+    def refresh_map(self):
+        self.refresh_map_signal.emit()
     #
     #
     # Communication for other modules
@@ -251,7 +261,6 @@ class TrackModel(QObject):
 
     def toggle_signal(self, block_id: int):
         self.data[block_id, 21] = not self.data[block_id, 21]
-
 
     def toggle_crossing(self, block_id: int):
         self.data[block_id, 19] = not self.data[block_id, 19]
