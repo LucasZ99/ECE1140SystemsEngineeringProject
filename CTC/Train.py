@@ -1,6 +1,7 @@
-from CTC.Route import Stop, Route
+from CTC.Route import Stop
+import CTC.Route as Route
 from SystemTime import SystemTime
-from CTC.Track import MSSD, TRACK, GREEN_LINE_YARD_SPAWN, GREEN_LINE_YARD_DELETE
+from CTC.Track import MSSD, GREEN_LINE_YARD_SPAWN, GREEN_LINE_YARD_DELETE, PATH
 
 
 class Train:
@@ -17,9 +18,9 @@ class Train:
         self.previous_block = 0
 
         # determine slowdown of route
-        self.speed_factor = Route().get_route_travel_time(
-            Route().get_times_through_route(self.line_id, [stop.block for stop in self.route])
-        ) / Route().get_route_travel_time(self.route)
+        self.speed_factor = Route.get_route_travel_time(
+            Route.get_times_through_route(self.line_id, [stop.block for stop in self.route])
+        ) / Route.get_route_travel_time(self.route)
 
         self.system_time = system_time
 
@@ -36,7 +37,7 @@ class Train:
         return self.route[self.next_stop].arrival_time
 
     def blocks_to_next_stop(self) -> int:
-        return len(Route().dfs_find_route(self.line_id, self.current_block, self.route[self.next_stop]))
+        return len(Route.dfs_find_route(self.line_id, self.current_block, self.route[self.next_stop]))
 
     """
     Sets the train to the next block.
@@ -76,18 +77,8 @@ class Train:
             return 0
 
     def next_block(self, block: int) -> int:
-        next_blocks = TRACK[self.line_id][block]
-
-        # For bi-directional blocks, next_blocks = [current_block, next_block]
-        if block in next_blocks:
-            if next_blocks[0] == block:
-                next_block = next_blocks[1]
-            else:
-                next_block = next_blocks[0]
-        else:
-            next_block = next_blocks[0]
-
-        return next_block
+        curr_block_idx = PATH[self.line_id].index(block)
+        return PATH[self.line_id][curr_block_idx+1]
 
     def get_next_stop(self) -> int:
         return self.next_stop
@@ -113,9 +104,7 @@ class Train:
 
     # returns the next MSSD blocks OR blocks until next stop (including current block)
     def get_next_blocks(self) -> list[int]:
-
         next_blocks = [self.current_block]
-
         prev_block = self.current_block
 
         for i in range(1, min(MSSD + 1, self.blocks_to_next_stop())):
@@ -146,4 +135,4 @@ class Train:
     #         speeds.append((next_blocks[i], ))
 
     def get_previous_block(self) -> int:
-        return self.revious_block
+        return self.previous_block
