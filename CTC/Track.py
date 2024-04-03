@@ -5,10 +5,42 @@ GREEN_LINE = 0
 
 LINES = ["Green Line"]
 
+# Block where switch is: [pos_a, pos_b, current_pos]
+SWITCHES = [
+    {
+        13: [12, 1, 12],
+        28: [29, 150, 29],
+        77: [76, 101, 76],
+        85: [86, 100, 86]
+    }
+]
+
+LIGHTS = [
+    {
+        12: True,
+        1: False,
+        29: True,
+        150: False,
+        76: True,
+        101: False,
+        86: True,
+        100: False
+    }
+]
+
+CROSSINGS = [
+    [19, 108]
+]
+
+GREEN_LINE_YARD_SPAWN = 62
+GREEN_LINE_YARD_DELETE = 58
+
 TRACK = [
     # Green line: line 0
-    {   
-        -1: [0],
+    {
+        57: [GREEN_LINE_YARD_DELETE],
+        # Yard
+        GREEN_LINE_YARD_SPAWN: [63],
         # Section C -> A
         12: [11],
         11: [10],
@@ -73,10 +105,8 @@ TRACK = [
         54: [55],
         55: [56],
         56: [57],
-        57: [0],
 
         # Yard - K - L - M
-        0: [63],
         63: [64],
         64: [65],
         65: [66],

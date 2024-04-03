@@ -1,22 +1,23 @@
 from CTC.Route import Stop
 from SystemTime import SystemTime
-from CTC.Track import MSSD, TRACK
+from CTC.Track import MSSD, TRACK, GREEN_LINE_YARD_SPAWN, GREEN_LINE_YARD_DELETE
+
 
 class Train():
-    def __init__(self, system_time:SystemTime, id:int, line_id:int, route:list[Stop]):
+    def __init__(self, system_time: SystemTime, id: int, line_id: int, route: list[Stop]):
         self.id = id
         self.route = route
         self.line_id = line_id
         self.next_stop = 1
         self.current_stop = 0
-        self.current_block = -1
+        self.current_block = GREEN_LINE_YARD_SPAWN
         self.authority = 0
 
         self.system_time = system_time
 
-    def get_next_block(self)->int:
+    def get_next_block(self) -> int:
         return self.next_block(self.current_block)
-    
+
     def departure_time(self):
         return self.route[self.current_stop].departure_time
 
@@ -38,7 +39,7 @@ class Train():
             if self.next_stop >= self.route.__len__():
                 self.at_last_stop = True
 
-    def next_block(self, block:int)->int:
+    def next_block(self, block: int) -> int:
         next_blocks = TRACK[self.line_id][block]
 
         # For bi-directional blocks, next_blocks = [current_block, next_block]
@@ -52,30 +53,30 @@ class Train():
 
         return next_block
 
-    def get_next_stop(self)->int:
+    def get_next_stop(self) -> int:
         return self.next_stop
 
-    def get_destination(self)->Stop:
+    def get_destination(self) -> Stop:
         return self.route[-1]
-    
-    def add_stop(self, stop:Stop):
+
+    def add_stop(self, stop: Stop):
         self.route.append(stop)
 
         if self.at_last_stop:
             self.at_last_stop = False
             self.next_stop += 1
 
-    def add_stops(self, stops:list[Stop]):
+    def add_stops(self, stops: list[Stop]):
         for stop in stops:
             self.route.append(stop)
 
         if self.at_last_stop:
             self.at_last_stop = False
             self.next_stop += 1
-    
+
     # returns the next MSSD blocks OR blocks until next stop (including current block)
-    def get_next_blocks(self)->list[int]:
-        
+    def get_next_blocks(self) -> list[int]:
+
         next_blocks = [self.current_block]
 
         prev_block = self.current_block
@@ -87,10 +88,9 @@ class Train():
                 next_blocks.append(next_block)
 
                 return next_blocks
-        
+
             else:
                 next_blocks.append(next_block)
                 prev_block = next_block
 
         return next_blocks
-    
