@@ -136,7 +136,7 @@ class UITrain(QMainWindow):
         self.ebp = False
         self.switching_trains = False
 
-        self.business_logic.values_updated.connect(self.populate_values)
+        self.business_logic.values_updated.connect(self.values_updated)
         self.business_logic.temp_updated.connect(self.index_update)
         self.business_logic.passengers_updated.connect(self.index_update)
         self.business_logic.block_updated.connect(self.index_update)
@@ -172,10 +172,13 @@ class UITrain(QMainWindow):
         self.leftDoorValue_tb.stateChanged.connect(self.left_door_change)
         self.rightDoorValue_tb.stateChanged.connect(self.right_door_change)
 
+    def values_updated(self):
+        self.populate_values()
     def index_update(self, index):
         string = str(self.trainSelect.currentText())
         if int(string[6:]) == index:
             self.populate_values()
+        print(self.train.ID)
 
     def train_added(self, index):
         self.trainSelect.addItem(f'Train {index}')
