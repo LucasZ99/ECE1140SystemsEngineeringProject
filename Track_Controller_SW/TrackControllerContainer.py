@@ -115,7 +115,6 @@ class TrackControllerContainer(QObject):
         zero_speed_flag_list_A = self.trackControllerA.update_occupancy(self.occupancy_list_A)
         # zero_speed_flag_list_B = self.trackControllerB.update_occupancy(self.occupancy_list_B)
         zero_speed_flag_list_C = self.trackControllerC.update_occupancy(self.occupancy_list_C)
-
         self.zero_speed_flag_list[0:len(self.occupancy_list_A)] = zero_speed_flag_list_A[0:len(self.occupancy_list_A)]
         self.zero_speed_flag_list[77:(77 + len(self.occupancy_list_C))] = zero_speed_flag_list_C[
                                                                           0:len(self.occupancy_list_C)]
@@ -144,7 +143,7 @@ class TrackControllerContainer(QObject):
         # update changed signals to track model
         for i in range(len(lights_list)):
             if lights_list[i] != self.lights_list[i]:
-                self.track_model.toggle_signal(lights_list[i].val)
+                self.track_model.toggle_signal(lights_list[i].block)
                 self.lights_updated_signal.emit(lights_list[i].block)
 
     def show_ui(self, section: str):
