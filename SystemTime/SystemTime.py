@@ -3,6 +3,9 @@ import time as python_time
 from PyQt6.QtCore import QObject, pyqtSignal
 
 
+def time_to_str(t: float):
+    return python_time.strftime("%H:%m", python_time.localtime(t))
+
 class SystemTime(QObject):
     update_time_signal = pyqtSignal()
 

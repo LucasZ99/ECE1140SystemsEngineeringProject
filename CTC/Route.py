@@ -1,3 +1,5 @@
+from time import localtime, strftime
+
 from CTC.Track import *
 
 
@@ -7,10 +9,28 @@ class Stop:
         self.arrival_time = arrival_time
         self.departure_time = departure_time
 
+    def __str__(self):
+        s = f"{self.block}"
+        if get_block(GREEN_LINE, self.block) in STATIONS[GREEN_LINE]:
+            s += f": " + STATIONS[GREEN_LINE][get_block(GREEN_LINE, self.block)]
+
+        arrival_time_str = strftime("%H:%m", localtime(self.arrival_time))
+        departure_time_str = strftime("%H:%m", localtime(self.departure_time))
+
+        s += f" {arrival_time_str} {departure_time_str}"
+
+        return s
+
+def get_block(line_id: int, block: int) -> int:
+    if block in DOUBLE_TRACK_SECTIONS[line_id]:
+        return DOUBLE_TRACK_SECTIONS[line_id][block]
+    else:
+        return block
 
 def find_path(line_id: int, block1: int, block2: int) -> list[int]:
     start_idx = PATH[line_id].index(block1)
     end_idx = PATH[line_id].index(block2)
+
     return PATH[line_id][start_idx:end_idx + 1]
 
 
@@ -21,7 +41,7 @@ def find_route(line_id: int, block1: int, block2: int) -> list[int]:
 
         # train will only stop at station stops until final block
         for block in route[1:-1]:
-            if block in STATIONS[line_id]:
+            if get_block(line_id, block) in STATIONS[line_id]:
                 stops.append(block)
         stops.append(route[-1])
         return stops
@@ -38,10 +58,11 @@ def get_block_pair_travel_time(line_id: int, block1: int, block2: int) -> float:
     if route_block1_to_block2 is not None:
         for block1, block2 in zip(route_block1_to_block2[:-1], route_block1_to_block2[1:]):
             # calculate travel time - hr
-            time_between_blocks += ((LENGTHS_SPEED_LIMITS[line_id][block1][LENGTH] / (
-                    LENGTHS_SPEED_LIMITS[line_id][block1][SPEED_LIMIT] * 1000)) / 2.0) \
-                + ((LENGTHS_SPEED_LIMITS[line_id][block2][LENGTH] / (
-                    LENGTHS_SPEED_LIMITS[line_id][block2][SPEED_LIMIT] * 1000)) / 2.0)
+
+            time_between_blocks += ((LENGTHS_SPEED_LIMITS[line_id][get_block(line_id, block1)][LENGTH] / (
+                    LENGTHS_SPEED_LIMITS[line_id][get_block(line_id, block1)][SPEED_LIMIT] * 1000)) / 2.0) \
+                + ((LENGTHS_SPEED_LIMITS[line_id][get_block(line_id, block2)][LENGTH] / (
+                    LENGTHS_SPEED_LIMITS[line_id][get_block(line_id, block2)][SPEED_LIMIT] * 1000)) / 2.0)
 
             # convert hr to seconds
         time_between_blocks *= 3600
