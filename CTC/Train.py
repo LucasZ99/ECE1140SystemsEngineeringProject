@@ -3,7 +3,7 @@ from SystemTime import SystemTime
 from CTC.Track import MSSD, TRACK, GREEN_LINE_YARD_SPAWN, GREEN_LINE_YARD_DELETE
 
 
-class Train():
+class Train:
     def __init__(self, system_time: SystemTime, id: int, line_id: int, route: list[Stop]):
         self.id = id
         self.route = route
@@ -13,6 +13,8 @@ class Train():
         self.current_block = GREEN_LINE_YARD_SPAWN
         self.authority = 0
         self.at_last_stop = False
+
+        self.previous_block = 0
 
         # determine slowdown of route
         self.speed_factor = Route().get_route_travel_time(
@@ -42,6 +44,7 @@ class Train():
     """
 
     def set_to_next_block(self) -> int:
+        self.previous_block = self.current_block
         self.current_block = self.get_next_block()
 
         # check if at next stop
@@ -108,14 +111,14 @@ class Train():
             self.at_last_stop = False
             self.next_stop += 1
 
-    # returns the next MSSD blocks OR blocks until next stop (excluding current block)
+    # returns the next MSSD blocks OR blocks until next stop (including current block)
     def get_next_blocks(self) -> list[int]:
 
-        next_blocks = []
+        next_blocks = [self.current_block]
 
         prev_block = self.current_block
 
-        for i in range(1, MSSD + 1):
+        for i in range(1, min(MSSD + 1, self.blocks_to_next_stop())):
             next_block = self.next_block(prev_block)
             if next_block == self.route[self.next_stop].block:
                 next_blocks.append(next_block)
@@ -127,3 +130,20 @@ class Train():
                 prev_block = next_block
 
         return next_blocks
+
+    def get_next_authorities(self) -> list[tuple[int, int]]:
+        authorities = []
+        next_blocks = self.get_next_blocks()
+        for i in range(0, min(MSSD + 1, self.blocks_to_next_stop())):
+            authorities.append((next_blocks[i], self.blocks_to_next_stop() - i))
+
+        return authorities
+
+    # def get_next_speeds(self):
+    #     speeds = []
+    #     next_blocks = self.get_next_blocks()
+    #     for i in range(0, min(MSSD + 1, self.blocks_to_next_stop())):
+    #         speeds.append((next_blocks[i], ))
+
+    def get_previous_block(self) -> int:
+        return self.revious_block
