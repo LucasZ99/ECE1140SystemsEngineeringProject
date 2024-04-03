@@ -74,7 +74,7 @@ class CTC(QObject):
                 self.authorities[block[0]] = block[1]
                 self.authorities[train.get_previous_block()] = 0
 
-    def set_speed_limits(self):
+    def set_block_suggested_speeds(self):
         for train in self.get_running_trains_sorted_by_priority():
             for block in train.get_next_blocks():
                 block_speed_limit = LENGTHS_SPEED_LIMITS[train.line_id][block][SPEED_LIMIT]
@@ -99,9 +99,6 @@ class CTC(QObject):
                     self.dispatched_trains.schedule_train(train)
                 elif next_block_status == -2:  # remove from lists
                     self.running_trains.remove(train)
-
-    def set_block_suggested_speeds(self, train: Train):
-        pass
 
     def update_switch_position(self, line_id: int, block_id: int, position: int):
         self.switches[block_id].current_pos = position
