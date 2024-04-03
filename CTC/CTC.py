@@ -68,7 +68,7 @@ class CTC(QObject):
 
         return trains
 
-    def get_running_train(self) -> list[Train]:
+    def get_running_trains(self) -> list[Train]:
         trains = []
         for train in self.running_trains:
             trains.append(train)
