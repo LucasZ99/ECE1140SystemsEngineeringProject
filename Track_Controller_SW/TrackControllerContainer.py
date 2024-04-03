@@ -142,7 +142,7 @@ class TrackControllerContainer(QObject):
         # emit new list to ctc
         # update changed signals to track model
         for i in range(len(lights_list)):
-            if lights_list[i] != self.lights_list[i]:
+            if lights_list[i].val != self.lights_list[i].val:
                 self.track_model.toggle_signal(lights_list[i].block)
                 self.lights_updated_signal.emit(lights_list[i].block)
 
