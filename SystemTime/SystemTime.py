@@ -13,7 +13,7 @@ class SystemTime(QObject):
         init_time = python_time.time()
         # print(init_time)
         self.__sys_time = init_time
-        self.__update_interval = 0.1
+        self.__update_interval = 1
         self.__timer_flag = 1
 
         self.__time_update_thread = Thread(target=self.update_time)
@@ -27,7 +27,7 @@ class SystemTime(QObject):
                 if python_time.time() >= start_time + self.__update_interval:
                     break
 
-            self.__sys_time += 0.1
+            self.__sys_time += self.__update_interval
             self.update_time_signal.emit()
 
     def __del__(self):
@@ -40,5 +40,5 @@ class SystemTime(QObject):
 
     def set_multiplier(self, multiplier: float) -> None:
         self.__scale = multiplier
-        self.__update_interval = 1.0 / (10 * self.__scale)
+        self.__update_interval = 1.0 / (1 * self.__scale)
         print(f"multiplier set: {multiplier}")
