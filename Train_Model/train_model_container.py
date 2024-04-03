@@ -30,9 +30,9 @@ class TrainModelContainer(QObject):
     def track_model_inputs(self, input_list, index):
         # the list provided should have entries in this order: [commanded speed, vital authority]
         if len(self.train_list) == 0:
-            return False
+            return
         elif not (index in self.train_list.keys()):
-            return False
+            return
         else:
             self.train_list[index].signals.set_commanded_speed(input_list[0],
                                                                self.train_list[index].failure.signal_pickup_failure)
@@ -46,7 +46,6 @@ class TrainModelContainer(QObject):
                                           self.train_list[index].signals.beacon])
             self.physics_calculation()
             self.business_logic.values_updated.emit()
-            return True
 
     def train_controller_inputs(self, input_list, index):
         # the list provided should have the entries in this order: [commanded speed, power, service brake,
