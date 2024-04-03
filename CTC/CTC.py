@@ -4,10 +4,12 @@ from CTC.Track import *
 from SystemTime import SystemTime
 from Track_Controller_SW.switching import Switch
 from Track_Controller_SW import TrackControllerContainer
-from PyQt6.QtCore import QObject
+from PyQt6.QtCore import QObject, pyqtSignal
 
 
 class CTC(QObject):
+    update_ui_signal = pyqtSignal()
+
     def __init__(self, system_time: SystemTime, track_controller_container_ref: TrackControllerContainer):
         super().__init__()
         self.system_time = system_time
@@ -53,6 +55,9 @@ class CTC(QObject):
         self.set_block_suggested_speeds()
 
         self.update_track_controller()
+
+        # tell ui to update data
+        self.update_ui_signal.emit()
 
     def update_track_controller(self):
         for block in self.changed_speeds:

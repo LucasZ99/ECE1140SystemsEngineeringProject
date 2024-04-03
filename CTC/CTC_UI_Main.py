@@ -1,6 +1,6 @@
 from datetime import date, datetime, timedelta
 from time import localtime, strftime, strptime, struct_time, time, ctime
-from PyQt6.QtCore import QSize, Qt, QDateTime, QTime, QTimer
+from PyQt6.QtCore import QSize, Qt, QDateTime, QTime, QTimer, pyqtSlot
 from PyQt6.QtWidgets import QMainWindow, QApplication, QWidget, QPushButton, QLabel, QLineEdit, QVBoxLayout, \
     QGridLayout, QComboBox, QHBoxLayout, QTimeEdit, QTableWidget, QTableWidgetItem, QTabWidget, QAbstractScrollArea
 
@@ -29,6 +29,11 @@ class CTCMainWindow(QMainWindow):
 
         self.scheduled_trains: list[Train] = self.ctc.get_scheduled_trains()
         self.running_trains: list[Train] = self.ctc.get_running_trains()
+
+
+        ########### SLOTS for CTC SIGNALS ###############
+        self.system_time.update_time_signal.connect(self.update_time)
+        self.ctc.update_ui_signal.connect(self.refresh_ctc_data)
 
         self.setWindowTitle("CTC Office")
 
@@ -263,6 +268,11 @@ class CTCMainWindow(QMainWindow):
 
         self.route: list[int] = []
 
+    @pyqtSlot()
+    def refresh_ctc_data(self):
+        self.update_schedule()
+        self.update_running_trains_list()
+
     def current_line_id(self):
         return self.dispatch_train_tab_widget.currentIndex()
 
@@ -488,12 +498,15 @@ class CTCMainWindow(QMainWindow):
         pass
 
     # Timer Functions
+    # TODO convert to slots
     def timer_handler_1sec(self):
-        self.update_time()
-        self.poll_schedule_for_trains_to_dispatch()
-        self.update_schedule()
-        self.update_running_trains_list()
+        # self.update_time()
+        # self.poll_schedule_for_trains_to_dispatch()
+        # self.update_schedule()
+        # self.update_running_trains_list()
+        pass
 
+    @pyqtSlot()
     def update_time(self):
         current_time = strftime("%H:%M:%S", localtime(self.system_time.time()))
         # [label.setTime(get_current_time_qtime()) for label in self.departure_time_list]
