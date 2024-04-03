@@ -47,7 +47,7 @@ class BusinessLogic(QObject):
 
         # execute the plc program when the occupancy changes
         plc_result = self.plc_logic.execute_plc(
-            self.occupancy_list,
+            self.occupancy_list
         )
 
         # post plc execution processing logic
