@@ -4,7 +4,7 @@ from PyQt6.QtCore import QObject, pyqtSignal
 from PyQt6.QtWidgets import QApplication
 
 from Train_Model import TrainBusinessLogic, TrainModel, UITrain
-import trainControllerTot_Container
+from trainControllerTot_Container import TrainController_Tot_Container
 from SystemTime import SystemTimeContainer
 
 
@@ -17,11 +17,13 @@ class TrainModelContainer(QObject):
     new_train_added = pyqtSignal(int)
     train_enters_new_block = pyqtSignal(int)
 
-    def __init__(self, bus: TrainBusinessLogic(), controller: trainControllerTot_Container, time: SystemTimeContainer):
+    def __init__(self, bus: TrainBusinessLogic(), controller: TrainController_Tot_Container, time: SystemTimeContainer):
         super().__init__()
         self.business_logic = bus
         self.train_list = self.business_logic.train_list
         self.controller = controller
+        self.controller.new_train_values_signal.connect(self.train_controller_inputs)
+        self,controller.new_train_temp_signal.connect(self.controller_update_temp)
         self.time_keeper = time
         self.time = self.time_keeper.system_time.time()
 
@@ -37,16 +39,13 @@ class TrainModelContainer(QObject):
             self.train_list[index].signals.set_authority(input_list[1],
                                                          self.train_list[index].failure.signal_pickup_failure)
 
+            self.controller.getvaluesfromtrain([self.train_list[index].velocity, self.train_list[index].signals.authority,
+                                          self.train_list[index].signals.commanded_speed,
+                                          self.train_list[index].brakes.passenger_ebrake,
+                                          self.train_list[index].track_circuit, self.train_list[index].underground,
+                                          self.train_list[index].signals.beacon])
+            self.physics_calculation()
             self.business_logic.values_updated.emit()
-            try:
-                self.controller.updatevalues([self.train_list[index].velocity, self.train_list[index].signals.authority,
-                                              self.train_list[index].signals.commanded_speed,
-                                              self.train_list[index].brakes.passenger_ebrake,
-                                              self.train_list[index].track_circuit, self.train_list[index].underground,
-                                              self.train_list[index].signals.beacon])
-            except Exception as e:
-                print(e)
-
             return True
 
     def train_controller_inputs(self, input_list, index):
@@ -76,7 +75,7 @@ class TrainModelContainer(QObject):
         # block_vals should be a list as such: [grade, elevation, block length, underground, beacon]
         self.train_list[index].update_blocks(block_vals[:4])
         self.train_list[index].signals.beacon = block_vals[4]
-        self.controller.updatevalues([self.train_list[index].velocity, self.train_list[index].signals.authority,
+        self.controller.getvaluesfromtrain([self.train_list[index].velocity, self.train_list[index].signals.authority,
                                       self.train_list[index].signals.commanded_speed,
                                       self.train_list[index].brakes.passenger_ebrake,
                                       self.train_list[index].track_circuit, self.train_list[index].underground,
@@ -95,16 +94,19 @@ class TrainModelContainer(QObject):
         if not (index in self.train_list.keys()):
             return False
         self.train_list[index].heater.update_target(num)
-        self.business_logic.temp_updated(index)
+        self.physics_calculation()
+        self.business_logic.temp_updated.emit(index)
         return True
 
-    def physics_calculation(self, time):
+    def physics_calculation(self):
+        interval = self.time_keeper.system_time.time() - self.time
+        self.time = self.time_keeper.system_time.time()
         for i in self.train_list:
-            self.train_list[i].physics_calculation(time)
+            self.train_list[i].physics_calculation(interval)
             if self.train_list[i].position > self.train_list[i].new_block.block_length:
                 self.train_list[i].track_circuit = not self.train_list[i].track_circuit
                 self.train_enters_new_block.emit(i)
-            self.controller.updatevalues([self.train_list[i].velocity, self.train_list[i].signals.authority,
+            self.controller.getvaluesfromtrain([self.train_list[i].velocity, self.train_list[i].signals.authority,
                                           self.train_list[i].signals.commanded_speed,
                                           self.train_list[i].brakes.passenger_ebrake,
                                           self.train_list[i].track_circuit, self.train_list[i].underground,

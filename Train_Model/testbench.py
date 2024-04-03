@@ -68,7 +68,10 @@ class ContainerTB(QMainWindow):
         input_lst = list()
         input_lst.append(float(lst[0]))
         input_lst.append(float(lst[0]))
-        self.container.track_model_inputs(input_lst, 1)
+        try:
+            self.container.track_model_inputs(input_lst, 1)
+        except Exception as e:
+            print(e)
 
     def add_trn(self):
         self.container.add_train()
