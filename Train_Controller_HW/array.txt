@@ -49,7 +49,7 @@ xxxxx       Failure From Train Model	Boolean	Fails: signal, engine, break
 2   On/Off Service Brake	        Boolean	    Slow down vital control from train controller
 3   On/Off Emergency Brake	        Boolean	    Emergency Slow down vital control from train controller
 4   Open/Close Left/Right Doors	    integer	    Which Doors to open; 0:none, 1:left, 2:right, 3:both
-5   Announce Stations	            String	    not "" make announcement of String; "" don't make announcement
+-   Announce Stations	            String	    not "" make announcement of String; "" don't make announcement
 6   Cabin lights (interior)	        Boolean	    lights inside cabin; Automatically turned on from enviroment or toggled by driver; 1 on, 0 off
 7   headlights (exterior)	        Boolean	    Automatically turned on from enviroment or toggled by driver; 1 on, 0 off
 8   Cabin Temperature	            Fahrenheit  What temperature to make cabin
