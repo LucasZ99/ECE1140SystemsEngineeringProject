@@ -11,22 +11,38 @@ from Train_Controller_HW.trainControllerHWContainer import TrainControler_HW_Con
 
 class TrainController_Tot_Container:
 
-    def __init__(self,Ware = True):
+    # Signals
+    new_train_values_signal = pyqtSignal(list, int)
+    new_train_temp_signal = pyqtSignal(float, int)
+    # sam connect these signals to your respective update train model values command
+
+    def __init__(self, ware=True):
         # Ware:
         # False: HW
         # True:  SW
-        if Ware: self.trainCtrl = TrainControllerSWContainer()
-        else: self.trainCtrl = TrainControler_HW_Container()
+        if ware:
+            self.trainCtrl = TrainControllerSWContainer()
+        else:
+            self.trainCtrl = TrainControler_HW_Container()
 
     def show_ui(self):
         self.trainCtrl.show_ui()
 
     #  receiver functions
+    def getvaluesfromtrain(self, inputs):  # Sam call this to update traincontroller values
+
+        self.trainCtrl.updatevalues(inputs)
+
+        # send signal with updated values
+        self.new_train_values_signal.emit(self.trainCtrl.outputs, 1)
+        self.new_train_temp_signal.emit(self.trainCtrl.cabin_temp, 1)
+
+        return
 
     # TrainModel
-    def updatevalues(self, inputs):
-        # [actual speed, authority, received speed, pbrake, track circuit, underground, beacon]
-        return self.trainCtrl.updatevalues(inputs)
+    # def updatevalues(self, inputs):
+    #     # [actual speed, authority, received speed, pbrake, track circuit, underground, beacon]
+    #     return self.trainCtrl.updatevalues(inputs)
 
 
 def TrainC_main():

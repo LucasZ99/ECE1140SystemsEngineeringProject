@@ -50,6 +50,7 @@ class UI(QMainWindow):
         self.ki.setValue(int(self.trainctrl.ki))
         self.currSpeed.setText(f'{self.trainctrl.currSpeed}')
         self.power.setText(f'{self.trainctrl.power}')
+        self.setPtSpeed.setValue(int(self.trainctrl.setPtSpeed))
 
         # TODO make connections
         self.testBench.clicked.connect(self.testingbench)
@@ -276,15 +277,16 @@ class UI(QMainWindow):
             self.eBrake.setText("EMERGENCY BRAKE: ON")
             self.testLabel.setText(f'ebrake off and {self.trainctrl.eBrake}')
             self.testLabel.adjustSize()
-            self.setPtSpeed.setValue(self.trainctrl.setPtSpeed)
+            # self.setPtSpeed.setValue(self.trainctrl.setPtSpeed) # crashes here, probably because speed is undefined
             self.refreshengine()
 
     def speedupdate(self):
-        if self.trainctrl.eBrake() == 0 and self.trainctrl.passEBrake == 0:
-            self.trainctrl.setsetptspeed((self.setPtSpeed.value()))
+        if self.trainctrl.eBrake == 0 and self.trainctrl.passEBrake == 0:
+            f'{self.setPtSpeed.value()}'
+            self.trainctrl.setsetptspeed(self.setPtSpeed.value())
             self.refreshengine()
-        elif self.trainctrl.eBrake() == 1 or self.trainctrl.passEBrake == 1:
-            self.setPtSpeed.setValue(0)
+        #elif self.trainctrl.eBrake() == 1 or self.trainctrl.passEBrake == 1:
+            #self.setPtSpeed.setValue(0)
 
     def changekp(self):
         self.trainctrl.kp = self.kp.value()
