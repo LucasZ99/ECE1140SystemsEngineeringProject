@@ -4,10 +4,12 @@ from CTC.Track import *
 from SystemTime import SystemTime
 from Track_Controller_SW.switching import Switch
 from Track_Controller_SW import TrackControllerContainer
-from PyQt6.QtCore import QObject
+from PyQt6.QtCore import QObject, pyqtSignal
 
 
 class CTC(QObject):
+    update_ui_signal = pyqtSignal()
+
     def __init__(self, system_time: SystemTime, track_controller_container_ref: TrackControllerContainer):
         super().__init__()
         self.system_time = system_time
@@ -54,6 +56,9 @@ class CTC(QObject):
 
         self.update_track_controller()
 
+        # tell ui to update data
+        self.update_ui_signal.emit()
+
     def update_track_controller(self):
         for block in self.changed_speeds:
             self.track_controller_ref.command_speed(GREEN_LINE, block, self.speed_limits[block])
@@ -68,7 +73,7 @@ class CTC(QObject):
 
         return trains
 
-    def get_running_train(self) -> list[Train]:
+    def get_running_trains(self) -> list[Train]:
         trains = []
         for train in self.running_trains:
             trains.append(train)
