@@ -29,23 +29,6 @@ int LED_SBRK_Fail  = 34;
 
 
 ////////////////TRAIN MODEL////////////////
-ticks
-act spd
-com spd
-vit auth
-spd lim
-acc lim
-
-buttons
-
-pass ebrake
-Track Circuit State
-Station side(0to3)
-sig fail
-eng fail
-brake fail
-beacon (128chars)
-
 0           Actual Speed	m/s	How fast its actively going
 1           Commanded Speed	m/s	Safe speed	1	
 2           Vital Authority	m	Safe authority	2	
@@ -55,7 +38,7 @@ constant    Deacceleration Limit	m/s^2	Deacceleration thats safe; Max
 3           eBrake (Passenger)	Boolean	Passenger requested Emergency brake; 1:on, 0:otherwise	
 4           Track Circuit State	Boolean	Position/Direction of track circuit
 beacon      station side	Integer	What side of train station is on; 0:none, 1:left, 2:right, 3:both   ;   beacon, under block number information index
-5           Underground	Boolean	0 for underground 1 for above-ground
+5           0 for above-ground 1 for underground
 xxxxx       Failure From Train Model	Boolean	Fails: signal, engine, break
 6           Beacon	128 Byte characters	[3bytes] block number (has stored information on each block: name, side)    ;   check if is different then last read for incoming/outgoing
 
