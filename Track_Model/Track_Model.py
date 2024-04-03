@@ -252,6 +252,7 @@ class TrackModel(QObject):
     def toggle_signal(self, block_id: int):
         self.data[block_id, 21] = not self.data[block_id, 21]
 
+
     def toggle_crossing(self, block_id: int):
         self.data[block_id, 19] = not self.data[block_id, 19]
 

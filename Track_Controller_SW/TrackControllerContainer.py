@@ -5,13 +5,11 @@ from Track_Controller_SW import TrackController, Switch, Light
 from Track_Model.Track_Model_Container import TrackModelContainer
 
 
-# from Track_Model import Track_Model_New
-
 class TrackControllerContainer(QObject):
 
     # Signals
     switch_toggled_signal = pyqtSignal(int)
-    lights_updated_signal = pyqtSignal(list)
+    lights_updated_signal = pyqtSignal(int)
     rr_crossing_toggled_signal = pyqtSignal(int)
     occupancy_updated_signal = pyqtSignal(list)
 
@@ -117,7 +115,6 @@ class TrackControllerContainer(QObject):
         zero_speed_flag_list_A = self.trackControllerA.update_occupancy(self.occupancy_list_A)
         # zero_speed_flag_list_B = self.trackControllerB.update_occupancy(self.occupancy_list_B)
         zero_speed_flag_list_C = self.trackControllerC.update_occupancy(self.occupancy_list_C)
-
         self.zero_speed_flag_list[0:len(self.occupancy_list_A)] = zero_speed_flag_list_A[0:len(self.occupancy_list_A)]
         self.zero_speed_flag_list[77:(77 + len(self.occupancy_list_C))] = zero_speed_flag_list_C[
                                                                           0:len(self.occupancy_list_C)]
@@ -125,6 +122,7 @@ class TrackControllerContainer(QObject):
     @pyqtSlot(int)
     def update_track_switch(self, switch_block: int) -> None:
         print(f"Updating Track Model switch at block: {switch_block}")
+
         # emit ctc signal
         self.track_model.toggle_switch(switch_block)
 
@@ -132,21 +130,21 @@ class TrackControllerContainer(QObject):
     def update_rr_crossing_status_A(self, rr_crossing_status: bool) -> None:
         # if the previous status does not equal updated status, send the signal
         # and update the track model
-        if self.railway_crossing_list[0] != rr_crossing_status:
-            self.railway_crossing_list[0] = rr_crossing_status
+        if self.railway_crossing_vals_list[0] != rr_crossing_status:
+            self.railway_crossing_vals_list[0] = rr_crossing_status
             # emit for CTC
-            self.rr_crossing_toggled_signal.emit(0)
+            self.rr_crossing_toggled_signal.emit(self.railway_crossing_blocks_list[0])
             # call track model endpoint
             self.track_model.toggle_crossing(self.railway_crossing_blocks_list[0])
 
     @pyqtSlot(list)
     def update_lights_status(self, lights_list: list[Light]) -> None:
         # emit new list to ctc
-        self.lights_updated_signal.emit(lights_list)
         # update changed signals to track model
         for i in range(len(lights_list)):
             if lights_list[i] != self.lights_list[i]:
-                self.track_model.toggle_signal(lights_list[i].val)
+                self.track_model.toggle_signal(lights_list[i].block)
+                self.lights_updated_signal.emit(lights_list[i].block)
 
     def show_ui(self, section: str):
         if section == "A":
