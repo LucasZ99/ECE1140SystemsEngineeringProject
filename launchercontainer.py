@@ -37,7 +37,8 @@ class LauncherContainer(QObject):
         launcher_ui.open_track_controller_ui_signal.connect(self.open_track_controller_ui)
         launcher_ui.open_track_controller_tb_ui_signal.connect(self.open_track_controller_tb_ui)
         launcher_ui.open_track_model_ui_signal.connect(self.open_track_model_ui)
-        launcher_ui.open_train_controller_ui_signal.connect(self.open_train_controller_ui)
+        launcher_ui.open_train_controller_SW_ui_signal.connect(self.open_train_controller_SW_ui)
+        launcher_ui.open_train_controller_HW_ui_signal.connect(self.open_train_controller_HW_ui)
         launcher_ui.open_train_model_ui_signal.connect(self.open_train_model_ui)
         launcher_ui.open_ctc_ui_signal.connect(self.open_ctc_ui)
 
@@ -67,8 +68,16 @@ class LauncherContainer(QObject):
         print("Open Track Model UI Signal received")
         self.track_model_container.show_ui()
 
-    def open_train_controller_ui(self):
+    def open_train_controller_SW_ui(self):
+        print("Open Train Controller SW UI Signal received")
+        if self.trainControllerContainer.Ware != True:
+            self.trainControllerContainer = TrainController_Tot_Container(True)
+        self.trainControllerContainer.show_ui()
+
+    def open_train_controller_HW_ui(self):
         print("Open Train Controller HW UI Signal received")
+        if self.trainControllerContainer.Ware != False:
+            self.trainControllerContainer = TrainController_Tot_Container(False)
         self.trainControllerContainer.show_ui()
 
     def open_train_model_ui(self):

@@ -36,12 +36,16 @@ import threading
 
 
 
+#authority: number of blocks until I stop, dont stop at every station
+
+
 global board,Pmax,Acc_Lim,DeAcc_Lim,NoHW
 Pmax=10000
 Acc_Lim=0.5
 DeAcc_Lim=1.2#train spec page (1.20 is service brake)
 try:
     board = ArduinoMega('COM7')
+    NoHW=False
 except:
     NoHW=True
     print("No Train Controller HW detected: Arduino COM")
@@ -111,7 +115,7 @@ class HW_UI_JEB382_PyFirmat():
         #-------adjust arrays-------
         #array inputed as an init gets updated as UI is used
         #classes that created this TB have the array they passed locally update with it as well
-        if len(in_TrainModel_arr)<10:
+        '''if len(in_TrainModel_arr)<10:
             #if array is empty or missing values, autofills at end of missing indexes
             t_TrainModel_arr = [0.0, 0.0, 0.0, False, False, False, False, False, False,"00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"]
             in_TrainModel_arr = in_TrainModel_arr + t_TrainModel_arr[len(in_TrainModel_arr):]
@@ -128,7 +132,7 @@ class HW_UI_JEB382_PyFirmat():
         limit1=0;limit2=100
         for i in range(0,4):
             if   in_TrainModel_arr[i] < limit1: in_TrainModel_arr[i]=limit1
-            elif in_TrainModel_arr[i] > limit2: in_TrainModel_arr[i]=limit2
+            elif in_TrainModel_arr[i] > limit2: in_TrainModel_arr[i]=limit2'''
         
         self.TrainModel_arr = in_TrainModel_arr
         print(self.TrainModel_arr)
@@ -188,10 +192,12 @@ class HW_UI_JEB382_PyFirmat():
         self.ek1=0
         self.timeL=0
         self.Pcmd=0
+        self.polarity = bool(self.TrainModel_arr[4])
+        self.blockNum = 0#62 [IT3 application]
         
         #TestBench
         self.printout = 3
-        if __name__ == "__main__" and TestBench:
+        if __name__ == "__main__":# and TestBench:
             #self.printout = 3
             self.HW_UI_fin(TestBench)
     
@@ -229,7 +235,7 @@ class HW_UI_JEB382_PyFirmat():
         self.DISP.send(self.TrainModel_arr[-1][1:32])'''
         
         #change outputs to out arr
-        self.LED_CabnLgt   .write( bool(self.output_arr[6])      )
+        '''self.LED_CabnLgt   .write( bool(self.output_arr[6])      )
         self.LED_HeadLgt   .write( bool(self.output_arr[7])      )
         self.LED_Door_L    .write( bool(self.output_arr[4]>1)    )
         self.LED_Door_R    .write( bool(self.output_arr[4]%2)    )
@@ -240,6 +246,19 @@ class HW_UI_JEB382_PyFirmat():
         self.LED_Sig_Fail  .write( bool(self.TrainModel_arr[-4]) )
         self.LED_Eng_Fail  .write( bool(self.TrainModel_arr[-3]) )
         self.LED_Brk_Fail  .write( bool(self.TrainModel_arr[-2]) )
+        self.LED_EBRK  .write( bool(self.output_arr[3]) )
+        self.LED_SBRK  .write( bool(self.output_arr[2]) )'''
+        self.LED_CabnLgt   .write( bool(self.output_arr[6])      )
+        self.LED_HeadLgt   .write( bool(self.output_arr[7])      )
+        self.LED_Door_L    .write( bool(self.output_arr[4]>1)    )
+        self.LED_Door_R    .write( bool(self.output_arr[4]%2)    )
+        self.LED_Pass_EB   .write( bool(self.TrainModel_arr[3])  )
+        self.LED_Track_Circ.write( bool(self.TrainModel_arr[4])  )
+        #self.LED_Stat_Side2.write( bool(self.TrainModel_arr[7]>1) ) #_x 2,3
+        #self.LED_Stat_Side1.write( bool(self.TrainModel_arr[7]%2) ) #x_ 1,3
+        #self.LED_Sig_Fail  .write( bool(self.TrainModel_arr[-4]) )
+        #self.LED_Eng_Fail  .write( bool(self.TrainModel_arr[-3]) )
+        #self.LED_Brk_Fail  .write( bool(self.TrainModel_arr[-2]) )
         self.LED_EBRK  .write( bool(self.output_arr[3]) )
         self.LED_SBRK  .write( bool(self.output_arr[2]) )
         
@@ -254,22 +273,32 @@ class HW_UI_JEB382_PyFirmat():
         EB_temp = False
         
         
-        #get beacon if possible, overwrite current variable keeping track of what block train is on
-        #use beacon pickup order to decide which direction its going
-        #use beacon before station to decide if stoping at current block or next
+        #[NOT IT3] get beacon if possible, overwrite current variable keeping track of what block train is on
+        #[NOT IT3] use beacon pickup order to decide which direction its going
+        #[NOT IT3] use beacon before station to decide if stoping at current block or next
         #every block flips in polarity, +/- on edge
-        distance_to_station=0
+        if self.polarity != self.TrainModel_arr[4]:
+            self.blockNum+=1
+        self.polarity = self.TrainModel_arr[4]
         
+        
+        distance_to_station=0
+        #add up all block's length allowed by authority (num of blocks)
+        #Line0, Section1, Block Num2, Block Len3, SpeedLimit4, Infrastructure5, Station Side6
+        for i in range(self.TrainModel_arr[2]):
+            particular_line = linecache.getline('Beacon_info.txt', self.blockNum+i ).split("\t")
+        
+
         
         #beacon information from file
-        #Line       Section Block#      BlockLength     Speed Limit     Infrastructure
+        '''#Line       Section Block#      BlockLength     Speed Limit     Infrastructure
         if self.TrainModel_arr[-1] != "":
             particular_line = linecache.getline('Beacon_info.txt', int(self.TrainModel_arr[-1], 16))
             #print(int(self.TrainModel_arr[-1], 16))
         else: particular_line=""
         #print("<"+particular_line+">")
         particular_line =particular_line.split("\t")
-        #print(particular_line)
+        #print(particular_line)'''
         
         displace_buffer=10
         #service
@@ -409,7 +438,8 @@ if __name__ == "__main__":
     main_Driver_arr = []#[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
     #main_TrainModel_arr = [0.0, 0.0, 0.0, 0.0, False, False, False , False, False, False,
     #                       "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"]
-    main_TrainModel_arr = []
+    main_TrainModel_arr = [0,0,4,0,1,"00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"]
+    #[]
     main_output_arr = [] #[7.00]*90
     #w = HW_UI_JEB382_PyFirmat(main_Driver_arr,main_TrainModel_arr,True)
     
@@ -426,6 +456,6 @@ if __name__ == "__main__":
     glob_UI = HW_UI_JEB382_PyFirmat(main_Driver_arr,
                                     main_TrainModel_arr,
                                     main_output_arr,
-                                    True)
+                                    False)
     
         

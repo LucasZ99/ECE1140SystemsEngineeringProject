@@ -13,6 +13,7 @@ class TrainController_Tot_Container:
         # Ware:
         # False: HW
         # True:  SW
+        self.Ware = Ware
         if Ware: self.trainCtrl = TrainControllerSWContainer()
         else: self.trainCtrl = TrainControler_HW_Container()
 
