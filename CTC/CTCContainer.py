@@ -45,7 +45,7 @@ class CTCContainer(QObject):
     def update_switch_state(self, switch: int):
         pass
 
-    @pyqtSlot(list)
+    @pyqtSlot(int)
     def update_lights(self, light: int):
         pass
 
