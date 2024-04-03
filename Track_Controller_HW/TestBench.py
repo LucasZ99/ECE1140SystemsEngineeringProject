@@ -242,9 +242,9 @@ class Tb_Ui(QMainWindow):
         # assigning vals from defaults to variables
         self.authority = 5
         self.suggestedSpeed = 50
-        for i in range(0, self.numSwitches):
+        for i in enumerate(self.switches):
             self.switches[i] = False
-        for j in range(0, self.numBlocks):
+        for j in enumerate(self.blocks):
             self.blocks[j] = False
 
         # updating UI
