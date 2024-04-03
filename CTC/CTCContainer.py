@@ -8,11 +8,11 @@ from Track_Controller_SW import TrackControllerContainer
 
 class CTCContainer(QObject):
     def __init__(self, system_time_container: SystemTimeContainer, track_controller_container_ref: TrackControllerContainer):
-        # self.track_controller_container = track_controller_container
+
         super().__init__()
         self.track_controller_container_ref = track_controller_container_ref
         self.system_time = system_time_container.system_time
-        self.ctc = CTC(self.system_time)
+        self.ctc = CTC(self.system_time, self.track_controller_container_ref)
 
         self.track_controller_container_ref.occupancy_updated_signal.connect(self.update_occupancy)
         self.track_controller_container_ref.switch_toggled_signal.connect(self.update_switch_state)
