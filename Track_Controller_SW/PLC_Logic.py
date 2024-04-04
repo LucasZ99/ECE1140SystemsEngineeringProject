@@ -18,6 +18,7 @@ class PlcProgram(object):
             result = subprocess.check_output(['python', self.filepath, arg_json], stderr=subprocess.STDOUT)
             result_decoded = result.decode('utf-8')
             result_list = json.loads(result_decoded)
+            print("result list: ", result_list)
             return result_list
         except subprocess.CalledProcessError as e:
             # Handle any errors

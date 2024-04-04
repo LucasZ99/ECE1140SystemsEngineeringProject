@@ -3,33 +3,57 @@ import sys
 import numpy
 
 from PyQt6.QtWidgets import QApplication
+from PyQt6.QtCore import pyqtSlot, pyqtSignal, QObject
 
-from Train_Controller_SW.trainControllerSWContainer import Container#TrainControler_SW_Container
+from Train_Controller_SW.trainControllerSWContainer import TrainControllerSWContainer
 from Train_Controller_HW.trainControllerHWContainer import TrainControler_HW_Container
+from SystemTime import SystemTimeContainer
 
 
-class TrainControler_Tot_Container:
-    def __init__(self,Ware=True):
-        #Ware:
-        #False: HW
-        #True:  SW
-        if Ware: self.trainCtrl = Container() #TrainControler_SW_Container()
-        else: self.trainCtrl = TrainControler_HW_Container()
+class TrainController_Tot_Container(QObject):
+
+    # Signals
+    new_train_values_signal = pyqtSignal(list, int)
+    new_train_temp_signal = pyqtSignal(float, int)
+    # sam connect these signals to your respective update train model values command
+
+    def __init__(self, system_time_container: SystemTimeContainer, ware=True):
+
+        super().__init__()
+        # Ware:
+        # False: HW
+        # True:  SW
+        self.Ware = ware
+        self.system_time = system_time_container
+        if ware:
+            self.trainCtrl = TrainControllerSWContainer() #self.system_time)
+        else:
+            self.trainCtrl = TrainControler_HW_Container(self.system_time)
 
     def show_ui(self):
         self.trainCtrl.show_ui()
 
     #  receiver functions
+    def getvaluesfromtrain(self, inputs):  # Sam call this to update traincontroller values
 
-    #TrainModel
-    def updatevalues(self, inputs):
-        return self.trainCtrl.updatevalues(inputs)
+        self.trainCtrl.updatevalues(inputs)
+
+        # send signal with updated values
+        self.new_train_values_signal.emit(self.trainCtrl.outputs, 1)
+        self.new_train_temp_signal.emit(self.trainCtrl.cabin_temp, 1)
+
+        return
+
+    # TrainModel
+    # def updatevalues(self, inputs):
+    #     # [actual speed, authority, received speed, pbrake, track circuit, underground, beacon]
+    #     return self.trainCtrl.updatevalues(inputs)
+
 
 def TrainC_main():
-    trainctrlcntr = TrainControler_Tot_Container()
+    trainctrlcntr = TrainController_Tot_Container()
     trainctrlcntr.show_ui()
 
 
 if __name__ == "__main__":
     TrainC_main()
-9

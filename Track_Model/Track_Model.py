@@ -7,8 +7,11 @@ from PyQt6.QtWidgets import QApplication
 
 
 class TrackModel(QObject):
-    # signals
+    # external signals
     new_block_occupancy_signal = pyqtSignal(list)
+    new_ticket_sales_signal = pyqtSignal(int)
+    # internal signals (to UI)
+    refresh_map_signal = pyqtSignal()
 
     def __init__(self, file_name):
         super().__init__()
@@ -16,7 +19,7 @@ class TrackModel(QObject):
         # self.data = d.to_numpy()
         # self.check_data()
         self.data = self.set_data(file_name)
-        self.output_data_as_excel()
+        # self.output_data_as_excel()
         self.line_name = self.data[0, 0]
         self.num_blocks = len(self.data)
         self.ticket_sales = 0
@@ -36,10 +39,10 @@ class TrackModel(QObject):
         # Step 1: 12 to 1
         path_12_to_1 = list(range(12, 0, -1))
         # Step 2: 13 to 57
-        path_13_to_57 = list(range(13, 58))
+        path_13_to_57 = list(range(13, 59))
         # Step 3: 0
         # Step 4: 63 to 100
-        path_63_to_100 = list(range(63, 101))
+        path_62_to_100 = list(range(62, 101))
         # Step 5: 85 to 77
         path_85_to_77 = list(range(85, 76, -1))
         # Step 6: 101 to 150
@@ -47,9 +50,9 @@ class TrackModel(QObject):
         # Step 7: 28 to 13
         path_28_to_13 = list(range(28, 12, -1))
         # Combining all paths, with explicit jumps where needed
-        self.full_path = ([0] + path_63_to_100 + path_85_to_77 + path_101_to_150 + path_28_to_13 + path_12_to_1 +
+        self.full_path = (path_62_to_100 + path_85_to_77 + path_101_to_150 + path_28_to_13 + path_12_to_1 +
                           path_13_to_57)
-
+        print(self.full_path)
 
     def get_data(self):
         return self.data
@@ -148,6 +151,7 @@ class TrackModel(QObject):
         print("Array data has been exported to:", excel_filename)
 
     def set_block_occupancy(self, block: int, occupancy: bool):
+        # print(block)
         self.data[block, 7] = occupancy
 
     def check_data(self):  # update this in future to validate data further
@@ -216,14 +220,22 @@ class TrackModel(QObject):
             self.set_block_occupancy(block, True)
         else:
             self.set_block_occupancy(block, False)
-        # self.emit_tc_block_occupancy()
+        self.emit_tc_block_occupancy()
 
     def set_occupancy_from_train_presence(self):
+        # set occupancy false
+        self.data[1:, 7] = np.full((self.data.shape[0]-1), False, dtype=bool)
+        # for all blocks
+        # TODO: self.set_occupancy_from_failures() asap rocky
         # key = train id, value = block id
         for key in self.train_dict:
             self.set_block_occupancy(self.train_dict[key], True)
-        # self.emit_tc_block_occupancy()
+        self.emit_tc_block_occupancy()
 
+    # communication to ui
+
+    def refresh_map(self):
+        self.refresh_map_signal.emit()
     #
     #
     # Communication for other modules
@@ -236,14 +248,14 @@ class TrackModel(QObject):
 
     def update_authority(self, authority: list[int]):
         self.authority = authority
+        print("self authority updated in track model")
 
     def update_speed(self, speed: list[float]):
         self.speed = speed
+        print("self speed updated in track model")
 
     def toggle_switch(self, block_id: int):
-        print('track_model.toggle switch called')
         self.data[block_id, 19] = not self.data[block_id, 19]
-        print(f'switch value = {self.data[block_id, 19]}')
 
     def toggle_signal(self, block_id: int):
         self.data[block_id, 21] = not self.data[block_id, 21]
@@ -264,18 +276,20 @@ class TrackModel(QObject):
         self.train_dict_relative[self.train_count] = 0
         self.train_dict[self.train_count] = self.full_path[0]
         self.set_occupancy_from_train_presence()
+        print(f'new train spawned, train_count = {self.train_count}')
 
     def train_presence_changed(self, train_id: int):
-        self.train_dict_relative[train_id] += 1
-        if self.train_dict_relative[train_id] > 170:
+        if self.train_dict_relative[train_id] >= 170:
             # train goes back to yard
+            print('train going back to yard...')
             self.train_count -= 1
             del self.train_dict_relative[train_id]
             del self.train_dict[train_id]
         else:
+            self.train_dict_relative[train_id] += 1
             self.train_dict[train_id] = self.full_path[self.train_dict_relative[train_id]]
             self.set_occupancy_from_train_presence()
-            print(self.train_dict)
+            print(f'train {train_id} moved to {self.train_dict[train_id]}')
 
     def set_disembarking_passengers(self, station_id: int, disembarking_passengers: int):
         self.data[station_id, 21] = disembarking_passengers
@@ -284,39 +298,48 @@ class TrackModel(QObject):
 
     # track controller
 
-    def get_tc_block_occupancy(self) -> list[bool]:  # giving everything now
+    def emit_tc_block_occupancy(self) -> list[bool]:  # giving everything now
+        self.new_block_occupancy_signal.emit(self.data[1:, 7].tolist())
         return self.data[1:, 7].tolist()
 
     # train model
 
     def get_tm_authority(self, train_id: int) -> list[int]:
-        return self.authority
+        block_id = self.train_dict[train_id]
+        return self.authority[block_id]
 
     def get_tm_speed(self, train_id: int) -> list[float]:
-        return self.speed
+        block_id = self.train_dict[train_id]
+        return self.speed[block_id]
 
     def get_tm_beacon(self, train_id: int) -> str:
-        block_id = train_id
+        block_id = self.train_dict[train_id]
         return self.data[block_id, 11]
 
     def get_tm_grade(self, train_id: int) -> int:
-        block_id = train_id
+        block_id = self.train_dict[train_id]
         return self.data[block_id, 4]
 
     def get_tm_elevation(self, train_id: int) -> float:
-        block_id = train_id
+        block_id = self.train_dict[train_id]
         return self.data[block_id, 6]
 
     def get_tm_underground_status(self, train_id: int) -> bool:
-        block_id = train_id
+        block_id = self.train_dict[train_id]
         return self.data[block_id, 20]
 
-    def get_tm_embarking_passengers(self, station_block: int) -> int:
-        return self.data[station_block, 17]
+    def get_tm_embarking_passengers(self, train_id: int) -> int:
+        block_id = self.train_dict[train_id]
+        return self.data[block_id, 17]
+    
+    def get_tm_block_length(self, train_id: int):
+        block_id = self.train_dict[train_id]
+        return self.data[block_id, 3]
 
-    # ctc
-    def get_ctc_ticket_sales(self):
-        return random.randint(1000, 2000)
+    # ctc (technically still track controller)
+    def emit_ctc_ticket_sales(self) -> list[bool]:
+        self.new_ticket_sales_signal.emit(self.ticket_sales)
+        return self.ticket_sales
 
 # TODO: Section J will not exist, replace it with yard
 # TODO: refresh tables from UI in container every time setters are called

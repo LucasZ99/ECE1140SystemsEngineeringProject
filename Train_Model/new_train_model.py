@@ -19,6 +19,8 @@ class TrainModel:
         self.position = 0.0
         self.velocity = 0.0  # in m/s
         self.acceleration = 0.0  # in m/s
+        self.underground = False
+        self.track_circuit = False
 
         self.crew = People()
         self.passengers = PassengerPeople()
