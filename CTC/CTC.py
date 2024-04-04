@@ -62,14 +62,14 @@ class CTC(QObject):
             self.running_trains.append(train_to_run)
             self.set_block_authority()
             self.set_block_suggested_speeds()
-            self.update_track_controller()
-            self.update_ui_signal.emit()
 
+        self.update_track_controller()
         self.update_ui_signal.emit()
 
     def update_track_controller(self):
         for block in self.changed_speeds:
             self.track_controller_ref.command_speed(GREEN_LINE, block, self.suggested_speeds[block])
+            self.changed_speeds.remove(block)
 
         for block in self.changed_authorities:
             self.track_controller_ref.set_authority(GREEN_LINE, block, self.authorities[block])
@@ -105,6 +105,7 @@ class CTC(QObject):
         return sort_by_destination_arrival_time
 
     def set_block_authority(self):
+        print("authority function")
         for train in self.get_running_trains_sorted_by_priority():
             for block in train.get_next_authorities():
                 print(f"Block %d authority set to : %d", block[0], block[1])
@@ -140,6 +141,7 @@ class CTC(QObject):
                     self.dispatched_trains.schedule_train(train)
                 elif next_block_status == -2:  # remove from lists
                     self.running_trains.remove(train)
+                    print("Train %d reached yard.", train.id)
 
     def update_switch_position(self, line_id: int, block_id: int, position: int):
         self.switches[block_id].current_pos = position

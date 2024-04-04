@@ -397,26 +397,29 @@ class CTCMainWindow(QMainWindow):
         departure_time = self.convert_qtime_to_secs_since_epoch(route_departure_time)
 
         self.stops = Route.get_times_through_route(self.current_line_id(), self.route)
-        for stop in self.stops:
-            print(stop.block, stop.arrival_time, stop.departure_time)
 
-        # breakpoint()
+        if len(self.stops) >= 0:
 
-        # arrival time is too short
-        if not Route.is_route_schedulable(self.current_line_id(), self.stops, departure_time,
-                                          departure_time + Route.get_route_travel_time(self.stops)):
-            arrival_time = departure_time + Route.get_route_travel_time(self.stops)
+            for stop in self.stops:
+                print(stop.block, stop.arrival_time, stop.departure_time)
 
-        self.scheduled_stops = Route.schedule_route(self.current_line_id(), self.stops, departure_time,
-                                                    departure_time + Route.get_route_travel_time(self.stops))
+            # breakpoint()
 
-        for i, stop in enumerate(self.scheduled_stops):
-            # table
-            arrival_time = strftime("%H:%M", strptime(ctime(stop.arrival_time)))
-            departure_time = strftime("%H:%M", strptime(ctime(stop.departure_time)))
-            dispatch_train_schedule.setItem(i, 2, QTableWidgetItem(arrival_time))
+            # arrival time is too short
+            if not Route.is_route_schedulable(self.current_line_id(), self.stops, departure_time,
+                                              departure_time + Route.get_route_travel_time(self.stops)):
+                arrival_time = departure_time + Route.get_route_travel_time(self.stops)
 
-            dispatch_train_schedule.setItem(i, 3, QTableWidgetItem(departure_time))
+            self.scheduled_stops = Route.schedule_route(self.current_line_id(), self.stops, departure_time,
+                                                        departure_time + Route.get_route_travel_time(self.stops))
+
+            for i, stop in enumerate(self.scheduled_stops):
+                # table
+                arrival_time = strftime("%H:%M", strptime(ctime(stop.arrival_time)))
+                departure_time = strftime("%H:%M", strptime(ctime(stop.departure_time)))
+                dispatch_train_schedule.setItem(i, 2, QTableWidgetItem(arrival_time))
+
+                dispatch_train_schedule.setItem(i, 3, QTableWidgetItem(departure_time))
 
         # self.arrival_time_list[self.current_line_id()].setTime(arrival_time)
 

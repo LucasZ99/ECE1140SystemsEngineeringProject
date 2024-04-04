@@ -1,5 +1,6 @@
 from CTC.Train import Train
 from SystemTime import SystemTime
+from SystemTime.SystemTime import time_to_str
 
 
 class CTCSchedule:
@@ -24,6 +25,7 @@ class CTCSchedule:
         self.train_list.append(train)
         self.train_list.sort(key=lambda train: train.departure_time())
         self.current_train_number += 1
+        print("%s Train %d scheduled. Departure time: %s" % time_to_str(self.system_time.time()) % train.id % time_to_str(train.departure_time())
 
     # def get_trains_to_dispatch(self, time:struct_time)->list[Train]:
     #     dispatch_now_list:list[Train] = []
