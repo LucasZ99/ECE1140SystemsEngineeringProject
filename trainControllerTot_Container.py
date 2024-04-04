@@ -21,6 +21,7 @@ class TrainController_Tot_Container(QObject):
         # Ware:
         # False: HW
         # True:  SW
+        self.Ware = ware
         if ware:
             self.trainCtrl = TrainControllerSWContainer()
         else:

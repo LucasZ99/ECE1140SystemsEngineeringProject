@@ -31,7 +31,7 @@ class BusinessLogic(QObject):
     # Must call this method whenever occupancy is updated
     @pyqtSlot(list)
     def occupancy_changed(self, new_occupancy: list):
-        print("Occupancy changed")
+        print("Occupancy change detected on Track Controller: ", self.section)
         self.occupancy_list = new_occupancy
         self.occupancy_signal.emit(self.occupancy_list)
 
@@ -51,14 +51,17 @@ class BusinessLogic(QObject):
         )
 
         # post plc execution processing logic
-        if plc_result[0] != switch_1:
-            self.switches_changed(0)
-            self.lights_list[0].toggle()
-            self.lights_list[1].toggle()
-            if self.lights_list[0].val is True:
-                self.light_signal.emit(0)
+        try:
+            if plc_result[0] != switch_1:
+                self.switches_changed(0)
+                self.lights_list[0].toggle()
+                self.lights_list[1].toggle()
+                if self.lights_list[0].val is True:
+                    self.light_signal.emit(0)
             else:
                 self.light_signal.emit(1)
+        except Exception as e:
+            print(e)
         if plc_result[1] != switch_2:
             self.switches_changed(1)
             self.lights_list[2].toggle()

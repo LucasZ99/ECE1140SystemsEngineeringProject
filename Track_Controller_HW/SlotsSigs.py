@@ -18,6 +18,7 @@ class SlotsSigs(QObject):
                  suggested_speed: list, rr_crossing: bool):
         # assigning values to the signals
 
+        self.new_rr_crossing = False
         self.plc_import()  # import PLC
         sys.path.append(self.plc_path)
         import PLCProgram  # will never get to this point unless the PLC file is found
@@ -39,10 +40,16 @@ class SlotsSigs(QObject):
         print("new occupancy")
         self.blocks = new_occupancy
         self.plc.assign_vals(self.blocks, self.switches, self.rr_crossing, self.mode)
-        self.stops, self.blocks, self.rr_crossing = self.plc.run_plc_logic()
-        self.hw_ui.show_hw_data(self.blocks, self.mode, self.rr_crossing, self.switches)
+        self.stops, self.blocks, self.new_rr_crossing = self.plc.run_plc_logic()
         self.occupancy_signal.emit(new_occupancy)
-
+        print("rr_crossing: ", self.rr_crossing)
+        print("new_rr_crossing: ", self.new_rr_crossing)
+        if self.rr_crossing != self.new_rr_crossing:
+            self.rr_crossing_signal.emit(True)
+        else:
+            self.rr_crossing_signal.emit(False)
+        self.rr_crossing = self.new_rr_crossing
+        self.hw_ui.show_hw_data(self.blocks, self.mode, self.rr_crossing, self.switches)
     # Signal to update the switches
     @pyqtSlot(list)
     def new_switches(self, new_switches: list):
