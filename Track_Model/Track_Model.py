@@ -39,10 +39,10 @@ class TrackModel(QObject):
         # Step 1: 12 to 1
         path_12_to_1 = list(range(12, 0, -1))
         # Step 2: 13 to 57
-        path_13_to_57 = list(range(13, 58))
+        path_13_to_57 = list(range(13, 59))
         # Step 3: 0
         # Step 4: 63 to 100
-        path_63_to_100 = list(range(63, 101))
+        path_62_to_100 = list(range(62, 101))
         # Step 5: 85 to 77
         path_85_to_77 = list(range(85, 76, -1))
         # Step 6: 101 to 150
@@ -50,9 +50,9 @@ class TrackModel(QObject):
         # Step 7: 28 to 13
         path_28_to_13 = list(range(28, 12, -1))
         # Combining all paths, with explicit jumps where needed
-        self.full_path = (path_63_to_100 + path_85_to_77 + path_101_to_150 + path_28_to_13 + path_12_to_1 +
+        self.full_path = (path_62_to_100 + path_85_to_77 + path_101_to_150 + path_28_to_13 + path_12_to_1 +
                           path_13_to_57)
-        # print(self.full_path)
+        print(self.full_path)
 
     def get_data(self):
         return self.data
