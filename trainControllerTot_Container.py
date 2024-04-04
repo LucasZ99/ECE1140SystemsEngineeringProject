@@ -47,7 +47,7 @@ class TrainController_Tot_Container(QObject):
 
         return
 
-    #Track_Cicuit, Aboveground
+    #Track_Cicuit, Aboveground,beacon
     def getvaluesfromtrain_update2(self, inputs):  # Sam call this to update traincontroller values
 
         self.trainCtrl.updatevalues(inputs,2)
