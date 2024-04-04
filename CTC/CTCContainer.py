@@ -1,6 +1,6 @@
 from PyQt6.QtCore import QObject, pyqtSlot
 from PyQt6.QtWidgets import QApplication
-from CTC import CTC
+from CTC import CTC, GREEN_LINE, TRACK
 from CTC.CTC_UI_Main import CTCMainWindow
 from SystemTime import SystemTimeContainer
 from Track_Controller_SW import TrackControllerContainer
@@ -8,11 +8,11 @@ from Track_Controller_SW import TrackControllerContainer
 
 class CTCContainer(QObject):
     def __init__(self, system_time_container: SystemTimeContainer, track_controller_container_ref: TrackControllerContainer):
-        # self.track_controller_container = track_controller_container
+
         super().__init__()
         self.track_controller_container_ref = track_controller_container_ref
         self.system_time = system_time_container.system_time
-        self.ctc = CTC(self.system_time)
+        self.ctc = CTC(self.system_time, self.track_controller_container_ref)
 
         self.track_controller_container_ref.occupancy_updated_signal.connect(self.update_occupancy)
         self.track_controller_container_ref.switch_toggled_signal.connect(self.update_switch_state)
@@ -39,7 +39,14 @@ class CTCContainer(QObject):
 
     @pyqtSlot(list)
     def update_occupancy(self, occupancy_list: list):
-        pass
+        print("ctc container update occupancy endpoint called")
+        try:
+            for idx, block_status in enumerate(occupancy_list):
+                if idx + 1 in TRACK[GREEN_LINE]:
+                    self.ctc.update_block_occupancy(GREEN_LINE, idx + 1, block_status)
+
+        except Exception as e:
+            print(f"<<<<<<<<<<<<<<<<<<<<<<{e}>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 
     @pyqtSlot(int)
     def update_switch_state(self, switch: int):

@@ -54,7 +54,7 @@ class TrackControllerContainer(QObject):
         # change this to [28:78] to be able to observe the switch positions at sections G(b28) and N(b77)
         # remember python slicing is [inclusive:exclusive] which is why it's [28:78]
         # also change the other boundary to [101:]
-        self.occupancy_list_B = self.occupancy_list[24:80] + self.occupancy_list[100:]
+        self.occupancy_list_B = self.occupancy_list[28:78] + self.occupancy_list[101:]
         # Section C: blocks 77:104
         # Switches at block 77(index 76) and 85
         self.occupancy_list_C = self.occupancy_list[76:105]
@@ -68,8 +68,9 @@ class TrackControllerContainer(QObject):
         # Connect Internal Signals:
         self.trackControllerA.switch_changed_index_signal.connect(self.update_track_switch)
         self.trackControllerA.rr_crossing_signal.connect(self.update_rr_crossing_status_A)
-        self.trackControllerA.lights_list_changed_signal.connect(self.update_lights_status)
-        self.trackControllerC.lights_list_changed_signal.connect(self.update_lights_status)
+        self.trackControllerA.lights_list_A_changed_signal.connect(self.update_lights_A_status)
+        self.trackControllerC.lights_list_C_changed_signal.connect(self.update_lights_C_status)
+        self.trackControllerB.rr_crossing_signal.connect(self.update_rr_crossing_status_B)
         self.trackControllerC.switch_changed_index_signal.connect(self.update_track_switch)
 
         # Connect external signals:
@@ -83,7 +84,7 @@ class TrackControllerContainer(QObject):
                 self.speed_list[block_id] = speed
             else:
                 self.speed_list[block_id] = 0
-            # self.track_model.update_speed(self.speed_list)
+            self.track_model.update_speed(self.speed_list)
 
     def update_switch(self, line_id: int, block_id: int, switch_status: Switch) -> None:
         pass
@@ -93,10 +94,12 @@ class TrackControllerContainer(QObject):
         # call self.track_model.open/close_block(block_index)
 
     def set_authority(self, line_id: int, block_id: int, authority: int) -> None:
+        print(f"Authority received: {block_id}: {authority}")
         if line_id == 0:
-            self.authority_list[block_id] = authority
-            # self.track_model.update_authority(self.authority_list)
-        pass
+            self.authority_list[block_id-1] = authority
+            self.track_model.update_authority(self.authority_list)
+        print("Authority sent to track model")
+
 
     # Track Model Endpoint
     @pyqtSlot(list)
@@ -104,26 +107,31 @@ class TrackControllerContainer(QObject):
         print("got the occupancy from track model")
         # update occupancy to ctc:
         self.occupancy_updated_signal.emit(block_occupancy_list)
+        print("occupancy updated signal sent to ctc")
 
         # update occupancy lists with new data
         self.occupancy_list = block_occupancy_list
         self.occupancy_list_A = self.occupancy_list[0:32]
-        self.occupancy_list_B = self.occupancy_list[24:80] + self.occupancy_list[100:]
+        self.occupancy_list_B = self.occupancy_list[28:78] + self.occupancy_list[101:]
         self.occupancy_list_C = self.occupancy_list[77:105]
 
         # call the update occupancy functions to trigger plc logic and ui updates
         zero_speed_flag_list_A = self.trackControllerA.update_occupancy(self.occupancy_list_A)
-        # zero_speed_flag_list_B = self.trackControllerB.update_occupancy(self.occupancy_list_B)
+        zero_speed_flag_list_B = self.trackControllerB.update_occupancy(self.occupancy_list_B)
         zero_speed_flag_list_C = self.trackControllerC.update_occupancy(self.occupancy_list_C)
-        self.zero_speed_flag_list[0:len(self.occupancy_list_A)] = zero_speed_flag_list_A[0:len(self.occupancy_list_A)]
-        self.zero_speed_flag_list[77:(77 + len(self.occupancy_list_C))] = zero_speed_flag_list_C[
-                                                                          0:len(self.occupancy_list_C)]
+        # self.zero_speed_flag_list[0:len(self.occupancy_list_A)] = zero_speed_flag_list_A[0:len(self.occupancy_list_A)]
+        print("zero speed flag list length: ", len(self.zero_speed_flag_list))
+        #print("zero speed flag list B: ", self.zero_speed_flag_list_B)
+        #print("zero speed flag list B length: ", len(self.zero_speed_flag_list_B))
+        #self.zero_speed_flag_list[28:78] = zero_speed_flag_list_B[0:50]
+        #self.zero_speed_flag_list[101:len(self.occupancy_list_B)] = zero_speed_flag_list_B[51:len(self.occupancy_list_B)]
+        # self.zero_speed_flag_list[77:(77 + len(self.occupancy_list_C))] = zero_speed_flag_list_C[
+        #                                                                   0:len(self.occupancy_list_C)]
 
     @pyqtSlot(int)
     def update_track_switch(self, switch_block: int) -> None:
         print(f"Updating Track Model switch at block: {switch_block}")
-
-        # emit ctc signal
+        self.switch_toggled_signal.emit(switch_block)
         self.track_model.toggle_switch(switch_block)
 
     @pyqtSlot(bool)
@@ -137,14 +145,38 @@ class TrackControllerContainer(QObject):
             # call track model endpoint
             self.track_model.toggle_crossing(self.railway_crossing_blocks_list[0])
 
+    @pyqtSlot(bool)
+    def update_rr_crossing_status_B(self, rr_crossing_status: bool) -> None:
+        print("railway crossing status updated for section B")
+        if self.railway_crossing_vals_list[1] != rr_crossing_status:
+            self.railway_crossing_vals_list[1] = rr_crossing_status
+            # emit for CTC
+            self.rr_crossing_toggled_signal.emit(self.railway_crossing_blocks_list[1])
+            # call track model endpoint
+            self.track_model.toggle_crossing(self.railway_crossing_blocks_list[1])
+
+
     @pyqtSlot(list)
-    def update_lights_status(self, lights_list: list[Light]) -> None:
+    def update_lights_A_status(self, lights_list: list[Light]) -> None:
         # emit new list to ctc
         # update changed signals to track model
         for i in range(len(lights_list)):
-            if lights_list[i] != self.lights_list[i]:
+            if lights_list[i].val != self.lights_list[i].val:
                 self.track_model.toggle_signal(lights_list[i].block)
                 self.lights_updated_signal.emit(lights_list[i].block)
+
+        self.lights_list[0:4] = lights_list[0:4]
+
+    @pyqtSlot(list)
+    def update_lights_C_status(self, lights_list: list[Light]) -> None:
+        # emit new list to ctc
+        # update changed signals to track model
+        for i in range(len(lights_list)):
+            if lights_list[i].val != self.lights_list[i+4].val:
+                self.track_model.toggle_signal(lights_list[i].block)
+                self.lights_updated_signal.emit(lights_list[i].block)
+
+        self.lights_list[4:7] = lights_list[0:4]
 
     def show_ui(self, section: str):
         if section == "A":

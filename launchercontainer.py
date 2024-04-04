@@ -18,13 +18,12 @@ class LauncherContainer(QObject):
         super().__init__()
         self.time_module = SystemTimeContainer()
         self.trainControllerContainer = TrainController_Tot_Container(self.time_module)
+
         self.train_model_container = TrainModelContainer(TrainBusinessLogic(), self.trainControllerContainer,
                                                          self.time_module)
         self.track_model_container = TrackModelContainer(train_model_container=self.train_model_container)
         self.track_controller_container = TrackControllerContainer(track_model=self.track_model_container)
         self.ctc_container = CTCContainer(self.time_module, self.track_controller_container)
-        self.trainControllerContainer = TrainController_Tot_Container()
-        self.train_model_container = TrainModelContainer(TrainBusinessLogic(), self.trainControllerContainer, self.time_module)
 
     def init_launcher_ui(self):
         app = QApplication.instance()

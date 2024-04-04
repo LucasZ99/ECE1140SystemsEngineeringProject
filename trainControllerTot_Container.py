@@ -3,14 +3,14 @@ import sys
 import numpy
 
 from PyQt6.QtWidgets import QApplication
-from PyQt6.QtCore import pyqtSlot, pyqtSignal
+from PyQt6.QtCore import pyqtSlot, pyqtSignal, QObject
 
 from Train_Controller_SW.trainControllerSWContainer import TrainControllerSWContainer
 from Train_Controller_HW.trainControllerHWContainer import TrainControler_HW_Container
 from SystemTime import SystemTimeContainer
 
 
-class TrainController_Tot_Container:
+class TrainController_Tot_Container(QObject):
 
     # Signals
     new_train_values_signal = pyqtSignal(list, int)
@@ -18,6 +18,7 @@ class TrainController_Tot_Container:
     # sam connect these signals to your respective update train model values command
 
     def __init__(self, system_time_container: SystemTimeContainer, ware=True):
+
         super().__init__()
         # Ware:
         # False: HW
