@@ -128,10 +128,9 @@ class CTC(QObject):
     """
     Updates the position of each train based on the occupancies received from wayside
     """
-
     def update_train_position(self, train: Train):
         for train in self.running_trains:
-            if self.blocks[train.current_block] is False and self.blocks[train.get_next_block()] == True:
+            if self.blocks[train.current_block] is False and self.blocks[train.get_next_block()] is True:
                 next_block_status = train.set_to_next_block()
 
                 if next_block_status == 1:  # at station
@@ -161,7 +160,6 @@ class CTC(QObject):
 
         self.update_track_controller()
         self.update_ui_signal.emit()
-
 
     def update_railroad_crossing_status(self, line_id: int, block_id: int, crossing_activated: bool):
         self.rr_crossings[block_id] = crossing_activated
