@@ -72,6 +72,7 @@ class CTC(QObject):
         self.update_ui_signal.emit()
 
     def update_track_controller(self):
+        print('update track controller from ctc object')
         for block in self.changed_authorities:
             self.track_controller_ref.set_authority(GREEN_LINE, block, self.authorities[block])
             self.changed_authorities.remove(block)
@@ -79,6 +80,7 @@ class CTC(QObject):
         for block in self.changed_speeds:
             self.track_controller_ref.command_speed(GREEN_LINE, block, self.suggested_speeds[block])
             self.changed_speeds.remove(block)
+        print('update track controller from ctc object passed')
 
     def get_scheduled_trains(self) -> list[Train]:
         trains = []

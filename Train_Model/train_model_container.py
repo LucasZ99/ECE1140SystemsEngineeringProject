@@ -95,6 +95,8 @@ class TrainModelContainer(QObject):
         self.business_logic.block_updated.emit(index)
         self.business_logic.train_list = self.train_list
 
+        print('track_update_block passed')
+
     def track_update_passengers(self, num, index):
         if not (index in self.train_list.keys()):
             return
