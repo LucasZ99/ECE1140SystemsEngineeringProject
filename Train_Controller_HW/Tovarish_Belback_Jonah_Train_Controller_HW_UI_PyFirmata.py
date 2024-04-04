@@ -308,29 +308,34 @@ class HW_UI_JEB382_PyFirmat():
         app_stat=""
         
         #print(f"<{self.TrainModel_arr[2]}>")
+            
         
         for i in range(int(self.TrainModel_arr[2])):
             particular_line = linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum+i).split("\t")
-            #print(f"LINE: {particular_line}")
+            print(f"LINE: {particular_line}")
             distance_to_station += int(particular_line[3])
 
             if particular_line[5][:7] == "STATION":
                 app_stat=particular_line[5][9:]
-                #print(particular_line[5][9:])
+                print(f"PART: {particular_line[5][9:]}")
                 if "Left" in particular_line[6]: self.stat_Dside+=1
                 if "Right" in particular_line[6]: self.stat_Dside+=2
-                
+        
+        infra = linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum).split('\t')[5]
+        print(f".txt infra: <{infra[:7]}>, <{app_stat}>")
         self.output_arr[5] = ""
-        if app_stat != "" and linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum).split("\t")[5][:7] != "STATION":
+        if linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum).split("\t")[5][:7] != "STATION":
             self.Announcements = "APP:"+app_stat[:12]
-        elif app_stat != "" and linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum).split("\t")[5][:7] == "STATION":
-            self.Announcements = "NOW:"+app_stat[:12]
-            self.output_arr[5] = app_stat
+        elif linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum).split("\t")[5][:7] == "STATION":
+            self.Announcements = "NOW:"+infra[9:]#app_stat[:12]
+            #if app_stat != "": self.output_arr[5] = app_stat
+            #else:  self.output_arr[5] = infra[5][9:]
+            self.output_arr[5] = infra[9:]
             
         
-        
+        print(f"BlockNum: {self.blockNum}")
         print(f"ANNOUNCE: <{self.Announcements}>")
-        #print(distance_to_station)
+        print(f"DIST: {distance_to_station}")
         
         #beacon information from file
         '''#Line       Section Block#      BlockLength     Speed Limit     Infrastructure
