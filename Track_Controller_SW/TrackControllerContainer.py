@@ -18,7 +18,7 @@ class TrackControllerContainer(QObject):
         super().__init__()
         self.track_model = track_model
 
-        self.occupancy_list = [False] * 151
+        self.occupancy_list = [False] * 150
 
         self.switch_list = \
             [
@@ -42,9 +42,9 @@ class TrackControllerContainer(QObject):
 
         self.railway_crossing_blocks_list = [19, 108]
         self.railway_crossing_vals_list = [False, False]
-        self.speed_list = [0.0] * 151
-        self.zero_speed_flag_list = [False] * 151
-        self.authority_list = [0] * 151
+        self.speed_list = [0.0] * 150
+        self.zero_speed_flag_list = [False] * 150
+        self.authority_list = [0] * 150
 
         # Controller specific initialization
         # Section A: blocks 1-32
