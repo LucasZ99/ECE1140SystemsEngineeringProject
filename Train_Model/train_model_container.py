@@ -26,6 +26,7 @@ class TrainModelContainer(QObject):
         self,controller.new_train_temp_signal.connect(self.controller_update_temp)
         self.time_keeper = time
         self.time = self.time_keeper.system_time.time()
+        self.business_logic.ui_updates.connect(self.ui_updates)
 
     def track_model_inputs(self, input_list, index):
         # the list provided should have entries in this order: [commanded speed, vital authority]
@@ -134,6 +135,14 @@ class TrainModelContainer(QObject):
             self.train_list.pop(index)
             self.business_logic.train_removed.emit(index)
             self.business_logic.train_list = self.train_list
+
+    def ui_updates(self):
+        for i in self.train_list.keys():
+            self.controller.getvaluesfromtrain([self.train_list[i].velocity, self.train_list[i].signals.authority,
+                                                self.train_list[i].signals.commanded_speed,
+                                                self.train_list[i].brakes.passenger_ebrake,
+                                                self.train_list[i].track_circuit, self.train_list[i].underground,
+                                                self.train_list[i].signals.beacon])
 
     def show_ui(self):
         app = QApplication.instance()
