@@ -144,7 +144,7 @@ class HW_UI_JEB382_PyFirmat():
         print(self.TrainModel_arr)
         
         #Driver_arr, is output, the inputted arr is just used for the variable reference
-        in_Driver_arr = [1.0, 1.0, 0.0, False, False, 0.0, False, False, False, False, False]
+        in_Driver_arr = [50.0, 50.0, 0.0, False, False, 0.0, False, False, False, False, False]
         self.Driver_arr = in_Driver_arr
         
         
@@ -155,6 +155,9 @@ class HW_UI_JEB382_PyFirmat():
         
         if __name__ == "__main__": self.init_clk = time.time()
         else: self.init_clk = self.system_time.time()
+        
+        self.Announcements=""
+        self.Mode = False
         
         #input sets
         try:
@@ -187,7 +190,7 @@ class HW_UI_JEB382_PyFirmat():
             self.LED_EBRK       = LED_PyF(33)
             self.LED_SBRK       = LED_PyF(34)
             
-            self.Announcements=""
+            #self.Announcements=""
             
             self.DISP = DISP_PyF()
         
@@ -478,23 +481,29 @@ class HW_UI_JEB382_PyFirmat():
             #print(f'Train Controller HW: nan check2 {self.TrainModel_arr}')
 
         global NoHW
+        #if not NoHW:
+        print("update")
+        #sys.stdout.write("p")
+        #bugfix: cant get updates without a printout????? i hate pyfrimata
+        with open('TrainC_HW_bugfix.txt', 'w') as f:
+            f.write('Hi')
+        
         if not NoHW:
-            print("update")
-            #sys.stdout.write("p")
-            #bugfix: cant get updates without a printout????? i hate pyfrimata
-            with open('TrainC_HW_bugfix.txt', 'w') as f:
-                f.write('Hi')
             print("updateRead")
             self.updateRead()
-            print("updateCalc")
-            self.updateCalc()
+        
+        print("updateCalc")
+        self.updateCalc()
+        
+        if not NoHW:
             print("updateDisplay")
-            # self.updateDisplay()
-            
-            if __name__ != "__main__":
-                print(f"\nDriver TrainC #1:\t{self.Driver_arr}\t{'AUTO' if not self.Mode else 'MANUAL'}")
-                print(f"TrainModel TrainC #1:\t{self.TrainModel_arr} {'AUTO' if not self.Mode else 'MANUAL'}")
-                print(f"Output TrainC #1:\t{self.output_arr}\t{'AUTO' if not self.Mode else 'MANUAL'}")
+            self.updateDisplay()
+        
+        if __name__ != "__main__":
+            print(f"\nDriver TrainC #1:\t{self.Driver_arr}\t{'AUTO' if not self.Mode else 'MANUAL'}")
+            print(f"TrainModel TrainC #1:\t{self.TrainModel_arr} {'AUTO' if not self.Mode else 'MANUAL'}")
+            print(f"Output TrainC #1:\t{self.output_arr}\t{'AUTO' if not self.Mode else 'MANUAL'}")
+
         
     def __del__(self):
         print('HW_UI_JEB382_PyFirmat: Destructor called')
@@ -552,8 +561,9 @@ def TC_HW_init(driver,trainmodel,output,system_time,TestB=False):
     print("TC_HW_init")
     Arduino = True
     
-    it = util.Iterator(board)  
-    it.start()
+    if not NoHW:
+        it = util.Iterator(board)  
+        it.start()
     
     return  HW_UI_JEB382_PyFirmat(driver, trainmodel, output,
                                   system_time,
