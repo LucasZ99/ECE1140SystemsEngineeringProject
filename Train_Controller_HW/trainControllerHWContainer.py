@@ -46,21 +46,25 @@ class TrainControler_HW_Container:
         print(f"Train Controller HW: inputs: {inputs}")
         #print(f"Train Controller HW: before TrainModel_arr: {self.trainCtrl.TrainModel_arr}")
         
+        if type ==0: 
+            print("type0")
+            self.trainCtrl.TrainModel_arr = inputs
+        
         #Auth, Cmd_Spd
-        if type ==1: 
+        elif type ==1: 
             print("type1")
             self.trainCtrl.TrainModel_arr[2] = inputs[0]#Auth
             self.trainCtrl.TrainModel_arr[1] = inputs[1]#Cmd_Spd
             
         #Track_Cicuit, Aboveground, beacon
-        elif type ==1: 
+        elif type ==2: 
             print("type2")
             self.trainCtrl.TrainModel_arr[4] = inputs[0]#Track_Cicuit
             self.trainCtrl.TrainModel_arr[5] = inputs[1]#Aboveground
             self.trainCtrl.TrainModel_arr[6] = inputs[2]#beacon
             
         #Actual_Spd, Pass_ebrake
-        elif type ==1: 
+        elif type ==3: 
             print("type3")
             self.trainCtrl.TrainModel_arr[0] = inputs[0]#Actual_Spd
             self.trainCtrl.TrainModel_arr[3] = inputs[1]#Pass_ebrake
