@@ -303,10 +303,12 @@ class TrackModel(QObject):
     # train model
 
     def get_tm_authority(self, train_id: int) -> list[int]:
-        return self.authority
+        block_id = self.train_dict[train_id]
+        return self.authority[block_id]
 
     def get_tm_speed(self, train_id: int) -> list[float]:
-        return self.speed
+        block_id = self.train_dict[train_id]
+        return self.speed[block_id]
 
     def get_tm_beacon(self, train_id: int) -> str:
         block_id = self.train_dict[train_id]
