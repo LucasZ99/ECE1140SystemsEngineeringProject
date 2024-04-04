@@ -39,9 +39,14 @@ class CTCContainer(QObject):
 
     @pyqtSlot(list)
     def update_occupancy(self, occupancy_list: list):
-        for idx, block_status in enumerate(occupancy_list):
-            if idx + 1 in TRACK[GREEN_LINE]:
-                self.ctc.update_block_occupancy(GREEN_LINE, idx + 1, block_status)
+        print("ctc container update occupancy endpoint called")
+        try:
+            for idx, block_status in enumerate(occupancy_list):
+                if idx + 1 in TRACK[GREEN_LINE]:
+                    self.ctc.update_block_occupancy(GREEN_LINE, idx + 1, block_status)
+
+        except Exception as e:
+            print(f"<<<<<<<<<<<<<<<<<<<<<<{e}>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 
     @pyqtSlot(int)
     def update_switch_state(self, switch: int):

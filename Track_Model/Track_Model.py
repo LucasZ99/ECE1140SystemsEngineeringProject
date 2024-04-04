@@ -248,9 +248,11 @@ class TrackModel(QObject):
 
     def update_authority(self, authority: list[int]):
         self.authority = authority
+        print("self authority updated in track model")
 
     def update_speed(self, speed: list[float]):
         self.speed = speed
+        print("self speed updated in track model")
 
     def toggle_switch(self, block_id: int):
         self.data[block_id, 19] = not self.data[block_id, 19]
@@ -303,10 +305,12 @@ class TrackModel(QObject):
     # train model
 
     def get_tm_authority(self, train_id: int) -> list[int]:
-        return self.authority
+        block_id = self.train_dict[train_id]
+        return self.authority[block_id]
 
     def get_tm_speed(self, train_id: int) -> list[float]:
-        return self.speed
+        block_id = self.train_dict[train_id]
+        return self.speed[block_id]
 
     def get_tm_beacon(self, train_id: int) -> str:
         block_id = self.train_dict[train_id]

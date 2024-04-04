@@ -94,10 +94,12 @@ class TrackControllerContainer(QObject):
         # call self.track_model.open/close_block(block_index)
 
     def set_authority(self, line_id: int, block_id: int, authority: int) -> None:
+        print(f"Authority received: {block_id}: {authority}")
         if line_id == 0:
-            self.authority_list[block_id] = authority
+            self.authority_list[block_id-1] = authority
             self.track_model.update_authority(self.authority_list)
-        pass
+        print("Authority sent to track model")
+
 
     # Track Model Endpoint
     @pyqtSlot(list)
@@ -105,6 +107,7 @@ class TrackControllerContainer(QObject):
         print("got the occupancy from track model")
         # update occupancy to ctc:
         self.occupancy_updated_signal.emit(block_occupancy_list)
+        print("occupancy updated signal sent to ctc")
 
         # update occupancy lists with new data
         self.occupancy_list = block_occupancy_list
