@@ -29,6 +29,9 @@ class TrainModelContainer(QObject):
 
     def track_model_inputs(self, input_list, index):
         print("train's track model inputs hit")
+        
+        print(f"track_model_inputs: {index}, {input_list}")
+        
         # the list provided should have entries in this order: [commanded speed, vital authority]
         if len(self.train_list) == 0:
             return
