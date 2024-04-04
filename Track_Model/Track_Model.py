@@ -55,6 +55,9 @@ class TrackModel(QObject):
                           path_13_to_57)
         print(self.full_path)
 
+    def get_full_path(self):
+        return self.full_path
+
     def get_data(self):
         return self.data
 

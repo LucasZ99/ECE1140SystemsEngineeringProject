@@ -86,8 +86,9 @@ class Map(QWidget):
         # self.test_pix_dict()
 
     def move_box(self, x, y):
+        print('a')
         self.train.move(x, y)
-
+        print('b')
     def get_pix_dict(self):
         return self.pixel_dict
 

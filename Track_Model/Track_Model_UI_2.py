@@ -13,6 +13,7 @@ from Track_Model.Track_Model import TrackModel
 from Track_Model.dynamic_map import DynamicMap
 from Track_Model.Track_Model_TB_UI import TestBenchWindow
 from Track_Model.map import Map
+import time
 
 
 
@@ -26,7 +27,9 @@ class Window(QMainWindow):
         # self.file_name = self.getFileName()
         self.file_name = 'Green Line.xlsx'
         self.track_model = track_model
+        self.full_path = track_model.get_full_path()
         self.test_bench_window = TestBenchWindow()
+        self.counter = 0
         # Window Layout
         self.setWindowIcon(QIcon("icon.jpg"))
         self.setWindowTitle("Track Model")
@@ -225,11 +228,16 @@ class Window(QMainWindow):
         self.refresh()
 
     def test_bench_button_clicked(self):
-        pass
+        self.counter += 1
+        self.move_block(self.full_path[self.counter])
+
+    def move_block(self, num):
+        [x, y] = self.pix_dict[str(num)]
+        self.map.move_box(x, y)
 
     def refresh(self):
         occupancy = self.track_model.get_occupancy_list()
-        occupancy =
+        # occupancy =
         print('implement refresh pls')
 
 
