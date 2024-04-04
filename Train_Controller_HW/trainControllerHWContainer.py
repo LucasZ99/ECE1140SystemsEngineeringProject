@@ -42,19 +42,20 @@ class TrainControler_HW_Container:
     def updatevalues(self, inputs):
         #update train controller with Train Model
         print("updatevalues")
+        print(f"Train Controller HW: inputs: {inputs}")
         print(f"Train Controller HW: before TrainModel_arr: {self.trainCtrl.TrainModel_arr}")
-        self.main_TrainModel_arr = numpy.copy(inputs)
+        #self.main_TrainModel_arr = numpy.copy(inputs)
+        self.trainCtrl.TrainModel_arr = inputs
         print(f"Train Controller HW: after  TrainModel_arr: {self.trainCtrl.TrainModel_arr}")
-        #self.trainCtrl.updateRead() #get driver inputs
-        
+
         #update output array to handoff to Train Model
         self.trainCtrl.updateTot()
         print(f"Train Controller HW: self.trainCtrl.output_arr: {self.trainCtrl.output_arr}")
-        #self.trainCtrl.updateDisplay()  #update arduino display
+        print(f"Train Controller HW: after2  TrainModel_arr: {self.trainCtrl.TrainModel_arr}")
         self.outputs = self.trainCtrl.output_arr[:-1]
-        print(f"Train Controller HW: self.outputs[:-1]: {self.outputs}")
+        print(f"Train Controller HW: self.outputs[:-1]: {self.trainCtrl.output_arr[:-1]}")
         self.cabin_temp = self.trainCtrl.output_arr[-1]
-        print(f"Train Controller HW: self.outputs[-1]: {self.outputs[-1]}")
+        print(f"Train Controller HW: self.outputs[-1]: {self.trainCtrl.output_arr[-1]}")
         #return self.main_output_arr[:-1]
 
 def TrainC_HW_main():
