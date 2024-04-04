@@ -15,7 +15,7 @@ else:
 class TrainControler_HW_Container:
     def __init__(self,Testbench=False):
         self.main_Driver_arr = []
-        self.main_TrainModel_arr = []
+        self.main_TrainModel_arr = [0,0,0,False,False,False,"00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"]
         self.outputs = []
         self.TB= Testbench
         self.cabin_temp=68
