@@ -30,7 +30,8 @@ class TrackModel(QObject):
                 self.data[i, 16] = random.randint(1, 100)
                 self.data[i, 17] = random.randint(1, self.data[i, 16])
         self.authority = []
-        self.speed = [0]*150
+        self.speed = [0] * 150
+
         self.train_dict_relative = {}
         self.train_dict = {}
         self.train_count = 0
