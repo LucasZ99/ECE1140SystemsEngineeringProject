@@ -107,7 +107,7 @@ class CTC(QObject):
     def set_block_authority(self):
         for train in self.get_running_trains_sorted_by_priority():
             for block in train.get_next_authorities():
-                print("Block %d authority set to : %d", block[0], block[1])
+                print(f"Block %d authority set to : %d", block[0], block[1])
                 self.authorities[block[0]] = block[1]
                 self.changed_authorities.append(block[0])
             self.authorities[train.get_previous_block()] = 0
