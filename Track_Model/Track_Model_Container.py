@@ -27,6 +27,7 @@ class TrackModelContainer(QObject):
         self.track_model.new_ticket_sales_signal.connect(self.new_ticket_sales)
         # connect external signals
         self.train_model_container.new_train_added.connect(self.train_spawned)
+        self.train_model_container.train_enters_new_block(self.train_presence_changed)
 
     # show ui
     def show_ui(self):
