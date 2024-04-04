@@ -73,7 +73,7 @@ class ContainerTB(QMainWindow):
         self.container.show_ui()
 
     def track_pressed(self):
-        lst = str(self.trackInput.text()).split(",", -1)
+        lst = str(self.trackInput.text()).split(", ", -1)
         if len(lst) != 2:
             return
         # [commanded speed, vital authority]
@@ -83,7 +83,7 @@ class ContainerTB(QMainWindow):
         self.container.track_model_inputs(input_lst, 1)
 
     def controller_pressed(self):
-        lst = str(self.controllerInput.text()).split(",", -1)
+        lst = str(self.controllerInput.text()).split(", ", -1)
         # [commanded speed, power, service brake, emergency brake, left/right doors, announce station, cabin lights,
         # headlights]
         if len(lst) != 8:
@@ -95,13 +95,12 @@ class ContainerTB(QMainWindow):
         input_list.append(bool(lst[2]))
         input_list.append(bool(lst[3]))
         input_list.append(int(lst[4]))
-        input_list.append(lst[5])
         input_list.append(bool(lst[6]))
         input_list.append(bool(lst[7]))
         self.container.train_controller_inputs(input_list, 1)
 
     def block_pressed(self):
-        lst = str(self.blockInput.text()).split(",", -1)
+        lst = str(self.blockInput.text()).split(", ", -1)
         # [grade, elevation, block length, underground, beacon]
         if len(lst) != 5:
             return
@@ -115,10 +114,7 @@ class ContainerTB(QMainWindow):
         self.container.track_update_block(input_list, 1)
 
     def pass_pressed(self):
-        try:
-            self.container.track_update_passengers(int(self.passInput.text()), 1)
-        except Exception as error:
-            print(error)
+        self.container.track_update_passengers(int(self.passInput.text()), 1)
 
     def temp_pressed(self):
         self.container.controller_update_temp(float(self.tempInput.text()), 1)

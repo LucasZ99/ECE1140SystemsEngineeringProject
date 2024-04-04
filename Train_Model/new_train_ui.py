@@ -352,6 +352,7 @@ class UITrain(QMainWindow):
             self.populate_values()
 
     def populate_values(self):
+        print("pop values")
         self.train_dict = self.business_logic.train_list
         if self.index not in self.train_dict.keys():
             return
