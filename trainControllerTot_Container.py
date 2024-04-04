@@ -34,6 +34,17 @@ class TrainController_Tot_Container(QObject):
         self.trainCtrl.show_ui()
 
     #  receiver functions
+    def getvaluesfromtrain(self, inputs):  # Sam call this to update traincontroller values
+
+        self.trainCtrl.updatevalues(inputs,0)
+
+        # send signal with updated values
+        self.new_train_values_signal.emit(self.trainCtrl.outputs, 1)
+        self.new_train_temp_signal.emit(self.trainCtrl.cabin_temp, 1)
+
+        return
+
+    #  receiver functions
     #Auth, Cmd_Spd
     def getvaluesfromtrain_update1(self, inputs):  # Sam call this to update traincontroller values
 
