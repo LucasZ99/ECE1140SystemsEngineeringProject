@@ -52,7 +52,7 @@ class TestBench_JEB382(QWidget):
         print("TB")
         print(in_TrainModel_arr)
         
-        #this array inputed as an init gets updated as UI is used
+        '''#this array inputed as an init gets updated as UI is used
         #classes that created this TB have the array they passed locally update with it as well
         if len(in_TrainModel_arr)<10:
             #if array is empty or missing values, autofills at end of missing indexes
@@ -70,7 +70,7 @@ class TestBench_JEB382(QWidget):
         limit1=0;limit2=100
         for i in range(0,4):
             if   in_TrainModel_arr[i] < limit1: in_TrainModel_arr[i]=limit1
-            elif in_TrainModel_arr[i] > limit2: in_TrainModel_arr[i]=limit2
+            elif in_TrainModel_arr[i] > limit2: in_TrainModel_arr[i]=limit2'''
         
         self.TrainModel_arr = in_TrainModel_arr
         print(self.TrainModel_arr)
@@ -112,17 +112,17 @@ class TestBench_JEB382(QWidget):
             self.layout.addWidget(label2, i, 2, 1, 1)
         
         self.TCK_ActSpd = QDoubleSpinBox()
-        self.TCK_ActSpd.setValue(self.TrainModel_arr[1])
+        self.TCK_ActSpd.setValue(self.TrainModel_arr[0])
         self.TCK_ActSpd.valueChanged.connect(lambda: self.TCKF(TCK=self.TCK_ActSpd,index=0))
         self.layout.addWidget(self.TCK_ActSpd, 1, 1, 1, 1)
         
         self.TCK_CmdSpd = QDoubleSpinBox()
-        self.TCK_CmdSpd.setValue(self.TrainModel_arr[2])
+        self.TCK_CmdSpd.setValue(self.TrainModel_arr[1])
         self.TCK_CmdSpd.valueChanged.connect(lambda: self.TCKF(TCK=self.TCK_CmdSpd,index=1))
         self.layout.addWidget(self.TCK_CmdSpd, 2, 1, 1, 1)
         
         self.TCK_VitAut = QDoubleSpinBox()
-        self.TCK_VitAut.setValue(self.TrainModel_arr[3])
+        self.TCK_VitAut.setValue(self.TrainModel_arr[2])
         self.TCK_VitAut.valueChanged.connect(lambda: self.TCKF(TCK=self.TCK_VitAut,index=2))
         self.layout.addWidget(self.TCK_VitAut, 3, 1, 1, 1)
         
@@ -148,7 +148,7 @@ class TestBench_JEB382(QWidget):
     #--------
     def genbuttons(self):
         #buttonNames1 = ["Passenger eBrake","Track Circuit State","Station Side","Signal Pickup Failure","Engine Failure","Brake Failure"]
-        buttonNames1 = ["Passenger eBrake","Track Circuit State","UnderGround", "Signal Pickup Failure","Engine Failure","Brake Failure"]
+        buttonNames1 = ["Passenger eBrake","Track Circuit State","UnderGround"]#, "Signal Pickup Failure","Engine Failure","Brake Failure"]
                 
         # generates buttons with names from btnNames array
         for i in range(1,len(buttonNames1)+1):
@@ -365,7 +365,8 @@ def test_TB():
         
 if __name__ == "__main__":
     numtrain=1
-    arr =[]#[9]*0
+    arr =[1,2,3,False,False,False,
+                           "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"]
     TB_fin(numtrain,arr)
     
     #TB_pyqtloop(numtrain,arr)
