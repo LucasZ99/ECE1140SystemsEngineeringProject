@@ -7,7 +7,7 @@ from SystemTime import SystemTime
 class TrainController:
 
     maxSpeed = 19.44  # 70 kmh in m/s
-    maxPower = 120  # in kW
+    maxPower = 120000  # in watts
     accelLim = float(0.5)  # acceleration limit of the train based on 2/3 load
     decelLim = float(-1.2)  # deceleration limit of the train based on 2/3 load
     eBrakeDecelLim = float(-2.73)  # deceleration limit of the train emergency brake based on current capacity
@@ -58,7 +58,7 @@ class TrainController:
         self.actualSpeed = float(0)  # actual speed of the train
         self.cmdSpeed = float(31.0686)  # commanded vital speed of the train, as passed from wayside controller
         # self.speedLim = float(31.0686)  # speed limit of the current block, 50 kmh in mph, blue line speed lim
-        self.vitalAuth = float(10)  # vital authority for the train, as passed from wayside controller
+        self.vitalAuth = float(0)  # vital authority for the train, as passed from wayside controller
         self.passEBrake = bool(0)  # passenger emergency brake as bool: 0 off, 1 on
         self.polarity = bool(0)  # track circuit state: 0 left, 1 right
         self.beacon = str("")  # 128 byte message, as passed from track model
@@ -86,7 +86,12 @@ class TrainController:
         self.distanceTraveled = float(-25)
         self.blocksTraveled = int(0)
         self.currentBlock = int(62)
+
+        # vital flags
         self.stopsoon = bool(0)
+        self.trainMoving = bool(0)
+        self.trainSafeToMove = bool(0)
+        self.trainStopped = bool(1)
 
         self.makeAnnouncement = bool(0)  # if announcement is to be made: 0 no, 1 yes
         self.station = bool(0)
@@ -204,6 +209,8 @@ class TrainController:
 
     def polaritycontrol(self, newpolarity):  # TODO change to check for diff between old polarity and new polarity
         if self.polarity != newpolarity:
+            print("polarity changed, train has entered new block")
+            self.polarity = newpolarity
             self.blocksTraveled += 1
             self.i += 1
             self.blockline = linecache.getline('Resources/IT3_GreenLine.txt', self.i).split("\t")
@@ -213,6 +220,9 @@ class TrainController:
             self.length = self.blockline[3]
             self.speedlim = self.blockline[4]
             self.notes = self.blockline[5]
+
+            print("updating distance travelled")
+            self.distanceTraveled += int(self.length)
 
         # if self.polarity == 0:  # track is negative
         #     self.polarity = 1  # switch to positive
@@ -243,8 +253,8 @@ class TrainController:
             self.brakeFail = 0  # disable failure
         return
 
-    def parsebeacon(self, beaconinfo):  # i will get to this eventually maybe lol
-        print("reading beacon")
+    def parsebeacon(self, beaconinfo):  # i am getting to this now
+        currentblock = int(beaconinfo)
 
     def testbenchcontrol(self):
         if self.testBenchState == 0:
@@ -289,13 +299,32 @@ class TrainController:
         self.ek1 = self.ek  # current ek become ek-1 for next call
         self.uk1 = self.uk  # current ek become uk-1`for next call
 
-    def distance(self):
-        if self.vitalAuth <= 4:
+    def authority(self):
+        print("in authority fxn")
+        if self.vitalAuth < 3:
+            print("in the authority if")
             self.stopsoon = True
             self.power = 0
 
-        self.distanceTraveled += self.length
-        pass
+    def vitalitycheck(self):
+        # perform vitality checks to determine if train has right parameters to move
+        if self.vitalAuth == 0:
+            self.trainSafeToMove = 0
+            print("train unsafe to move: no authority")
+        elif self.vitalAuth != 0 and self.cmdSpeed == 0:
+            self.trainSafeToMove = 0
+            print("train unsafe to move: no commanded speed")
+        elif self.vitalAuth != 0 and self.cmdSpeed != 0:
+            self.trainSafeToMove = 1
+            print("train safe to move: authority and cmd speed received")
+
+    def speedcheck(self):
+        # check if cmd speed and actual speed are within legal speed limits:
+        if self.cmdSpeed > float(self.speedlim):
+            print("command speed too high, limiting to speed limit")
+            self.cmdSpeed = self.speedlim
+        elif self.cmdSpeed <= float(self.speedlim):
+            print("command speed within speed limits")
 
     def automode(self):  # deprecated in IT3, used in IT2 for testing. honk mimimi
         for i in range(0, 7):
@@ -328,7 +357,9 @@ class TrainController:
         return ms * self.mph2ms
 
     def updater(self, inputs):
+        print("train controller values being updated")
         self.servBrake = 0  # turn off service brake, will be turned on if needed again
+        #print("serve brake turned off")
         # called from train controller container when train sends new values
         # perform all calculations for new values here and update output array
 
@@ -340,26 +371,35 @@ class TrainController:
         self.polaritycontrol(inputs[4])
 
         self.actualSpeed = inputs[0]
+        print("actual speeded")
         self.cmdSpeed = inputs[1]
+        print("cmd speeded")
         self.vitalAuth = inputs[2]  # authority is distance to destination
+        print(self.vitalAuth)
+        print(inputs[2])
+        print("authority changed")
         # distance control
-        self.distance()
+        self.authority()
+        print("authority controlled")
         # ebrake control here
         self.passEBrake = inputs[3]
+        print("ebraked")
 
         self.isUnderground = inputs[5]
+        print("undregrounded")
         self.beacon = inputs[6]
-
-        # TODO call control functions here
+        print("beaconed")
 
         # power stuff
         self.powercontrol()
+        print("powered")
 
         # update all values in output array and call train model container update function
         # reference adjacent container (train model cntr)
         # call update function to inject new values to train model
         # 8 el list + cabin temp
-        outputs = list[self.cmdSpeed, self.power, self.servBrake, self.eBrake, self.doorSide, self.makeAnnouncement,
-                       self.intLights, self.extLights]
+        outputs = [self.cmdSpeed, self.power, self.servBrake, self.eBrake, self.doorSide, self.makeAnnouncement,
+                   self.intLights, self.extLights]
+        print("all values updated")
 
         return outputs

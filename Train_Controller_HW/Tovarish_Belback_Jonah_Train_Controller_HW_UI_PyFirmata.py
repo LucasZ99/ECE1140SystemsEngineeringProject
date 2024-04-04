@@ -46,7 +46,7 @@ Pmax=10000
 Acc_Lim=0.5
 DeAcc_Lim=1.2#train spec page (1.20 is service brake)
 try:
-    board = ArduinoMega('COM3')
+    board = ArduinoMega('COM7')
     NoHW=False
 except:
     NoHW=True
@@ -322,7 +322,7 @@ class HW_UI_JEB382_PyFirmat():
                 if "Right" in particular_line[6]: self.stat_Dside+=2
         
         infra = linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum).split('\t')[5]
-        print(f".txt infra: <{infra[:7]}>, <{app_stat}>")
+        print(f".txt infra: <{infra[:7]}>, app_stat: <{app_stat}>")
         self.output_arr[5] = ""
         if linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum).split("\t")[5][:7] != "STATION":
             self.Announcements = "APP:"+app_stat[:12]
