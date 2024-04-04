@@ -221,6 +221,7 @@ class TrackModel(QObject):
             self.set_block_occupancy(block, True)
         else:
             self.set_block_occupancy(block, False)
+        self.refresh_map()  # ui
         self.emit_tc_block_occupancy()
 
     def set_occupancy_from_train_presence(self):
@@ -231,12 +232,14 @@ class TrackModel(QObject):
         # key = train id, value = block id
         for key in self.train_dict:
             self.set_block_occupancy(self.train_dict[key], True)
+        self.refresh_map()  # ui
         self.emit_tc_block_occupancy()
 
     # communication to ui
 
     def refresh_map(self):
         self.refresh_map_signal.emit()
+
     #
     #
     # Communication for other modules
@@ -298,6 +301,9 @@ class TrackModel(QObject):
     # SENDING (getters)
 
     # track controller
+
+    def get_occupancy_list(self):
+        return self.data[1:, 7].tolist()
 
     def emit_tc_block_occupancy(self) -> list[bool]:  # giving everything now
         self.new_block_occupancy_signal.emit(self.data[1:, 7].tolist())
