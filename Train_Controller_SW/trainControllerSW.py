@@ -14,7 +14,7 @@ class TrainController:
     KMH2ms = 3.6  # divide by this to go from KMH to m/s or multiply to go from m/s to KMH
     mph2ms = 2.237  # divide by this to go from mph to m/s or multiply to go from m/s to mph
     kW2HP = 1.34102  # multiply by this to go from kW to HP or divide to go from HP to kW
-    # TODO uk, uk-1 values array and ek ek-1 values array e is m/s and u is m
+    # TODO uk, uk-1 values and ek ek-1 values e is m/s and u is m
 
     # testing arrays
     # formatted as [uk, uk-1, ek, ek-1], "sampled" every 5 seconds from train model
@@ -26,8 +26,13 @@ class TrainController:
 
     # TODO train controller static data
     # array for static map data
-    map_arr = np.array([[0, 0], [100, 45], [100, 45], [100, 45], [100, 45], [100, 45], [100, 45], [100, 45], [100, 45],
-                        [100, 45], [100, 45], [100, 45], [100, 45]])
+    green_line = list[50, 100, 100, 200, 200, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 300, 300, 300, 300, 300,
+                      300, 300, 300, 300, 100, 86.6, 100, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 35, 100, 100,
+                      80, 100, 100, 90, 100, 100, 100, 100, 100, 100, 162, 100, 100, 50, 50, 40, 50, 50, 50, 50, 50, 50,
+                      50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 184, 40,
+                      35, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 150, 150, 150, 150, 150, 150, 150,
+                      150, 300, 300, 300, 300, 200, 100, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
+                      50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50]
 
     def __init__(self):
         # train model container  # update train values in update function
@@ -57,10 +62,6 @@ class TrainController:
         self.engineFail = bool(0)  # engine failure as bool: 0 no fail, 1 fail
         self.brakeFail = bool(0)  # brake failure as bool: 0 no fail, 1 fail
 
-        # PID gain values, as inputs from engineer
-        self.ki = float(40)  # integral gain as float,
-        self.kp = float(20)  # proportional gain as float,
-
         # train model inputs
         self.actualSpeed = float(0)  # actual speed of the train
         self.cmdSpeed = float(31.0686)  # commanded vital speed of the train, as passed from wayside controller
@@ -71,21 +72,33 @@ class TrainController:
         self.beacon = str("")  # 128 byte message, as passed from track model
 
         # train vital control, derived from train model inputs or driver/engineer inputs
-        self.currSpeed = float(0.5)  # referenced current speed from actual speed of train model
+        # self.currSpeed = float(0.5)  # referenced current speed from actual speed of train model
         self.setPtSpeed = float(0)  # set point speed as determined by driver input
         self.power = float(0)  # power of the train engine as determined by driver and engineer input
         self.servBrake = bool(0)
         self.eBrake = bool(0)  # application of emergency brake as bool: 0 off, 1 on
 
-        self.Vprev = float(0)  # velocity of previous step
+        self.prevSpeed = float(0)  # velocity of previous step
 
         # power calculation vars
         self.uk = float(0)
         self.uk1 = float(0)
-        self.ek = float
+        self.ek = float(0)
         self.ek1 = float(0)
+        # PID gain values, as inputs from engineer
+        self.ki = float(1000)  # integral gain as float,
+        self.kp = float(2000)  # proportional gain as float
+
+        # authority and distance
+        self.distanceTraveled = float(-25)
+        self.blocksTraveled = int(0)
+        self.currentBlock = int(62)
 
         self.makeAnnouncement = bool(0)  # if announcement is to be made: 0 no, 1 yes
+        self.station = bool(0)
+
+        self.i = int(0)
+        self.blockLength = self.green_line[self.i]
 
     def settestbenchstate(self, newtestbenchstate):
         self.testBenchState = newtestbenchstate
@@ -184,8 +197,10 @@ class TrainController:
     def polaritycontrol(self):
         if self.polarity == 0:  # track is negative
             self.polarity = 1  # switch to positive
+            self.blocksTraveled += 1
         elif self.polarity == 1:  # track is positive
             self.polarity = 0  # switch to negative
+            self.blocksTraveled += 1
         return
 
     def signalfailcontrol(self):
@@ -222,6 +237,13 @@ class TrainController:
         if self.signalFail == 1 or self.engineFail == 1 or self.brakeFail == 1:
             self.power = 0
 
+    def powercontrol(self):
+        self.power = self.kp * self.ek + self.ki * self.uk
+        pass
+
+    def distance(self):
+        self.distanceTraveled += self.block_length
+
     def automode(self):  # deprecated in IT3, used in IT2 for testing.
         for i in range(0, 7):
             # power cmd = ek * kp + uk * ki, converted to mph rounded to 3 decimal places
@@ -234,7 +256,7 @@ class TrainController:
                 self.servBrake = 0
                 print("service brake disabled")
 
-            self.currSpeed = self.t_arr[i, 0]  # speed recieved from train model
+            self.currSpeed = self.t_arr[i, 0]  # speed received from train model
             if self.ms2mph(self.currSpeed) > self.speedLim:
                 self.currSpeed = self.speedLim/self.mph2ms
 
@@ -256,9 +278,12 @@ class TrainController:
         # called from train controller container when train sends new values
         # perform all calculations for new values here and update output array
 
+        self.ek1 = self.ek
+        self.uk1 = self.uk
+
         # update all values
         self.actualSpeed = inputs[0]
-        self.currSpeed = inputs[1]
+        self.cmdSpeed = inputs[1]
         self.vitalAuth = inputs[2]
         self.passEBrake = inputs[3]
         self.polarity = inputs[4]
@@ -266,6 +291,15 @@ class TrainController:
         self.beacon = inputs[6]
 
         # TODO call control functions here
+
+        # power stuff
+        self.powercontrol()
+
+        # authority and distance travelled
+        self.distance()
+
+        # polarity
+        self.polaritycontrol()
 
         # update all values in output array and call train model container update function
         # reference adjacent container (train model cntr)
