@@ -39,13 +39,14 @@ class TrainModelContainer(QObject):
             self.train_list[index].signals.set_authority(input_list[1],
                                                          self.train_list[index].failure.signal_pickup_failure)
 
-            # self.controller.getvaluesfromtrain([self.train_list[index].velocity, self.train_list[index].signals.authority,
-            #                               self.train_list[index].signals.commanded_speed,
-            #                               self.train_list[index].brakes.passenger_ebrake,
-            #                               self.train_list[index].track_circuit, self.train_list[index].underground,
-            #                               self.train_list[index].signals.beacon])
+            self.controller.getvaluesfromtrain([self.train_list[index].velocity, self.train_list[index].signals.authority,
+                                          self.train_list[index].signals.commanded_speed,
+                                          self.train_list[index].brakes.passenger_ebrake,
+                                          self.train_list[index].track_circuit, self.train_list[index].underground,
+                                          self.train_list[index].signals.beacon])
             self.physics_calculation()
             self.business_logic.values_updated.emit()
+            self.business_logic.train_list = self.train_list
 
     def train_controller_inputs(self, input_list, index):
         # the list provided should have the entries in this order: [commanded speed, power, service brake,
@@ -66,11 +67,11 @@ class TrainModelContainer(QObject):
             self.train_list[index].interior_functions.interior_lights = input_list[6]
             self.train_list[index].interior_functions.exterior_lights = input_list[7]
             self.business_logic.values_updated.emit()
-            return True
+            self.business_logic.train_list = self.train_list
 
     def track_update_block(self, block_vals, index):
         if not (index in self.train_list.keys()):
-            return False
+            return
         # block_vals should be a list as such: [grade, elevation, block length, underground, beacon]
         self.train_list[index].update_blocks(block_vals[:4])
         self.train_list[index].signals.beacon = block_vals[4]
@@ -80,22 +81,22 @@ class TrainModelContainer(QObject):
                                       self.train_list[index].track_circuit, self.train_list[index].underground,
                                       self.train_list[index].signals.beacon])
         self.business_logic.block_updated.emit(index)
-        return True
+        self.business_logic.train_list = self.train_list
 
     def track_update_passengers(self, num, index):
         if not (index in self.train_list.keys()):
-            return False
+            return
         self.passenger_return[index] = self.train_list[index].passengers.update_at_station(num, self.train_list[index].train_const.max_passengers())
-        self.business_logic.passengers_updated(index)
-        return True
+        self.business_logic.passengers_updated.emit(index)
+        self.business_logic.train_list = self.train_list
 
     def controller_update_temp(self, num, index):
         if not (index in self.train_list.keys()):
-            return False
+            return
         self.train_list[index].heater.update_target(num)
         self.physics_calculation()
         self.business_logic.temp_updated.emit(index)
-        return True
+        self.business_logic.train_list = self.train_list
 
     def physics_calculation(self):
         interval = self.time_keeper.system_time.time() - self.time
@@ -105,12 +106,13 @@ class TrainModelContainer(QObject):
             if self.train_list[i].position > self.train_list[i].new_block.block_length:
                 self.train_list[i].track_circuit = not self.train_list[i].track_circuit
                 self.train_enters_new_block.emit(i)
-            # self.controller.getvaluesfromtrain([self.train_list[i].velocity, self.train_list[i].signals.authority,
-            #                               self.train_list[i].signals.commanded_speed,
-            #                               self.train_list[i].brakes.passenger_ebrake,
-            #                               self.train_list[i].track_circuit, self.train_list[i].underground,
-            #                               self.train_list[i].signals.beacon])
+            self.controller.getvaluesfromtrain([self.train_list[i].velocity, self.train_list[i].signals.authority,
+                                          self.train_list[i].signals.commanded_speed,
+                                          self.train_list[i].brakes.passenger_ebrake,
+                                          self.train_list[i].track_circuit, self.train_list[i].underground,
+                                          self.train_list[i].signals.beacon])
         self.business_logic.values_updated.emit()
+        self.business_logic.train_list = self.train_list
 
     def add_train(self):
         if len(self.train_list) == 0:
@@ -122,15 +124,16 @@ class TrainModelContainer(QObject):
 
         self.business_logic.train_added.emit(index)
         self.new_train_added.emit(index)
-        return index
+        self.business_logic.train_list = self.train_list
 
     def remove_train(self, index):
+
         if not (index in self.train_list.keys()):
-            return False
+            return
         else:
             self.train_list.pop(index)
             self.business_logic.train_removed.emit(index)
-            return True
+            self.business_logic.train_list = self.train_list
 
     def show_ui(self):
         app = QApplication.instance()
