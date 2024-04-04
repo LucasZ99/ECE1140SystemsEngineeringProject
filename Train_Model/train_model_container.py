@@ -39,11 +39,11 @@ class TrainModelContainer(QObject):
             self.train_list[index].signals.set_authority(input_list[1],
                                                          self.train_list[index].failure.signal_pickup_failure)
 
-            self.controller.getvaluesfromtrain([self.train_list[index].velocity, self.train_list[index].signals.authority,
-                                          self.train_list[index].signals.commanded_speed,
-                                          self.train_list[index].brakes.passenger_ebrake,
-                                          self.train_list[index].track_circuit, self.train_list[index].underground,
-                                          self.train_list[index].signals.beacon])
+            # self.controller.getvaluesfromtrain([self.train_list[index].velocity, self.train_list[index].signals.authority,
+            #                               self.train_list[index].signals.commanded_speed,
+            #                               self.train_list[index].brakes.passenger_ebrake,
+            #                               self.train_list[index].track_circuit, self.train_list[index].underground,
+            #                               self.train_list[index].signals.beacon])
             self.physics_calculation()
             self.business_logic.values_updated.emit()
 
@@ -105,11 +105,11 @@ class TrainModelContainer(QObject):
             if self.train_list[i].position > self.train_list[i].new_block.block_length:
                 self.train_list[i].track_circuit = not self.train_list[i].track_circuit
                 self.train_enters_new_block.emit(i)
-            self.controller.getvaluesfromtrain([self.train_list[i].velocity, self.train_list[i].signals.authority,
-                                          self.train_list[i].signals.commanded_speed,
-                                          self.train_list[i].brakes.passenger_ebrake,
-                                          self.train_list[i].track_circuit, self.train_list[i].underground,
-                                          self.train_list[i].signals.beacon])
+            # self.controller.getvaluesfromtrain([self.train_list[i].velocity, self.train_list[i].signals.authority,
+            #                               self.train_list[i].signals.commanded_speed,
+            #                               self.train_list[i].brakes.passenger_ebrake,
+            #                               self.train_list[i].track_circuit, self.train_list[i].underground,
+            #                               self.train_list[i].signals.beacon])
         self.business_logic.values_updated.emit()
 
     def add_train(self):

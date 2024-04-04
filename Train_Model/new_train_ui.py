@@ -29,9 +29,9 @@ class UITrain(QMainWindow):
             print("Error with loading UI file: ", e)
 
         # declare the train object
-        self.train = TrainModel()
         self.business_logic = bus
         self.train_dict = self.business_logic.train_list
+        self.index = 0
 
 
 
@@ -173,12 +173,13 @@ class UITrain(QMainWindow):
         self.rightDoorValue_tb.stateChanged.connect(self.right_door_change)
 
     def values_updated(self):
+        print("im in values_updated")
         self.populate_values()
     def index_update(self, index):
         string = str(self.trainSelect.currentText())
         if int(string[6:]) == index:
             self.populate_values()
-        print(self.train.ID)
+        print(self.train_dict[self.index].ID)
 
     def train_added(self, index):
         self.trainSelect.addItem(f'Train {index}')
@@ -192,8 +193,7 @@ class UITrain(QMainWindow):
 
     def combo_selection(self):
         string = str(self.trainSelect.currentText())
-        index = int(string[6:])
-        self.train = self.train_dict[index]
+        self.index = int(string[6:])
         self.switching_trains = True
         self.populate_values()
         self.switching_trains = False
@@ -223,233 +223,235 @@ class UITrain(QMainWindow):
             self.tb = True
 
     def physics_test(self):
-        self.train.physics_calculation(1)
+        self.train_dict[self.index].physics_calculation(1)
         self.populate_values()
 
     def passenger_test(self):
-        self.train.passengers.update_at_station(random.randint(0, 50), self.train.train_const.max_passengers())
+        self.train_dict[self.index].passengers.update_at_station(random.randint(0, 50), self.train_dict[self.index].train_const.max_passengers())
         self.populate_values()
 
     def set_pbrake(self):
-        self.train.brakes.passenger_ebrake = True
+        self.train_dict[self.index].brakes.passenger_ebrake = True
         self.ebp = True
         self.populate_values()
         self.ebp = False
 
     def power_change(self):
         if not self.switching_trains:
-            self.train.engine.set_power(float(self.powerValue_tb.text()))
+            self.train_dict[self.index].engine.set_power(float(self.powerValue_tb.text()))
             self.populate_values()
 
     def acc_change(self):
         if not self.switching_trains:
-            self.train.acceleration = float(self.accValue_tb.text()) / self.feet_per_meter
+            self.train_dict[self.index].acceleration = float(self.accValue_tb.text()) / self.feet_per_meter
             self.populate_values()
 
     def speed_change(self):
-        self.train.set_velocity(float(self.speedValue_tb.text()) * 5280 / self.feet_per_meter / 3600)
+        self.train_dict[self.index].set_velocity(float(self.speedValue_tb.text()) * 5280 / self.feet_per_meter / 3600)
         self.populate_values()
 
     def grade_change(self):
-        if self.train.position > self.train.train_const.train_length() / 2:
-            self.train.new_block.grade = float(self.gradeValue_tb.text())
+        if self.train_dict[self.index].position > self.train_dict[self.index].train_const.train_length() / 2:
+            self.train_dict[self.index].new_block.grade = float(self.gradeValue_tb.text())
         else:
-            self.train.old_block.grade = float(self.gradeValue_tb.text())
+            self.train_dict[self.index].old_block.grade = float(self.gradeValue_tb.text())
         self.populate_values()
 
     def elev_change(self):
-        if self.train.position > self.train.train_const.train_length() / 2:
-            self.train.new_block.elevation = float(self.elevValue_tb.text()) / self.feet_per_meter
+        if self.train_dict[self.index].position > self.train_dict[self.index].train_const.train_length() / 2:
+            self.train_dict[self.index].new_block.elevation = float(self.elevValue_tb.text()) / self.feet_per_meter
         else:
-            self.train.old_block.elevation = float(self.elevValue_tb.text()) / self.feet_per_meter
+            self.train_dict[self.index].old_block.elevation = float(self.elevValue_tb.text()) / self.feet_per_meter
         self.populate_values()
 
     def pbrake_change(self):
         if not self.switching_trains:
             if not self.ebp:
-                self.train.brakes.toggle_passenger_ebrake()
+                self.train_dict[self.index].brakes.toggle_passenger_ebrake()
                 self.populate_values()
         self.ebp = False
 
     def sbrake_change(self):
         if not self.switching_trains:
-            self.train.brakes.toggle_service_brake()
+            self.train_dict[self.index].brakes.toggle_service_brake()
             self.populate_values()
 
     def dbrake_change(self):
         if not self.switching_trains:
-            self.train.brakes.toggle_driver_ebrake()
+            self.train_dict[self.index].brakes.toggle_driver_ebrake()
             self.populate_values()
 
     def cars_change(self):
-        self.train.train_const.set_cars(int(self.carsValue_tb.text()))
+        self.train_dict[self.index].train_const.set_cars(int(self.carsValue_tb.text()))
         self.populate_values()
 
     def crew_change(self):
-        self.train.crew.set_people(int(self.crewValue_tb.text()))
+        self.train_dict[self.index].crew.set_people(int(self.crewValue_tb.text()))
         self.populate_values()
 
     def pass_change(self):
-        self.train.passengers.set_people(int(self.passValue_tb.text()), self.train.train_const.max_passengers())
+        self.train_dict[self.index].passengers.set_people(int(self.passValue_tb.text()), self.train_dict[self.index].train_const.max_passengers())
         self.populate_values()
 
     def engine_change(self):
         if not self.switching_trains:
-            self.train.failure.toggle_engine()
+            self.train_dict[self.index].failure.toggle_engine()
             self.populate_values()
 
     def signal_change(self):
         if not self.switching_trains:
-            self.train.failure.toggle_signal_pickup()
+            self.train_dict[self.index].failure.toggle_signal_pickup()
             self.populate_values()
 
     def brake_change(self):
         if not self.switching_trains:
-            self.train.failure.toggle_brakes()
+            self.train_dict[self.index].failure.toggle_brakes()
             self.populate_values()
 
     def rec_speed_changed(self):
-        self.train.signals.set_commanded_speed(float(self.recSpeedValue_tb.text()), self.train.failure.signal_pickup_failure)
+        self.train_dict[self.index].signals.set_commanded_speed(float(self.recSpeedValue_tb.text()), self.train_dict[self.index].failure.signal_pickup_failure)
         self.populate_values()
 
     def auth_changed(self):
-        self.train.signals.set_authority(int(self.authValue_tb.text(), 16), self.train.failure.signal_pickup_failure)
+        self.train_dict[self.index].signals.set_authority(int(self.authValue_tb.text(), 16), self.train_dict[self.index].failure.signal_pickup_failure)
         self.populate_values()
 
     def beacon_changed(self):
-        self.train.signals.beacon = self.beaconValue_tb.text()
+        self.train_dict[self.index].signals.beacon = self.beaconValue_tb.text()
         self.populate_values()
 
     def temp_change(self):
-        self.train.heater.update_target(float(self.tempValue_tb.text()))
+        self.train_dict[self.index].heater.update_target(float(self.tempValue_tb.text()))
         self.populate_values()
 
     def ext_light_change(self):
         if not self.switching_trains:
-            self.train.interior_functions.toggle_exterior_lights()
+            self.train_dict[self.index].interior_functions.toggle_exterior_lights()
             self.populate_values()
 
     def int_light_change(self):
         if not self.switching_trains:
-            self.train.interior_functions.toggle_interior_lights()
+            self.train_dict[self.index].interior_functions.toggle_interior_lights()
             self.populate_values()
 
     def left_door_change(self):
         if not self.switching_trains:
-            self.train.interior_functions.toggle_left_doors()
+            self.train_dict[self.index].interior_functions.toggle_left_doors()
             self.populate_values()
 
     def right_door_change(self):
         if not self.switching_trains:
-            self.train.interior_functions.toggle_right_doors()
+            self.train_dict[self.index].interior_functions.toggle_right_doors()
             self.populate_values()
 
     def populate_values(self):
-        self.powerValue.setText(f'{self.train.engine.power: .2f} W')
-        self.powerValue_tb.setText(f'{self.train.engine.power: .2f}')
+        if self.index not in self.train_dict.keys():
+            return
+        self.powerValue.setText(f'{self.train_dict[self.index].engine.power: .2f} W')
+        self.powerValue_tb.setText(f'{self.train_dict[self.index].engine.power: .2f}')
 
         self.accValue.setText(
-            f"{self.train.acceleration * self.feet_per_meter: .2f} ft/s<sup>2")
-        self.accValue_tb.setText(f"{self.train.acceleration * self.feet_per_meter: .2f}")
+            f"{self.train_dict[self.index].acceleration * self.feet_per_meter: .2f} ft/s<sup>2")
+        self.accValue_tb.setText(f"{self.train_dict[self.index].acceleration * self.feet_per_meter: .2f}")
 
-        self.speedValue.setText(f'{self.train.velocity * self.feet_per_meter * 3600 / 5280: .2f} mph')
-        self.speedValue_tb.setText(f'{self.train.velocity * self.feet_per_meter * 3600 / 5280: .2f}')
+        self.speedValue.setText(f'{self.train_dict[self.index].velocity * self.feet_per_meter * 3600 / 5280: .2f} mph')
+        self.speedValue_tb.setText(f'{self.train_dict[self.index].velocity * self.feet_per_meter * 3600 / 5280: .2f}')
 
-        self.totMassValue.setText(f'{self.train.get_total_mass() * self.tons_per_kilogram: .2f} Tons')
-        self.totMassValue_tb.setText(f'{self.train.get_total_mass() * self.tons_per_kilogram: .2f} Tons')
+        self.totMassValue.setText(f'{self.train_dict[self.index].get_total_mass() * self.tons_per_kilogram: .2f} Tons')
+        self.totMassValue_tb.setText(f'{self.train_dict[self.index].get_total_mass() * self.tons_per_kilogram: .2f} Tons')
 
-        if self.train.position > self.train.train_const.train_length() / 2:
-            self.gradeValue.setText(f'{self.train.new_block.grade: .2f} %')
-            self.gradeValue_tb.setText(f'{self.train.new_block.grade: .2f}')
+        if self.train_dict[self.index].position > self.train_dict[self.index].train_const.train_length() / 2:
+            self.gradeValue.setText(f'{self.train_dict[self.index].new_block.grade: .2f} %')
+            self.gradeValue_tb.setText(f'{self.train_dict[self.index].new_block.grade: .2f}')
         else:
-            self.gradeValue.setText(f'{self.train.old_block.grade: .2f} %')
-            self.gradeValue_tb.setText(f'{self.train.old_block.grade: .2f}')
+            self.gradeValue.setText(f'{self.train_dict[self.index].old_block.grade: .2f} %')
+            self.gradeValue_tb.setText(f'{self.train_dict[self.index].old_block.grade: .2f}')
 
-        if self.train.position > self.train.train_const.train_length() / 2:
-            self.elevValue.setText(f'{self.train.new_block.elevation * self.feet_per_meter: .2f} ft')
-            self.elevValue_tb.setText(f'{self.train.new_block.elevation * self.feet_per_meter: .2f}')
+        if self.train_dict[self.index].position > self.train_dict[self.index].train_const.train_length() / 2:
+            self.elevValue.setText(f'{self.train_dict[self.index].new_block.elevation * self.feet_per_meter: .2f} ft')
+            self.elevValue_tb.setText(f'{self.train_dict[self.index].new_block.elevation * self.feet_per_meter: .2f}')
         else:
-            self.elevValue.setText(f'{self.train.old_block.elevation * self.feet_per_meter: .2f} ft')
-            self.elevValue_tb.setText(f'{self.train.old_block.elevation * self.feet_per_meter: .2f}')
+            self.elevValue.setText(f'{self.train_dict[self.index].old_block.elevation * self.feet_per_meter: .2f} ft')
+            self.elevValue_tb.setText(f'{self.train_dict[self.index].old_block.elevation * self.feet_per_meter: .2f}')
 
-        if self.train.brakes.passenger_ebrake:
+        if self.train_dict[self.index].brakes.passenger_ebrake:
             self.pBrakeValue.setValue(100)
         else:
             self.pBrakeValue.setValue(0)
-        self.pBrakeValue_tb.setChecked(self.train.brakes.passenger_ebrake)
+        self.pBrakeValue_tb.setChecked(self.train_dict[self.index].brakes.passenger_ebrake)
 
-        if self.train.brakes.service_brake:
+        if self.train_dict[self.index].brakes.service_brake:
             self.sBrakeValue.setValue(100)
         else:
             self.sBrakeValue.setValue(0)
-        self.sBrakeValue_tb.setChecked(self.train.brakes.service_brake)
+        self.sBrakeValue_tb.setChecked(self.train_dict[self.index].brakes.service_brake)
 
-        if self.train.brakes.driver_ebrake:
+        if self.train_dict[self.index].brakes.driver_ebrake:
             self.dBrakeValue.setValue(100)
         else:
             self.dBrakeValue.setValue(0)
-        self.dBrakeValue_tb.setChecked(self.train.brakes.driver_ebrake)
+        self.dBrakeValue_tb.setChecked(self.train_dict[self.index].brakes.driver_ebrake)
 
-        self.lengthValue.setText(f'{self.train.train_const.train_length() * self.feet_per_meter: .2f} ft')
-        self.lengthValue_tb.setText(f'{self.train.train_const.train_length() * self.feet_per_meter: .2f} ft')
+        self.lengthValue.setText(f'{self.train_dict[self.index].train_const.train_length() * self.feet_per_meter: .2f} ft')
+        self.lengthValue_tb.setText(f'{self.train_dict[self.index].train_const.train_length() * self.feet_per_meter: .2f} ft')
 
-        self.heightValue.setText(f'{self.train.train_const.height * self.feet_per_meter: .2f} ft')
-        self.heightValue_tb.setText(f'{self.train.train_const.height * self.feet_per_meter: .2f} ft')
+        self.heightValue.setText(f'{self.train_dict[self.index].train_const.height * self.feet_per_meter: .2f} ft')
+        self.heightValue_tb.setText(f'{self.train_dict[self.index].train_const.height * self.feet_per_meter: .2f} ft')
 
-        self.widthValue.setText(f'{self.train.train_const.width * self.feet_per_meter: .2f} ft')
-        self.widthValue_tb.setText(f'{self.train.train_const.width * self.feet_per_meter: .2f} ft')
+        self.widthValue.setText(f'{self.train_dict[self.index].train_const.width * self.feet_per_meter: .2f} ft')
+        self.widthValue_tb.setText(f'{self.train_dict[self.index].train_const.width * self.feet_per_meter: .2f} ft')
 
-        self.carsValue.setText(f'{self.train.train_const.car_number}')
-        self.carsValue_tb.setText(f'{self.train.train_const.car_number}')
+        self.carsValue.setText(f'{self.train_dict[self.index].train_const.car_number}')
+        self.carsValue_tb.setText(f'{self.train_dict[self.index].train_const.car_number}')
 
-        self.trainMassValue.setText(f'{self.train.train_const.train_mass() * self.tons_per_kilogram: .2f} Tons')
-        self.trainMassValue_tb.setText(f'{self.train.train_const.train_mass() * self.tons_per_kilogram: .2f} Tons')
+        self.trainMassValue.setText(f'{self.train_dict[self.index].train_const.train_mass() * self.tons_per_kilogram: .2f} Tons')
+        self.trainMassValue_tb.setText(f'{self.train_dict[self.index].train_const.train_mass() * self.tons_per_kilogram: .2f} Tons')
 
-        self.crewValue.setText(f'{self.train.crew.people_number}')
-        self.crewValue_tb.setText(f'{self.train.crew.people_number}')
+        self.crewValue.setText(f'{self.train_dict[self.index].crew.people_number}')
+        self.crewValue_tb.setText(f'{self.train_dict[self.index].crew.people_number}')
 
-        self.passValue.setText(f'{self.train.passengers.people_number}')
-        self.passValue_tb.setText(f'{self.train.passengers.people_number}')
+        self.passValue.setText(f'{self.train_dict[self.index].passengers.people_number}')
+        self.passValue_tb.setText(f'{self.train_dict[self.index].passengers.people_number}')
 
-        self.eFailCheck.setChecked(self.train.failure.engine_failure)
-        self.sFailCheck.setChecked(self.train.failure.signal_pickup_failure)
-        self.bFailCheck.setChecked(self.train.failure.brake_failure)
+        self.eFailCheck.setChecked(self.train_dict[self.index].failure.engine_failure)
+        self.sFailCheck.setChecked(self.train_dict[self.index].failure.signal_pickup_failure)
+        self.bFailCheck.setChecked(self.train_dict[self.index].failure.brake_failure)
 
-        self.recSpeedValue.setText(f'{self.train.signals.commanded_speed: .2f}')
-        self.recSpeedValue_tb.setText(f'{self.train.signals.commanded_speed: .2f}')
+        self.recSpeedValue.setText(f'{self.train_dict[self.index].signals.commanded_speed: .2f}')
+        self.recSpeedValue_tb.setText(f'{self.train_dict[self.index].signals.commanded_speed: .2f}')
 
-        self.authValue.setText(f'0x{self.train.signals.authority:02x}')
-        self.authValue_tb.setText(f'{self.train.signals.authority:02x}')
+        self.authValue.setText(f'0x{self.train_dict[self.index].signals.authority:02x}')
+        self.authValue_tb.setText(f'{self.train_dict[self.index].signals.authority:02x}')
 
-        self.beaconValue.setText(self.train.signals.beacon)
-        self.beaconValue_tb.setText(self.train.signals.beacon)
+        self.beaconValue.setText(self.train_dict[self.index].signals.beacon)
+        self.beaconValue_tb.setText(self.train_dict[self.index].signals.beacon)
 
-        self.tempValue.setText(f'{self.train.heater.current_temp: .2f} °F')
-        self.tempValue_tb.setText(f'{self.train.heater.current_temp: .2f}')
+        self.tempValue.setText(f'{self.train_dict[self.index].heater.current_temp: .2f} °F')
+        self.tempValue_tb.setText(f'{self.train_dict[self.index].heater.current_temp: .2f}')
 
-        if self.train.interior_functions.exterior_lights:
+        if self.train_dict[self.index].interior_functions.exterior_lights:
             self.extLightValue.setValue(100)
         else:
             self.extLightValue.setValue(0)
-        self.extLightValue_tb.setChecked(self.train.interior_functions.exterior_lights)
+        self.extLightValue_tb.setChecked(self.train_dict[self.index].interior_functions.exterior_lights)
 
-        if self.train.interior_functions.interior_lights:
+        if self.train_dict[self.index].interior_functions.interior_lights:
             self.intLightValue.setValue(100)
         else:
             self.intLightValue.setValue(0)
-        self.intLightValue_tb.setChecked(self.train.interior_functions.interior_lights)
+        self.intLightValue_tb.setChecked(self.train_dict[self.index].interior_functions.interior_lights)
 
-        if self.train.interior_functions.left_doors:
+        if self.train_dict[self.index].interior_functions.left_doors:
             self.leftDoorValue.setValue(100)
         else:
             self.leftDoorValue.setValue(0)
-        self.leftDoorValue_tb.setChecked(self.train.interior_functions.left_doors)
+        self.leftDoorValue_tb.setChecked(self.train_dict[self.index].interior_functions.left_doors)
 
-        if self.train.interior_functions.right_doors:
+        if self.train_dict[self.index].interior_functions.right_doors:
             self.rightDoorValue.setValue(100)
         else:
             self.rightDoorValue.setValue(0)
-        self.rightDoorValue_tb.setChecked(self.train.interior_functions.right_doors)
+        self.rightDoorValue_tb.setChecked(self.train_dict[self.index].interior_functions.right_doors)
 
 
 # initialize the app
