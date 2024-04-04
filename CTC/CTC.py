@@ -67,13 +67,13 @@ class CTC(QObject):
         self.update_ui_signal.emit()
 
     def update_track_controller(self):
-        for block in self.changed_speeds:
-            self.track_controller_ref.command_speed(GREEN_LINE, block, self.suggested_speeds[block])
-            self.changed_speeds.remove(block)
-
         for block in self.changed_authorities:
             self.track_controller_ref.set_authority(GREEN_LINE, block, self.authorities[block])
             self.changed_authorities.remove(block)
+
+        for block in self.changed_speeds:
+            self.track_controller_ref.command_speed(GREEN_LINE, block, self.suggested_speeds[block])
+            self.changed_speeds.remove(block)
 
     def get_scheduled_trains(self) -> list[Train]:
         trains = []
@@ -108,7 +108,7 @@ class CTC(QObject):
         print("authority function")
         for train in self.get_running_trains_sorted_by_priority():
             for block in train.get_next_authorities():
-                print(f"Block %d authority set to : %d", block[0], block[1])
+                print(f"Block {block[0]} authority set to : {block[1]}")
                 self.authorities[block[0]] = block[1]
                 self.changed_authorities.append(block[0])
             self.authorities[train.get_previous_block()] = 0

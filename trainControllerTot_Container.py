@@ -17,7 +17,7 @@ class TrainController_Tot_Container(QObject):
     new_train_temp_signal = pyqtSignal(float, int)
     # sam connect these signals to your respective update train model values command
 
-    def __init__(self, system_time_container: SystemTimeContainer, ware=True):
+    def __init__(self, system_time_container: SystemTimeContainer, ware: bool=True):
 
         super().__init__()
         # Ware:
@@ -38,6 +38,8 @@ class TrainController_Tot_Container(QObject):
 
         self.trainCtrl.updatevalues(inputs)
 
+        print("Train Controller TOT Container: values updated, sending signals next")
+
         # send signal with updated values
         self.new_train_values_signal.emit(self.trainCtrl.outputs, 1)
         self.new_train_temp_signal.emit(self.trainCtrl.cabin_temp, 1)
@@ -50,10 +52,11 @@ class TrainController_Tot_Container(QObject):
     #     return self.trainCtrl.updatevalues(inputs)
 
 
-def TrainC_main():
-    trainctrlcntr = TrainController_Tot_Container()
-    trainctrlcntr.show_ui()
+def TrainC_main(system_time,type=True):
+    trainctrlcntr = TrainController_Tot_Container(system_time,type)
+    while True: trainctrlcntr.show_ui()
 
 
 if __name__ == "__main__":
-    TrainC_main()
+    system_time = SystemTimeContainer()
+    TrainC_main(system_time, False)
