@@ -29,6 +29,7 @@ class TrainModelContainer(QObject):
         self.business_logic.ui_updates.connect(self.ui_updates)
 
     def track_model_inputs(self, input_list, index):
+        print("train's track model inputs hit")
         # the list provided should have entries in this order: [commanded speed, vital authority]
         if len(self.train_list) == 0:
             return
@@ -46,8 +47,9 @@ class TrainModelContainer(QObject):
                                           self.train_list[index].track_circuit, self.train_list[index].underground,
                                           self.train_list[index].signals.beacon])
             self.physics_calculation()
-            self.business_logic.values_updated.emit()
             self.business_logic.train_list = self.train_list
+            print("train's track model inputs updated")
+            self.business_logic.values_updated.emit()
 
     def train_controller_inputs(self, input_list, index):
         # the list provided should have the entries in this order: [commanded speed, power, service brake,
@@ -116,6 +118,7 @@ class TrainModelContainer(QObject):
         self.business_logic.train_list = self.train_list
 
     def add_train(self):
+        print("train endpoint hit")
         if len(self.train_list) == 0:
             self.train_list[1] = TrainModel(1, self.num_cars)
             index = 1
@@ -123,9 +126,10 @@ class TrainModelContainer(QObject):
             index = max(self.train_list.keys()) + 1
             self.train_list[index] = TrainModel(index, self.num_cars)
 
+        self.business_logic.train_list = self.train_list
         self.business_logic.train_added.emit(index)
         self.new_train_added.emit(index)
-        self.business_logic.train_list = self.train_list
+        print("train added in train container")
 
     def remove_train(self, index):
 

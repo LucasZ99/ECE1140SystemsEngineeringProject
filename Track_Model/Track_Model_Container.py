@@ -53,9 +53,8 @@ class TrackModelContainer(QObject):
     def update_authority(self, authority: list[int]):
         print('update authority called')
         self.track_model.update_authority(authority)  # update our track model object
-        authority_list = self.track_model.get_tm_authority()
-        print(f'yard block track model is using: {authority_list[63]})')
-        if authority_list[63]:
+        print(f'yard block authority track model is using: {authority[61]}')
+        if authority[63]:
             self.train_model_container.add_train()
         self.train_model_container.track_model_inputs(
             [self.track_model.get_tm_speed, self.track_model.get_tm_authority], 1)  # send new info to train model

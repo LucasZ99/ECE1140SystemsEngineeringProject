@@ -248,9 +248,11 @@ class TrackModel(QObject):
 
     def update_authority(self, authority: list[int]):
         self.authority = authority
+        print("self authority updated in track model")
 
     def update_speed(self, speed: list[float]):
         self.speed = speed
+        print("self speed updated in track model")
 
     def toggle_switch(self, block_id: int):
         self.data[block_id, 19] = not self.data[block_id, 19]
