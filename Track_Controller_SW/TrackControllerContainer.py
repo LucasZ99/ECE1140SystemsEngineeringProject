@@ -84,7 +84,7 @@ class TrackControllerContainer(QObject):
                 self.speed_list[block_id] = speed
             else:
                 self.speed_list[block_id] = 0
-            # self.track_model.update_speed(self.speed_list)
+            self.track_model.update_speed(self.speed_list)
 
     def update_switch(self, line_id: int, block_id: int, switch_status: Switch) -> None:
         pass
@@ -96,7 +96,7 @@ class TrackControllerContainer(QObject):
     def set_authority(self, line_id: int, block_id: int, authority: int) -> None:
         if line_id == 0:
             self.authority_list[block_id] = authority
-            # self.track_model.update_authority(self.authority_list)
+            self.track_model.update_authority(self.authority_list)
         pass
 
     # Track Model Endpoint
@@ -116,17 +116,19 @@ class TrackControllerContainer(QObject):
         zero_speed_flag_list_A = self.trackControllerA.update_occupancy(self.occupancy_list_A)
         zero_speed_flag_list_B = self.trackControllerB.update_occupancy(self.occupancy_list_B)
         zero_speed_flag_list_C = self.trackControllerC.update_occupancy(self.occupancy_list_C)
-        self.zero_speed_flag_list[0:len(self.occupancy_list_A)] = zero_speed_flag_list_A[0:len(self.occupancy_list_A)]
+        # self.zero_speed_flag_list[0:len(self.occupancy_list_A)] = zero_speed_flag_list_A[0:len(self.occupancy_list_A)]
+        print("zero speed flag list length: ", len(self.zero_speed_flag_list))
+        #print("zero speed flag list B: ", self.zero_speed_flag_list_B)
+        #print("zero speed flag list B length: ", len(self.zero_speed_flag_list_B))
         #self.zero_speed_flag_list[28:78] = zero_speed_flag_list_B[0:50]
         #self.zero_speed_flag_list[101:len(self.occupancy_list_B)] = zero_speed_flag_list_B[51:len(self.occupancy_list_B)]
-        self.zero_speed_flag_list[77:(77 + len(self.occupancy_list_C))] = zero_speed_flag_list_C[
-                                                                          0:len(self.occupancy_list_C)]
+        # self.zero_speed_flag_list[77:(77 + len(self.occupancy_list_C))] = zero_speed_flag_list_C[
+        #                                                                   0:len(self.occupancy_list_C)]
 
     @pyqtSlot(int)
     def update_track_switch(self, switch_block: int) -> None:
         print(f"Updating Track Model switch at block: {switch_block}")
-
-        # emit ctc signal
+        self.switch_toggled_signal.emit(switch_block)
         self.track_model.toggle_switch(switch_block)
 
     @pyqtSlot(bool)
