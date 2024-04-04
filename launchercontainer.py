@@ -17,7 +17,7 @@ class LauncherContainer(QObject):
     def __init__(self):
         super().__init__()
         self.time_module = SystemTimeContainer()
-        self.trainControllerContainer = TrainController_Tot_Container(self.time_module)
+        self.trainControllerContainer = TrainController_Tot_Container(self.time_module, False)
 
         self.train_model_container = TrainModelContainer(TrainBusinessLogic(), self.trainControllerContainer,
                                                          self.time_module)
