@@ -39,23 +39,49 @@ class TrainControler_HW_Container:
     #  receiver functions
 
     #TrainModel
-    def updatevalues(self, inputs):
+    def updatevalues(self, inputs,type):
         #update train controller with Train Model
         print("updatevalues")
-        print(f"Train Controller HW: before TrainModel_arr: {self.trainCtrl.TrainModel_arr}")
-        self.main_TrainModel_arr = numpy.copy(inputs)
-        print(f"Train Controller HW: after  TrainModel_arr: {self.trainCtrl.TrainModel_arr}")
-        #self.trainCtrl.updateRead() #get driver inputs
         
+        print(f"Train Controller HW: inputs: {inputs}")
+        #print(f"Train Controller HW: before TrainModel_arr: {self.trainCtrl.TrainModel_arr}")
+        
+        if type ==0: 
+            print("type0")
+            self.trainCtrl.TrainModel_arr = inputs
+        
+        #Auth, Cmd_Spd
+        elif type ==1: 
+            print("type1")
+            self.trainCtrl.TrainModel_arr[2] = inputs[0]#Auth
+            self.trainCtrl.TrainModel_arr[1] = inputs[1]#Cmd_Spd
+            
+        #Track_Cicuit, Aboveground, beacon
+        elif type ==2: 
+            print("type2")
+            self.trainCtrl.TrainModel_arr[4] = inputs[0]#Track_Cicuit
+            self.trainCtrl.TrainModel_arr[5] = inputs[1]#Aboveground
+            self.trainCtrl.TrainModel_arr[6] = inputs[2]#beacon
+            
+        #Actual_Spd, Pass_ebrake
+        elif type ==3: 
+            print("type3")
+            self.trainCtrl.TrainModel_arr[0] = inputs[0]#Actual_Spd
+            self.trainCtrl.TrainModel_arr[3] = inputs[1]#Pass_ebrake
+        else:
+            print("TRAIN CONTROLLER HW updatevalues: TYPE ERROR")
+            
+        #self.trainCtrl.TrainModel_arr = inputs
+        #print(f"Train Controller HW: after  TrainModel_arr: {self.trainCtrl.TrainModel_arr}")
+
         #update output array to handoff to Train Model
         self.trainCtrl.updateTot()
-        print(f"Train Controller HW: self.trainCtrl.output_arr: {self.trainCtrl.output_arr}")
-        #self.trainCtrl.updateDisplay()  #update arduino display
+        #print(f"Train Controller HW: self.trainCtrl.output_arr: {self.trainCtrl.output_arr}")
+        print(f"Train Controller HW: after2  TrainModel_arr: {self.trainCtrl.TrainModel_arr}")
         self.outputs = self.trainCtrl.output_arr[:-1]
-        print(f"Train Controller HW: self.outputs[:-1]: {self.outputs}")
+        #print(f"Train Controller HW: self.outputs[:-1]: {self.trainCtrl.output_arr[:-1]}")
         self.cabin_temp = self.trainCtrl.output_arr[-1]
-        print(f"Train Controller HW: self.outputs[-1]: {self.outputs[-1]}")
-        #return self.main_output_arr[:-1]
+        #print(f"Train Controller HW: self.outputs[-1]: {self.trainCtrl.output_arr[-1]}")
 
 def TrainC_HW_main():
     system_time = SystemTimeContainer()

@@ -18,7 +18,7 @@ class TrackControllerContainer(QObject):
         super().__init__()
         self.track_model = track_model
 
-        self.occupancy_list = [False] * 151
+        self.occupancy_list = [False] * 150
 
         self.switch_list = \
             [
@@ -42,9 +42,9 @@ class TrackControllerContainer(QObject):
 
         self.railway_crossing_blocks_list = [19, 108]
         self.railway_crossing_vals_list = [False, False]
-        self.speed_list = [0.0] * 151
-        self.zero_speed_flag_list = [False] * 151
-        self.authority_list = [0] * 151
+        self.speed_list = [0.0] * 150
+        self.zero_speed_flag_list = [False] * 150
+        self.authority_list = [0] * 150
 
         # Controller specific initialization
         # Section A: blocks 1-32
@@ -79,12 +79,14 @@ class TrackControllerContainer(QObject):
     # CTC Endpoints
     def command_speed(self, line_id: int, block_id: int, speed: float) -> None:
         # green line
+        print(f"track controller speed received: {block_id}: {speed}")
         if line_id == 0:
             if self.zero_speed_flag_list[block_id] is False:
                 self.speed_list[block_id] = speed
             else:
                 self.speed_list[block_id] = 0
             self.track_model.update_speed(self.speed_list)
+        print('track controller passed')
 
     def update_switch(self, line_id: int, block_id: int, switch_status: Switch) -> None:
         pass

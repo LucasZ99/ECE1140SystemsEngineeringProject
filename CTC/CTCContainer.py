@@ -48,6 +48,7 @@ class CTCContainer(QObject):
         except Exception as e:
             print(f"<<<<<<<<<<<<<<<<<<<<<<{e}>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 
+        print('ctc container update_occupancy passed')
     @pyqtSlot(int)
     def update_switch_state(self, switch: int):
         pass

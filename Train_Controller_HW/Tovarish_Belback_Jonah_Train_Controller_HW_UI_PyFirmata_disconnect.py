@@ -103,7 +103,7 @@ class DISP_PyF():
 
 #arduino verison of HW UI----------------------------------------------
 class HW_UI_JEB382_PyFirmat():
-    def __init__(self,in_Driver_arr,in_TrainModel_arr,in_output_arr,system_time: SystemTime,TestBench=False):
+    def __init__(self,in_Driver_arr,in_TrainModel_arr,in_output_arr,system_time=None,TestBench=False):
         
         #TODO: ADJUST LENGTH AND INDEX BASED ON I/O dictionary
         
@@ -312,17 +312,17 @@ class HW_UI_JEB382_PyFirmat():
         
         for i in range(int(self.TrainModel_arr[2])):
             particular_line = linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum+i).split("\t")
-            print(f"LINE: {particular_line}")
+            #print(f"LINE: {particular_line}")
             distance_to_station += int(particular_line[3])
 
             if particular_line[5][:7] == "STATION":
                 app_stat=particular_line[5][9:]
-                print(f"PART: {particular_line[5][9:]}")
+                #print(f"PART: {particular_line[5][9:]}")
                 if "Left" in particular_line[6]: self.stat_Dside+=1
                 if "Right" in particular_line[6]: self.stat_Dside+=2
         
         infra = linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum).split('\t')[5]
-        print(f".txt infra: <{infra[:7]}>, app_stat: <{app_stat}>")
+        #print(f".txt infra: <{infra[:7]}>, app_stat: <{app_stat}>")
         self.output_arr[5] = ""
         if linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum).split("\t")[5][:7] != "STATION":
             self.Announcements = "APP:"+app_stat[:12]
@@ -333,9 +333,9 @@ class HW_UI_JEB382_PyFirmat():
             self.output_arr[5] = infra[9:]
             
         
-        print(f"BlockNum: {self.blockNum}")
-        print(f"ANNOUNCE: <{self.Announcements}>")
-        print(f"DIST: {distance_to_station}")
+        #print(f"BlockNum: {self.blockNum}")
+        #print(f"ANNOUNCE: <{self.Announcements}>")
+        #print(f"DIST: {distance_to_station}")
         
         #beacon information from file
         '''#Line       Section Block#      BlockLength     Speed Limit     Infrastructure
@@ -601,5 +601,6 @@ if __name__ == "__main__":
                                     main_TrainModel_arr,
                                     main_output_arr,
                                     True)
+    glob_UI.HW_UI_fin(True)
     
         
