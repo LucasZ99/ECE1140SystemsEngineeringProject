@@ -27,7 +27,7 @@ class TrackModelContainer(QObject):
         self.track_model.new_ticket_sales_signal.connect(self.new_ticket_sales)
         # connect external signals
         self.train_model_container.new_train_added.connect(self.train_spawned)
-        self.train_model_container.train_enters_new_block(self.train_presence_changed)
+        self.train_model_container.train_enters_new_block.connect(self.train_presence_changed)
 
     # show ui
     def show_ui(self):
@@ -118,7 +118,7 @@ class TrackModelContainer(QObject):
 
     def train_presence_changed(self, index):
         print('train presence changed called')
-        self.track_model.train_presence_changed(1) #train id=1 for IT3
+        self.track_model.train_presence_changed(1)  # train id=1 for IT3
         self.train_model_container.track_update_block([
             self.track_model.get_tm_grade(index),
             self.track_model.get_tm_elevation(index),
