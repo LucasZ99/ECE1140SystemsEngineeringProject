@@ -13,7 +13,9 @@ class TrackController(QObject):
 
     switch_changed_index_signal = pyqtSignal(int)
     rr_crossing_signal = pyqtSignal(bool)
-    lights_list_changed_signal = pyqtSignal(list)
+    lights_list_A_changed_signal = pyqtSignal(list)
+    lights_list_C_changed_signal = pyqtSignal(list)
+
 
     def __init__(self, occupancy_list: list, section: str):
         super().__init__()
@@ -82,7 +84,11 @@ class TrackController(QObject):
     @pyqtSlot(list)
     def lights_list_updated(self, lights_list: list):
         self.lights_list = lights_list
-        self.lights_list_changed_signal.emit(lights_list)
+        if self.section == "A":
+            self.lights_list_A_changed_signal.emit(lights_list)
+        elif self.section == "C":
+            self.lights_list_C_changed_signal.emit(lights_list)
+
 
     def run(self) -> None:
         pass
