@@ -52,6 +52,7 @@ class TrainModelContainer(QObject):
             self.business_logic.values_updated.emit()
 
     def train_controller_inputs(self, input_list, index):
+        print("Train model: train_controller_inputs called")
         # the list provided should have the entries in this order: [commanded speed, power, service brake,
         # emergency brake, left/right doors, announce station, cabin lights, headlights]
         if len(self.train_list) == 0:

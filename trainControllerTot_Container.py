@@ -38,6 +38,8 @@ class TrainController_Tot_Container(QObject):
 
         self.trainCtrl.updatevalues(inputs)
 
+        print("Train Controller TOT Container: values updated, sending signals next")
+
         # send signal with updated values
         self.new_train_values_signal.emit(self.trainCtrl.outputs, 1)
         self.new_train_temp_signal.emit(self.trainCtrl.cabin_temp, 1)

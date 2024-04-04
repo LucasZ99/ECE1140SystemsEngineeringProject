@@ -48,8 +48,10 @@ class TrainControler_HW_Container:
         #update output array to handoff to Train Model
         self.trainCtrl.updateTot()
         #self.trainCtrl.updateDisplay()  #update arduino display
-        self.outputs = self.main_output_arr[:-1]
-        self.cabin_temp = self.main_output_arr[-1]
+        self.outputs = self.outputs[:-1]
+        print(f"Train Controller HW: self.outputs: {self.outputs}")
+        self.cabin_temp = self.outputs[-1]
+        print(f"Train Controller HW: self.cabin_temp: {self.outputs[-1]}")
         #return self.main_output_arr[:-1]
 
 def TrainC_HW_main():
