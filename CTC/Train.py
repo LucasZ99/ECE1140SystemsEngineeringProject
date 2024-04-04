@@ -123,7 +123,7 @@ class Train:
         authorities = []
         next_blocks = self.get_next_blocks()
         for i in range(0, min(MSSD + 1, self.blocks_to_next_stop())):
-            authorities.append((next_blocks[i], self.blocks_to_next_stop() - i))
+            authorities.append((next_blocks[i], self.blocks_to_next_stop() - i - 1))
 
         return authorities
 
