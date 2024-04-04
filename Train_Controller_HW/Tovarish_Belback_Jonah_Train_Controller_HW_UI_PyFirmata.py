@@ -5,6 +5,7 @@ from PyQt6.QtWidgets import *
 #import sys
 import linecache
 import threading
+from SystemTime import SystemTime
 
 
 #commanded speed: Auto/Manual: Turn into Verr, calc power with Kp Ki
@@ -101,13 +102,13 @@ class DISP_PyF():
 
 #arduino verison of HW UI----------------------------------------------
 class HW_UI_JEB382_PyFirmat():
-    def __init__(self,in_Driver_arr,in_TrainModel_arr,in_output_arr,TestBench=False):
+    def __init__(self,in_Driver_arr,in_TrainModel_arr,in_output_arr,system_time: SystemTime,TestBench=False):
         
         #TODO: ADJUST LENGTH AND INDEX BASED ON I/O dictionary
         
         #it = util.Iterator(board)
         #it.start()
-        
+        self.system_time = system_time
         
         in_output_arr = [0.0,0.0, False, False, 0, "", False, False, 68.0]
         self.output_arr = in_output_arr
@@ -145,7 +146,10 @@ class HW_UI_JEB382_PyFirmat():
         
         
         #+-+-+-+-
-        self.init_clk = time.time()#replace with shared time module when created and we do integration
+        #self.init_clk = time.time()#replace with shared time module when created and we do integration
+        
+        if __name__ == "__main__": self.init_clk = time.time()
+        else: self.init_clk = self.system_time.time()
         
         #input sets
         try:
@@ -198,10 +202,10 @@ class HW_UI_JEB382_PyFirmat():
         
         #TestBench
         #self.printout = 3
-        if __name__ == "__main__":# and TestBench:
+        '''if __name__ == "__main__":# and TestBench:
             #self.printout = 3
             self.HW_UI_fin(TestBench)
-            #self.updateTot()
+            #self.updateTot()'''
     
     def updateRead(self):
         self.Driver_arr[3] = self.BTN_CabnLgt.read()
@@ -381,7 +385,10 @@ class HW_UI_JEB382_PyFirmat():
             elif self.TrainModel_arr[0] == 0 or self.TrainModel_arr[1] == 0:
                 self.output_arr[1] = 0
             else:
-                currtime = time.time()#TODO:REPLACE WITH TIME MODULE
+                if __name__ == "__main__": currtime = time.time()
+                else: currtime = self.system_time.time()
+                
+                
                 V_err = self.output_arr[0] - self.TrainModel_arr[4] #Verr=Vcmd-Vactual
                 T = currtime-self.timeL
                 global Pmax
@@ -482,6 +489,7 @@ class HW_UI_JEB382_PyFirmat():
     def HW_UI_mainloop_fast(self):
         time.sleep(2)
         ptime = time.time()
+        
         #global printout
         global NoHW
         prin=True
@@ -499,7 +507,8 @@ class HW_UI_JEB382_PyFirmat():
                 #elif self.printout == 3 and not NoHW: print(f"Output TrainC #1:\t{self.output_arr}\t{'AUTO' if not self.Mode else 'MANUAL'}")
                 
                 if not NoHW:
-                    print(f"\nDriver TrainC #1:\t{self.Driver_arr}\t{'AUTO' if not self.Mode else 'MANUAL'}")
+                    print("\nHW_UI_mainloop_fast")
+                    print(f"Driver TrainC #1:\t{self.Driver_arr}\t{'AUTO' if not self.Mode else 'MANUAL'}")
                     print(f"TrainModel TrainC #1:\t{self.TrainModel_arr} {'AUTO' if not self.Mode else 'MANUAL'}")
                     print(f"Output TrainC #1:\t{self.output_arr}\t{'AUTO' if not self.Mode else 'MANUAL'}")
             elif (int(time.time())-int(ptime))%2!=0:
@@ -522,6 +531,7 @@ class HW_UI_JEB382_PyFirmat():
         t1.join()
         
 def TC_HW_init(driver,trainmodel,output,TestB=False):
+    print("TC_HW_init")
     Arduino = True
     
     it = util.Iterator(board)  

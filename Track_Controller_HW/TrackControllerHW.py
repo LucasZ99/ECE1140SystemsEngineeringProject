@@ -29,6 +29,7 @@ class TrackControllerHardware(QObject):
         self.slots_sigs.rr_crossing_signal.connect(self.rr_crossing_updated)
 
     def update_occupancy(self, block_occupancy_list: list):
+        print("track controller B update occupancy called")
         self.blocks = block_occupancy_list
         self.stops = self.slots_sigs.new_occupancy(block_occupancy_list)
         print(self.blocks)

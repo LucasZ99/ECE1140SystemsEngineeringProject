@@ -53,14 +53,17 @@ class TrackModelContainer(QObject):
     def update_authority(self, authority: list[int]):
         print('update authority called')
         self.track_model.update_authority(authority)  # update our track model object
+        print(f'yard block authority track model is using: {authority[61]}')
+        if authority[63]:
+            self.train_model_container.add_train()
         self.train_model_container.track_model_inputs(
-            [self.track_model.get_tm_speed, self.track_model.get_tm_authority])  # send new info to train model
+            [self.track_model.get_tm_speed, self.track_model.get_tm_authority], 1)  # send new info to train model
 
     def update_speed(self, speed: list[float]):
         print('update speed called')
         self.track_model.update_speed(speed)  # update our track model object
         self.train_model_container.track_model_inputs(
-            [self.track_model.get_tm_speed, self.track_model.get_tm_authority])  # send new info to train model
+            [self.track_model.get_tm_speed, self.track_model.get_tm_authority], 1)  # send new info to train model
 
     def toggle_switch(self, block_id: int):
         print('toggle switch called')

@@ -7,6 +7,7 @@ from PyQt6.QtCore import pyqtSlot, pyqtSignal, QObject
 
 from Train_Controller_SW.trainControllerSWContainer import TrainControllerSWContainer
 from Train_Controller_HW.trainControllerHWContainer import TrainControler_HW_Container
+from SystemTime import SystemTimeContainer
 
 
 class TrainController_Tot_Container(QObject):
@@ -16,16 +17,18 @@ class TrainController_Tot_Container(QObject):
     new_train_temp_signal = pyqtSignal(float, int)
     # sam connect these signals to your respective update train model values command
 
-    def __init__(self, ware=True):
+    def __init__(self, system_time_container: SystemTimeContainer, ware=True):
+
         super().__init__()
         # Ware:
         # False: HW
         # True:  SW
         self.Ware = ware
+        self.system_time = system_time_container
         if ware:
-            self.trainCtrl = TrainControllerSWContainer()
+            self.trainCtrl = TrainControllerSWContainer() #self.system_time)
         else:
-            self.trainCtrl = TrainControler_HW_Container()
+            self.trainCtrl = TrainControler_HW_Container(self.system_time)
 
     def show_ui(self):
         self.trainCtrl.show_ui()
