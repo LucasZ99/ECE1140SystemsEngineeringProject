@@ -272,10 +272,10 @@ class TrackModel(QObject):
     # train model
 
     def train_spawned(self):
+        print("train spawned from track model")
         self.train_count += 1
         self.train_dict_relative[self.train_count] = 0
         self.train_dict[self.train_count] = self.full_path[0]
-        self.set_occupancy_from_train_presence()
         print(f'new train spawned, train_count = {self.train_count}')
 
     def train_presence_changed(self, train_id: int):

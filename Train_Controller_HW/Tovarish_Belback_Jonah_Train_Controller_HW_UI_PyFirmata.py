@@ -45,7 +45,7 @@ Pmax=10000
 Acc_Lim=0.5
 DeAcc_Lim=1.2#train spec page (1.20 is service brake)
 try:
-    board = ArduinoMega('COM7')
+    board = ArduinoMega('COM3')
     NoHW=False
 except:
     NoHW=True
