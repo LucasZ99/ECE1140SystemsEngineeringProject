@@ -1,6 +1,6 @@
 from PyQt6.QtCore import QObject, pyqtSlot
 from PyQt6.QtWidgets import QApplication
-from CTC import CTC
+from CTC import CTC, GREEN_LINE, TRACK
 from CTC.CTC_UI_Main import CTCMainWindow
 from SystemTime import SystemTimeContainer
 from Track_Controller_SW import TrackControllerContainer
@@ -39,7 +39,9 @@ class CTCContainer(QObject):
 
     @pyqtSlot(list)
     def update_occupancy(self, occupancy_list: list):
-        pass
+        for idx, block_status in enumerate(occupancy_list):
+            if idx + 1 in TRACK[GREEN_LINE]:
+                self.ctc.update_block_occupancy(GREEN_LINE, idx + 1, block_status)
 
     @pyqtSlot(int)
     def update_switch_state(self, switch: int):

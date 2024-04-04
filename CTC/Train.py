@@ -43,7 +43,6 @@ class Train:
     Sets the train to the next block.
     :returns 0 for continuing to next station, 1 for at next station, -1 for last station - dispatch to yard, or -2 for reached yard.
     """
-
     def set_to_next_block(self) -> int:
         self.previous_block = self.current_block
         self.current_block = self.get_next_block()
