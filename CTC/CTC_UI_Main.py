@@ -428,7 +428,8 @@ class CTCMainWindow(QMainWindow):
         dispatch_train_schedule = self.dispatch_train_schedule_list[self.dispatch_train_tab_widget.currentIndex()]
 
         # handles the double tracked sections
-        self.route = Route.find_route(line_id, GREEN_LINE_YARD_SPAWN, PATH[GREEN_LINE][PATH[GREEN_LINE].index(selected_id - 2)])
+        if selected_id > 2:
+            self.route = Route.find_route(line_id, GREEN_LINE_YARD_SPAWN, PATH[GREEN_LINE][PATH[GREEN_LINE].index(selected_id - 2)])
         # print(selected_id, PATH[GREEN_LINE][PATH[GREEN_LINE].index(selected_id - 2)])
         # print(self.route)
 
