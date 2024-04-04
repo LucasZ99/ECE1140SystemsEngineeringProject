@@ -31,6 +31,7 @@ class TrackModel(QObject):
                 self.data[i, 17] = random.randint(1, self.data[i, 16])
         self.authority = []
         self.speed = [0] * 150
+
         self.train_dict_relative = {}
         self.train_dict = {}
         self.train_count = 0
@@ -272,6 +273,7 @@ class TrackModel(QObject):
     # train model
 
     def train_spawned(self):
+        print("train spawned from track model")
         self.train_count += 1
         self.train_dict_relative[self.train_count] = 0
         self.train_dict[self.train_count] = self.full_path[0]

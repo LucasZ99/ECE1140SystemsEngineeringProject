@@ -5,6 +5,8 @@ from PyQt6.QtWidgets import *
 #import sys
 import linecache
 import threading
+if __name__ != "__main__": from SystemTime import SystemTime
+import math
 
 
 #commanded speed: Auto/Manual: Turn into Verr, calc power with Kp Ki
@@ -44,7 +46,7 @@ Pmax=10000
 Acc_Lim=0.5
 DeAcc_Lim=1.2#train spec page (1.20 is service brake)
 try:
-    board = ArduinoMega('COM7')
+    board = ArduinoMega('COM3')
     NoHW=False
 except:
     NoHW=True
@@ -101,13 +103,13 @@ class DISP_PyF():
 
 #arduino verison of HW UI----------------------------------------------
 class HW_UI_JEB382_PyFirmat():
-    def __init__(self,in_Driver_arr,in_TrainModel_arr,in_output_arr,TestBench=False):
+    def __init__(self,in_Driver_arr,in_TrainModel_arr,in_output_arr,system_time: SystemTime,TestBench=False):
         
         #TODO: ADJUST LENGTH AND INDEX BASED ON I/O dictionary
         
         #it = util.Iterator(board)
         #it.start()
-        
+        self.system_time = system_time
         
         in_output_arr = [0.0,0.0, False, False, 0, "", False, False, 68.0]
         self.output_arr = in_output_arr
@@ -133,19 +135,29 @@ class HW_UI_JEB382_PyFirmat():
         for i in range(0,4):
             if   in_TrainModel_arr[i] < limit1: in_TrainModel_arr[i]=limit1
             elif in_TrainModel_arr[i] > limit2: in_TrainModel_arr[i]=limit2'''
-        
+
         self.TrainModel_arr = in_TrainModel_arr
+
+        if self.TrainModel_arr[-1] == None or str(self.TrainModel_arr[-1]) == "nan":
+            self.TrainModel_arr[-1] = "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+
         print(self.TrainModel_arr)
         
         #Driver_arr, is output, the inputted arr is just used for the variable reference
-        in_Driver_arr = [1.0, 1.0, 0.0, False, False, 0.0, False, False, False, False, False]
+        in_Driver_arr = [50.0, 50.0, 0.0, False, False, 0.0, False, False, False, False, False]
         self.Driver_arr = in_Driver_arr
         
         
         
         
         #+-+-+-+-
-        self.init_clk = time.time()#replace with shared time module when created and we do integration
+        #self.init_clk = time.time()#replace with shared time module when created and we do integration
+        
+        if __name__ == "__main__": self.init_clk = time.time()
+        else: self.init_clk = self.system_time.time()
+        
+        self.Announcements=""
+        self.Mode = False
         
         #input sets
         try:
@@ -178,7 +190,7 @@ class HW_UI_JEB382_PyFirmat():
             self.LED_EBRK       = LED_PyF(33)
             self.LED_SBRK       = LED_PyF(34)
             
-            self.Announcements=""
+            #self.Announcements=""
             
             self.DISP = DISP_PyF()
         
@@ -289,33 +301,41 @@ class HW_UI_JEB382_PyFirmat():
         self.polarity = self.TrainModel_arr[4]
         
         self.stat_Dside=0
-        
+
         distance_to_station=0
         #add up all block's length allowed by authority (num of blocks)
         #Line0, Section1, Block Num2, Block Len3, SpeedLimit4, Infrastructure5, Station Side6
         app_stat=""
-        for i in range(self.TrainModel_arr[2]):
-            particular_line = linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum+i).split("\t")
-            #print(f"LINE: {particular_line}")
-            distance_to_station += int(particular_line[3])
+        
+        #print(f"<{self.TrainModel_arr[2]}>")
             
+        
+        for i in range(int(self.TrainModel_arr[2])):
+            particular_line = linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum+i).split("\t")
+            print(f"LINE: {particular_line}")
+            distance_to_station += int(particular_line[3])
+
             if particular_line[5][:7] == "STATION":
                 app_stat=particular_line[5][9:]
-                #print(particular_line[5][9:])
+                print(f"PART: {particular_line[5][9:]}")
                 if "Left" in particular_line[6]: self.stat_Dside+=1
                 if "Right" in particular_line[6]: self.stat_Dside+=2
-                
+        
+        infra = linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum).split('\t')[5]
+        print(f".txt infra: <{infra[:7]}>, <{app_stat}>")
         self.output_arr[5] = ""
-        if app_stat != "" and linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum).split("\t")[5][:7] != "STATION":
+        if linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum).split("\t")[5][:7] != "STATION":
             self.Announcements = "APP:"+app_stat[:12]
-        elif app_stat != "" and linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum).split("\t")[5][:7] == "STATION":
-            self.Announcements = "NOW:"+app_stat[:12]
-            self.output_arr[5] = app_stat
+        elif linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum).split("\t")[5][:7] == "STATION":
+            self.Announcements = "NOW:"+infra[9:]#app_stat[:12]
+            #if app_stat != "": self.output_arr[5] = app_stat
+            #else:  self.output_arr[5] = infra[5][9:]
+            self.output_arr[5] = infra[9:]
             
         
-        
-        #print("<"+self.Announcements+">")
-        #print(distance_to_station)
+        print(f"BlockNum: {self.blockNum}")
+        print(f"ANNOUNCE: <{self.Announcements}>")
+        print(f"DIST: {distance_to_station}")
         
         #beacon information from file
         '''#Line       Section Block#      BlockLength     Speed Limit     Infrastructure
@@ -350,7 +370,7 @@ class HW_UI_JEB382_PyFirmat():
             
             #2   On/Off Service Brake	        Boolean	    Slow down vital control from train controller
             if not self.Mode:#auto
-                if self.TrainModel_arr[2] == 0: self.output_arr[2]=True
+                if int(self.TrainModel_arr[2]) == 0: self.output_arr[2]=True
                 #edge case for Station Green Line Block 16
             else:#manual
                 self.output_arr[2] = self.Driver_arr[9]
@@ -381,7 +401,10 @@ class HW_UI_JEB382_PyFirmat():
             elif self.TrainModel_arr[0] == 0 or self.TrainModel_arr[1] == 0:
                 self.output_arr[1] = 0
             else:
-                currtime = time.time()#TODO:REPLACE WITH TIME MODULE
+                if __name__ == "__main__": currtime = time.time()
+                else: currtime = self.system_time.time()
+                
+                
                 V_err = self.output_arr[0] - self.TrainModel_arr[4] #Verr=Vcmd-Vactual
                 T = currtime-self.timeL
                 global Pmax
@@ -455,21 +478,37 @@ class HW_UI_JEB382_PyFirmat():
     
         
     def updateTot(self):
+        #print(f'Train Controller HW: NAN check {self.TrainModel_arr[-1]} <{str(self.TrainModel_arr[-1])}> {str(self.TrainModel_arr[-1]) == "nan"}')
+        if self.TrainModel_arr[-1] == None or str(self.TrainModel_arr[-1]) == "nan":
+            #print('Train Controller HW: caught nan')
+            self.TrainModel_arr[-1] = "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+            #print(f'Train Controller HW: nan check1 {self.TrainModel_arr[-1]}')
+            #print(f'Train Controller HW: nan check2 {self.TrainModel_arr}')
+
         global NoHW
+        #if not NoHW:
+        print("update")
+        #sys.stdout.write("p")
+        #bugfix: cant get updates without a printout????? i hate pyfrimata
+        with open('TrainC_HW_bugfix.txt', 'w') as f:
+            f.write('Hi')
+        
         if not NoHW:
-            #print("update")
-            #sys.stdout.write("p")
-            #bugfix: cant get updates without a printout????? i hate pyfrimata
-            with open('TrainC_HW_bugfix.txt', 'w') as f:
-                f.write('Hi')
+            print("updateRead")
             self.updateRead()
-            self.updateCalc()
+        
+        print("updateCalc")
+        self.updateCalc()
+        
+        if not NoHW:
+            print("updateDisplay")
             self.updateDisplay()
-            
-            if __name__ != "__main__":
-                print(f"\nDriver TrainC #1:\t{self.Driver_arr}\t{'AUTO' if not self.Mode else 'MANUAL'}")
-                print(f"TrainModel TrainC #1:\t{self.TrainModel_arr} {'AUTO' if not self.Mode else 'MANUAL'}")
-                print(f"Output TrainC #1:\t{self.output_arr}\t{'AUTO' if not self.Mode else 'MANUAL'}")
+        
+        if __name__ != "__main__":
+            print(f"\nDriver TrainC #1:\t{self.Driver_arr}\t{'AUTO' if not self.Mode else 'MANUAL'}")
+            print(f"TrainModel TrainC #1:\t{self.TrainModel_arr} {'AUTO' if not self.Mode else 'MANUAL'}")
+            print(f"Output TrainC #1:\t{self.output_arr}\t{'AUTO' if not self.Mode else 'MANUAL'}")
+
         
     def __del__(self):
         print('HW_UI_JEB382_PyFirmat: Destructor called')
@@ -482,6 +521,7 @@ class HW_UI_JEB382_PyFirmat():
     def HW_UI_mainloop_fast(self):
         time.sleep(2)
         ptime = time.time()
+        
         #global printout
         global NoHW
         prin=True
@@ -522,17 +562,17 @@ class HW_UI_JEB382_PyFirmat():
             t2.join()
         t1.join()
         
-def TC_HW_init(driver,trainmodel,output,TestB=False):
+def TC_HW_init(driver,trainmodel,output,system_time,TestB=False):
     print("TC_HW_init")
     Arduino = True
     
-    it = util.Iterator(board)  
-    it.start()
+    if not NoHW:
+        it = util.Iterator(board)  
+        it.start()
     
-    return  HW_UI_JEB382_PyFirmat(driver,
-                                    trainmodel,
-                                    output,
-                                    TestB)
+    return  HW_UI_JEB382_PyFirmat(driver, trainmodel, output,
+                                  system_time,
+                                  TestB)
 
 
 if __name__ == "__main__":

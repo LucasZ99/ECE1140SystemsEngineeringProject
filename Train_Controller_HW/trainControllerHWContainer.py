@@ -10,17 +10,18 @@ if __name__ == "__main__":
 else:
     from .Tovarish_Belback_Jonah_Train_Controller_Testbenchv2 import *
     from .Tovarish_Belback_Jonah_Train_Controller_HW_UI_PyFirmata import *
-
+from SystemTime import SystemTimeContainer
 
 class TrainControler_HW_Container:
-    def __init__(self,Testbench=False):
+    def __init__(self,system_time_container: SystemTimeContainer,Testbench=False):
         self.main_Driver_arr = []
         self.main_TrainModel_arr = [0,0,0,False,False,False,"00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"]
         self.outputs = []
         self.TB= Testbench
         self.cabin_temp=68
+        self.system_time = system_time_container.system_time
     
-        self.trainCtrl = TC_HW_init(self.main_Driver_arr, self.main_TrainModel_arr, self.outputs, Testbench)
+        self.trainCtrl = TC_HW_init(self.main_Driver_arr, self.main_TrainModel_arr, self.outputs, self.system_time, Testbench)
         #HW_UI_JEB382_PyFirmat(self.main_Driver_arr, self.main_TrainModel_arr, self.main_output_arr, Testbench)
 
     def show_ui(self):
@@ -41,18 +42,23 @@ class TrainControler_HW_Container:
     def updatevalues(self, inputs):
         #update train controller with Train Model
         print("updatevalues")
-        self.main_TrainModel_arr = numpy.copy(inputs)
-        #self.trainCtrl.updateRead() #get driver inputs
-        
+        #print(f"Train Controller HW: inputs: {inputs}")
+        #print(f"Train Controller HW: before TrainModel_arr: {self.trainCtrl.TrainModel_arr}")
+        self.trainCtrl.TrainModel_arr = inputs
+        #print(f"Train Controller HW: after  TrainModel_arr: {self.trainCtrl.TrainModel_arr}")
+
         #update output array to handoff to Train Model
         self.trainCtrl.updateTot()
-        #self.trainCtrl.updateDisplay()  #update arduino display
-        self.outputs = self.main_output_arr[:-1]
-        self.cabin_temp = self.main_output_arr[-1]
-        #return self.main_output_arr[:-1]
+        #print(f"Train Controller HW: self.trainCtrl.output_arr: {self.trainCtrl.output_arr}")
+        print(f"Train Controller HW: after2  TrainModel_arr: {self.trainCtrl.TrainModel_arr}")
+        self.outputs = self.trainCtrl.output_arr[:-1]
+        #print(f"Train Controller HW: self.outputs[:-1]: {self.trainCtrl.output_arr[:-1]}")
+        self.cabin_temp = self.trainCtrl.output_arr[-1]
+        #print(f"Train Controller HW: self.outputs[-1]: {self.trainCtrl.output_arr[-1]}")
 
 def TrainC_HW_main():
-    trainctrlcntr = TrainControler_HW_Container()
+    system_time = SystemTimeContainer()
+    trainctrlcntr = TrainControler_HW_Container(system_time)
     trainctrlcntr.show_ui()
 
 

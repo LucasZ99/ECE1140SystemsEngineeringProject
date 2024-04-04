@@ -1,5 +1,6 @@
 import threading
 
+from CTC.CTCConstants import *
 from CTC.CTCSchedule import CTCSchedule
 from CTC.Train import Train
 from CTC.Track import *
@@ -14,6 +15,10 @@ class CTC(QObject):
 
     def __init__(self, system_time: SystemTime, track_controller_container_ref: TrackControllerContainer):
         super().__init__()
+
+        self.mode = AUTOMATIC_MODE
+
+
         self.system_time = system_time
         self.track_controller_ref = track_controller_container_ref
 
@@ -62,19 +67,18 @@ class CTC(QObject):
             self.running_trains.append(train_to_run)
             self.set_block_authority()
             self.set_block_suggested_speeds()
-            self.update_track_controller()
-            self.update_ui_signal.emit()
 
+        self.update_track_controller()
         self.update_ui_signal.emit()
 
     def update_track_controller(self):
-
         for block in self.changed_authorities:
             self.track_controller_ref.set_authority(GREEN_LINE, block, self.authorities[block])
             self.changed_authorities.remove(block)
 
         for block in self.changed_speeds:
             self.track_controller_ref.command_speed(GREEN_LINE, block, self.suggested_speeds[block])
+            self.changed_speeds.remove(block)
 
     def get_scheduled_trains(self) -> list[Train]:
         trains = []
@@ -106,9 +110,10 @@ class CTC(QObject):
         return sort_by_destination_arrival_time
 
     def set_block_authority(self):
+        print("authority function")
         for train in self.get_running_trains_sorted_by_priority():
             for block in train.get_next_authorities():
-                print(f"Block %d authority set to : %d", block[0], block[1])
+                print(f"Block {block[0]} authority set to : {block[1]}")
                 self.authorities[block[0]] = block[1]
                 self.changed_authorities.append(block[0])
             self.authorities[train.get_previous_block()] = 0
@@ -128,10 +133,9 @@ class CTC(QObject):
     """
     Updates the position of each train based on the occupancies received from wayside
     """
-
     def update_train_position(self, train: Train):
         for train in self.running_trains:
-            if self.blocks[train.current_block] is False and self.blocks[train.get_next_block()] == True:
+            if self.blocks[train.current_block] is False and self.blocks[train.get_next_block()] is True:
                 next_block_status = train.set_to_next_block()
 
                 if next_block_status == 1:  # at station
@@ -142,6 +146,7 @@ class CTC(QObject):
                     self.dispatched_trains.schedule_train(train)
                 elif next_block_status == -2:  # remove from lists
                     self.running_trains.remove(train)
+                    print("Train %d reached yard.", train.id)
 
     def update_switch_position(self, line_id: int, block_id: int, position: int):
         self.switches[block_id].current_pos = position
@@ -150,18 +155,14 @@ class CTC(QObject):
         self.lights[block_id] = signal_green
 
     def update_block_occupancy(self, line_id: int, block_id: int, occupied: bool):
-        print(f"ctc update block occupancy function called, block id: {block_id}")
         self.blocks[block_id] = occupied
-
-        for train in [running_train for running_train in self.running_trains if
-                      abs(running_train.current_block) == block_id]:
-            self.update_train_position(train)
+        for train in [running_train for running_train in self.running_trains if abs(running_train.current_block) == block_id]:
+            self.update_train_position(line_id, train)
             self.set_block_authority()
             self.set_block_suggested_speeds()
 
         self.update_track_controller()
         self.update_ui_signal.emit()
-
 
     def update_railroad_crossing_status(self, line_id: int, block_id: int, crossing_activated: bool):
         self.rr_crossings[block_id] = crossing_activated

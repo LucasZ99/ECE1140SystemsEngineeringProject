@@ -18,7 +18,7 @@ class TrackControllerContainer(QObject):
         super().__init__()
         self.track_model = track_model
 
-        self.occupancy_list = [False] * 151
+        self.occupancy_list = [False] * 150
 
         self.switch_list = \
             [
@@ -42,9 +42,9 @@ class TrackControllerContainer(QObject):
 
         self.railway_crossing_blocks_list = [19, 108]
         self.railway_crossing_vals_list = [False, False]
-        self.speed_list = [0.0] * 151
-        self.zero_speed_flag_list = [False] * 151
-        self.authority_list = [0] * 151
+        self.speed_list = [0.0] * 150
+        self.zero_speed_flag_list = [False] * 150
+        self.authority_list = [0] * 150
 
         # Controller specific initialization
         # Section A: blocks 1-32
@@ -94,7 +94,7 @@ class TrackControllerContainer(QObject):
         # call self.track_model.open/close_block(block_index)
 
     def set_authority(self, line_id: int, block_id: int, authority: int) -> None:
-        print(f"Authority received: {block_id}: {authority}")
+        print(f"track controller authority received: {block_id}: {authority}")
         if line_id == 0:
             self.authority_list[block_id-1] = authority
             self.track_model.update_authority(self.authority_list)
@@ -104,7 +104,7 @@ class TrackControllerContainer(QObject):
     # Track Model Endpoint
     @pyqtSlot(list)
     def update_occupancy(self, block_occupancy_list: list) -> None:
-        print("got the occupancy from track model")
+        print("track controller got the occupancy from track model")
         # update occupancy to ctc:
         self.occupancy_updated_signal.emit(block_occupancy_list)
         print("occupancy updated signal sent to ctc")

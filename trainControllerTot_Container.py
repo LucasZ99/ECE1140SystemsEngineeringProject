@@ -7,6 +7,7 @@ from PyQt6.QtCore import pyqtSlot, pyqtSignal, QObject
 
 from Train_Controller_SW.trainControllerSWContainer import TrainControllerSWContainer
 from Train_Controller_HW.trainControllerHWContainer import TrainControler_HW_Container
+from SystemTime import SystemTimeContainer
 
 
 class TrainController_Tot_Container(QObject):
@@ -16,16 +17,18 @@ class TrainController_Tot_Container(QObject):
     new_train_temp_signal = pyqtSignal(float, int)
     # sam connect these signals to your respective update train model values command
 
-    def __init__(self, ware=True):
+    def __init__(self, system_time_container: SystemTimeContainer, ware: bool=True):
+
         super().__init__()
         # Ware:
         # False: HW
         # True:  SW
         self.Ware = ware
+        self.system_time = system_time_container
         if ware:
-            self.trainCtrl = TrainControllerSWContainer()
+            self.trainCtrl = TrainControllerSWContainer(self.system_time)
         else:
-            self.trainCtrl = TrainControler_HW_Container()
+            self.trainCtrl = TrainControler_HW_Container(self.system_time)
 
     def show_ui(self):
         self.trainCtrl.show_ui()
@@ -34,6 +37,8 @@ class TrainController_Tot_Container(QObject):
     def getvaluesfromtrain(self, inputs):  # Sam call this to update traincontroller values
 
         self.trainCtrl.updatevalues(inputs)
+
+        print("Train Controller TOT Container: values updated, sending signals next")
 
         # send signal with updated values
         self.new_train_values_signal.emit(self.trainCtrl.outputs, 1)
@@ -47,10 +52,11 @@ class TrainController_Tot_Container(QObject):
     #     return self.trainCtrl.updatevalues(inputs)
 
 
-def TrainC_main():
-    trainctrlcntr = TrainController_Tot_Container()
-    trainctrlcntr.show_ui()
+def TrainC_main(system_time,type=True):
+    trainctrlcntr = TrainController_Tot_Container(system_time,type)
+    while True: trainctrlcntr.show_ui()
 
 
 if __name__ == "__main__":
-    TrainC_main()
+    system_time = SystemTimeContainer()
+    TrainC_main(system_time, False)

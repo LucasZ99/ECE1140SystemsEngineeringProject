@@ -52,7 +52,7 @@ class TrackModelContainer(QObject):
     # Receiving inputs
 
     def update_authority(self, authority: list[int]):
-        print('update authority called')
+        print('track model update authority called')
         self.track_model.update_authority(authority)  # update our track model object
         print(f'yard block authority track model is using: {authority[61]}')
         if authority[61]:
@@ -106,7 +106,7 @@ class TrackModelContainer(QObject):
 
     # Catching signals
     def train_spawned(self, index):
-        print('train spawned called')
+        print('train spawned called from track model container')
         self.track_model.train_spawned()
         self.train_model_container.track_update_block([
             self.track_model.get_tm_grade(index),
@@ -118,7 +118,7 @@ class TrackModelContainer(QObject):
 
     def train_presence_changed(self, index):
         print('train presence changed called')
-        self.track_model.train_presence_changed()
+        self.track_model.train_presence_changed(1) #train id=1 for IT3
         self.train_model_container.track_update_block([
             self.track_model.get_tm_grade(index),
             self.track_model.get_tm_elevation(index),
