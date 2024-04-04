@@ -1,3 +1,5 @@
+import threading
+
 from CTC.CTCSchedule import CTCSchedule
 from CTC.Train import Train
 from CTC.Track import *
@@ -21,8 +23,14 @@ class CTC(QObject):
         self.running_trains: list[Train] = []
 
         self.authorities: dict[int, int] = {}
+        for block in TRACK[GREEN_LINE]:
+            self.authorities[block] = 0
+
         self.changed_authorities: list[int] = []
-        self.speed_limits: dict[int, float] = {}
+        self.suggested_speeds: dict[int, float] = {}
+        for block in TRACK[GREEN_LINE]:
+            self.suggested_speeds[block] = 0
+
         self.changed_speeds: list[int] = []
 
         # Initialize all blocks to false
@@ -43,28 +51,34 @@ class CTC(QObject):
         for crossing in CROSSINGS[GREEN_LINE]:
             self.rr_crossings[crossing] = False
 
+        self.ctc_main_thread = threading.Thread(target=self.ctc_main_loop)
+        self.ctc_main_thread.start()
+
     def ctc_main_loop(self):
-        for train_to_dispatch in self.scheduled_trains.dispatch_trains():
-            self.dispatched_trains.schedule_train(train_to_dispatch)
+        while True:
+            for train_to_dispatch in self.scheduled_trains.dispatch_trains():
+                self.dispatched_trains.schedule_train(train_to_dispatch)
 
-        for train_to_run in self.dispatched_trains.dispatch_trains():
-            self.running_trains.append(train_to_run)
+            for train_to_run in self.dispatched_trains.dispatch_trains():
+                self.running_trains.append(train_to_run)
 
-        self.update_train_positions()
-        self.set_block_authority()
-        self.set_block_suggested_speeds()
+            self.update_train_positions()
+            self.set_block_authority()
+            self.set_block_suggested_speeds()
 
-        self.update_track_controller()
+            self.update_track_controller()
 
-        # tell ui to update data
-        self.update_ui_signal.emit()
+            # tell ui to update data
+            self.update_ui_signal.emit()
+
 
     def update_track_controller(self):
         for block in self.changed_speeds:
-            self.track_controller_ref.command_speed(GREEN_LINE, block, self.speed_limits[block])
+            self.track_controller_ref.command_speed(GREEN_LINE, block, self.suggested_speeds[block])
 
         for block in self.changed_authorities:
             self.track_controller_ref.set_authority(GREEN_LINE, block, self.authorities[block])
+            self.changed_authorities.remove(block)
 
     def get_scheduled_trains(self) -> list[Train]:
         trains = []
@@ -98,6 +112,7 @@ class CTC(QObject):
     def set_block_authority(self):
         for train in self.get_running_trains_sorted_by_priority():
             for block in train.get_next_authorities():
+                print("Block %d authority set to : %d", block[0], block[1])
                 self.authorities[block[0]] = block[1]
                 self.changed_authorities.append(block[0])
             self.authorities[train.get_previous_block()] = 0
@@ -109,9 +124,9 @@ class CTC(QObject):
                 block_speed_limit = LENGTHS_SPEED_LIMITS[train.line_id][block][SPEED_LIMIT]
                 adjusted_speed_limit = block_speed_limit * train.get_slowdown()
 
-                self.speed_limits[block] = adjusted_speed_limit
+                self.suggested_speeds[block] = adjusted_speed_limit
                 self.changed_speeds.append(block)
-            self.speed_limits[train.get_previous_block()] = 0
+            self.suggested_speeds[train.get_previous_block()] = 0
             self.changed_speeds.append(train.get_previous_block())
 
     """
