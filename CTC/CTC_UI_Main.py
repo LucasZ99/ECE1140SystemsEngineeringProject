@@ -25,6 +25,7 @@ class CTCMainWindow(QMainWindow):
     def __init__(self, ctc: CTC, system_time: SystemTime):
         super(CTCMainWindow, self).__init__()
 
+        self.stops = []
         self.system_time = system_time
 
         self.ctc = ctc
@@ -396,10 +397,8 @@ class CTCMainWindow(QMainWindow):
         arrival_time = self.convert_qtime_to_secs_since_epoch(route_arrival_time)
         departure_time = self.convert_qtime_to_secs_since_epoch(route_departure_time)
 
-        self.stops = Route.get_times_through_route(self.current_line_id(), self.route)
-
-        if len(self.stops) >= 0:
-
+        if len(self.route) > 0:
+            self.stops = Route.get_times_through_route(self.current_line_id(), self.route)
             for stop in self.stops:
                 print(stop.block, stop.arrival_time, stop.departure_time)
 
@@ -555,19 +554,27 @@ class BlockTable(QTableWidget):
 
         # TODO fix block data
         for block in TRACK[line_id]:
-            self.insertRow(block)
+            row = self.rowCount()
+            self.insertRow(row)
             block_id = block
             block_length_ft = float(LENGTHS_SPEED_LIMITS[line_id][block][LENGTH]) * 3.28084
             block_speed_limit_mph = LENGTHS_SPEED_LIMITS[line_id][block][SPEED_LIMIT] / 1.609
 
             occupied = "Yes" if self.ctc.blocks[block] is True else "No"
 
-            self.setItem(block, 0, QTableWidgetItem(block_id))
-            self.setItem(block, 1, QTableWidgetItem(occupied))
-            self.setItem(block, 6, QTableWidgetItem(str(block_length_ft)))
-            self.setItem(block, 7, QTableWidgetItem(str(block_speed_limit_mph)))
-            self.setItem(block, 8, QTableWidgetItem(str(self.ctc.suggested_speeds[block])))
-            self.setItem(block, 9, QTableWidgetItem(str(self.ctc.authorities[block])))
+            block_id_widget = QTableWidgetItem(str(block_id))
+            occupied_widget = QTableWidgetItem(occupied)
+            block_length_widget = QTableWidgetItem(str(block_length_ft))
+            speed_widget = QTableWidgetItem(str(block_speed_limit_mph))
+            suggested_speed_widget = QTableWidgetItem(str(self.ctc.suggested_speeds[block]))
+            authority_widget = QTableWidgetItem(str(self.ctc.authorities[block]))
+
+            self.setItem(row, 0, block_id_widget)
+            self.setItem(row, 1, occupied_widget)
+            self.setItem(row, 6, block_length_widget)
+            self.setItem(row, 7, speed_widget)
+            self.setItem(row, 8, suggested_speed_widget)
+            self.setItem(row, 9, authority_widget)
 
             # set switch combobox if there is a switch
             # if block.switch_dest.__len__() > 0:
