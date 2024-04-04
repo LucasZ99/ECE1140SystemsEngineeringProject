@@ -34,7 +34,14 @@ class TrainControllerSWContainer:
         app.exec()
 
     # receiver functions
-    def updatevalues(self, inputs):
+    def updatevalues(self, inputs, num=0):
+        print(num)
+        if num == 0:
+            self.trainCtrl.old_updater(inputs)
+        elif num < 1 and num > 3:
+            print("update type out of range")
+        else:
+            self.trainCtrl.updater(inputs, num)
 
         # update values, perform all new calcs, and send back list of new values
         self.outputs = self.trainCtrl.updater(inputs)

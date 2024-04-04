@@ -356,10 +356,63 @@ class TrainController:
     def ms2mph(self, ms):
         return ms * self.mph2ms
 
-    def updater(self, inputs):
+    def updater(self, inputs, num):
         print("train controller values being updated")
         self.servBrake = 0  # turn off service brake, will be turned on if needed again
         #print("serve brake turned off")
+        # called from train controller container when train sends new values
+        # perform all calculations for new values here and update output array
+
+        # update all values and call control functions
+
+        self.update_time = self.system_time.time()
+
+        if num == 1:
+            print("update type 1 values: authority and cmd speed")
+            self.vitalAuth = inputs[0]  # authority is distance to destination
+            print(self.vitalAuth)
+            print(inputs[0])
+            print("authority changed")
+            self.cmdSpeed = inputs[1]
+            print(self.cmdSpeed)
+            print("cmmd speed changed")
+            # distance control
+            self.vitalitycheck()
+            self.authority()
+            print("authority controlled")
+        elif num == 2:
+            print("update type 2 values: polarity, underground, beacon")
+            # check if in new block and update block values
+            self.polaritycontrol(inputs[0])
+            self.isUnderground = inputs[1]
+            print("undregrounded")
+            self.beacon = inputs[2]
+            print("beaconed")
+        elif num == 3:
+            print("update type 3 values: actual speed, passenger e-brake")
+            self.actualSpeed = inputs[0]
+            print("actual speeded")
+            # ebrake control here
+            self.passEBrake = inputs[1]
+            print("ebraked")
+            # power stuff
+            self.powercontrol()
+            print("powered")
+
+        # update all values in output array and call train model container update function
+        # reference adjacent container (train model cntr)
+        # call update function to inject new values to train model
+        # 8 el list + cabin temp
+        outputs = [self.cmdSpeed, self.power, self.servBrake, self.eBrake, self.doorSide, self.makeAnnouncement,
+                   self.intLights, self.extLights]
+        print("all values updated")
+
+        return outputs
+
+    def old_updater(self, inputs):
+        print("train controller values being updated")
+        self.servBrake = 0  # turn off service brake, will be turned on if needed again
+        # print("serve brake turned off")
         # called from train controller container when train sends new values
         # perform all calculations for new values here and update output array
 
@@ -401,5 +454,3 @@ class TrainController:
         outputs = [self.cmdSpeed, self.power, self.servBrake, self.eBrake, self.doorSide, self.makeAnnouncement,
                    self.intLights, self.extLights]
         print("all values updated")
-
-        return outputs
