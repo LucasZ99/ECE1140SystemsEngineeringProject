@@ -482,7 +482,7 @@ class CTCMainWindow(QMainWindow):
         for row, train in enumerate(self.ctc.running_trains):
             table.insertRow(row)
             train_number = str(train.id)
-            train_line = LINES[train.line_id]
+            train_line = sorted(LINES[train.line_id], key=LINES[train.id].keys())
             destination = self.stop_name(train.line_id, Route.get_block(train.line_id, train.get_destination().block))
 
             table.setItem(row, 0, QTableWidgetItem(train_number))
