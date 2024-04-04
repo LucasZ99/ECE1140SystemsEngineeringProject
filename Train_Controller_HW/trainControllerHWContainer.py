@@ -10,17 +10,18 @@ if __name__ == "__main__":
 else:
     from .Tovarish_Belback_Jonah_Train_Controller_Testbenchv2 import *
     from .Tovarish_Belback_Jonah_Train_Controller_HW_UI_PyFirmata import *
-
+from SystemTime import SystemTimeContainer
 
 class TrainControler_HW_Container:
-    def __init__(self,Testbench=False):
+    def __init__(self,system_time_container: SystemTimeContainer,Testbench=False):
         self.main_Driver_arr = []
         self.main_TrainModel_arr = [0,0,0,False,False,False,"00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"]
         self.outputs = []
         self.TB= Testbench
         self.cabin_temp=68
+        self.system_time = system_time_container.system_time
     
-        self.trainCtrl = TC_HW_init(self.main_Driver_arr, self.main_TrainModel_arr, self.outputs, Testbench)
+        self.trainCtrl = TC_HW_init(self.main_Driver_arr, self.main_TrainModel_arr, self.outputs, self.system_time, Testbench)
         #HW_UI_JEB382_PyFirmat(self.main_Driver_arr, self.main_TrainModel_arr, self.main_output_arr, Testbench)
 
     def show_ui(self):
