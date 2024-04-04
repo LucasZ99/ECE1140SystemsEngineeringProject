@@ -19,7 +19,7 @@ class TrackModel(QObject):
         # self.data = d.to_numpy()
         # self.check_data()
         self.data = self.set_data(file_name)
-        self.output_data_as_excel()
+        # self.output_data_as_excel()
         self.line_name = self.data[0, 0]
         self.num_blocks = len(self.data)
         self.ticket_sales = 0
