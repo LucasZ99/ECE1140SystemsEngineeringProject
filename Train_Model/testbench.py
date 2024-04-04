@@ -106,16 +106,19 @@ class ContainerTB(QMainWindow):
         if len(lst) != 5:
             return
 
-        input_list =  list()
+        input_list = list()
         input_list.append(float(lst[0]))
         input_list.append(float(lst[1]))
         input_list.append(float(lst[2]))
         input_list.append(bool(lst[3]))
-        input_list.append(bool(lst[4]))
+        input_list.append(lst[4])
         self.container.track_update_block(input_list, 1)
 
     def pass_pressed(self):
-        self.container.track_update_passengers(int(self.passInput.text()), 1)
+        try:
+            self.container.track_update_passengers(int(self.passInput.text()), 1)
+        except Exception as error:
+            print(error)
 
     def temp_pressed(self):
         self.container.controller_update_temp(float(self.tempInput.text()), 1)

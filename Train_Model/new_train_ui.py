@@ -178,7 +178,6 @@ class UITrain(QMainWindow):
         self.rightDoorValue_tb.stateChanged.connect(self.right_door_change)
 
     def values_updated(self):
-        print("im in values_updated")
         self.vals_update = True
         self.populate_values()
         self.vals_update = False
@@ -353,10 +352,10 @@ class UITrain(QMainWindow):
             self.populate_values()
 
     def populate_values(self):
+        self.train_dict = self.business_logic.train_list
         if self.index not in self.train_dict.keys():
             return
 
-        print("im here 1")
         self.powerValue.setText(f'{self.train_dict[self.index].engine.power: .2f} W')
         self.powerValue_tb.setText(f'{self.train_dict[self.index].engine.power: .2f}')
 
@@ -410,7 +409,6 @@ class UITrain(QMainWindow):
 
         self.widthValue.setText(f'{self.train_dict[self.index].train_const.width * self.feet_per_meter: .2f} ft')
         self.widthValue_tb.setText(f'{self.train_dict[self.index].train_const.width * self.feet_per_meter: .2f} ft')
-        print("im here 3")
 
         self.carsValue.setText(f'{self.train_dict[self.index].train_const.car_number}')
         self.carsValue_tb.setText(f'{self.train_dict[self.index].train_const.car_number}')
@@ -433,7 +431,6 @@ class UITrain(QMainWindow):
 
         self.authValue.setText(f'0x{self.train_dict[self.index].signals.authority:02x}')
         self.authValue_tb.setText(f'{self.train_dict[self.index].signals.authority:02x}')
-
         self.beaconValue.setText(self.train_dict[self.index].signals.beacon)
         self.beaconValue_tb.setText(self.train_dict[self.index].signals.beacon)
 
@@ -463,7 +460,6 @@ class UITrain(QMainWindow):
         else:
             self.rightDoorValue.setValue(0)
         self.rightDoorValue_tb.setChecked(self.train_dict[self.index].interior_functions.right_doors)
-        print("im here 2")
 
 
 # initialize the app
