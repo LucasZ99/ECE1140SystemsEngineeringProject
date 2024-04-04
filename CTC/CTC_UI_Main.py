@@ -499,11 +499,11 @@ class CTCMainWindow(QMainWindow):
         for row, train in enumerate(self.ctc.running_trains):
             table.insertRow(row)
             train_number = str(train.id)
-            train_line = sorted(LINES[train.line_id], key=LINES[train.id].keys())
+            # TODO train_line = sorted(LINES[train.line_id].items())
             destination = self.stop_name(train.line_id, Route.get_block(train.line_id, train.get_destination().block))
 
             table.setItem(row, 0, QTableWidgetItem(train_number))
-            table.setItem(row, 1, QTableWidgetItem(train_line))
+            table.setItem(row, 1, QTableWidgetItem(train_line[0]))
             table.setItem(row, 2, QTableWidgetItem(destination))
             table.setItem(row, 3, QTableWidgetItem(time_to_str(train.get_destination().arrival_time)))
             table.setItem(row, 4, QTableWidgetItem(self.stop_name(train.line_id, train.route[train.next_stop].block)))

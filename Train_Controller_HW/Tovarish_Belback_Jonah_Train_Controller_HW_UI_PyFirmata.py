@@ -46,7 +46,7 @@ Pmax=10000
 Acc_Lim=0.5
 DeAcc_Lim=1.2#train spec page (1.20 is service brake)
 try:
-    board = ArduinoMega('COM3')
+    board = ArduinoMega('COM7')
     NoHW=False
 except:
     NoHW=True
@@ -303,7 +303,10 @@ class HW_UI_JEB382_PyFirmat():
         #add up all block's length allowed by authority (num of blocks)
         #Line0, Section1, Block Num2, Block Len3, SpeedLimit4, Infrastructure5, Station Side6
         app_stat=""
-        for i in range(self.TrainModel_arr[2]):
+        
+        #print(f"<{self.TrainModel_arr[2]}>")
+        
+        for i in range(int(self.TrainModel_arr[2])):
             particular_line = linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum+i).split("\t")
             #print(f"LINE: {particular_line}")
             distance_to_station += int(particular_line[3])
@@ -323,7 +326,7 @@ class HW_UI_JEB382_PyFirmat():
             
         
         
-        #print("<"+self.Announcements+">")
+        print(f"ANNOUNCE: <{self.Announcements}>")
         #print(distance_to_station)
         
         #beacon information from file
@@ -359,7 +362,7 @@ class HW_UI_JEB382_PyFirmat():
             
             #2   On/Off Service Brake	        Boolean	    Slow down vital control from train controller
             if not self.Mode:#auto
-                if self.TrainModel_arr[2] == 0: self.output_arr[2]=True
+                if int(self.TrainModel_arr[2]) == 0: self.output_arr[2]=True
                 #edge case for Station Green Line Block 16
             else:#manual
                 self.output_arr[2] = self.Driver_arr[9]
@@ -467,12 +470,12 @@ class HW_UI_JEB382_PyFirmat():
     
         
     def updateTot(self):
-        print(f'Train Controller HW: NAN check {self.TrainModel_arr[-1]} <{str(self.TrainModel_arr[-1])}> {str(self.TrainModel_arr[-1]) == "nan"}')
+        #print(f'Train Controller HW: NAN check {self.TrainModel_arr[-1]} <{str(self.TrainModel_arr[-1])}> {str(self.TrainModel_arr[-1]) == "nan"}')
         if self.TrainModel_arr[-1] == None or str(self.TrainModel_arr[-1]) == "nan":
-            print('Train Controller HW: caught nan')
+            #print('Train Controller HW: caught nan')
             self.TrainModel_arr[-1] = "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
-            print(f'Train Controller HW: nan check1 {self.TrainModel_arr[-1]}')
-            print(f'Train Controller HW: nan check2 {self.TrainModel_arr}')
+            #print(f'Train Controller HW: nan check1 {self.TrainModel_arr[-1]}')
+            #print(f'Train Controller HW: nan check2 {self.TrainModel_arr}')
 
         global NoHW
         if not NoHW:
