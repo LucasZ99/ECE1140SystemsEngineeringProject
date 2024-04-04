@@ -5,7 +5,7 @@ from PyQt6.QtWidgets import *
 #import sys
 import linecache
 import threading
-from SystemTime import SystemTime
+if __name__ != "__main__": from SystemTime import SystemTime
 
 
 #commanded speed: Auto/Manual: Turn into Verr, calc power with Kp Ki
@@ -530,17 +530,16 @@ class HW_UI_JEB382_PyFirmat():
             t2.join()
         t1.join()
         
-def TC_HW_init(driver,trainmodel,output,TestB=False):
+def TC_HW_init(driver,trainmodel,output,system_time,TestB=False):
     print("TC_HW_init")
     Arduino = True
     
     it = util.Iterator(board)  
     it.start()
     
-    return  HW_UI_JEB382_PyFirmat(driver,
-                                    trainmodel,
-                                    output,
-                                    TestB)
+    return  HW_UI_JEB382_PyFirmat(driver, trainmodel, output,
+                                  system_time,
+                                  TestB)
 
 
 if __name__ == "__main__":

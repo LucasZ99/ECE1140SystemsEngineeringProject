@@ -53,7 +53,8 @@ class TrainControler_HW_Container:
         #return self.main_output_arr[:-1]
 
 def TrainC_HW_main():
-    trainctrlcntr = TrainControler_HW_Container()
+    system_time = SystemTimeContainer()
+    trainctrlcntr = TrainControler_HW_Container(system_time)
     trainctrlcntr.show_ui()
 
 
