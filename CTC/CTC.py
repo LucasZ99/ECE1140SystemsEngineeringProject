@@ -67,7 +67,6 @@ class CTC(QObject):
         self.update_ui_signal.emit()
 
     def update_track_controller(self):
-
         for block in self.changed_authorities:
             self.track_controller_ref.set_authority(GREEN_LINE, block, self.authorities[block])
             self.changed_authorities.remove(block)
@@ -106,6 +105,7 @@ class CTC(QObject):
         return sort_by_destination_arrival_time
 
     def set_block_authority(self):
+        print("authority function")
         for train in self.get_running_trains_sorted_by_priority():
             for block in train.get_next_authorities():
                 print(f"Block {block[0]} authority set to : {block[1]}")
@@ -141,6 +141,7 @@ class CTC(QObject):
                     self.dispatched_trains.schedule_train(train)
                 elif next_block_status == -2:  # remove from lists
                     self.running_trains.remove(train)
+                    print("Train %d reached yard.", train.id)
 
     def update_switch_position(self, line_id: int, block_id: int, position: int):
         self.switches[block_id].current_pos = position
@@ -149,12 +150,9 @@ class CTC(QObject):
         self.lights[block_id] = signal_green
 
     def update_block_occupancy(self, line_id: int, block_id: int, occupied: bool):
-        print(f"ctc update block occupancy function called, block id: {block_id}")
         self.blocks[block_id] = occupied
-
-        for train in [running_train for running_train in self.running_trains if
-                      abs(running_train.current_block) == block_id]:
-            self.update_train_position(train)
+        for train in [running_train for running_train in self.running_trains if abs(running_train.current_block) == block_id]:
+            self.update_train_position(line_id, train)
             self.set_block_authority()
             self.set_block_suggested_speeds()
 

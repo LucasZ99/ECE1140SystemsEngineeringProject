@@ -25,6 +25,7 @@ class CTCMainWindow(QMainWindow):
     def __init__(self, ctc: CTC, system_time: SystemTime):
         super(CTCMainWindow, self).__init__()
 
+        self.stops = []
         self.system_time = system_time
 
         self.ctc = ctc
@@ -396,27 +397,28 @@ class CTCMainWindow(QMainWindow):
         arrival_time = self.convert_qtime_to_secs_since_epoch(route_arrival_time)
         departure_time = self.convert_qtime_to_secs_since_epoch(route_departure_time)
 
-        self.stops = Route.get_times_through_route(self.current_line_id(), self.route)
-        for stop in self.stops:
-            print(stop.block, stop.arrival_time, stop.departure_time)
+        if len(self.route) > 0:
+            self.stops = Route.get_times_through_route(self.current_line_id(), self.route)
+            for stop in self.stops:
+                print(stop.block, stop.arrival_time, stop.departure_time)
 
-        # breakpoint()
+            # breakpoint()
 
-        # arrival time is too short
-        if not Route.is_route_schedulable(self.current_line_id(), self.stops, departure_time,
-                                          departure_time + Route.get_route_travel_time(self.stops)):
-            arrival_time = departure_time + Route.get_route_travel_time(self.stops)
+            # arrival time is too short
+            if not Route.is_route_schedulable(self.current_line_id(), self.stops, departure_time,
+                                              departure_time + Route.get_route_travel_time(self.stops)):
+                arrival_time = departure_time + Route.get_route_travel_time(self.stops)
 
-        self.scheduled_stops = Route.schedule_route(self.current_line_id(), self.stops, departure_time,
-                                                    departure_time + Route.get_route_travel_time(self.stops))
+            self.scheduled_stops = Route.schedule_route(self.current_line_id(), self.stops, departure_time,
+                                                        departure_time + Route.get_route_travel_time(self.stops))
 
-        for i, stop in enumerate(self.scheduled_stops):
-            # table
-            arrival_time = strftime("%H:%M", strptime(ctime(stop.arrival_time)))
-            departure_time = strftime("%H:%M", strptime(ctime(stop.departure_time)))
-            dispatch_train_schedule.setItem(i, 2, QTableWidgetItem(arrival_time))
+            for i, stop in enumerate(self.scheduled_stops):
+                # table
+                arrival_time = strftime("%H:%M", strptime(ctime(stop.arrival_time)))
+                departure_time = strftime("%H:%M", strptime(ctime(stop.departure_time)))
+                dispatch_train_schedule.setItem(i, 2, QTableWidgetItem(arrival_time))
 
-            dispatch_train_schedule.setItem(i, 3, QTableWidgetItem(departure_time))
+                dispatch_train_schedule.setItem(i, 3, QTableWidgetItem(departure_time))
 
         # self.arrival_time_list[self.current_line_id()].setTime(arrival_time)
 
@@ -480,7 +482,7 @@ class CTCMainWindow(QMainWindow):
         for row, train in enumerate(self.ctc.running_trains):
             table.insertRow(row)
             train_number = str(train.id)
-            train_line = LINES[train.line_id]
+            train_line = sorted(LINES[train.line_id], key=LINES[train.id].keys())
             destination = self.stop_name(train.line_id, Route.get_block(train.line_id, train.get_destination().block))
 
             table.setItem(row, 0, QTableWidgetItem(train_number))
@@ -552,19 +554,27 @@ class BlockTable(QTableWidget):
 
         # TODO fix block data
         for block in TRACK[line_id]:
-            self.insertRow(block)
+            row = self.rowCount()
+            self.insertRow(row)
             block_id = block
             block_length_ft = float(LENGTHS_SPEED_LIMITS[line_id][block][LENGTH]) * 3.28084
             block_speed_limit_mph = LENGTHS_SPEED_LIMITS[line_id][block][SPEED_LIMIT] / 1.609
 
             occupied = "Yes" if self.ctc.blocks[block] is True else "No"
 
-            self.setItem(block, 0, QTableWidgetItem(block_id))
-            self.setItem(block, 1, QTableWidgetItem(occupied))
-            self.setItem(block, 6, QTableWidgetItem(str(block_length_ft)))
-            self.setItem(block, 7, QTableWidgetItem(str(block_speed_limit_mph)))
-            self.setItem(block, 8, QTableWidgetItem(str(self.ctc.suggested_speeds[block])))
-            self.setItem(block, 9, QTableWidgetItem(str(self.ctc.authorities[block])))
+            block_id_widget = QTableWidgetItem(str(block_id))
+            occupied_widget = QTableWidgetItem(occupied)
+            block_length_widget = QTableWidgetItem(str(block_length_ft))
+            speed_widget = QTableWidgetItem(str(block_speed_limit_mph))
+            suggested_speed_widget = QTableWidgetItem(str(self.ctc.suggested_speeds[block]))
+            authority_widget = QTableWidgetItem(str(self.ctc.authorities[block]))
+
+            self.setItem(row, 0, block_id_widget)
+            self.setItem(row, 1, occupied_widget)
+            self.setItem(row, 6, block_length_widget)
+            self.setItem(row, 7, speed_widget)
+            self.setItem(row, 8, suggested_speed_widget)
+            self.setItem(row, 9, authority_widget)
 
             # set switch combobox if there is a switch
             # if block.switch_dest.__len__() > 0:
