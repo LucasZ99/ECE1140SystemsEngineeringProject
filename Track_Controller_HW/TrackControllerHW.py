@@ -42,6 +42,7 @@ class TrackControllerHardware(QObject):
     def rr_crossing_updated(self, rr_crossing_new_val: bool):
         print("rr cross updated")
         self.rr_crossing = rr_crossing_new_val
+        self.rr_crossing_signal.emit(rr_crossing_new_val)
 
 
 if __name__ == '__main__':
