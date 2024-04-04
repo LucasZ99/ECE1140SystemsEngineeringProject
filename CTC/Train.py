@@ -37,13 +37,12 @@ class Train:
         return self.route[self.next_stop].arrival_time
 
     def blocks_to_next_stop(self) -> int:
-        return len(Route.dfs_find_route(self.line_id, self.current_block, self.route[self.next_stop]))
+        return len(Route.find_path(self.line_id, self.current_block, self.route[self.next_stop].block))
 
     """
     Sets the train to the next block.
     :returns 0 for continuing to next station, 1 for at next station, -1 for last station - dispatch to yard, or -2 for reached yard.
     """
-
     def set_to_next_block(self) -> int:
         self.previous_block = self.current_block
         self.current_block = self.get_next_block()
@@ -136,3 +135,28 @@ class Train:
 
     def get_previous_block(self) -> int:
         return self.previous_block
+
+    def __str__(self):
+        s = ""
+
+        # Train Number
+        s += f"Train: {self.id}\n"
+        # Line Number
+        s += f"Line: {self.line_id}\n"
+
+        # Current Stop
+        s += f"Current Stop: {self.current_stop}\n"
+
+        # Current Block
+        s += f"Current Block: {self.current_block}\n"
+
+        # Next Block
+        s += f"Next Block: {self.next_block(self.current_block)}\n"
+
+        # List of Stops
+        s += f"Stops:"
+
+        for stop in self.route:
+            s += stop.__str__() + "\n"
+
+        return s

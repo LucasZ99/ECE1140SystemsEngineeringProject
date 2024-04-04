@@ -10,6 +10,12 @@
 # update main when any change is performed
 
 class PLC:  # watchdog behavior for the PLC data
+    rrCrossing = False
+    switches = []
+    blocks = []
+    stops = []
+    mode = False
+
     def assign_vals(self, blocks, switches, rrCrossing, mode):
         self.rrCrossing = rrCrossing  # False = off
         self.switches = []  # False = 'L'
@@ -18,7 +24,8 @@ class PLC:  # watchdog behavior for the PLC data
         self.mode = False  # False = auto mode,so the PLC can move everything. In False, PLC can only adjust rrCrossing and trafficLts
 
     def run_plc_logic(self):  # very simple operations done to show changes
-        #if blocks[]
-        if self.blocks[0]:
+        if self.blocks[56] or self.blocks[57] or self.blocks[55]:
             self.rrCrossing = True
+        else:
+            self.rrCrossing = False
         return [self.stops, self.blocks, self.rrCrossing]  # return the updated values

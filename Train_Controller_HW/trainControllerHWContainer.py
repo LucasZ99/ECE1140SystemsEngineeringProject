@@ -15,7 +15,7 @@ else:
 class TrainControler_HW_Container:
     def __init__(self,Testbench=False):
         self.main_Driver_arr = []
-        self.main_TrainModel_arr = []
+        self.main_TrainModel_arr = [0,0,0,False,False,False,"00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"]
         self.outputs = []
         self.TB= Testbench
         self.cabin_temp=68
@@ -32,13 +32,15 @@ class TrainControler_HW_Container:
         #printout 1: Driver
         #printout 2: TrainModel
         #printout 3: Output
-        self.trainCtrl.HW_UI_fin(self.TB)
+        #self.trainCtrl.HW_UI_fin(self.TB)
+        self.trainCtrl.updateTot()
 
     #  receiver functions
 
     #TrainModel
     def updatevalues(self, inputs):
         #update train controller with Train Model
+        print("updatevalues")
         self.main_TrainModel_arr = numpy.copy(inputs)
         #self.trainCtrl.updateRead() #get driver inputs
         

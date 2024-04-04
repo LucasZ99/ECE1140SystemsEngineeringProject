@@ -1,6 +1,5 @@
 import sys
 import threading
-
 from PyQt6.QtWidgets import QApplication
 
 from launchercontainer import LauncherContainer

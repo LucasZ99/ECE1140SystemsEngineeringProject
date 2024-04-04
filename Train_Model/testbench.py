@@ -73,16 +73,17 @@ class ContainerTB(QMainWindow):
         self.container.show_ui()
 
     def track_pressed(self):
-        lst = str(self.trackInput.text()).split(",", -1)
+        lst = str(self.trackInput.text()).split(", ", -1)
         if len(lst) != 2:
             return
+        # [commanded speed, vital authority]
         input_lst = list()
         input_lst.append(float(lst[0]))
-        input_lst.append(float(lst[0]))
+        input_lst.append(int(lst[0]))
         self.container.track_model_inputs(input_lst, 1)
 
     def controller_pressed(self):
-        lst = str(self.controllerInput.text()).split(",", -1)
+        lst = str(self.controllerInput.text()).split(", ", -1)
         # [commanded speed, power, service brake, emergency brake, left/right doors, announce station, cabin lights,
         # headlights]
         if len(lst) != 8:
@@ -94,23 +95,22 @@ class ContainerTB(QMainWindow):
         input_list.append(bool(lst[2]))
         input_list.append(bool(lst[3]))
         input_list.append(int(lst[4]))
-        input_list.append(lst[5])
         input_list.append(bool(lst[6]))
         input_list.append(bool(lst[7]))
         self.container.train_controller_inputs(input_list, 1)
 
     def block_pressed(self):
-        lst = str(self.blockInput.text()).split(",", -1)
+        lst = str(self.blockInput.text()).split(", ", -1)
         # [grade, elevation, block length, underground, beacon]
         if len(lst) != 5:
             return
 
-        input_list =  list()
+        input_list = list()
         input_list.append(float(lst[0]))
         input_list.append(float(lst[1]))
         input_list.append(float(lst[2]))
         input_list.append(bool(lst[3]))
-        input_list.append(bool(lst[4]))
+        input_list.append(lst[4])
         self.container.track_update_block(input_list, 1)
 
     def pass_pressed(self):
