@@ -57,18 +57,22 @@ class CTC(QObject):
             self.rr_crossings[crossing] = False
 
         self.system_time.update_time_signal.connect(self.update_ctc_queues)
+        self.update_track_controller()
 
     @pyqtSlot()
     def update_ctc_queues(self):
+        update = False
         for train_to_dispatch in self.scheduled_trains.dispatch_trains():
             self.dispatched_trains.schedule_train(train_to_dispatch)
 
         for train_to_run in self.dispatched_trains.dispatch_trains():
+            update = True
             self.running_trains.append(train_to_run)
             self.set_block_authority()
             self.set_block_suggested_speeds()
 
-        self.update_track_controller()
+        if update:
+            self.update_track_controller()
         self.update_ui_signal.emit()
 
     def update_track_controller(self):
