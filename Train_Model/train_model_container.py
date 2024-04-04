@@ -70,8 +70,8 @@ class TrainModelContainer(QObject):
             self.train_list[index].interior_functions.announcement = input_list[5]
             self.train_list[index].interior_functions.interior_lights = input_list[6]
             self.train_list[index].interior_functions.exterior_lights = input_list[7]
-            self.business_logic.values_updated.emit()
             self.business_logic.train_list = self.train_list
+            self.business_logic.values_updated.emit()
 
     def track_update_block(self, block_vals, index):
         if not (index in self.train_list.keys()):
@@ -99,7 +99,6 @@ class TrainModelContainer(QObject):
         if not (index in self.train_list.keys()):
             return
         self.train_list[index].heater.update_target(num)
-        self.physics_calculation()
         self.business_logic.temp_updated.emit(index)
         self.business_logic.train_list = self.train_list
 
