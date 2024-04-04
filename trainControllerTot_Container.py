@@ -39,7 +39,7 @@ class TrainController_Tot_Container(QObject):
 
         self.trainCtrl.updatevalues(inputs,1)
 
-        print("Train Controller TOT Container: values updated, sending signals next")
+        print("Train Controller TOT Container, type1: values updated, sending signals next")
 
         # send signal with updated values
         self.new_train_values_signal.emit(self.trainCtrl.outputs, 1)
@@ -47,12 +47,12 @@ class TrainController_Tot_Container(QObject):
 
         return
 
-    #Track_Cicuit, Aboveground
+    #Track_Cicuit, Aboveground, beacon
     def getvaluesfromtrain_update2(self, inputs):  # Sam call this to update traincontroller values
 
         self.trainCtrl.updatevalues(inputs,2)
 
-        print("Train Controller TOT Container: values updated, sending signals next")
+        print("Train Controller TOT Container, type2: values updated, sending signals next")
 
         # send signal with updated values
         self.new_train_values_signal.emit(self.trainCtrl.outputs, 1)
@@ -65,7 +65,7 @@ class TrainController_Tot_Container(QObject):
 
         self.trainCtrl.updatevalues(inputs,3)
 
-        print("Train Controller TOT Container: values updated, sending signals next")
+        print("Train Controller TOT Container, type3: values updated, sending signals next")
 
         # send signal with updated values
         self.new_train_values_signal.emit(self.trainCtrl.outputs, 1)
