@@ -14,7 +14,7 @@ class TrackControllerHardware(QObject):
     blocks = [False] * num_blocks
     suggested_speed = [0.0] * num_blocks
     stops = [False] * num_blocks
-    rr_crossing = [False] * 1
+    rr_crossing = False
 
     rr_crossing_signal = pyqtSignal(bool)
 
@@ -26,7 +26,7 @@ class TrackControllerHardware(QObject):
                                               rr_crossing=self.rr_crossing)
 
         self.tb_shell = TBShell.TB_Shell(self.slots_sigs)
-
+        self.slots_sigs.rr_crossing_signal.connect(self.rr_crossing_updated)
 
     def update_occupancy(self, block_occupancy_list: list):
         self.blocks = block_occupancy_list
