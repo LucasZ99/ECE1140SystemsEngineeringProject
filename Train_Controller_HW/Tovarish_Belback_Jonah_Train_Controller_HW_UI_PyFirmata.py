@@ -6,6 +6,7 @@ from PyQt6.QtWidgets import *
 import linecache
 import threading
 if __name__ != "__main__": from SystemTime import SystemTime
+import math
 
 
 #commanded speed: Auto/Manual: Turn into Verr, calc power with Kp Ki
@@ -134,8 +135,12 @@ class HW_UI_JEB382_PyFirmat():
         for i in range(0,4):
             if   in_TrainModel_arr[i] < limit1: in_TrainModel_arr[i]=limit1
             elif in_TrainModel_arr[i] > limit2: in_TrainModel_arr[i]=limit2'''
-        
+
         self.TrainModel_arr = in_TrainModel_arr
+
+        if self.TrainModel_arr[-1] == None or str(self.TrainModel_arr[-1]) == "nan":
+            self.TrainModel_arr[-1] = "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+
         print(self.TrainModel_arr)
         
         #Driver_arr, is output, the inputted arr is just used for the variable reference
@@ -462,6 +467,10 @@ class HW_UI_JEB382_PyFirmat():
     
         
     def updateTot(self):
+        print(f'Train Controller HW: NAN check {self.TrainModel_arr[-1]} <{str(self.TrainModel_arr[-1])}> {str(self.TrainModel_arr[-1]) == "nan"}')
+        if self.TrainModel_arr[-1] == None or math.isnan(self.TrainModel_arr[-1]) or str(self.TrainModel_arr[-1]) == "nan":
+            self.TrainModel_arr[-1] = "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+
         global NoHW
         if not NoHW:
             #print("update")
