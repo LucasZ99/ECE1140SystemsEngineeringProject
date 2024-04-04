@@ -110,10 +110,11 @@ class CTC(QObject):
         return sort_by_destination_arrival_time
 
     def set_block_authority(self):
-        print("authority function")
+        print("CTC: authority function")
         for train in self.get_running_trains_sorted_by_priority():
+            print(f"CTC: Train {train.id} is in block {train.current_block}.")
             for block in train.get_next_authorities():
-                print(f"Block {block[0]} authority set to : {block[1]}")
+                print(f"CTC: Block {block[0]} authority set to : {block[1]}")
                 self.authorities[block[0]] = block[1]
                 self.changed_authorities.append(block[0])
             self.authorities[train.get_previous_block()] = 0
@@ -135,8 +136,10 @@ class CTC(QObject):
     """
     def update_train_position(self, train: Train):
         for train in self.running_trains:
+            print(f"CTC: Train {train.id} position updating. Current block: {train.current_block}. Next Block: {train.get_next_block()}.")
             if self.blocks[train.current_block] is False and self.blocks[train.get_next_block()] is True:
                 next_block_status = train.set_to_next_block()
+                print(f"CTC: Train {train.id} position updated. Current block: {train.current_block}. Next Block: {train.get_next_block()}.")
 
                 if next_block_status == 1:  # at station
                     self.dispatched_trains.schedule_train(train)
@@ -146,7 +149,7 @@ class CTC(QObject):
                     self.dispatched_trains.schedule_train(train)
                 elif next_block_status == -2:  # remove from lists
                     self.running_trains.remove(train)
-                    print("Train %d reached yard.", train.id)
+                    print("CTC: Train %d reached yard.", train.id)
 
     def update_switch_position(self, line_id: int, block_id: int, position: int):
         self.switches[block_id].current_pos = position
@@ -156,7 +159,10 @@ class CTC(QObject):
 
     def update_block_occupancy(self, line_id: int, block_id: int, occupied: bool):
         self.blocks[block_id] = occupied
+        occupied_str = "occupied" if occupied else "vacant"
+        print(f"CTC: Block {block_id} set to {occupied_str}.")
         for train in [running_train for running_train in self.running_trains if abs(running_train.current_block) == block_id]:
+            print(f"CTC: Train {train.id} block status update.")
             self.update_train_position(line_id, train)
             self.set_block_authority()
             self.set_block_suggested_speeds()
