@@ -198,10 +198,10 @@ class HW_UI_JEB382_PyFirmat():
         
         #TestBench
         #self.printout = 3
-        if __name__ == "__main__":# and TestBench:
+        '''if __name__ == "__main__":# and TestBench:
             #self.printout = 3
             self.HW_UI_fin(TestBench)
-            #self.updateTot()
+            #self.updateTot()'''
     
     def updateRead(self):
         self.Driver_arr[3] = self.BTN_CabnLgt.read()
@@ -499,7 +499,8 @@ class HW_UI_JEB382_PyFirmat():
                 #elif self.printout == 3 and not NoHW: print(f"Output TrainC #1:\t{self.output_arr}\t{'AUTO' if not self.Mode else 'MANUAL'}")
                 
                 if not NoHW:
-                    print(f"\nDriver TrainC #1:\t{self.Driver_arr}\t{'AUTO' if not self.Mode else 'MANUAL'}")
+                    print("\nHW_UI_mainloop_fast")
+                    print(f"Driver TrainC #1:\t{self.Driver_arr}\t{'AUTO' if not self.Mode else 'MANUAL'}")
                     print(f"TrainModel TrainC #1:\t{self.TrainModel_arr} {'AUTO' if not self.Mode else 'MANUAL'}")
                     print(f"Output TrainC #1:\t{self.output_arr}\t{'AUTO' if not self.Mode else 'MANUAL'}")
             elif (int(time.time())-int(ptime))%2!=0:
@@ -522,6 +523,7 @@ class HW_UI_JEB382_PyFirmat():
         t1.join()
         
 def TC_HW_init(driver,trainmodel,output,TestB=False):
+    print("TC_HW_init")
     Arduino = True
     
     it = util.Iterator(board)  

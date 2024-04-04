@@ -32,13 +32,15 @@ class TrainControler_HW_Container:
         #printout 1: Driver
         #printout 2: TrainModel
         #printout 3: Output
-        self.trainCtrl.HW_UI_fin(self.TB)
+        #self.trainCtrl.HW_UI_fin(self.TB)
+        self.trainCtrl.updateTot()
 
     #  receiver functions
 
     #TrainModel
     def updatevalues(self, inputs):
         #update train controller with Train Model
+        print("updatevalues")
         self.main_TrainModel_arr = numpy.copy(inputs)
         #self.trainCtrl.updateRead() #get driver inputs
         
