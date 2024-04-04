@@ -86,7 +86,12 @@ class TrainController:
         self.distanceTraveled = float(-25)
         self.blocksTraveled = int(0)
         self.currentBlock = int(62)
+
+        # vital flags
         self.stopsoon = bool(0)
+        self.trainMoving = bool(0)
+        self.trainSafeToMove = bool(0)
+        self.trainStopped = bool(1)
 
         self.makeAnnouncement = bool(0)  # if announcement is to be made: 0 no, 1 yes
         self.station = bool(0)
@@ -204,6 +209,8 @@ class TrainController:
 
     def polaritycontrol(self, newpolarity):  # TODO change to check for diff between old polarity and new polarity
         if self.polarity != newpolarity:
+            print("polarity changed, train has entered new block")
+            self.polarity = newpolarity
             self.blocksTraveled += 1
             self.i += 1
             self.blockline = linecache.getline('Resources/IT3_GreenLine.txt', self.i).split("\t")
@@ -213,6 +220,9 @@ class TrainController:
             self.length = self.blockline[3]
             self.speedlim = self.blockline[4]
             self.notes = self.blockline[5]
+
+            print("updating distance travelled")
+            self.distanceTraveled += int(self.length)
 
         # if self.polarity == 0:  # track is negative
         #     self.polarity = 1  # switch to positive
@@ -296,8 +306,25 @@ class TrainController:
             self.stopsoon = True
             self.power = 0
 
-        print("updating distance travelled")
-        self.distanceTraveled += int(self.length)
+    def vitalitycheck(self):
+        # perform vitality checks to determine if train has right parameters to move
+        if self.vitalAuth == 0:
+            self.trainSafeToMove = 0
+            print("train unsafe to move: no authority")
+        elif self.vitalAuth != 0 and self.cmdSpeed == 0:
+            self.trainSafeToMove = 0
+            print("train unsafe to move: no commanded speed")
+        elif self.vitalAuth != 0 and self.cmdSpeed != 0:
+            self.trainSafeToMove = 1
+            print("train safe to move: authority and cmd speed received")
+
+    def speedcheck(self):
+        # check if cmd speed and actual speed are within legal speed limits:
+        if self.cmdSpeed > float(self.speedlim):
+            print("command speed too high, limiting to speed limit")
+            self.cmdSpeed = self.speedlim
+        elif self.cmdSpeed <= float(self.speedlim):
+            print("command speed within speed limits")
 
     def automode(self):  # deprecated in IT3, used in IT2 for testing. honk mimimi
         for i in range(0, 7):
@@ -332,29 +359,27 @@ class TrainController:
     def updater(self, inputs):
         print("train controller values being updated")
         self.servBrake = 0  # turn off service brake, will be turned on if needed again
-        print("serve brake turned off")
+        #print("serve brake turned off")
         # called from train controller container when train sends new values
         # perform all calculations for new values here and update output array
 
         # update all values and call control functions
 
         self.update_time = self.system_time.time()
-        print("time updated")
 
         # check if in new block and update block values
         self.polaritycontrol(inputs[4])
-        print("polarity controled")
 
         self.actualSpeed = inputs[0]
         print("actual speeded")
         self.cmdSpeed = inputs[1]
         print("cmd speeded")
         self.vitalAuth = inputs[2]  # authority is distance to destination
-        #print(self.vitalAuth)
-        #print(inputs[2])
+        print(self.vitalAuth)
+        print(inputs[2])
         print("authority changed")
         # distance control
-        #self.authority()
+        self.authority()
         print("authority controlled")
         # ebrake control here
         self.passEBrake = inputs[3]
