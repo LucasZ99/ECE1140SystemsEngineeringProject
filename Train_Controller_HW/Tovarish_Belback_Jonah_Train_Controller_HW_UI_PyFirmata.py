@@ -468,18 +468,24 @@ class HW_UI_JEB382_PyFirmat():
         
     def updateTot(self):
         print(f'Train Controller HW: NAN check {self.TrainModel_arr[-1]} <{str(self.TrainModel_arr[-1])}> {str(self.TrainModel_arr[-1]) == "nan"}')
-        if self.TrainModel_arr[-1] == None or math.isnan(self.TrainModel_arr[-1]) or str(self.TrainModel_arr[-1]) == "nan":
+        if self.TrainModel_arr[-1] == None or str(self.TrainModel_arr[-1]) == "nan":
+            print('Train Controller HW: caught nan')
             self.TrainModel_arr[-1] = "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+            print(f'Train Controller HW: nan check1 {self.TrainModel_arr[-1]}')
+            print(f'Train Controller HW: nan check2 {self.TrainModel_arr}')
 
         global NoHW
         if not NoHW:
-            #print("update")
+            print("update")
             #sys.stdout.write("p")
             #bugfix: cant get updates without a printout????? i hate pyfrimata
             with open('TrainC_HW_bugfix.txt', 'w') as f:
                 f.write('Hi')
+            print("updateRead")
             self.updateRead()
+            print("updateCalc")
             self.updateCalc()
+            print("updateDisplay")
             self.updateDisplay()
             
             if __name__ != "__main__":
