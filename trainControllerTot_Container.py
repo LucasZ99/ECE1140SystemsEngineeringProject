@@ -26,7 +26,7 @@ class TrainController_Tot_Container(QObject):
         self.Ware = ware
         self.system_time = system_time_container
         if ware:
-            self.trainCtrl = TrainControllerSWContainer() #self.system_time)
+            self.trainCtrl = TrainControllerSWContainer(self.system_time)
         else:
             self.trainCtrl = TrainControler_HW_Container(self.system_time)
 

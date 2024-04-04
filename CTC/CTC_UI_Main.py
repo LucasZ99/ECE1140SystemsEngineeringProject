@@ -1,8 +1,11 @@
-from datetime import date, datetime, timedelta
+import PyQt6
+
+from CTC.CTCConstants import *
 from time import localtime, strftime, strptime, struct_time, time, ctime
 from PyQt6.QtCore import QSize, Qt, QDateTime, QTime, QTimer, pyqtSlot
 from PyQt6.QtWidgets import QMainWindow, QApplication, QWidget, QPushButton, QLabel, QLineEdit, QVBoxLayout, \
-    QGridLayout, QComboBox, QHBoxLayout, QTimeEdit, QTableWidget, QTableWidgetItem, QTabWidget, QAbstractScrollArea
+    QGridLayout, QComboBox, QHBoxLayout, QTimeEdit, QTableWidget, QTableWidgetItem, QTabWidget, QAbstractScrollArea, \
+    QHeaderView
 
 from CTC import CTC
 from CTC.Train import Train
@@ -121,9 +124,9 @@ class CTCMainWindow(QMainWindow):
 
             # # List of stops
             dispatch_train_schedule = QTableWidget()
-            dispatch_train_schedule.setColumnCount(4)
+            dispatch_train_schedule.setColumnCount(3)
             dispatch_train_schedule.setHorizontalHeaderLabels(
-                ["", "Station Name", "Time\n(min since prev. station departure)", "Arrival Time"])
+                ["Station Name", "Time\n(min since prev. station departure)", "Arrival Time"])
             dispatch_train_schedule.horizontalHeader().setStretchLastSection(False)
             # dispatch_train_schedule.setSizeAdjustPolicy(
             #     QAbstractScrollArea.AdjustToContentsOnFirstShow
@@ -163,7 +166,11 @@ class CTCMainWindow(QMainWindow):
         ctc_main_layout_right_top_section.addWidget(self.ctc_mode_select)
         self.ctc_mode_select.currentIndexChanged.connect(self.mode_switch_handler)
         self.ctc_mode_select.setFixedSize(self.ctc_mode_select.sizeHint())
-        self.mode = 0
+
+        self.ctc_mode_select.setCurrentIndex(self.ctc.mode)
+
+        if self.ctc.mode == MANUAL_MODE or self.ctc.mode == MAINTENANCE_MODE:
+            self.ctc_mode_select.item(0).setEnabled(False)
 
         ctc_main_right_side.addItem(ctc_main_layout_right_top_section)
 
@@ -416,15 +423,17 @@ class CTCMainWindow(QMainWindow):
                 # table
                 arrival_time = strftime("%H:%M", strptime(ctime(stop.arrival_time)))
                 departure_time = strftime("%H:%M", strptime(ctime(stop.departure_time)))
-                dispatch_train_schedule.setItem(i, 2, QTableWidgetItem(arrival_time))
+                dispatch_train_schedule.setItem(i, 1, QTableWidgetItem(arrival_time))
 
-                dispatch_train_schedule.setItem(i, 3, QTableWidgetItem(departure_time))
+                dispatch_train_schedule.setItem(i, 2, QTableWidgetItem(departure_time))
 
         # self.arrival_time_list[self.current_line_id()].setTime(arrival_time)
 
     def list_stops_to_destination(self, selected_id) -> None:
         line_id = self.dispatch_train_tab_widget.currentIndex()
         dispatch_train_schedule = self.dispatch_train_schedule_list[self.dispatch_train_tab_widget.currentIndex()]
+        dispatch_train_schedule.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
+        dispatch_train_schedule.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
 
         # handles the double tracked sections
         if selected_id >= 1:
@@ -433,12 +442,20 @@ class CTCMainWindow(QMainWindow):
         dispatch_train_schedule.setRowCount(0)
         if selected_id != 0:
             for stop in self.route[:-1]:
+
+
+
                 stop_name = self.stop_name(line_id, stop)
                 row_number = dispatch_train_schedule.rowCount()
                 dispatch_train_schedule.insertRow(row_number)
 
+                selected_stop_table_item = QTableWidgetItem(stop_name)
+                selected_stop_table_item.setText(stop_name)
+                selected_stop_table_item.setFlags(PyQt6.QtCore.Qt.ItemFlag.ItemIsUserCheckable | PyQt6.QtCore.Qt.ItemFlag.ItemIsEnabled)
+                selected_stop_table_item.setCheckState(PyQt6.QtCore.Qt.CheckState.Checked)
+
                 station_name = QTableWidgetItem(stop_name)
-                dispatch_train_schedule.setItem(row_number, 1, station_name)
+                dispatch_train_schedule.setItem(row_number, 0, selected_stop_table_item)
 
         row_number = dispatch_train_schedule.rowCount()
         dispatch_train_schedule.insertRow(row_number)
@@ -449,7 +466,7 @@ class CTCMainWindow(QMainWindow):
         last_stop_name = self.stop_name(line_id, last_stop)
         print(last_stop_name)
         last_stop_widget_item = QTableWidgetItem(last_stop_name)
-        dispatch_train_schedule.setItem(row_number, 1, last_stop_widget_item)
+        dispatch_train_schedule.setItem(row_number, 0, last_stop_widget_item)
 
     def select_line_to_dispatch(self, line_button) -> None:
         line = self.dispatch_train_tab_widget.currentIndex()
@@ -466,9 +483,9 @@ class CTCMainWindow(QMainWindow):
 
     def mode_switch_handler(self, mode):
         modes = ["Automatic Mode", "Manual Mode", "Maintenance Mode"]
-        self.mode = mode
+        self.ctc.mode = mode
         # disable automatic mode on switch from auto mode.
-        if (mode == 1 or mode == 2):
+        if mode == MANUAL_MODE or mode == MAINTENANCE_MODE:
             self.ctc_mode_select.model().item(0).setEnabled(False)
 
         print("CTC Switched to %s." % modes[mode])

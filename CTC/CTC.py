@@ -1,5 +1,6 @@
 import threading
 
+from CTC.CTCConstants import *
 from CTC.CTCSchedule import CTCSchedule
 from CTC.Train import Train
 from CTC.Track import *
@@ -14,6 +15,10 @@ class CTC(QObject):
 
     def __init__(self, system_time: SystemTime, track_controller_container_ref: TrackControllerContainer):
         super().__init__()
+
+        self.mode = AUTOMATIC_MODE
+
+
         self.system_time = system_time
         self.track_controller_ref = track_controller_container_ref
 

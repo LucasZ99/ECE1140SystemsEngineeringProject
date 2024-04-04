@@ -4,14 +4,16 @@ import threading
 
 from PyQt6.QtWidgets import QApplication
 
+from SystemTime import SystemTimeContainer
 from Train_Controller_SW import trainControllerSW
 from Train_Controller_SW.trainControllerSWUI import UI
 
 
 class TrainControllerSWContainer:
 
-    def __init__(self):
-        self.trainCtrl = trainControllerSW.TrainController()
+    def __init__(self, system_time_container: SystemTimeContainer):
+        self.system_time = system_time_container.system_time
+        self.trainCtrl = trainControllerSW.TrainController(self.system_time)
         self.outputs = list()
         self.cabin_temp = 68
         # actions for automatic mode launch
@@ -32,8 +34,6 @@ class TrainControllerSWContainer:
         app.exec()
 
     # receiver functions
-
-    #  end point for train sending new values
     def updatevalues(self, inputs):
 
         # update values, perform all new calcs, and send back list of new values
@@ -41,32 +41,6 @@ class TrainControllerSWContainer:
         self.cabin_temp = self.trainCtrl.getcabintemp()
 
         return
-
-    def actspeedfromtrain(self, newspeed):
-        self.trainCtrl.actualSpeed = newspeed
-        # self.trainCtrl.powercontrol
-        return
-
-    def cmdspeedfromtrain(self, newcmdspd):
-        pass
-
-    def authorityfromtrain(self, auth):
-        pass
-
-    def passebrakefromtrain(self, newpassbrake):
-        pass
-
-    def polarityfromtrain(self, newpolarity):
-        pass
-
-    def doorsidefromtrain(self, newdoor):
-        pass
-
-    def undergroundfromtrain(self, newunder):
-        pass
-
-    def beaconfromtrain(self, newbeacon):
-        pass
 
 
 def main():
