@@ -51,13 +51,13 @@ class TrackModelContainer(QObject):
     # Receiving inputs
 
     def update_authority(self, authority: list[int]):
-        print('update authority called')
+        print('track model update authority called')
         self.track_model.update_authority(authority)  # update our track model object
         print(f'yard block authority track model is using: {authority[61]}')
-        if authority[63]:
+        if authority[61]:
             self.train_model_container.add_train()
-        self.train_model_container.track_model_inputs(
-            [self.track_model.get_tm_speed, self.track_model.get_tm_authority], 1)  # send new info to train model
+            self.train_model_container.track_model_inputs(
+                [self.track_model.get_tm_speed, self.track_model.get_tm_authority], 1)  # send new info to train model
 
     def update_speed(self, speed: list[float]):
         print('update speed called')
@@ -105,7 +105,7 @@ class TrackModelContainer(QObject):
 
     # Catching signals
     def train_spawned(self, index):
-        print('train spawned called')
+        print('train spawned called from track model container')
         self.track_model.train_spawned()
         self.train_model_container.track_update_block([
             self.track_model.get_tm_grade(index),
