@@ -298,7 +298,7 @@ class HW_UI_JEB382_PyFirmat():
         self.polarity = self.TrainModel_arr[4]
         
         self.stat_Dside=0
-        
+
         distance_to_station=0
         #add up all block's length allowed by authority (num of blocks)
         #Line0, Section1, Block Num2, Block Len3, SpeedLimit4, Infrastructure5, Station Side6
@@ -307,7 +307,7 @@ class HW_UI_JEB382_PyFirmat():
             particular_line = linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum+i).split("\t")
             #print(f"LINE: {particular_line}")
             distance_to_station += int(particular_line[3])
-            
+
             if particular_line[5][:7] == "STATION":
                 app_stat=particular_line[5][9:]
                 #print(particular_line[5][9:])
