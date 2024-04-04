@@ -31,7 +31,11 @@ class UITrain(QMainWindow):
         # declare the train object
         self.business_logic = bus
         self.train_dict = self.business_logic.train_list
-        self.index = 0
+        self.index: int
+        if len(self.train_dict.keys()) == 0:
+            self.index = 0
+        else:
+            self.index = min(self.train_dict.keys())
 
 
 
@@ -135,6 +139,7 @@ class UITrain(QMainWindow):
         self.tb = False
         self.ebp = False
         self.switching_trains = False
+        self.vals_update = False
 
         self.business_logic.values_updated.connect(self.values_updated)
         self.business_logic.temp_updated.connect(self.index_update)
@@ -174,7 +179,10 @@ class UITrain(QMainWindow):
 
     def values_updated(self):
         print("im in values_updated")
+        self.vals_update = True
         self.populate_values()
+        self.vals_update = False
+
     def index_update(self, index):
         string = str(self.trainSelect.currentText())
         if int(string[6:]) == index:
@@ -272,12 +280,12 @@ class UITrain(QMainWindow):
         self.ebp = False
 
     def sbrake_change(self):
-        if not self.switching_trains:
+        if not (self.switching_trains or self.vals_update):
             self.train_dict[self.index].brakes.toggle_service_brake()
             self.populate_values()
 
     def dbrake_change(self):
-        if not self.switching_trains:
+        if not (self.switching_trains or self.vals_update):
             self.train_dict[self.index].brakes.toggle_driver_ebrake()
             self.populate_values()
 
@@ -325,28 +333,30 @@ class UITrain(QMainWindow):
         self.populate_values()
 
     def ext_light_change(self):
-        if not self.switching_trains:
+        if not (self.switching_trains or self.vals_update):
             self.train_dict[self.index].interior_functions.toggle_exterior_lights()
             self.populate_values()
 
     def int_light_change(self):
-        if not self.switching_trains:
+        if not (self.switching_trains or self.vals_update):
             self.train_dict[self.index].interior_functions.toggle_interior_lights()
             self.populate_values()
 
     def left_door_change(self):
-        if not self.switching_trains:
+        if not (self.switching_trains or self.vals_update):
             self.train_dict[self.index].interior_functions.toggle_left_doors()
             self.populate_values()
 
     def right_door_change(self):
-        if not self.switching_trains:
+        if not (self.switching_trains or self.vals_update):
             self.train_dict[self.index].interior_functions.toggle_right_doors()
             self.populate_values()
 
     def populate_values(self):
         if self.index not in self.train_dict.keys():
             return
+
+        print("im here 1")
         self.powerValue.setText(f'{self.train_dict[self.index].engine.power: .2f} W')
         self.powerValue_tb.setText(f'{self.train_dict[self.index].engine.power: .2f}')
 
@@ -400,6 +410,7 @@ class UITrain(QMainWindow):
 
         self.widthValue.setText(f'{self.train_dict[self.index].train_const.width * self.feet_per_meter: .2f} ft')
         self.widthValue_tb.setText(f'{self.train_dict[self.index].train_const.width * self.feet_per_meter: .2f} ft')
+        print("im here 3")
 
         self.carsValue.setText(f'{self.train_dict[self.index].train_const.car_number}')
         self.carsValue_tb.setText(f'{self.train_dict[self.index].train_const.car_number}')
@@ -452,6 +463,7 @@ class UITrain(QMainWindow):
         else:
             self.rightDoorValue.setValue(0)
         self.rightDoorValue_tb.setChecked(self.train_dict[self.index].interior_functions.right_doors)
+        print("im here 2")
 
 
 # initialize the app

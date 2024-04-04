@@ -76,9 +76,10 @@ class ContainerTB(QMainWindow):
         lst = str(self.trackInput.text()).split(",", -1)
         if len(lst) != 2:
             return
+        # [commanded speed, vital authority]
         input_lst = list()
         input_lst.append(float(lst[0]))
-        input_lst.append(float(lst[0]))
+        input_lst.append(int(lst[0]))
         self.container.track_model_inputs(input_lst, 1)
 
     def controller_pressed(self):
