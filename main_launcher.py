@@ -1,6 +1,5 @@
 import sys
 import threading
-
 from PyQt6.QtWidgets import QApplication
 
 from launchercontainer import LauncherContainer
@@ -22,9 +21,12 @@ def run_launcher():
 
 
 def main():
-    launcher_thread = threading.Thread(target=run_launcher)
-    launcher_thread.start()
-    print("Hello")
+    try:
+        launcher_thread = threading.Thread(target=run_launcher)
+        launcher_thread.start()
+        print("Hello")
+    except Exception as e:
+        print(e)
 
 
 if __name__ == "__main__":

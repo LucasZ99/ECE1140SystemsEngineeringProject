@@ -1,4 +1,4 @@
-from PyQt6.QtCore import QObject
+from PyQt6.QtCore import QObject, pyqtSlot
 from PyQt6.QtWidgets import QApplication
 
 from SystemTime.SystemTime import SystemTime
@@ -22,6 +22,7 @@ class SystemTimeContainer(QObject):
         self.ui = SystemTimeUi()
 
         self.ui.multiplier_value_updated_signal.connect(self.multiplier_value_updated)
+        self.ui.toggle_play_pause_signal.connect(self.toggle_play_pause)
         print("before ui show")
         self.ui.show()
         print("After ui show")
@@ -29,6 +30,14 @@ class SystemTimeContainer(QObject):
         # if app_flag is True:
         app.exec()
 
+    @pyqtSlot(bool)
+    def toggle_play_pause(self, play_pause_bool: bool):
+        if play_pause_bool is True:
+            self.system_time.play()
+        else:
+            self.system_time.pause()
+
+    @pyqtSlot(float)
     def multiplier_value_updated(self, multiplier: float):
         self.system_time.set_multiplier(multiplier)
         print(f"multiplier: {multiplier}")

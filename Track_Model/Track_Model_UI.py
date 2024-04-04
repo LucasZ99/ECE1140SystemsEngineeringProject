@@ -6,12 +6,13 @@ from PyQt6.QtWidgets import (
     QFrame, QHeaderView, QAbstractScrollArea
 )
 from PyQt6.QtGui import QIcon
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, pyqtSignal
 from Track_Model.animated_toggle import AnimatedToggle
 import sys
 from Track_Model.Track_Model import TrackModel
 from Track_Model.dynamic_map import DynamicMap
 from Track_Model.Track_Model_TB_UI import TestBenchWindow
+
 
 
 ##############################
@@ -29,9 +30,10 @@ class Window(QMainWindow):
         self.setWindowIcon(QIcon("icon.jpg"))
         self.setWindowTitle("Track Model")
         self.setContentsMargins(20, 20, 20, 20)
-        self.resize(1920//2, 1080//2)
+        self.resize(1920 // 2, 1080 // 2)
         layout = QGridLayout()
-
+        # signals
+        self.track_model.refresh_map_signal.connect(self.refresh)
         # Style
         self.setStyleSheet("""
             QMainWindow{
@@ -50,16 +52,16 @@ class Window(QMainWindow):
                 subcontrol-position: top left; /* position at the top center */
                 padding: 0 3px;
             }
-            
+
             QTableWidget {
                 font: 12px;
                 gridline-color: black;
             }
-            
+
             QHeaderView {
                 font: 12px;
             }
-            
+
             QHeaderView::section {
                 font: 12px;
                 border: 1px solid black;
@@ -89,7 +91,7 @@ class Window(QMainWindow):
         self.table1_data = self.track_model.get_block_table(self.selected_section)
 
         m, n = self.table1_data.shape
-        self.table1.setRowCount(m-1)
+        self.table1.setRowCount(m - 1)
         self.table1.setColumnCount(7)
         self.table1.setHorizontalHeaderLabels(self.table1_data[0, :])
         self.table1.verticalHeader().setVisible(False)
@@ -97,7 +99,7 @@ class Window(QMainWindow):
 
         for i in range(1, m):
             for j in range(0, n):
-                self.table1.setItem(i-1, j, QTableWidgetItem(str(self.table1_data[i, j])))
+                self.table1.setItem(i - 1, j, QTableWidgetItem(str(self.table1_data[i, j])))
         ss_group_layout.addWidget(self.table1)
 
         # This more or less adjusts table size to valid width, but we want cell width to decrease
@@ -159,7 +161,7 @@ class Window(QMainWindow):
         fm_group_layout.addWidget(f2_title, 1, 0)
         fm_group_layout.addWidget(f3_title, 2, 0)
 
-        self.str_list_blocks = list(self.table1_data[1:, 0].astype(str))
+        self.str_list_blocks = list(self.track_model.get_data()[1:, 2].astype(str))
         self.combo1 = QComboBox()
         self.combo1.addItems(self.str_list_blocks)
         self.combo1.activated.connect(self.combo1_new_item_selected)
@@ -258,6 +260,8 @@ class Window(QMainWindow):
         m, n = self.track_model.get_data().shape
         self.map_table.setRowCount(m - 1)
         self.map_table.setColumnCount(n)
+        print(self.track_model.get_data()[0, :])
+        self.track_model.output_data_as_excel()
         self.map_table.setHorizontalHeaderLabels(self.track_model.get_data()[0, :])
         self.map_table.verticalHeader().setVisible(False)
         self.map_table.setMinimumWidth(300)
@@ -265,7 +269,6 @@ class Window(QMainWindow):
         for i in range(1, m):
             for j in range(0, n):
                 self.map_table.setItem(i - 1, j, QTableWidgetItem(str(self.track_model.get_data()[i, j])))
-        ss_group_layout.addWidget(self.map_table)
 
         map_layout.addWidget(self.map_table)
         self.map_group.setLayout(map_layout)
@@ -285,14 +288,14 @@ class Window(QMainWindow):
     # Event Handlers
     ##############################
     def display_slider_value(self):
-        self.slider_label.setText("Environmental Temperature:\n" + str(self.sender().value()) + "°F")
+        self.slider_label.setText(str(self.sender().value()) + "°F")
         # self.slider_label.adjustSize()  # Expands label size as numbers get larger
         self.track_model.set_env_temperature(self.sender().value())
         if self.sender().value() <= 32:  # could check current heater value, but no need
             self.track_model.set_heaters(1)  # we do not use bool b/c we need NaN value for non-heater blocks
         else:
             self.track_model.set_heaters(0)
-        self.section_refresh()  # we could write a new function for only refreshing tables 1&3, but no need
+        self.refresh()  # we could write a new function for only refreshing tables 1&3, but no need
 
     def getFileName(self):
         # file browser dialog
@@ -338,7 +341,7 @@ class Window(QMainWindow):
         block = int(self.combo1.currentText())
         val = int(self.toggle1.isChecked())
         self.track_model.set_power_failure(block, val)
-        self.data_and_tables_refresh()
+        self.refresh()
 
     def combo2_new_item_selected(self):
         # sets the value of the toggle based on the value from our data
@@ -349,7 +352,7 @@ class Window(QMainWindow):
         block = int(self.combo2.currentText())
         val = int(self.toggle2.isChecked())
         self.track_model.set_track_circuit_failure(block, val)
-        self.data_and_tables_refresh()
+        self.refresh()
 
     def combo3_new_item_selected(self):
         # sets the value of the toggle based on the value from our data
@@ -360,7 +363,7 @@ class Window(QMainWindow):
         block = int(self.combo3.currentText())
         val = int(self.toggle3.isChecked())
         self.track_model.set_broken_rail_failure(block, val)
-        self.data_and_tables_refresh()
+        self.refresh()
 
     def data_and_tables_refresh(self):
         # data
@@ -387,7 +390,6 @@ class Window(QMainWindow):
         for i in range(0, m):
             for j in range(0, n):
                 self.table3.setItem(i, j, QTableWidgetItem(str(self.table3_data[i, j])))
-
 
     def section_refresh(self):
         # data
@@ -424,6 +426,13 @@ class Window(QMainWindow):
         self.combo2.addItems(self.str_list_blocks)
         self.combo3.addItems(self.str_list_blocks)
 
+    def refresh(self):
+        # MAP FOR TESTING
+        m, n = self.track_model.get_data().shape
+        for i in range(1, m):
+            for j in range(0, n):
+                self.map_table.setItem(i - 1, j, QTableWidgetItem(str(self.track_model.get_data()[i, j])))
+
     def test_bench_button_clicked(self):
         self.test_bench_window.apply_clicked.connect(self.on_apply_clicked)
         self.test_bench_window.show()
@@ -448,6 +457,7 @@ class Window(QMainWindow):
 
         # refresh tables
         self.section_refresh()
+
 ##############################
 # Run app
 ##############################
@@ -456,3 +466,4 @@ class Window(QMainWindow):
 # window = Window()
 # window.show()
 # sys.exit(app.exec())
+

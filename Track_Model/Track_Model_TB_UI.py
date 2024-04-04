@@ -206,7 +206,6 @@ class TestBenchWindow(QWidget):
         block = int(self.combo4.currentText())
         val = int(self.toggle4.isChecked())
         self.train_presence[block-1] = val
-        print(self.train_presence)
 
     def apply_button_clicked(self):
         self.apply_clicked.emit(

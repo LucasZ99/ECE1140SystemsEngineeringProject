@@ -30,7 +30,7 @@ class SystemTime(QObject):
                 if python_time.time() >= start_time + self.__update_interval:
                     break
 
-            self.__sys_time += self.__update_interval
+            self.__sys_time += 1
             self.update_time_signal.emit()
 
     def __del__(self):
@@ -40,6 +40,12 @@ class SystemTime(QObject):
     def time(self) -> float:
         sys_time = self.__sys_time
         return sys_time
+
+    def play(self):
+        pass
+
+    def pause(self):
+        pass
 
     def set_multiplier(self, multiplier: float) -> None:
         self.__scale = multiplier

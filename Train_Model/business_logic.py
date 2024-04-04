@@ -11,4 +11,8 @@ class TrainBusinessLogic(QObject):
     temp_updated = pyqtSignal(int)
     train_added = pyqtSignal(int)
     train_removed = pyqtSignal(int)
+    ui_updates = pyqtSignal()
+    
+    def __init__(self):
+        super().__init__()
 

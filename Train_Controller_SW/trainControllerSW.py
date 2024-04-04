@@ -1,8 +1,6 @@
 import numpy as np
 import time
 
-from PyQt6.QtWidgets import QApplication
-
 # import train_model_container
 
 
@@ -47,7 +45,7 @@ class TrainController:
         self.doorR = bool(0)  # door control for right side doors: 0 close, 1 opened (default 0)
 
         # cabin environment, as inputs from train model
-        self.cabinTemp = float(67)  # cabin thermostat temp as float, in Fahrenheit (default 67)
+        self.cabinTemp = float(68)  # cabin thermostat temp as float, in Fahrenheit (default 68)
 
         # environment information, as inputs from train model / beacon
         self.station = str("")  # station name, parsed from beacon / static data
@@ -69,7 +67,7 @@ class TrainController:
         self.speedLim = float(31.0686)  # speed limit of the current block, 50 kmh in mph, blue line speed lim
         self.vitalAuth = float(10)  # vital authority for the train, as passed from wayside controller
         self.passEBrake = bool(0)  # passenger emergency brake as bool: 0 off, 1 on
-        self.circuitPolarity = bool(0)  # track circuit state: 0 left, 1 right
+        self.polarity = bool(0)  # track circuit state: 0 left, 1 right
         self.beacon = str("")  # 128 byte message, as passed from track model
 
         # train vital control, derived from train model inputs or driver/engineer inputs
@@ -89,10 +87,6 @@ class TrainController:
 
         self.makeAnnouncement = bool(0)  # if announcement is to be made: 0 no, 1 yes
 
-        self.outputs = dict(cmd_speed=self.cmdSpeed, power=self.power, service_brake=self.servBrake,
-                            emergency_brake=self.eBrake, door_side=self.doorSide, annoucement=self.makeAnnouncement,
-                            cabin_lights=self.intLights, headlights=self.extLights)
-
     def settestbenchstate(self, newtestbenchstate):
         self.testBenchState = newtestbenchstate
         return
@@ -106,14 +100,6 @@ class TrainController:
 
     def setvitalauth(self, newvitalauth):
         self.vitalAuth = newvitalauth
-        return
-
-    def setaccellim(self, newaccellim):
-        self.accelLim = newaccellim
-        return
-
-    def setdecellim(self, newdecellim):
-        self.decelLim = newdecellim
         return
 
     def setbeacon(self, newbeacon):
@@ -142,7 +128,7 @@ class TrainController:
     def ebrakecontrol(self):
         if self.eBrake == 0:  # ebrake is off
             self.eBrake = 1  # enable ebrake
-            self.setPtSpeed = 0  # set speed of train to 0
+            self.power = 0  # kill power
         elif self.eBrake == 1:  # ebrake is on
             self.eBrake = 0  # disable ebrake
         return
@@ -150,7 +136,7 @@ class TrainController:
     def passebrakecontrol(self):
         if self.passEBrake == 0:  # ebrake is off
             self.passEBrake = 1  # enable ebrake
-            self.setPtSpeed = 0  # set speed of train to 0
+            self.power = 0  # kill power
         elif self.passEBrake == 1:  # ebrake is on
             self.passEBrake = 0  # disable ebrake
         return
@@ -173,6 +159,9 @@ class TrainController:
         self.cabinTemp = temp
         return
 
+    def getcabintemp(self):
+        return self.cabinTemp
+
     def doorcontrol(self):
         if self.doorState == 0:  # doors are closed
             self.doorState = 1  # doors will be opened
@@ -192,11 +181,11 @@ class TrainController:
             self.doorR = self.doorState
         return
 
-    def circuitpolaritycontrol(self):
-        if self.circuitPolarity == 0:  # track is negative
-            self.circuitPolarity = 1  # switch to positive
-        elif self.circuitPolarity == 1:  # track is positive
-            self.circuitPolarity = 0  # switch to negative
+    def polaritycontrol(self):
+        if self.polarity == 0:  # track is negative
+            self.polarity = 1  # switch to positive
+        elif self.polarity == 1:  # track is positive
+            self.polarity = 0  # switch to negative
         return
 
     def signalfailcontrol(self):
@@ -221,13 +210,19 @@ class TrainController:
         return
 
     def parsebeacon(self, beaconinfo):
-        pass
+        print("reading beacon")
 
-    def failhandler(self):
+    def testbenchcontrol(self):
+        if self.testBenchState == 0:
+            self.testBenchState = 1
+        elif self.testBenchState == 1:
+            self.testBenchState = 0
+
+    def failhandler(self):  # i will not be needing this actually, fails will be handled as reactions to other inputs
         if self.signalFail == 1 or self.engineFail == 1 or self.brakeFail == 1:
-            self.setPtSpeed = 0
+            self.power = 0
 
-    def automode(self):
+    def automode(self):  # deprecated in IT3, used in IT2 for testing.
         for i in range(0, 7):
             # power cmd = ek * kp + uk * ki, converted to mph rounded to 3 decimal places
             self.power = round(((self.arr[i, 2]*self.kp + self.arr[i, 0]*self.ki)/745.7), 3)
@@ -257,21 +252,26 @@ class TrainController:
     def ms2mph(self, ms):
         return ms * self.mph2ms
 
-    def updatetrain(self):
+    def updater(self, inputs):
+        # called from train controller container when train sends new values
+        # perform all calculations for new values here and update output array
+
+        # update all values
+        self.actualSpeed = inputs[0]
+        self.currSpeed = inputs[1]
+        self.vitalAuth = inputs[2]
+        self.passEBrake = inputs[3]
+        self.polarity = inputs[4]
+        self.isUnderground = inputs[5]
+        self.beacon = inputs[6]
+
+        # TODO call control functions here
+
         # update all values in output array and call train model container update function
         # reference adjacent container (train model cntr)
         # call update function to inject new values to train model
-        # 8 el array + cabin temp
-        self.outputs["cmd_speed"] = self.cmdSpeed
-        self.outputs["power"] = self.power
-        self.outputs["service_brake"] = self.servBrake
-        self.outputs["emergency_brake"] = self.eBrake
-        self.outputs["door_side"] = self.doorSide
-        self.outputs["announcement"] = self.makeAnnouncement
-        self.outputs["cabin_lights"] = self.intLights
-        self.outputs["headlights"] = self.extLights
+        # 8 el list + cabin temp
+        outputs = list[self.cmdSpeed, self.power, self.servBrake, self.eBrake, self.doorSide, self.makeAnnouncement,
+                       self.intLights, self.extLights]
 
-        # send stuff to trainModel (uncomment when integrating)
-        # trainModel.train_controller_inputs(self.outputs, 0)
-        # trainModel.controller_update_temp(self.cabinTemp, 0)
-        return
+        return outputs
