@@ -275,7 +275,6 @@ class TrackModel(QObject):
         self.train_count += 1
         self.train_dict_relative[self.train_count] = 0
         self.train_dict[self.train_count] = self.full_path[0]
-        self.set_occupancy_from_train_presence()
         print(f'new train spawned, train_count = {self.train_count}')
 
     def train_presence_changed(self, train_id: int):
@@ -304,47 +303,46 @@ class TrackModel(QObject):
 
     # train model
 
-    def get_tm_authority(self, train_id: int) -> list[int]:
+    def get_tm_authority(self, train_id: int) -> int:
         block_id = self.train_dict[train_id]
-        return self.authority[block_id]
+        return int(self.authority[block_id])
 
-    def get_tm_speed(self, train_id: int) -> list[float]:
+    def get_tm_speed(self, train_id: int) -> float:
         block_id = self.train_dict[train_id]
-        return self.speed[block_id]
+        return float(self.speed[block_id])
 
     def get_tm_beacon(self, train_id: int) -> str:
         block_id = self.train_dict[train_id]
-        return self.data[block_id, 11]
+        return str(self.data[block_id, 11])
 
     def get_tm_grade(self, train_id: int) -> int:
         block_id = self.train_dict[train_id]
-        return self.data[block_id, 4]
+        return int(self.data[block_id, 4])
 
     def get_tm_elevation(self, train_id: int) -> float:
         block_id = self.train_dict[train_id]
-        return self.data[block_id, 6]
+        return float(self.data[block_id, 6])
 
     def get_tm_underground_status(self, train_id: int) -> bool:
         block_id = self.train_dict[train_id]
-        return self.data[block_id, 20]
+        return bool(self.data[block_id, 20])
 
     def get_tm_embarking_passengers(self, train_id: int) -> int:
         block_id = self.train_dict[train_id]
-        return self.data[block_id, 17]
+        return int(self.data[block_id, 17])
     
     def get_tm_block_length(self, train_id: int):
         block_id = self.train_dict[train_id]
-        return self.data[block_id, 3]
+        return int(self.data[block_id, 3])
 
     # ctc (technically still track controller)
-    def emit_ctc_ticket_sales(self) -> list[bool]:
+    def emit_ctc_ticket_sales(self) -> int:
         self.new_ticket_sales_signal.emit(self.ticket_sales)
-        return self.ticket_sales
+        return int(self.ticket_sales)
 
-# TODO: Section J will not exist, replace it with yard
-# TODO: refresh tables from UI in container every time setters are called
-# TODO: for getters, emit a signal in track model to track model container for track controller container to catch
-# Maybe give train model length if it struggles to calculate polarity
+# Section J will not exist, replace it with yard
+# refresh tables from UI in container every time setters are called
+# for getters, emit a signal in track model to track model container for track controller container to catch
 
 # temp main
 # t = TrackModel('Blue Line.xlsx')
