@@ -82,8 +82,7 @@ class CTCMainWindow(QMainWindow):
             # Arrival Time
 
             dispatch_train_arrival_time_widget = DispatchArrivalTime(self.system_time)
-            dispatch_train_arrival_time_widget.get_time_box_widget().timeChanged.connect(
-                self.validate_destination_select)
+            dispatch_train_arrival_time_widget.get_time_box_widget().timeChanged.connect(self.calculate_route_arrival_times)
 
             self.arrival_time_list.append(dispatch_train_arrival_time_widget.get_time_box_widget())
 
@@ -91,7 +90,7 @@ class CTCMainWindow(QMainWindow):
 
             dispatch_train_departure_time_widget = DispatchDepartureTime(self.system_time)
             dispatch_train_departure_time_widget.get_time_box_widget().timeChanged.connect(
-                self.validate_destination_select)
+                self.calculate_route_arrival_times)
             # dispatch_train_departure_time_widget.get_time_box_widget().textChanged.connect(self.departure_time_updated)
             self.departure_time_list.append(dispatch_train_departure_time_widget.get_time_box_widget())
             self.departure_time_list[id].timeChanged.connect(self.departure_time_updated)
