@@ -20,6 +20,7 @@ class CTCMainWindowViewModel:
         self.current_line_selected_id = 0
         self.selected_destination_id = 0
 
+
 class CTCMainWindow(QMainWindow):
     def __init__(self, ctc: CTC, system_time: SystemTime):
         super(CTCMainWindow, self).__init__()
@@ -30,7 +31,6 @@ class CTCMainWindow(QMainWindow):
 
         self.scheduled_trains: list[Train] = self.ctc.get_scheduled_trains()
         self.running_trains: list[Train] = self.ctc.get_running_trains()
-
 
         ########### SLOTS for CTC SIGNALS ###############
         self.system_time.update_time_signal.connect(self.update_time)
@@ -232,8 +232,6 @@ class CTCMainWindow(QMainWindow):
 
         block_table_layout.addWidget(self.block_table)
 
-
-
         ctc_main_right_side_bottom.addItem(block_table_layout)
 
         ctc_throughput_layout = QVBoxLayout()
@@ -272,7 +270,6 @@ class CTCMainWindow(QMainWindow):
 
         # self.block_table.update(GREEN_LINE)
 
-
     def current_line_id(self):
         return self.dispatch_train_tab_widget.currentIndex()
 
@@ -286,7 +283,7 @@ class CTCMainWindow(QMainWindow):
         destination_select_id = self.destination_selector_list[self.current_line_id()].currentIndex()
 
         print("validate dest", selected_id, self.departure_time(), "   ", destination_select_id)
-        if selected_id == 0:
+        if selected_id < 1:
             self.dispatch_button_list[self.current_line_id()].setEnabled(False)
             self.clear_schedule()
         else:
@@ -350,12 +347,11 @@ class CTCMainWindow(QMainWindow):
         self.scheduled_trains_table.setRowCount(0)
 
     def stop_name(self, line_id: int, block_id: int) -> str:
-        stop_name = ""
+        block_id = abs(block_id)
         if block_id in STATIONS[line_id] != "":
-            stop_name = str(block_id) + "(STATION: %s)" % STATIONS[line_id][block_id]
+            stop_name = str(block_id) + " (STATION: %s)" % STATIONS[line_id][block_id]
         else:
             stop_name = str(block_id)
-
         return stop_name
 
     def update_schedule(self):
@@ -408,10 +404,12 @@ class CTCMainWindow(QMainWindow):
         # breakpoint()
 
         # arrival time is too short
-        if not Route.is_route_schedulable(self.current_line_id(), self.stops, departure_time, departure_time + Route.get_route_travel_time(self.stops)):
+        if not Route.is_route_schedulable(self.current_line_id(), self.stops, departure_time,
+                                          departure_time + Route.get_route_travel_time(self.stops)):
             arrival_time = departure_time + Route.get_route_travel_time(self.stops)
 
-        self.scheduled_stops = Route.schedule_route(self.current_line_id(), self.stops, departure_time, departure_time + Route.get_route_travel_time(self.stops))
+        self.scheduled_stops = Route.schedule_route(self.current_line_id(), self.stops, departure_time,
+                                                    departure_time + Route.get_route_travel_time(self.stops))
 
         for i, stop in enumerate(self.scheduled_stops):
             # table
@@ -428,36 +426,29 @@ class CTCMainWindow(QMainWindow):
         dispatch_train_schedule = self.dispatch_train_schedule_list[self.dispatch_train_tab_widget.currentIndex()]
 
         # handles the double tracked sections
-        if selected_id > 2:
-            self.route = Route.find_route(line_id, GREEN_LINE_YARD_SPAWN, PATH[GREEN_LINE][PATH[GREEN_LINE].index(selected_id - 2)])
-        # print(selected_id, PATH[GREEN_LINE][PATH[GREEN_LINE].index(selected_id - 2)])
-        # print(self.route)
+        if selected_id >= 1:
+            self.route = Route.find_route(line_id, GREEN_LINE_YARD_SPAWN, BLOCKS[GREEN_LINE][selected_id - 1])
 
         dispatch_train_schedule.setRowCount(0)
         if selected_id != 0:
             for stop in self.route[:-1]:
-                if stop in STATIONS[line_id]:
-                    stop_name = STATIONS[line_id][stop]
-                else:
-                    stop_name = ""
+                stop_name = self.stop_name(line_id, stop)
                 row_number = dispatch_train_schedule.rowCount()
                 dispatch_train_schedule.insertRow(row_number)
 
-                station_name = QTableWidgetItem(str(stop) + " (" + stop_name + ")")
+                station_name = QTableWidgetItem(stop_name)
                 dispatch_train_schedule.setItem(row_number, 1, station_name)
 
-        dispatch_train_schedule.insertRow(dispatch_train_schedule.rowCount())
+        row_number = dispatch_train_schedule.rowCount()
+        dispatch_train_schedule.insertRow(row_number)
+        print(self.route)
         last_stop = self.route[-1]
+        print("---------LAST STOP--------")
 
-        print(last_stop)
-
-        if last_stop in STATIONS[line_id]:
-            stop_name = STATIONS[line_id][last_stop]
-            station_name = QTableWidgetItem(str(last_stop) + " (" + stop_name + ")")
-        else:
-            station_name = QTableWidgetItem(str(last_stop))
-
-        dispatch_train_schedule.setItem(dispatch_train_schedule.rowCount(), 1, station_name)
+        last_stop_name = self.stop_name(line_id, last_stop)
+        print(last_stop_name)
+        last_stop_widget_item = QTableWidgetItem(last_stop_name)
+        dispatch_train_schedule.setItem(row_number, 1, last_stop_widget_item)
 
     def select_line_to_dispatch(self, line_button) -> None:
         line = self.dispatch_train_tab_widget.currentIndex()
