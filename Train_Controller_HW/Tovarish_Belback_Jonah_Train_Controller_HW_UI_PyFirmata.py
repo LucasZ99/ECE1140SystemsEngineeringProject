@@ -46,7 +46,7 @@ Pmax=10000
 Acc_Lim=0.5
 DeAcc_Lim=1.2#train spec page (1.20 is service brake)
 try:
-    board = ArduinoMega('COM7')
+    board = ArduinoMega('COM3')
     NoHW=False
 except:
     NoHW=True
@@ -489,7 +489,7 @@ class HW_UI_JEB382_PyFirmat():
             print("updateCalc")
             self.updateCalc()
             print("updateDisplay")
-            self.updateDisplay()
+            # self.updateDisplay()
             
             if __name__ != "__main__":
                 print(f"\nDriver TrainC #1:\t{self.Driver_arr}\t{'AUTO' if not self.Mode else 'MANUAL'}")
