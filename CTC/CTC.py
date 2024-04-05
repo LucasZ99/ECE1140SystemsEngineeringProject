@@ -66,10 +66,8 @@ class CTC(QObject):
             self.dispatched_trains.schedule_train(train_to_dispatch)
 
         for train_to_run in self.dispatched_trains.dispatch_trains():
-            update = True
             self.running_trains.append(train_to_run)
-            self.set_block_authority()
-            self.set_block_suggested_speeds()
+            update = update or self.set_block_authority() or self.set_block_suggested_speeds()
 
         if update:
             self.update_track_controller()
@@ -115,7 +113,7 @@ class CTC(QObject):
                                                   key=lambda train: train.get_destination().arrival_time)
         return sort_by_destination_arrival_time
 
-    def set_block_authority(self):
+    def set_block_authority(self) -> bool:
         print("CTC: authority function")
         for train in self.get_running_trains_sorted_by_priority():
             print(f"CTC: Train {train.id} is in block {train.current_block}.")
@@ -126,7 +124,9 @@ class CTC(QObject):
             self.authorities[train.get_previous_block()] = 0
             self.changed_authorities.append(train.get_previous_block())
 
-    def set_block_suggested_speeds(self):
+        return self.changed_authorities.__len__() > 0
+
+    def set_block_suggested_speeds(self) -> bool:
         for train in self.get_running_trains_sorted_by_priority():
             for block in train.get_next_blocks():
                 block_speed_limit = LENGTHS_SPEED_LIMITS[train.line_id][block][SPEED_LIMIT]
@@ -136,6 +136,8 @@ class CTC(QObject):
                 self.changed_speeds.append(block)
             self.suggested_speeds[train.get_previous_block()] = 0
             self.changed_speeds.append(train.get_previous_block())
+
+        return self.changed_speeds.__len__() > 0
 
     """
     Updates the position of each train based on the occupancies received from wayside
@@ -164,16 +166,17 @@ class CTC(QObject):
         self.lights[block_id] = signal_green
 
     def update_block_occupancy(self, line_id: int, block_id: int, occupied: bool):
+        update = False
         self.blocks[block_id] = occupied
         occupied_str = "occupied" if occupied else "vacant"
         print(f"CTC: Block {block_id} set to {occupied_str}.")
         for train in [running_train for running_train in self.running_trains if abs(running_train.current_block) == block_id]:
             print(f"CTC: Train {train.id} block status update.")
             self.update_train_position(line_id, train)
-            self.set_block_authority()
-            self.set_block_suggested_speeds()
+            update = update or self.set_block_authority() or self.set_block_suggested_speeds()
 
-        self.update_track_controller()
+        if update:
+            self.update_track_controller()
         self.update_ui_signal.emit()
 
     def update_railroad_crossing_status(self, line_id: int, block_id: int, crossing_activated: bool):
