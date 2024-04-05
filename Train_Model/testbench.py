@@ -129,7 +129,7 @@ class ContainerTB(QMainWindow):
         self.container.remove_train(max(self.container.train_list.keys()))
 
 
-contain = TrainModelContainer(TrainBusinessLogic(), TrainController_Tot_Container(True), SystemTimeContainer())
+contain = TrainModelContainer(TrainBusinessLogic(), TrainController_Tot_Container(SystemTimeContainer(), False), SystemTimeContainer())
 app = QApplication(sys.argv)
 ui = ContainerTB(contain)
 app.exec()

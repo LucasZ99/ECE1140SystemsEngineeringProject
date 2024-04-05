@@ -12,7 +12,7 @@ from Train_Model.block import Block
 
 class TrainModel:
     max_force = 48065.673
-    min_force = 127380.52
+    min_force = -127380.52
 
     def __init__(self, numid=0, cars=1):
         self.ID = numid
