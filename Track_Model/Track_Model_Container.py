@@ -50,21 +50,22 @@ class TrackModelContainer(QObject):
     # Track Controller
 
     # Receiving inputs
-
+    # TODO: every time train enters new block also update authority/speed
     def update_authority(self, authority: list[int]):
         print('track model update authority called')
         self.track_model.update_authority(authority)  # update our track model object
         print(f'yard block authority track model is using: {authority[61]}')
         if authority[61]:
             self.train_model_container.add_train()
-        if not self.track_model.get_train_dict():  # if train dict is not empty
-            print(f'track model is giving train model speed = {self.track_model.get_tm_speed(1)}, authority = {self.track_model.get_tm_authority(1)}')
-            self.train_model_container.track_model_inputs(
-                [self.track_model.get_tm_speed(1), self.track_model.get_tm_authority(1)], 1)  # send new info to train model
+
+        print(f'track model is giving train model speed = {self.track_model.get_tm_speed(1)}, authority = {self.track_model.get_tm_authority(1)}')
+        self.train_model_container.track_model_inputs(
+            [self.track_model.get_tm_speed(1), self.track_model.get_tm_authority(1)], 1)  # send new info to train model
 
     def update_speed(self, speed: list[float]):
         print('update speed called')
         self.track_model.update_speed(speed)  # update our track model object
+        print(f'track model is giving train model speed = {self.track_model.get_tm_speed(1)}, authority = {self.track_model.get_tm_authority(1)}')
         self.train_model_container.track_model_inputs(
             [self.track_model.get_tm_speed(1), self.track_model.get_tm_authority(1)], 1)  # send new info to train model
 
@@ -121,6 +122,7 @@ class TrackModelContainer(QObject):
     def train_presence_changed(self, index):
         print('train presence changed called')
         self.track_model.train_presence_changed(1)  # train id=1 for IT3
+        self.train_model_container.track_update_block([])
         self.train_model_container.track_update_block([
             self.track_model.get_tm_grade(index),
             self.track_model.get_tm_elevation(index),
@@ -128,5 +130,7 @@ class TrackModelContainer(QObject):
             self.track_model.get_tm_underground_status(index),
             self.track_model.get_tm_beacon(index)
         ], index)
+        self.train_model_container.track_model_inputs(
+            [self.track_model.get_tm_speed(1), self.track_model.get_tm_authority(1)], 1)  # send new info to train model
 
     # Sending outputs are done any time we get new authority/speed or enter a new block
