@@ -55,6 +55,9 @@ class TrackModel(QObject):
                           path_13_to_57)
         print(self.full_path)
 
+    def get_train_dict(self):
+        return self.train_dict
+
     def get_full_path(self):
         return self.full_path
 
