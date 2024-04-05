@@ -22,7 +22,20 @@ class Map(QWidget):
         pixmap = QPixmap('yellow_box.png')
         pixmap = pixmap.scaled(10, 10, Qt.AspectRatioMode.KeepAspectRatio)
         self.train.setPixmap(pixmap)
-        self.train.move(-10, -10)
+        self.train.move(54, 457)
+
+        self.train = QLabel(self)
+        pixmap = QPixmap('yellow_box.png')
+        pixmap = pixmap.scaled(10, 10, Qt.AspectRatioMode.KeepAspectRatio)
+        self.train.setPixmap(pixmap)
+        self.train.move(0, 0)
+
+        self.train = QLabel(self)
+        pixmap = QPixmap('yellow_box.png')
+        pixmap = pixmap.scaled(10, 10, Qt.AspectRatioMode.KeepAspectRatio)
+        self.train.setPixmap(pixmap)
+        self.train.move(0, 0)
+
         self.pixel_dict = {
             # a
             '1': (170, 16), '2': (182, 32), '3': (193, 45),
@@ -39,14 +52,14 @@ class Map(QWidget):
             # g
             '29': (48, 154), '30': (48, 168), '31': (48, 181), '32': (48, 195),
             # h
-            '33': (49, 190), '34': (62, 212), '35': (90, 218),
+            '33': (54, 205), '34': (62, 212), '35': (90, 218),
             # i
             '36': (100, 218), '37': (110, 218), '38': (120, 218), '39': (130, 218), '40': (140, 218), '41': (150, 218), '42': (160, 218), '43': (170, 218), '44': (180, 218), '45': (190, 218), '46': (200, 218), '47': (210, 218), '48': (220, 218), '49': (230, 218), '50': (240, 218), '51': (250, 218), '52': (260, 218), '53': (270, 218), '54': (280, 218), '55': (290, 218), '56': (300, 218), '57': (300, 218),
             # Skipping '58' to '62'
             # k
             '63': (354, 250), '64': (354, 288), '65': (354, 326), '66': (354, 364), '67': (354, 380), '68': (354, 400),
             # l
-            '69': (354,425), '70': (354, 450), '71': (), '72': (), '73': (300, 515),
+            '69': (354, 425), '70': (354, 450), '71': (345, 480), '72': (330, 500), '73': (300, 515),
             # m
             '74': (263, 515), '75': (226, 515), '76': (190, 515),
             # n
@@ -54,9 +67,9 @@ class Map(QWidget):
             # o
             '86': (55, 516), '87': (43, 515), '88': (25, 512),
             # p
-            '89': (), '90': (), '91': (), '92': (), '93': (), '94': (), '95': (), '96': (), '97': (),
+            '89': (9, 500), '90': (1, 480), '91': (4, 460), '92': (11, 443), '93': (25, 434), '94': (54, 457), '95': (47, 445), '96': (0, 0), '97': (60, 470),
             # q
-            '98': (), '99': (), '100': (),
+            '98': (0, 0), '99': (0, 0), '100': (0, 0),
             # r
             '101': (200, 495),
             # s
@@ -86,13 +99,12 @@ class Map(QWidget):
         # self.test_pix_dict()
 
     def move_box(self, x, y):
-        print('a')
         self.train.move(x, y)
-        print('b')
+
     def get_pix_dict(self):
         return self.pixel_dict
 
-
+# 33 95-100
 # app = QApplication(sys.argv)
 # w = Map()
 # w.show()

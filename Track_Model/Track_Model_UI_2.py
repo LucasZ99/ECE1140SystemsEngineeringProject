@@ -232,6 +232,7 @@ class Window(QMainWindow):
         self.move_block(self.full_path[self.counter])
 
     def move_block(self, num):
+        print(f'num: {num}')
         [x, y] = self.pix_dict[str(num)]
         self.map.move_box(x, y)
 
