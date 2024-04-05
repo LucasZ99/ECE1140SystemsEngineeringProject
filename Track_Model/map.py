@@ -4,6 +4,18 @@ from PyQt6.QtWidgets import QMainWindow, QApplication, QLabel, QWidget, QVBoxLay
 from PyQt6.QtCore import Qt
 import time
 
+class Train:
+    def __init__(self, current_block, train_id):
+        super(self).__init__()
+        self.current_block = current_block
+        self.train_id = train_id
+
+        self.train = QLabel(self)
+        pixmap = QPixmap('yellow_box.png')
+        pixmap = pixmap.scaled(10, 10, Qt.AspectRatioMode.KeepAspectRatio)
+        self.train.setPixmap(pixmap)
+        self.train.move(0, 0)
+
 
 class Map(QWidget):
     def __init__(self):
@@ -22,19 +34,19 @@ class Map(QWidget):
         pixmap = QPixmap('yellow_box.png')
         pixmap = pixmap.scaled(10, 10, Qt.AspectRatioMode.KeepAspectRatio)
         self.train.setPixmap(pixmap)
-        self.train.move(54, 457)
-
-        self.train = QLabel(self)
-        pixmap = QPixmap('yellow_box.png')
-        pixmap = pixmap.scaled(10, 10, Qt.AspectRatioMode.KeepAspectRatio)
-        self.train.setPixmap(pixmap)
         self.train.move(0, 0)
 
-        self.train = QLabel(self)
-        pixmap = QPixmap('yellow_box.png')
-        pixmap = pixmap.scaled(10, 10, Qt.AspectRatioMode.KeepAspectRatio)
-        self.train.setPixmap(pixmap)
-        self.train.move(0, 0)
+        # self.train = QLabel(self)
+        # pixmap = QPixmap('yellow_box.png')
+        # pixmap = pixmap.scaled(10, 10, Qt.AspectRatioMode.KeepAspectRatio)
+        # self.train.setPixmap(pixmap)
+        # self.train.move(45, 443)
+        #
+        # self.train = QLabel(self)
+        # pixmap = QPixmap('yellow_box.png')
+        # pixmap = pixmap.scaled(10, 10, Qt.AspectRatioMode.KeepAspectRatio)
+        # self.train.setPixmap(pixmap)
+        # self.train.move(60, 470)
 
         self.pixel_dict = {
             # a
@@ -67,7 +79,7 @@ class Map(QWidget):
             # o
             '86': (55, 516), '87': (43, 515), '88': (25, 512),
             # p
-            '89': (9, 500), '90': (1, 480), '91': (4, 460), '92': (11, 443), '93': (25, 434), '94': (54, 457), '95': (47, 445), '96': (0, 0), '97': (60, 470),
+            '89': (9, 500), '90': (1, 480), '91': (4, 460), '92': (11, 443), '93': (25, 434), '94': (45, 443), '95': (54, 457), '96': (60, 470), '97': (53, 453),
             # q
             '98': (0, 0), '99': (0, 0), '100': (0, 0),
             # r

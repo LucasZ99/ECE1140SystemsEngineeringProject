@@ -1,6 +1,8 @@
 import os
 import sys
 
+# TODO: one signal in and out, connected at head level
+
 from PyQt6.QtCore import QObject, pyqtSignal
 from PyQt6.QtWidgets import QApplication
 
@@ -57,7 +59,7 @@ class TrackModelContainer(QObject):
         print(f'yard block authority track model is using: {authority[61]}')
         if authority[61]:
             self.train_model_container.add_train()
-
+        print(f'track model got this authority from controller: {authority}')
         print(f'track model is giving train model speed = {self.track_model.get_tm_speed(1)}, authority = {self.track_model.get_tm_authority(1)}')
         self.train_model_container.track_model_inputs(
             [self.track_model.get_tm_speed(1), self.track_model.get_tm_authority(1)], 1)  # send new info to train model
@@ -65,6 +67,7 @@ class TrackModelContainer(QObject):
     def update_speed(self, speed: list[float]):
         print('update speed called')
         self.track_model.update_speed(speed)  # update our track model object
+        print(f'track model got this speed from controller: {speed}')
         print(f'track model is giving train model speed = {self.track_model.get_tm_speed(1)}, authority = {self.track_model.get_tm_authority(1)}')
         self.train_model_container.track_model_inputs(
             [self.track_model.get_tm_speed(1), self.track_model.get_tm_authority(1)], 1)  # send new info to train model
