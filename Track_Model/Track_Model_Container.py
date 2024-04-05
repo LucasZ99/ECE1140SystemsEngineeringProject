@@ -57,6 +57,8 @@ class TrackModelContainer(QObject):
         print(f'yard block authority track model is using: {authority[61]}')
         if authority[61]:
             self.train_model_container.add_train()
+        if not self.track_model.get_train_dict():  # if train dict is not empty
+            print(f'track model is giving train model speed = {self.track_model.get_tm_speed(1)}, authority = {self.track_model.get_tm_authority(1)}')
             self.train_model_container.track_model_inputs(
                 [self.track_model.get_tm_speed(1), self.track_model.get_tm_authority(1)], 1)  # send new info to train model
 
