@@ -228,12 +228,15 @@ class Window(QMainWindow):
         self.refresh()
 
     def test_bench_button_clicked(self):
-        self.counter += 1
-        self.move_block(self.full_path[self.counter])
+        print('Testing Benchmark')
+        self.map.populate_map({1: 63, 2: 120})
+        print('passed')
+        # self.counter += 1
+        # self.move_block(self.full_path[self.counter])
 
     def move_block(self, num):
         print(f'num: {num}')
-        [x, y] = self.pix_dict[str(num)]
+        [x, y] = self.pix_dict[num]
         self.map.move_box(x, y)
 
     def refresh(self):
