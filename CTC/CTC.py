@@ -119,10 +119,12 @@ class CTC(QObject):
             print(f"CTC: Train {train.id} is in block {train.current_block}.")
             for block in train.get_next_authorities():
                 print(f"CTC: Block {block[0]} authority set to : {block[1]}")
-                self.authorities[block[0]] = block[1]
-                self.changed_authorities.append(block[0])
-            self.authorities[train.get_previous_block()] = 0
-            self.changed_authorities.append(train.get_previous_block())
+                if self.authorities[block[0]] != block[1]:
+                    self.authorities[block[0]] = block[1]
+                    self.changed_authorities.append(block[0])
+                if self.authorities[train.get_previous_block()] != 0:
+                    self.authorities[train.get_previous_block()] = 0
+                    self.changed_authorities.append(train.get_previous_block())
 
         return self.changed_authorities.__len__() > 0
 
