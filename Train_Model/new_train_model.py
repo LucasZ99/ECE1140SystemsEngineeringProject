@@ -46,6 +46,7 @@ class TrainModel:
         return self.train_const.train_mass() + self.crew.mass_of_people() + self.passengers.mass_of_people()
 
     def update_blocks(self, input_list):
+        self.track_circuit = not self.track_circuit
         self.old_block = self.new_block
         self.new_block.update_all_values(input_list)
 

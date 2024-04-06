@@ -9,7 +9,8 @@ from PyQt6.QtWidgets import (QMainWindow, QApplication, QLabel, QPushButton, QGr
 
 import random
 
-from Train_Model import TrainModel, TrainBusinessLogic
+from Train_Model import TrainBusinessLogic
+from SystemTime import SystemTimeContainer
 
 
 class UITrain(QMainWindow):
@@ -17,7 +18,7 @@ class UITrain(QMainWindow):
     tons_per_kilogram = 0.00110231
     feet_per_meter = 3.28084
 
-    def __init__(self, bus=TrainBusinessLogic()):
+    def __init__(self, bus=TrainBusinessLogic(SystemTimeContainer())):
         super(UITrain, self).__init__()
 
         # load the ui file
@@ -30,7 +31,7 @@ class UITrain(QMainWindow):
 
         # declare the train object
         self.business_logic = bus
-        self.train_dict = self.business_logic.train_list
+        self.train_dict = self.business_logic.train_dict
         self.index: int
         if len(self.train_dict.keys()) == 0:
             self.index = 0
@@ -252,7 +253,6 @@ class UITrain(QMainWindow):
         if not self.switching_trains:
             self.train_dict[self.index].acceleration = float(self.accValue_tb.text()) / self.feet_per_meter
             self.populate_values()
-            self.business_logic.ui_updates.emit()
 
     def speed_change(self):
         self.train_dict[self.index].set_velocity(float(self.speedValue_tb.text()) * 5280 / self.feet_per_meter / 3600)
@@ -277,7 +277,6 @@ class UITrain(QMainWindow):
             if not self.ebp:
                 self.train_dict[self.index].brakes.toggle_passenger_ebrake()
                 self.populate_values()
-                self.business_logic.ui_updates.emit()
         self.ebp = False
 
     def sbrake_change(self):
@@ -320,17 +319,14 @@ class UITrain(QMainWindow):
     def rec_speed_changed(self):
         self.train_dict[self.index].signals.set_commanded_speed(float(self.recSpeedValue_tb.text()), self.train_dict[self.index].failure.signal_pickup_failure)
         self.populate_values()
-        self.business_logic.ui_updates.emit()
 
     def auth_changed(self):
         self.train_dict[self.index].signals.set_authority(int(self.authValue_tb.text(), 16), self.train_dict[self.index].failure.signal_pickup_failure)
         self.populate_values()
-        self.business_logic.ui_updates.emit()
 
     def beacon_changed(self):
         self.train_dict[self.index].signals.beacon = self.beaconValue_tb.text()
         self.populate_values()
-        self.business_logic.ui_updates.emit()
 
     def temp_change(self):
         self.train_dict[self.index].heater.update_target(float(self.tempValue_tb.text()))
@@ -358,7 +354,7 @@ class UITrain(QMainWindow):
 
     def populate_values(self):
         print("pop values")
-        self.train_dict = self.business_logic.train_list
+        self.train_dict = self.business_logic.train_dict
         if self.index not in self.train_dict.keys():
             return
 
