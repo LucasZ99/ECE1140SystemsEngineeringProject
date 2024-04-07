@@ -53,7 +53,7 @@ class TrackModel(QObject):
         # Combining all paths, with explicit jumps where needed
         self.full_path = (path_62_to_100 + path_85_to_77 + path_101_to_150 + path_28_to_13 + path_12_to_1 +
                           path_13_to_57)
-        print(self.full_path)
+        # print(self.full_path)
 
     def get_train_dict(self):
         return self.train_dict
@@ -364,7 +364,8 @@ class TrackModel(QObject):
         # self.data[block_id, (13, 14, 15)]
         # TODO: switch, station, rxr crossing
         # self.data[block_id, ]
-        return self.data[(3, 4, 5, 6, 7, 11, 12, 20, 13, 14, 15)]
+        # print(self.data[block_id, (3, 4, 5, 6, 7, 11, 12, 20, 13, 14, 15)])
+        return self.data[block_id, (3, 4, 5, 6, 7, 11, 12, 20, 13, 14, 15)]
 
 # Section J will not exist, replace it with yard
 # refresh tables from UI in container every time setters are called

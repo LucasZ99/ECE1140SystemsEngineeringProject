@@ -8,7 +8,6 @@ from PyQt6.QtWidgets import QApplication
 
 from Track_Model.Track_Model import TrackModel
 from Track_Model.Track_Model_UI import Window
-from Train_Model import TrainModelContainer
 
 
 class TrackModelContainer(QObject):
@@ -17,19 +16,15 @@ class TrackModelContainer(QObject):
     new_block_occupancy_signal = pyqtSignal(list)
     new_ticket_sales_signal = pyqtSignal(int)
 
-    def __init__(self, train_model_container: TrainModelContainer):
+    def __init__(self):
         super().__init__()
-        self.train_model_container = train_model_container
-
         self.track_model = TrackModel("./Track_Model/Green Line.xlsx")
         self.track_model_ui = Window(self.track_model)
 
-        # connect internal signals
+        # connect internal signals (from object)
         self.track_model.new_block_occupancy_signal.connect(self.new_block_occupancy)
         self.track_model.new_ticket_sales_signal.connect(self.new_ticket_sales)
-        # connect external signals
-        self.train_model_container.new_train_added.connect(self.train_spawned)
-        self.train_model_container.train_enters_new_block.connect(self.train_presence_changed)
+        # connect external signal
 
     # show ui
     def show_ui(self):
@@ -40,9 +35,7 @@ class TrackModelContainer(QObject):
             app = QApplication([])  # If QApplication instance doesn't exist, create a new one
             # app_flag = True
 
-        print("before ui show")
         self.track_model_ui.show()
-        print("After ui show")
 
         # if app_flag is True:
         app.exec()
