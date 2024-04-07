@@ -442,9 +442,6 @@ class CTCMainWindow(QMainWindow):
         dispatch_train_schedule.setRowCount(0)
         if selected_id != 0:
             for stop in self.route[:-1]:
-
-
-
                 stop_name = self.stop_name(line_id, stop)
                 row_number = dispatch_train_schedule.rowCount()
                 dispatch_train_schedule.insertRow(row_number)
