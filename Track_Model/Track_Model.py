@@ -354,6 +354,18 @@ class TrackModel(QObject):
         self.new_ticket_sales_signal.emit(self.ticket_sales)
         return int(self.ticket_sales)
 
+    # new UI getters
+    def get_block_info(self, block_id):
+        # # length, grade, speed lim, elevation
+        # self.data[block_id, (3, 4, 5, 6)]
+        # # occupied, beacon, track heated, underground
+        # self.data[block_id, (7, 11, 12, 20)]
+        # # failures 13 14 15
+        # self.data[block_id, (13, 14, 15)]
+        # TODO: switch, station, rxr crossing
+        # self.data[block_id, ]
+        return self.data[(3, 4, 5, 6, 7, 11, 12, 20, 13, 14, 15)]
+
 # Section J will not exist, replace it with yard
 # refresh tables from UI in container every time setters are called
 # for getters, emit a signal in track model to track model container for track controller container to catch

@@ -134,8 +134,16 @@ class Window(QMainWindow):
         self.upload_layout_group.setLayout(ul_layout)
 
         # block view
-        self.block_view_layout_group = QGroupBox("View Blocks")
+        self.block_view_layout_group = QGroupBox("Block Info")
         bv_layout = QVBoxLayout()
+
+        # TODO: Use get_block_info any time combobox is changed
+        self.block_info_combo = QComboBox()
+        self.block_info_combo.addItems(self.str_list_blocks)
+        self.block_info_combo.activated.connect(self.new_block_info)
+        self.block_info_combo.setFixedSize(50, 25)
+        bv_layout.addWidget(self.block_info_combo)
+        # self.track_model.get_block_info()
 
         self.block_view_layout_group.setLayout(bv_layout)
         # map
@@ -233,6 +241,10 @@ class Window(QMainWindow):
         print('passed')
         # self.counter += 1
         # self.move_block(self.full_path[self.counter])
+
+    def new_block_info(self):
+        # Change label here
+        pass
 
     def move_block(self, num):
         print(f'num: {num}')
