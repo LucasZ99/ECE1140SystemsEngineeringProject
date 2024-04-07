@@ -26,7 +26,7 @@ class LauncherContainer(QObject):
         self.ctc_container = CTCContainer(self.time_module)
 
         # Connect signals between modules
-        self.track_controller_container.update_wayside_from_ctc.connect(self.ctc_container.update_ctc_from_wayside_signal)
+        self.ctc_container.update_wayside_from_ctc.connect(self.ctc_container.update_wayside_from_ctc)
 
     def init_launcher_ui(self):
         app = QApplication.instance()

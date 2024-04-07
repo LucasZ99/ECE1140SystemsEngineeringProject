@@ -12,7 +12,7 @@ from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
 
 class CTC(QObject):
     update_ui_signal = pyqtSignal()
-    update_wayside_from_ctc_signal = pyqtSignal(list[tuple[int, int, float]], bool, list[tuple[int, bool]], list)
+    update_wayside_from_ctc_signal = pyqtSignal(list, bool, list, list)
 
     def __init__(self, system_time: SystemTime, track_controller_container_ref: TrackControllerContainer):
         super().__init__()

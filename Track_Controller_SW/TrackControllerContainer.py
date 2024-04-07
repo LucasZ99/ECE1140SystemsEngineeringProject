@@ -14,8 +14,6 @@ class TrackControllerContainer(QObject):
     occupancy_updated_signal = pyqtSignal(list)
 
     def __init__(self, track_model: TrackModelContainer):
-        # Signal from CTC
-        update_wayside_from_ctc = pyqtSlot(list[tuple[int, int, float]], bool, list[tuple[int, bool]], list)
         # initialize track data
         super().__init__()
 
@@ -80,7 +78,7 @@ class TrackControllerContainer(QObject):
         self.track_model.new_block_occupancy_signal.connect(self.update_occupancy)
 
     # CTC Endpoints
-    @pyqtSlot(list[tuple[int, int, float]], bool, list[tuple[int, bool]], list)
+    @pyqtSlot(list, bool, list, list)
     def update_wayside_from_ctc(self, authority_speed_update: list[tuple[int, int, float]],
                                 maintenance_mode_override_flag: bool,
                                 blocks_to_close_open: list[tuple[int, bool]],
