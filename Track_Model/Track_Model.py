@@ -367,6 +367,11 @@ class TrackModel(QObject):
         # print(self.data[block_id, (3, 4, 5, 6, 7, 11, 12, 20, 13, 14, 15)])
         return self.data[block_id, (3, 4, 5, 6, 7, 11, 12, 20, 13, 14, 15)]
 
+    def get_block_info_for_train(self, train_id):
+        block = self.train_dict[train_id]
+        return self.data[block, (4, 6, 20, 11)].tolist()
+        # grade elevation underground_status beacon
+
 # Section J will not exist, replace it with yard
 # refresh tables from UI in container every time setters are called
 # for getters, emit a signal in track model to track model container for track controller container to catch

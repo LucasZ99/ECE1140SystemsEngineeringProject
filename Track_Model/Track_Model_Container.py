@@ -13,8 +13,10 @@ from Track_Model.Track_Model_UI import Window
 class TrackModelContainer(QObject):
 
     # Signals
-    new_block_occupancy_signal = pyqtSignal(list)
-    new_ticket_sales_signal = pyqtSignal(int)
+    update_train_model_from_track_model = pyqtSignal(list, list, bool)
+    update_ctc_from_track_model = pyqtSignal(int)
+    # new_block_occupancy_signal = pyqtSignal(list)
+    # new_ticket_sales_signal = pyqtSignal(int)
 
     def __init__(self):
         super().__init__()
@@ -25,6 +27,7 @@ class TrackModelContainer(QObject):
         self.track_model.new_block_occupancy_signal.connect(self.new_block_occupancy)
         self.track_model.new_ticket_sales_signal.connect(self.new_ticket_sales)
         # connect external signal
+
 
     # show ui
     def show_ui(self):
@@ -129,4 +132,19 @@ class TrackModelContainer(QObject):
         self.train_model_container.track_model_inputs(
             [self.track_model.get_tm_speed(1), self.track_model.get_tm_authority(1)], 1)  # send new info to train model
 
-    # Sending outputs are done any time we get new authority/speed or enter a new block
+    def update_track_model_from_wayside(self, authority_safe_speed_update):
+        # update track model
+
+        # update train_model
+        # TODO
+        # change authority_safe_speed_update to be train based instead of block based
+        # TODO
+        # get new block info from track_model for each train
+        train_dict = self.train_model.get_train_dict()
+        block_info_dict = {}
+        for key in train_dict:
+            block_info_dict[key] = self.track_model.get_block_info_for_train(key)
+        self.update_train_model_from_track_model.emit(authority_safe_speed_update, block_info_dict)
+
+    def update_track_model_from_train_model(self):
+        pass
