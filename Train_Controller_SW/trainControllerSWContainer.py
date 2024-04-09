@@ -35,23 +35,25 @@ class TrainControllerSWContainer:
 
     # receiver functions
     def updatevalues(self, inputs, num=0):
+        print("updating train values")
         print(num)
         if num == 0:
-            self.trainCtrl.old_updater(inputs)
+            self.outputs = self.trainCtrl.old_updater(inputs)
         elif num < 1 and num > 3:
             print("update type out of range")
         else:
-            self.trainCtrl.updater(inputs, num)
+            self.outputs = self.trainCtrl.updater(inputs, num)
 
         # update values, perform all new calcs, and send back list of new values
-        self.outputs = self.trainCtrl.updater(inputs)
+        # self.outputs = self.trainCtrl.updater(inputs)
         self.cabin_temp = self.trainCtrl.getcabintemp()
 
         return
 
 
 def main():
-    trainctrlcntr = TrainControllerSWContainer()
+    system_time = SystemTimeContainer()
+    trainctrlcntr = TrainControllerSWContainer(system_time)
     trainctrlcntr.show_ui()
 
 
