@@ -3,10 +3,11 @@ from PyQt6.QtWidgets import QApplication
 from CTC import CTC, GREEN_LINE, TRACK
 from CTC.CTC_UI_Main import CTCMainWindow
 from SystemTime import SystemTimeContainer
-from Track_Controller_SW import TrackControllerContainer, Switch
+from Track_Controller_SW import TrackControllerContainer, Switch, Light, RRCrossing
 
 
 class CTCContainer(QObject):
+    # TODO: you need to define the types here
     update_ctc_from_wayside_signal = pyqtSignal()
 
     def __init__(self, system_time_container: SystemTimeContainer):
@@ -36,11 +37,17 @@ class CTCContainer(QObject):
                                 maintenance_mode_override_flag: bool,
                                 blocks_to_close_open: list[tuple[int, bool]],
                                 updated_switches: list[Switch]):
+        # TODO: Update authority_speed_update to be a TrackSignal before emitting the signal
+        # TODO: Define the types for this signal at the top of this file
         self.update_ctc_from_wayside_signal.emit(authority_speed_update,
                                                  maintenance_mode_override_flag,
                                                  blocks_to_close_open,
                                                  updated_switches)
 
-    @pyqtSlot(list[tuple[int, int]])
-    def update_ctc_from_wayside(self):
+    @pyqtSlot(dict[int, bool], list, list, list)
+    def update_ctc_from_wayside(self,
+                                block_occupancy_update: dict[int, bool],
+                                switch_positions: list[Switch],
+                                light_states: list[Light],
+                                rr_crossing_states: list[RRCrossing]):
         pass
