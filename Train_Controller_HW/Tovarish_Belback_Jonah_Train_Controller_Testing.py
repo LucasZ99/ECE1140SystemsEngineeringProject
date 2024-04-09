@@ -98,18 +98,18 @@ def pass_ebreak_enable(folder):
     trainCtrl.TrainModel_arr[3] = True #passenger brake
     Endcase *= PTSD_test(file, "PASSENGER EBRAKE: CHANGE1", trainCtrl.TrainModel_arr[3], True)
     trainCtrl.updateCalc()
-    Endcase *= PTSD_test(file, "PASSENGER EBRAKE: AUTO", trainCtrl.output_arr[3], True,Controller=trainCtrl)
+    Endcase *= PTSD_test(file, "PASSENGER EBRAKE: AUTO", trainCtrl.output_arr[3], True, Controller=trainCtrl)
     
     trainCtrl.TrainModel_arr[3] = False #passenger brake
     Endcase *= PTSD_test(file, "PASSENGER EBRAKE: CHANGE2", trainCtrl.TrainModel_arr[3], False)
     trainCtrl.updateCalc()
-    Endcase *= PTSD_test(file, "PASSENGER EBRAKE: REMOVED", trainCtrl.output_arr[3], False,Controller=trainCtrl)
+    Endcase *= PTSD_test(file, "PASSENGER EBRAKE: REMOVED", trainCtrl.output_arr[3], False, Controller=trainCtrl)
     
     trainCtrl.TrainModel_arr[3] = True #passenger brake
     Endcase *= PTSD_test(file, "PASSENGER EBRAKE: CHANGE3", trainCtrl.TrainModel_arr[3], True)
     trainCtrl.Mode = True
     trainCtrl.updateCalc()
-    Endcase *= PTSD_test(file, "PASSENGER EBRAKE: MANUAL", trainCtrl.output_arr[3], True,Controller=trainCtrl)
+    Endcase *= PTSD_test(file, "PASSENGER EBRAKE: MANUAL", trainCtrl.output_arr[3], True, Controller=trainCtrl)
     
     #----------------------------------------------
     #Endcase
@@ -120,7 +120,7 @@ def pass_ebreak_enable(folder):
     print(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>")
 
 
-
+#----------------------------------------------
 #Driver can disable Passenger Brake's effect in any mode
 def driver_disable_pass(folder):
     #prints, prep log
@@ -158,7 +158,7 @@ def driver_disable_pass(folder):
     print(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>")
 
 
-
+#----------------------------------------------
 #Driver can enable ebrake in any mode
 def driver_ebreak_enable(folder):
     #prints, prep log
@@ -196,7 +196,7 @@ def driver_ebreak_enable(folder):
     print(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>")
 
 
-
+#----------------------------------------------
 #Driver can enable service brake in manual mode only
 def driver_sbreak_enable(folder):
     #prints, prep log
@@ -234,7 +234,7 @@ def driver_sbreak_enable(folder):
     print(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>")
 
 
-
+#----------------------------------------------
 #Driver can change door state when train is stopped in manual mode
 def driver_door(folder):
     #prints, prep log
@@ -272,7 +272,7 @@ def driver_door(folder):
     print(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>")
 
 
-
+#----------------------------------------------
 #Train opens stationside door when train is stopped in auto mode
 def train_door(folder):
     #prints, prep log
@@ -310,7 +310,7 @@ def train_door(folder):
     print(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>")
 
 
-
+#----------------------------------------------
 #Driver can enable interior lights in manual when it is otherwise off
 def driver_int_lights(folder):
     #prints, prep log
@@ -348,7 +348,7 @@ def driver_int_lights(folder):
     print(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>")
 
 
-
+#----------------------------------------------
 #Driver can enable exterior lights in manual mode when it is otherwise off.
 def driver_ext_lights(folder):
     #prints, prep log
@@ -386,7 +386,7 @@ def driver_ext_lights(folder):
     print(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>")
 
 
-
+#----------------------------------------------
 #Power is zero without authority
 def zero_pow_auth(folder):
     #prints, prep log
@@ -424,7 +424,7 @@ def zero_pow_auth(folder):
     print(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>")
 
 
-
+#----------------------------------------------
 #Power is zero without commanded speed
 def zero_pow_cmdspd(folder):
     #prints, prep log
@@ -462,7 +462,7 @@ def zero_pow_cmdspd(folder):
     print(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>")
 
 
-
+#----------------------------------------------
 #Enable of Emergency brake turns off service brake
 def brake_overturn(folder):
     #prints, prep log
@@ -500,7 +500,7 @@ def brake_overturn(folder):
     print(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>")
 
 
-
+#----------------------------------------------
 #Turn on both lights when given lack of ambient light in both modes
 def amb_light_on(folder):
     #prints, prep log
@@ -538,7 +538,7 @@ def amb_light_on(folder):
     print(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>")
 
 
-
+#----------------------------------------------
 #turn off both lights when given ambient light in both mode, unless enabled by driver in manual
 def amb_light_off(folder):
     #prints, prep log
@@ -576,7 +576,7 @@ def amb_light_off(folder):
     print(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>")
 
 
-
+#----------------------------------------------
 #Train calculates correct stopping distance with current speed
 def stop_dist(folder):
     #prints, prep log
@@ -614,7 +614,7 @@ def stop_dist(folder):
     print(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>")
 
 
-
+#----------------------------------------------
 #Train enables service brake within correct stopping distance
 def sbrake_dist(folder):
     #prints, prep log
@@ -652,7 +652,7 @@ def sbrake_dist(folder):
     print(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>")
 
 
-
+#----------------------------------------------
 #Train enables emergency brake if it cant stop in time
 def ebrake_dist(folder):
     #prints, prep log
@@ -690,7 +690,7 @@ def ebrake_dist(folder):
     print(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>")
 
 
-
+#----------------------------------------------
 #Train gives station when in the block
 def announce_stat_block(folder):
     #prints, prep log
@@ -728,7 +728,7 @@ def announce_stat_block(folder):
     print(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>")
 
 
-
+#----------------------------------------------
 #Driver can adjust Temperature in any mode within limit
 def driver_temp(folder):
     #prints, prep log
@@ -767,7 +767,7 @@ def driver_temp(folder):
 
 
 
-
+#----------------------------------------------
 #must be done by a person manually
 '''#HW: correct buttons correspond to correct changes in driver array
 def pass_break_enable(folder):
