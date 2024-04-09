@@ -123,10 +123,13 @@ class ContainerTB(QMainWindow):
         self.container.add_train()
 
     def remove_trn(self):
-        self.container.remove_train(max(self.container.train_dict.keys()))
+        try:
+            self.container.remove_train(max(self.container.train_dict.keys()))
+        except Exception as error:
+            print(error)
 
 
-contain = TrainModelContainer(TrainController_Tot_Container(SystemTimeContainer(), False), SystemTimeContainer())
+contain = TrainModelContainer(TrainController_Tot_Container(SystemTimeContainer()), SystemTimeContainer())
 app = QApplication(sys.argv)
 ui = ContainerTB(contain)
 app.exec()
