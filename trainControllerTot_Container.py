@@ -7,6 +7,7 @@ from PyQt6.QtCore import pyqtSlot, pyqtSignal, QObject
 
 from Train_Controller_SW.trainControllerSWContainer import TrainControllerSWContainer
 from Train_Controller_HW.trainControllerHWContainer import TrainControler_HW_Container
+from Train_Controller_SW.trainControllerSWUI import UI
 from SystemTime import SystemTimeContainer
 
 
@@ -24,17 +25,16 @@ from SystemTime import SystemTimeContainer
 class TrainController_Tot_Container(QObject):
 
     # Signals
-    #new_train_values_signal = pyqtSignal(list, int)
-    #new_train_temp_signal = pyqtSignal(float, int)
+    # new_train_values_signal = pyqtSignal(list, int)
+    # new_train_temp_signal = pyqtSignal(float, int)
     # sam connect these signals to your respective update train model values command
 
     def __init__(self, system_time_container: SystemTimeContainer):
         super().__init__()
         
         self.system_time = system_time_container
-        self.Contrl_list = []
-        self.HW_exist=False
-        
+        self.ctrl_list = []
+        self.HW_exist = False
 
     '''#return HW/SW Contrainer; Ware: True=SWm False=HW
     def new_train_controller(self,ware=True):
@@ -43,21 +43,39 @@ class TrainController_Tot_Container(QObject):
         self.Contrl_list.append(trainCtrl)
         return trainCtrl'''
     
-    #return HW/SW Contrainer
+    # return HW/SW Container
     def new_train_controller(self):
         if self.HW_exist:
             trainCtrl = TrainControllerSWContainer(self.system_time)
         else:
-            self.HW_exist=True
+            self.HW_exist = True
             trainCtrl = TrainControler_HW_Container(self.system_time)
-        self.Contrl_list.append(trainCtrl)
+        self.ctrl_list.append(trainCtrl)
         return trainCtrl
-    
 
+    # gonna need a show ui method for the list of sw controllers
+    # not sure we will want to handle the hw ui though...
 
-def TrainC_main(system_time,type=True):
+    # like this maybe ? vvv
+    def show_hwui(self):
+        pass
+
+    def show_swui(self):
+        app = QApplication.instance()
+
+        if app is None:
+            app = QApplication([])
+
+        self.ui = UI()
+
+        self.ui.show()  # this unresolved reference is fine
+        # self.ui.refreshengine()
+
+        app.exec()
+
+def TrainC_main(system_time, type=True):
     trainctrlcntr = TrainController_Tot_Container(system_time)
-    cntrl = trainctrlcntr.new_train_controller(type)
+    cntrl = trainctrlcntr.new_train_controller()  # removed (type) as parameter
     while True: cntrl.show_ui()
 
 

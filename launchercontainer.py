@@ -17,7 +17,7 @@ class LauncherContainer(QObject):
     def __init__(self):
         super().__init__()
         self.time_module = SystemTimeContainer()
-        self.trainControllerContainer = TrainController_Tot_Container(self.time_module, False)
+        self.trainControllerContainer = TrainController_Tot_Container(self.time_module)
 
         self.train_model_container = TrainModelContainer(self.trainControllerContainer, self.time_module)
         self.track_model_container = TrackModelContainer(train_model_container=self.train_model_container)
@@ -80,15 +80,13 @@ class LauncherContainer(QObject):
 
     def open_train_controller_SW_ui(self):
         print("Open Train Controller SW UI Signal received")
-        if self.trainControllerContainer.Ware != True:
-            self.trainControllerContainer = TrainController_Tot_Container(self.time_module,True)
-        self.trainControllerContainer.show_ui()
+        self.trainControllerContainer = TrainController_Tot_Container(self.time_module)
+        self.trainControllerContainer.show_swui()
 
     def open_train_controller_HW_ui(self):
         print("Open Train Controller HW UI Signal received")
-        if self.trainControllerContainer.Ware != False:
-            self.trainControllerContainer = TrainController_Tot_Container(self.time_module,False)
-        self.trainControllerContainer.show_ui()
+        self.trainControllerContainer = TrainController_Tot_Container(self.time_module)
+        self.trainControllerContainer.show_hwui()
 
     def open_train_model_ui(self):
         print("Open Train Model UI Signal received")

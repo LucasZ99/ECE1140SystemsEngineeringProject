@@ -267,7 +267,7 @@ class TrainController:
             self.power = 0
 
     def powercontrol(self):
-        if self.stopsoon == False:  # do power checks and calcs, train doesn't need to stop
+        if not self.stopsoon:  # do power checks and calcs, train doesn't need to stop
 
             if self.nextspeedlim < self.speedlim:
                 self.power = 0  # kill power
@@ -368,48 +368,34 @@ class TrainController:
         self.update_time = self.system_time.time()
 
         if num == 1:
-            print("update type 1 values: authority and cmd speed")
+            print("update type 1 values (authority safe speed): authority and cmd speed")
             self.vitalAuth = inputs[0]  # authority is distance to destination
             print(self.vitalAuth)
             print(inputs[0])
-            #print("authority changed")
+
             self.cmdSpeed = inputs[1]
             print(self.cmdSpeed)
-            #print("cmmd speed changed")
+
             # distance control
             self.vitalitycheck()
             self.authority()
-            #print("authority controlled")
         elif num == 2:
-            print("update type 2 values: polarity, underground, beacon")
+            print("update type 2 values (track info): polarity, underground, beacon")
             # check if in new block and update block values
             self.polaritycontrol(inputs[0])
             self.isUnderground = inputs[1]
-            #print("undregrounded")
             self.beacon = inputs[2]
-            #print("beaconed")
         elif num == 3:
-            print("update type 3 values: actual speed, passenger e-brake")
+            print("update type 3 values (train info): actual speed, passenger e-brake")
             self.actualSpeed = inputs[0]
-            #print("actual speeded")
-            # ebrake control here
             self.passEBrake = inputs[1]
-            #print("ebraked")
+
             # power stuff
             self.powercontrol()
-            #print("powered")
 
         print(f'power is {self.power}')
 
-        # update all values in output array and call train model container update function
-        # reference adjacent container (train model cntr)
-        # call update function to inject new values to train model
-        # 8 el list + cabin temp
-        outputs = [self.cmdSpeed, self.power, self.servBrake, self.eBrake, self.doorSide, self.makeAnnouncement,
-                   self.intLights, self.extLights]
-        print("all values updated")
-
-        return outputs
+        return
 
     def old_updater(self, inputs):
         print("train controller values being updated in old")
@@ -459,3 +445,15 @@ class TrainController:
         print("all values updated")
 
         return outputs
+
+    def update_train_model_from_train_controller(self):
+
+        # update all values in output array and call train model container update function
+        # reference adjacent container (train model cntr)
+        # call update function to inject new values to train model
+        # 8 el list + cabin temp
+
+        outputs = [self.power, self.servBrake, self.eBrake, self.doorSide, self.makeAnnouncement,
+                   self.intLights, self.extLights, self.cabinTemp]
+        return outputs
+
