@@ -174,7 +174,7 @@ class Window(QMainWindow):
         # failure combo/toggle
         self.failure_combo = QComboBox()
         self.failure_combo.addItems(self.str_list_blocks)
-        self.failure_comboactivated.connect(self.failure_combo_updated)
+        self.failure_combo.activated.connect(self.failure_combo_updated)
         self.block_view_layout_group.setLayout(bv_layout)
         self.failure_toggle = AnimatedToggle()
         self.failure_toggle.setFixedSize(self.failure_toggle.sizeHint())
