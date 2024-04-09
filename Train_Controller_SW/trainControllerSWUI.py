@@ -13,11 +13,13 @@ from PyQt6.uic import loadUi
 
 
 class UI(QMainWindow):
-    def __init__(self, trainctrl):
+    def __init__(self, ctrl_list):
         super(UI, self).__init__()
 
         # create train object
-        self.trainctrl = trainctrl
+        self.ctrl_list = ctrl_list
+        self.trainctrl = self.ctrl_list[1]  # like this i think i hope, inits with first train ctrl in list
+        # TODO update values function when trainctrl is changed in drop down list
 
         # took from lucas (Track_Controller_SW/TrackController.UI), thank you Lucas
         current_dir = os.path.dirname(__file__)
@@ -51,7 +53,7 @@ class UI(QMainWindow):
         self.currSpeed.setText(f'{self.trainctrl.actualSpeed}')
         self.power.setText(f'{self.trainctrl.power}')
         self.setPtSpeed.setValue(int(self.trainctrl.setPtSpeed))
-        #self.train_list.addItems(train_list)  # TODO when reload tot container
+        #self.train_list.addItems(ctrl_list)
 
         # TODO make connections
         self.testBench.clicked.connect(self.testingbench)
@@ -334,7 +336,10 @@ class UI(QMainWindow):
             print(i)
             time.sleep(5)
 
-    # TODO setpt speed from driver, service brake, power calcs, speed calcs and checks, beacon
+    def changetrain(self):
+        self.train_list.clear()
+        self.train_list.add(self.ctrl_list)  # how does this update when new ctrl is added in container..
+        # probably gonna have to use a signal for ^^, looking into it
 
 def main():
     # initialize the app
