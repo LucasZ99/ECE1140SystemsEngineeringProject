@@ -10,6 +10,17 @@ from Train_Controller_HW.trainControllerHWContainer import TrainControler_HW_Con
 from SystemTime import SystemTimeContainer
 
 
+
+#one container
+#main reason is to give Train Model a train controller object
+    #(.newtc(): return a trainCtrl
+#keep track of number given
+#if first: HW else: SW
+#keep list
+#pass back list
+
+
+
 class TrainController_Tot_Container(QObject):
 
     # Signals
@@ -17,20 +28,26 @@ class TrainController_Tot_Container(QObject):
     new_train_temp_signal = pyqtSignal(float, int)
     # sam connect these signals to your respective update train model values command
 
-    def __init__(self, system_time_container: SystemTimeContainer, ware: bool=True):
-
+    def __init__(self, system_time_container: SystemTimeContainer):
         super().__init__()
-        # Ware:
-        # False: HW
-        # True:  SW
-        self.Ware = ware
+        
         self.system_time = system_time_container
-        if ware:
-            self.trainCtrl = TrainControllerSWContainer(self.system_time)
-        else:
-            self.trainCtrl = TrainControler_HW_Container(self.system_time)
+        self.Contrl_list = []
+        
 
-    def show_ui(self):
+    #return HW/SW Contrainer; Ware: True=SWm False=HW
+    def new_train_controller(self,ware=True):
+        if ware: trainCtrl = TrainControllerSWContainer(self.system_time)
+        else: trainCtrl = TrainControler_HW_Container(self.system_time)
+        self.Contrl_list.append(trainCtrl)
+        return trainCtrl
+        
+        
+
+
+
+
+    '''def show_ui(self):
         self.trainCtrl.show_ui()
 
     #  receiver functions
@@ -82,12 +99,7 @@ class TrainController_Tot_Container(QObject):
         self.new_train_values_signal.emit(self.trainCtrl.outputs, 1)
         self.new_train_temp_signal.emit(self.trainCtrl.cabin_temp, 1)
 
-        return
-
-    # TrainModel
-    # def updatevalues(self, inputs):
-    #     # [actual speed, authority, received speed, pbrake, track circuit, underground, beacon]
-    #     return self.trainCtrl.updatevalues(inputs)
+        return'''
 
 
 def TrainC_main(system_time,type=True):
