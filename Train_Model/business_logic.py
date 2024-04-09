@@ -1,14 +1,16 @@
 from PyQt6.QtCore import pyqtSignal, QObject, pyqtSlot
 from SystemTime import SystemTimeContainer
 from Train_Model.new_train_model import TrainModel
+from trainControllerTot_Container import TrainController_Tot_Container
 
 
 class TrainBusinessLogic(QObject):
 
     # declare signals
     num_cars = 1
-    train_dict = dict()
-    passenger_return = dict()
+    train_dict: dict
+    delta_x_return: dict
+    passenger_return: dict
     values_updated = pyqtSignal()
     block_updated = pyqtSignal(int)
     passengers_updated = pyqtSignal(int)
@@ -69,8 +71,8 @@ class TrainBusinessLogic(QObject):
             return
         if not (index in self.train_dict.keys()):
             return
-        self.passenger_return[index] = self.train_dict[index].passengers.update_at_station(num, self.train_dict[
-            index].train_const.max_passengers())
+        self.passenger_return[index] = self.train_dict[index].passengers.update_at_station(num, self.train_dict[index].
+                                                                                           train_const.max_passengers())
         self.passengers_updated.emit(index)
 
     def controller_update_temp(self, num, index):
@@ -85,17 +87,17 @@ class TrainBusinessLogic(QObject):
         interval = self.time_keeper.system_time.time() - self.time
         self.time = self.time_keeper.system_time.time()
         for i in self.train_dict:
-            self.train_dict[i].physics_calculation(interval)
+            self.delta_x_return[i] = self.train_dict[i].physics_calculation(interval)
         self.values_updated.emit()
 
-    def add_train(self):
+    def add_train(self, controller_container: TrainController_Tot_Container):
         self.time = self.time_keeper.system_time.time()
         if len(self.train_dict) == 0:
-            self.train_dict[1] = TrainModel(1, self.num_cars)
+            self.train_dict[1] = TrainModel(controller_container, 1, self.num_cars)
             index = 1
         else:
             index = max(self.train_dict.keys()) + 1
-            self.train_dict[index] = TrainModel(index, self.num_cars)
+            self.train_dict[index] = TrainModel(controller_container, index, self.num_cars)
         self.train_added.emit(index)
 
     def remove_train(self, index):
