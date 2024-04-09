@@ -150,7 +150,7 @@ class UI(QMainWindow):
     def init_occupancy(self) -> None:
         self.block_indexes = copy(self.business_logic.block_indexes)
         self.block_number.clear()
-        for index, occupancy in zip(self.business_logic.block_indexes, self.business_logic.occupancy_list):
+        for index, occupancy in zip(self.business_logic.block_indexes, self.business_logic.occupancy_dict):
             # for occupancy in self.business_logic.occupancy_list:
             item = QListWidgetItem(str(index) + " " + str(occupancy))
             self.block_number.addItem(item)

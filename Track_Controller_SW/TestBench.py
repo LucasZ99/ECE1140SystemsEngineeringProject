@@ -21,7 +21,7 @@ class TbMainWindow(QMainWindow):
         try:
             self.business_logic = business_logic
             self.block_list = copy(business_logic.block_indexes)
-            self.occupancy_list = copy(business_logic.occupancy_list)
+            self.occupancy_list = copy(business_logic.occupancy_dict)
             self.switches_list = copy(business_logic.switches_list)
 
             self.setObjectName("MainWindow")

@@ -1,25 +1,26 @@
 from PyQt6.QtCore import QObject, pyqtSignal
 from PyQt6.QtCore import pyqtSlot
 
+from Track_Controller_SW import Light
 from Track_Controller_SW.PLC_Logic import PlcProgram
 from Track_Controller_SW.switching import Switch
 
 
 class BusinessLogic(QObject):
     # Define Signals
-    occupancy_signal = pyqtSignal(list)
+    occupancy_signal = pyqtSignal(dict)
     switches_signal = pyqtSignal(list)
     switch_changed_index_signal = pyqtSignal(int)
     rr_crossing_signal = pyqtSignal(bool)
     light_signal = pyqtSignal(int)
     lights_list_signal = pyqtSignal(list)
 
-    def __init__(self, block_occupancy: list, switches_arr: list[Switch], lights_list: list,
+    def __init__(self, block_occupancy: dict, switches_arr: list[Switch], lights_list: list[Light],
                  plc_logic: PlcProgram, block_indexes: list, section: str):
         super().__init__()
-        self.occupancy_list = block_occupancy
+        self.occupancy_dict = block_occupancy
         self.switches_list = switches_arr
-        self.zero_speed_flag_list = [False] * len(self.occupancy_list)
+        self.zero_speed_flag_list = [False] * len(self.occupancy_dict)
         self.filepath = None
 
         self.lights_list = lights_list
@@ -30,10 +31,10 @@ class BusinessLogic(QObject):
 
     # Must call this method whenever occupancy is updated
     @pyqtSlot(list)
-    def occupancy_changed(self, new_occupancy: list):
+    def occupancy_changed(self, new_occupancy: dict):
         print("Occupancy change detected on Track Controller: ", self.section)
-        self.occupancy_list = new_occupancy
-        self.occupancy_signal.emit(self.occupancy_list)
+        self.occupancy_dict = new_occupancy
+        self.occupancy_signal.emit(self.occupancy_dict)
 
         if self.switches_list[0].current_pos == self.switches_list[0].pos_a:
             switch_1 = True
@@ -47,7 +48,7 @@ class BusinessLogic(QObject):
 
         # execute the plc program when the occupancy changes
         plc_result = self.plc_logic.execute_plc(
-            self.occupancy_list
+            self.occupancy_dict
         )
 
         # post plc execution processing logic

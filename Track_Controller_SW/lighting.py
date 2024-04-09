@@ -1,4 +1,3 @@
-from Track_Controller_SW import Switch
 
 
 class Light:
