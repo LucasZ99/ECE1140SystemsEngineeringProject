@@ -148,7 +148,7 @@ class TestBench_JEB382(QWidget):
     #--------
     def genbuttons(self):
         #buttonNames1 = ["Passenger eBrake","Track Circuit State","Station Side","Signal Pickup Failure","Engine Failure","Brake Failure"]
-        buttonNames1 = ["Passenger eBrake","Track Circuit State","AboveGround"]#, "Signal Pickup Failure","Engine Failure","Brake Failure"]
+        buttonNames1 = ["Passenger eBrake","Track Circuit State","Underground"]#, "Signal Pickup Failure","Engine Failure","Brake Failure"]
                 
         # generates buttons with names from btnNames array
         for i in range(1,len(buttonNames1)+1):
