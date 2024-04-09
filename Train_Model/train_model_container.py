@@ -9,7 +9,7 @@ from SystemTime import SystemTimeContainer
 
 
 class TrainModelContainer(QObject):
-    update_track_model_from_train_model = pyqtSignal(object, list)
+    update_track_model_from_train_model = pyqtSignal(object, object)
 
     def __init__(self, controller: TrainController_Tot_Container, time: SystemTimeContainer):
         super().__init__()
@@ -19,8 +19,8 @@ class TrainModelContainer(QObject):
         self.controller.new_train_values_signal.connect(self.train_controller_inputs)
         self.controller.new_train_temp_signal.connect(self.controller_update_temp)
 
-    def update_train_model_from_track_model(self, auth_speed_list: list, block_dict: dict, new_train: bool,
-                                            remove_train: int, passenger_list: list):
+    def update_train_model_from_track_model(self, auth_speed_list: dict, block_dict: dict, new_train: bool,
+                                            remove_train: int, passenger_list: dict):
         self.business_logic.passenger_return.clear()
         self.business_logic.delta_x_return.clear()
 
@@ -30,24 +30,20 @@ class TrainModelContainer(QObject):
         if new_train:
             self.add_train()
 
-        for entry in auth_speed_list:
-            self.track_model_inputs([entry[2], entry[1]], entry[0])
+        for i in auth_speed_list.keys():
+            self.track_model_inputs([auth_speed_list[i][1], auth_speed_list[i][0]], i)
 
         for i in block_dict.keys():
             self.track_update_block(block_dict[i], i)
 
-        for entry in passenger_list:
-            if not (entry[1] <= 0):
-                self.track_update_passengers(entry[1], entry[0])
+        for i in passenger_list.keys():
+            if not (passenger_list[i] <= 0):
+                self.track_update_passengers(passenger_list[i], i)
 
         self.physics_calculation()
 
-        disembarking_passengers_update = list()
-        for i in self.business_logic.passenger_return.keys():
-            disembarking_passengers_update.append((i, self.business_logic.passengers_updated[i]))
-
         self.update_track_model_from_train_model.emit(self.business_logic.delta_x_return,
-                                                      disembarking_passengers_update)
+                                                      self.business_logic.passenger_return)
 
 
     def track_model_inputs(self, input_list, index):
