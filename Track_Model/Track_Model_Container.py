@@ -97,42 +97,42 @@ class TrackModelContainer(QObject):
 
         # Emitting signals
 
-    def new_block_occupancy(self, block_occupancy: list[bool]):
-        print('new block occupancy called from track model container')
-        self.new_block_occupancy_signal.emit(block_occupancy)
-        print('track model passed')
-
-    def new_ticket_sales(self, ticket_sales: int):
-        print('new ticket sales called from track model container')
-        self.new_ticket_sales_signal.emit(ticket_sales)
+    # def new_block_occupancy(self, block_occupancy: list[bool]):
+    #     print('new block occupancy called from track model container')
+    #     self.new_block_occupancy_signal.emit(block_occupancy)
+    #     print('track model passed')
+    #
+    # def new_ticket_sales(self, ticket_sales: int):
+    #     print('new ticket sales called from track model container')
+    #     self.new_ticket_sales_signal.emit(ticket_sales)
 
     # Train Model
 
     # Catching signals
-    def train_spawned(self, index):
-        print('train spawned called from track model container')
-        self.track_model.train_spawned()
-        self.train_model_container.track_update_block([
-            self.track_model.get_tm_grade(index),
-            self.track_model.get_tm_elevation(index),
-            self.track_model.get_tm_block_length(index),
-            self.track_model.get_tm_underground_status(index),
-            self.track_model.get_tm_beacon(index)
-        ], index)
+    # def train_spawned(self, index):
+    #     print('train spawned called from track model container')
+    #     self.track_model.train_spawned()
+    #     self.train_model_container.track_update_block([
+    #         self.track_model.get_tm_grade(index),
+    #         self.track_model.get_tm_elevation(index),
+    #         self.track_model.get_tm_block_length(index),
+    #         self.track_model.get_tm_underground_status(index),
+    #         self.track_model.get_tm_beacon(index)
+    #     ], index)
 
-    def train_presence_changed(self, index):
-        print('train presence changed called')
-        self.track_model.train_presence_changed(1)  # train id=1 for IT3
-        self.train_model_container.track_update_block([])
-        self.train_model_container.track_update_block([
-            self.track_model.get_tm_grade(index),
-            self.track_model.get_tm_elevation(index),
-            self.track_model.get_tm_block_length(index),
-            self.track_model.get_tm_underground_status(index),
-            self.track_model.get_tm_beacon(index)
-        ], index)
-        self.train_model_container.track_model_inputs(
-            [self.track_model.get_tm_speed(1), self.track_model.get_tm_authority(1)], 1)  # send new info to train model
+    # def train_presence_changed(self, index):
+    #     print('train presence changed called')
+    #     self.track_model.train_presence_changed(1)  # train id=1 for IT3
+    #     self.train_model_container.track_update_block([])
+    #     self.train_model_container.track_update_block([
+    #         self.track_model.get_tm_grade(index),
+    #         self.track_model.get_tm_elevation(index),
+    #         self.track_model.get_tm_block_length(index),
+    #         self.track_model.get_tm_underground_status(index),
+    #         self.track_model.get_tm_beacon(index)
+    #     ], index)
+    #     self.train_model_container.track_model_inputs(
+    #         [self.track_model.get_tm_speed(1), self.track_model.get_tm_authority(1)], 1)
 
     def update_track_model_from_wayside(self, authority_safe_speed_update):
         add_train = False  # default
@@ -159,7 +159,7 @@ class TrackModelContainer(QObject):
 
         # change authority_safe_speed_update to be train based instead of block based
         # list[tuple[block_id: int, authority: int, safe_speed: float]] ->
-        # list[tuple[train_id:int, authority: int, safe_speed: float]]
+        # dict[train_id:int, (authority: int, safe_speed: float)]
         for i in range(0, len(authority_safe_speed_update)):
             block_id = authority_safe_speed_update[i][0]
             train_id = 0
