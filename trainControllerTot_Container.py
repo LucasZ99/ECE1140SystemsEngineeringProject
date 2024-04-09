@@ -33,12 +33,23 @@ class TrainController_Tot_Container(QObject):
         
         self.system_time = system_time_container
         self.Contrl_list = []
+        self.HW_exist=False
         
 
-    #return HW/SW Contrainer; Ware: True=SWm False=HW
+    '''#return HW/SW Contrainer; Ware: True=SWm False=HW
     def new_train_controller(self,ware=True):
         if ware: trainCtrl = TrainControllerSWContainer(self.system_time)
         else: trainCtrl = TrainControler_HW_Container(self.system_time)
+        self.Contrl_list.append(trainCtrl)
+        return trainCtrl'''
+    
+    #return HW/SW Contrainer
+    def new_train_controller(self):
+        if self.HW_exist:
+            trainCtrl = TrainControllerSWContainer(self.system_time)
+        else:
+            self.HW_exist=True
+            trainCtrl = TrainControler_HW_Container(self.system_time)
         self.Contrl_list.append(trainCtrl)
         return trainCtrl
     
