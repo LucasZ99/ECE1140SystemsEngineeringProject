@@ -1,4 +1,4 @@
-import numpy as np
+# import numpy as np
 import time
 import linecache
 from SystemTime import SystemTime
@@ -18,11 +18,11 @@ class TrainController:
 
     # testing arrays IT2
     # formatted as [uk, uk-1, ek, ek-1], "sampled" every 5 seconds from train model
-    arr = np.array([[1.25, 0, 0.5, 0], [6.25, 1.25, 1.5, 0.5], [15.625, 6.25, 2.25, 1.5], [26.25, 15.625, 2, 2.25],
-                    [31.875, 26.25, 0.25, 2], [26.875, 31.875, -2.25, 0.25], [10.625, 26.875, -4.25, -2.25]])
+    # arr = np.array([[1.25, 0, 0.5, 0], [6.25, 1.25, 1.5, 0.5], [15.625, 6.25, 2.25, 1.5], [26.25, 15.625, 2, 2.25],
+    #                 [31.875, 26.25, 0.25, 2], [26.875, 31.875, -2.25, 0.25], [10.625, 26.875, -4.25, -2.25]])
 
-    t_arr = np.array([[0.5, 0, 0.2, 0], [2, 0.5, 0.4, 0.2], [4.25, 2, 0.5, 0.4], [6.25, 4.25, 0.3, 0.5],
-                     [6.5, 6.25, -0.2, 0.3], [4.25, 6.5, -0.7, -0.2], [0, 4.25, -1, -0.7]])
+    # t_arr = np.array([[0.5, 0, 0.2, 0], [2, 0.5, 0.4, 0.2], [4.25, 2, 0.5, 0.4], [6.25, 4.25, 0.3, 0.5],
+    #                  [6.5, 6.25, -0.2, 0.3], [4.25, 6.5, -0.7, -0.2], [0, 4.25, -1, -0.7]])
 
     def __init__(self, system_time: SystemTime):
         # initial inits
@@ -357,7 +357,7 @@ class TrainController:
         return ms * self.mph2ms
 
     def updater(self, inputs, num):
-        print("train controller values being updated")
+        print("train controller values being updated in new")
         self.servBrake = 0  # turn off service brake, will be turned on if needed again
         #print("serve brake turned off")
         # called from train controller container when train sends new values
@@ -372,32 +372,34 @@ class TrainController:
             self.vitalAuth = inputs[0]  # authority is distance to destination
             print(self.vitalAuth)
             print(inputs[0])
-            print("authority changed")
+            #print("authority changed")
             self.cmdSpeed = inputs[1]
             print(self.cmdSpeed)
-            print("cmmd speed changed")
+            #print("cmmd speed changed")
             # distance control
             self.vitalitycheck()
             self.authority()
-            print("authority controlled")
+            #print("authority controlled")
         elif num == 2:
             print("update type 2 values: polarity, underground, beacon")
             # check if in new block and update block values
             self.polaritycontrol(inputs[0])
             self.isUnderground = inputs[1]
-            print("undregrounded")
+            #print("undregrounded")
             self.beacon = inputs[2]
-            print("beaconed")
+            #print("beaconed")
         elif num == 3:
             print("update type 3 values: actual speed, passenger e-brake")
             self.actualSpeed = inputs[0]
-            print("actual speeded")
+            #print("actual speeded")
             # ebrake control here
             self.passEBrake = inputs[1]
-            print("ebraked")
+            #print("ebraked")
             # power stuff
             self.powercontrol()
-            print("powered")
+            #print("powered")
+
+        print(f'power is {self.power}')
 
         # update all values in output array and call train model container update function
         # reference adjacent container (train model cntr)
@@ -410,7 +412,7 @@ class TrainController:
         return outputs
 
     def old_updater(self, inputs):
-        print("train controller values being updated")
+        print("train controller values being updated in old")
         self.servBrake = 0  # turn off service brake, will be turned on if needed again
         # print("serve brake turned off")
         # called from train controller container when train sends new values
@@ -424,33 +426,36 @@ class TrainController:
         self.polaritycontrol(inputs[4])
 
         self.actualSpeed = inputs[0]
-        print("actual speeded")
+        #print("actual speeded")
         self.cmdSpeed = inputs[1]
-        print("cmd speeded")
+        #print("cmd speeded")
         self.vitalAuth = inputs[2]  # authority is distance to destination
         print(self.vitalAuth)
         print(inputs[2])
-        print("authority changed")
+        #print("authority changed")
         # distance control
         self.authority()
-        print("authority controlled")
+        #print("authority controlled")
         # ebrake control here
         self.passEBrake = inputs[3]
-        print("ebraked")
+        #print("ebraked")
 
         self.isUnderground = inputs[5]
-        print("undregrounded")
+        #print("undregrounded")
         self.beacon = inputs[6]
-        print("beaconed")
+        #print("beaconed")
 
         # power stuff
         self.powercontrol()
-        print("powered")
-
+        #print("powered")
+        print(f'power is {self.power}')
         # update all values in output array and call train model container update function
         # reference adjacent container (train model cntr)
         # call update function to inject new values to train model
         # 8 el list + cabin temp
-        outputs = [self.cmdSpeed, self.power, self.servBrake, self.eBrake, self.doorSide, self.makeAnnouncement,
+        outputs = [self.power, self.servBrake, self.eBrake, self.doorSide, self.makeAnnouncement,
                    self.intLights, self.extLights]
+
         print("all values updated")
+
+        return outputs
