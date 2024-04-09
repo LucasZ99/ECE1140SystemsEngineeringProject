@@ -12,15 +12,15 @@ from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
 
 class CTC(QObject):
     update_ui_signal = pyqtSignal()
+    update_wayside_from_ctc_signal = pyqtSignal(list, bool, list, list)
 
     def __init__(self, system_time: SystemTime, track_controller_container_ref: TrackControllerContainer):
         super().__init__()
 
         self.mode = AUTOMATIC_MODE
-
-
         self.system_time = system_time
-        self.track_controller_ref = track_controller_container_ref
+
+        self.wayside_update_list: list[tuple[int, int, float]] = []
 
         self.scheduled_trains = CTCSchedule(system_time)
         self.dispatched_trains = CTCSchedule(system_time)
@@ -74,15 +74,20 @@ class CTC(QObject):
         self.update_ui_signal.emit()
 
     def update_track_controller(self):
-        print('update track controller from ctc object')
-        for block in self.changed_authorities:
-            self.track_controller_ref.set_authority(GREEN_LINE, block, self.authorities[block])
-            self.changed_authorities.remove(block)
+        self.wayside_update_list.clear()
 
-        for block in self.changed_speeds:
-            self.track_controller_ref.command_speed(GREEN_LINE, block, self.suggested_speeds[block])
-            self.changed_speeds.remove(block)
-        print('update track controller from ctc object passed')
+        # take union of authorities and speeds to update
+        blocks_to_update = sorted(list(set(self.changed_authorities) | set(self.changed_speeds)))
+
+        for block in blocks_to_update:
+            self.wayside_update_list.append((block, self.authorities[block], self.suggested_speeds[block]))
+
+        self.changed_authorities.clear()
+        self.changed_speeds.clear()
+
+        print('update track controller from ctc object')
+        self.update_wayside_from_ctc_signal.emit(self.wayside_update_list, False, [])
+        print('update track controller from ctc object called')
 
     def get_scheduled_trains(self) -> list[Train]:
         trains = []

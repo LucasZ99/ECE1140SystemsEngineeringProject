@@ -1,21 +1,27 @@
 from PyQt6.QtCore import pyqtSlot, QObject, pyqtSignal
 
 from Track_Controller_HW import TrackControllerHardware
-from Track_Controller_SW import TrackController, Switch, Light
+from Track_Controller_SW import TrackController, Switch, Light, TrackSignal
 from Track_Model.Track_Model_Container import TrackModelContainer
 
 
 class TrackControllerContainer(QObject):
 
     # Signals
-    switch_toggled_signal = pyqtSignal(int)
-    lights_updated_signal = pyqtSignal(int)
-    rr_crossing_toggled_signal = pyqtSignal(int)
-    occupancy_updated_signal = pyqtSignal(list)
+    # Downstream
+    update_track_model_from_wayside = pyqtSignal(list, list, list, list, list)
+    # Upstream
+    update_ctc_from_wayside = pyqtSignal(dict[int, bool], list, list, list)
+
+    # switch_toggled_signal = pyqtSignal(int)
+    # lights_updated_signal = pyqtSignal(int)
+    # rr_crossing_toggled_signal = pyqtSignal(int)
+    # occupancy_updated_signal = pyqtSignal(list)
 
     def __init__(self, track_model: TrackModelContainer):
         # initialize track data
         super().__init__()
+
         self.track_model = track_model
 
         self.occupancy_list = [False] * 150
@@ -77,6 +83,18 @@ class TrackControllerContainer(QObject):
         self.track_model.new_block_occupancy_signal.connect(self.update_occupancy)
 
     # CTC Endpoints
+    @pyqtSlot(list, bool, list, list)
+    def update_wayside_from_ctc(self,
+                                authority_speed_update: list[TrackSignal],
+                                maintenance_mode_override_flag: bool,
+                                blocks_to_close_open: list[tuple[int, bool]],
+                                updated_switches: list[Switch]):
+        pass
+
+    @pyqtSlot(dict[int, bool])
+    def update_wayside_from_track_model(self, block_occupancy_update: dict[int, bool]):
+        pass
+
     def command_speed(self, line_id: int, block_id: int, speed: float) -> None:
         # green line
         print(f"track controller speed received: {block_id}: {speed}")

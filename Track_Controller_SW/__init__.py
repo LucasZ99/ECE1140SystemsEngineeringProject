@@ -6,3 +6,5 @@ from .TrackController import TrackController
 from .TrackControllerUI import ManualMode, UI
 from .TestbenchContainer import TestbenchContainer
 from .lighting import Light
+from .RRCrossing import RRCrossing
+from TrackSignal import TrackSignal

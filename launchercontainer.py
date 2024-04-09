@@ -1,7 +1,7 @@
 import sys
 import threading
 
-from PyQt6.QtCore import QObject, pyqtSlot
+from PyQt6.QtCore import QObject
 from PyQt6.QtWidgets import QApplication
 
 from CTC.CTCContainer import CTCContainer
@@ -10,7 +10,7 @@ from Track_Controller_SW.TrackControllerContainer import TrackControllerContaine
 from Track_Model.Track_Model_Container import TrackModelContainer
 from launcherui import LauncherUi
 from trainControllerTot_Container import TrainController_Tot_Container
-from Train_Model import TrainModelContainer, TrainBusinessLogic
+from Train_Model import TrainModelContainer
 
 
 class LauncherContainer(QObject):
@@ -19,11 +19,19 @@ class LauncherContainer(QObject):
         self.time_module = SystemTimeContainer()
         self.trainControllerContainer = TrainController_Tot_Container(self.time_module, False)
 
-        self.train_model_container = TrainModelContainer(TrainBusinessLogic(), self.trainControllerContainer,
-                                                         self.time_module)
+        self.train_model_container = TrainModelContainer(self.trainControllerContainer, self.time_module)
         self.track_model_container = TrackModelContainer(train_model_container=self.train_model_container)
         self.track_controller_container = TrackControllerContainer(track_model=self.track_model_container)
-        self.ctc_container = CTCContainer(self.time_module, self.track_controller_container)
+        self.ctc_container = CTCContainer(self.time_module)
+
+        # Connect signals between modules
+        # Downstream
+        self.ctc_container.update_wayside_from_ctc.connect(self.track_controller_container.update_wayside_from_ctc)
+        self.track_controller_container.update_track_model_from_wayside.connect(self.track_model_container.update_track_model_from_wayside)
+
+        # Upstream
+        self.track_controller_container.update_ctc_from_wayside.connect(self.ctc_container.update_ctc_from_wayside)
+        self.track_model_container.update_wayside_from_track_model.connect(self.track_controller_container.update_wayside_from_track_model)
 
     def init_launcher_ui(self):
         app = QApplication.instance()
