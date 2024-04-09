@@ -1,7 +1,8 @@
 from PyQt6.QtCore import pyqtSlot, QObject, pyqtSignal
 
 from Track_Controller_HW import TrackControllerHardware
-from Track_Controller_SW import TrackController, Switch, Light, TrackSignal, RRCrossing
+from Track_Controller_SW import TrackController
+from Common import Switch, Light, TrackSignal, RRCrossing
 from Track_Model.Track_Model_Container import TrackModelContainer
 
 
