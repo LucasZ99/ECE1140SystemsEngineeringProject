@@ -12,16 +12,9 @@ from SystemTime import SystemTimeContainer
 
 
 
-#one container
-#main reason is to give Train Model a train controller object
-    #(.newtc(): return a trainCtrl
-#keep track of number given
-#if first: HW else: SW
-#keep list
-#pass back list
 
 
-
+#================================================================================
 class TrainController_Tot_Container(QObject):
 
     # Signals
@@ -34,31 +27,33 @@ class TrainController_Tot_Container(QObject):
         
         self.system_time = system_time_container
         self.ctrl_list = []
-        self.HW_exist = False
-
-    '''#return HW/SW Contrainer; Ware: True=SWm False=HW
-    def new_train_controller(self,ware=True):
-        if ware: trainCtrl = TrainControllerSWContainer(self.system_time)
-        else: trainCtrl = TrainControler_HW_Container(self.system_time)
-        self.Contrl_list.append(trainCtrl)
-        return trainCtrl'''
+        self.HW_index = None # index for future utility incase of handling recovery of deleted HW Controller
     
+    
+    
+    #================================================================================
     # return HW/SW Container
     def new_train_controller(self):
-        if self.HW_exist:
+        if self.HW_index:
             trainCtrl = TrainControllerSWContainer(self.system_time)
         else:
-            self.HW_exist = True
+            self.HW_index = len(self.ctrl_list)
             trainCtrl = TrainControler_HW_Container(self.system_time)
         self.ctrl_list.append(trainCtrl)
         return trainCtrl
 
+
+
+    #================================================================================
     # gonna need a show ui method for the list of sw controllers
     # not sure we will want to handle the hw ui though...
 
     # like this maybe ? vvv
     def show_hwui(self):
-        pass
+        if self.HW_index:
+            self.ctrl_list[self.HW_index].show_ui()
+        else:
+            print("WARNING: TrainController_Tot_Container: show_hwui without HW Controller")
 
     def show_swui(self):
         app = QApplication.instance()
@@ -73,6 +68,9 @@ class TrainController_Tot_Container(QObject):
 
         app.exec()
 
+
+
+#================================================================================
 def TrainC_main(system_time, type=True):
     trainctrlcntr = TrainController_Tot_Container(system_time)
     cntrl = trainctrlcntr.new_train_controller()  # removed (type) as parameter
