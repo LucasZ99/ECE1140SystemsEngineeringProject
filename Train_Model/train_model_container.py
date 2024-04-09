@@ -45,7 +45,6 @@ class TrainModelContainer(QObject):
         self.update_track_model_from_train_model.emit(self.business_logic.delta_x_return,
                                                       self.business_logic.passenger_return)
 
-
     def track_model_inputs(self, input_list, index):
         print("train's track model inputs hit")
 
