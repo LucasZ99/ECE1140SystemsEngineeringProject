@@ -13,11 +13,6 @@ class TrackControllerContainer(QObject):
     # Upstream
     update_ctc_from_wayside = pyqtSignal(dict, list, list, list)
 
-    # switch_toggled_signal = pyqtSignal(int)
-    # lights_updated_signal = pyqtSignal(int)
-    # rr_crossing_toggled_signal = pyqtSignal(int)
-    # occupancy_updated_signal = pyqtSignal(list)
-
     def __init__(self):
         super().__init__()
 
@@ -61,23 +56,23 @@ class TrackControllerContainer(QObject):
             ]
 
         # Controller specific initialization
+        # THIS HAS BEEN VERIFIED
         # Section A: blocks 1-32
-        # Switches at block 13 and 28
+        # overlap: blocks 29, 30, 31, 32
         self.occupancy_dict_A = dict(itertools.islice(self.occupancy_dict.items(), 32))
         # Section B: blocks: 25-80 , 101-150
         # -4 blocks to account for missing blocks 58, 59, 60, 61
-        # devin you should check this
-        self.occupancy_dict_B = dict(itertools.islice(self.occupancy_dict.items(), 28, 74))
-        self.occupancy_dict_B.update(dict(itertools.islice(self.occupancy_dict.items(), 97, 146)))
-        # Section C: blocks 76 to 105
-        self.occupancy_dict_C = dict(itertools.islice(self.occupancy_dict.items(), 72, 101))
-
+        self.occupancy_dict_B = dict(itertools.islice(self.occupancy_dict.items(), 28, 72))
+        self.occupancy_dict_B.update(dict(itertools.islice(self.occupancy_dict.items(), 96, 146)))
+        # Section C: blocks 77 through 104
+        # overlap: blocks 101, 102, 103, 104
+        self.occupancy_dict_C = dict(itertools.islice(self.occupancy_dict.items(), 72, 100))
 
         self.trackControllerA = TrackController(occupancy_dict=self.occupancy_dict_A, section="A")
 
         # self.trackControllerB = TrackControllerHardware(occupancy_dict=self.occupancy_dict_B, section="B")
 
-        # self.trackControllerC = TrackController(occupancy_dict=self.occupancy_dict_C, section="C")
+        self.trackControllerC = TrackController(occupancy_dict=self.occupancy_dict_C, section="C")
 
         # # Connect Internal Signals:
         # self.trackControllerA.switch_changed_index_signal.connect(self.update_track_switch)
@@ -96,6 +91,7 @@ class TrackControllerContainer(QObject):
                                 updated_switches: list[Switch]):
 
         self.check_safe_speed(authority_speed_update)
+
         safe_toggle_blocks = []
         if maintenance_mode_override_flag:
             safe_toggle_blocks = self.check_safe_toggle(blocks_to_close_open)
@@ -141,13 +137,12 @@ class TrackControllerContainer(QObject):
         # update occupancy to ctc:
         print("occupancy updated signal sent to ctc")
 
-        # update occupancy lists with new data
+        # update occupancy dicts with new data
         self.occupancy_dict = block_occupancy_dict
         self.occupancy_dict_A = dict(itertools.islice(self.occupancy_dict.items(), 32))
-        # devin you should check this
-        self.occupancy_dict_B = dict(itertools.islice(self.occupancy_dict.items(), 28, 74))
-        self.occupancy_dict_B.update(dict(itertools.islice(self.occupancy_dict.items(), 97, 146)))
-        self.occupancy_dict_C = dict(itertools.islice(self.occupancy_dict.items(), 72, 101))
+        self.occupancy_dict_B = dict(itertools.islice(self.occupancy_dict.items(), 28, 72))
+        self.occupancy_dict_B.update(dict(itertools.islice(self.occupancy_dict.items(), 96, 146)))
+        self.occupancy_dict_C = dict(itertools.islice(self.occupancy_dict.items(), 72, 100))
 
         # call the update occupancy functions to trigger plc logic and ui updates
         zero_speed_flag_list_A = self.trackControllerA.update_occupancy(self.occupancy_dict_A)

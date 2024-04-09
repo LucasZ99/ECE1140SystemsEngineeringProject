@@ -18,9 +18,10 @@ class TrackController(QObject):
 
     def __init__(self, occupancy_dict: dict[int, bool], section: str):
         super().__init__()
+
+        self.block_indexes = occupancy_dict.keys()
+
         if section == "A":
-            self.block_indexes = occupancy_dict.keys()
-            print(f"Block indexes for section A: {self.block_indexes}")
             self.switches_list = \
                 [
                     Switch(13, 12, 1, 12),
@@ -38,10 +39,6 @@ class TrackController(QObject):
                     RRCrossing(19, False)
                 ]
         elif section == "C":
-            self.block_indexes = [77, 78, 79,
-                                  80, 81, 82, 83, 84, 85, 86, 87, 88, 89,
-                                  90, 91, 92, 93, 94, 95, 96, 97, 98, 99,
-                                  100, 101, 102, 103, 104]
             self.switches_list = \
                 [
                     Switch(77, 76, 101, 76),
