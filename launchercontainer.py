@@ -1,7 +1,7 @@
 import sys
 import threading
 
-from PyQt6.QtCore import QObject, pyqtSlot
+from PyQt6.QtCore import QObject
 from PyQt6.QtWidgets import QApplication
 
 from CTC.CTCContainer import CTCContainer
@@ -22,7 +22,10 @@ class LauncherContainer(QObject):
         self.train_model_container = TrainModelContainer(self.trainControllerContainer, self.time_module)
         self.track_model_container = TrackModelContainer(train_model_container=self.train_model_container)
         self.track_controller_container = TrackControllerContainer(track_model=self.track_model_container)
-        self.ctc_container = CTCContainer(self.time_module, self.track_controller_container)
+        self.ctc_container = CTCContainer(self.time_module)
+
+        # Connect signals between modules
+        self.ctc_container.update_wayside_from_ctc.connect(self.track_controller_container.update_wayside_from_ctc)
 
     def init_launcher_ui(self):
         app = QApplication.instance()
