@@ -29,12 +29,13 @@ class TrackModel(QObject):
             if self.data[i, 16] == 0:
                 self.data[i, 16] = random.randint(1, 100)
                 self.data[i, 17] = random.randint(1, self.data[i, 16])
-        self.authority = []
-        self.speed = [0] * 150
+        self.authority = [0] * self.num_blocks
+        self.speed = [0.0] * self.num_blocks
 
         self.train_dict_relative = {}
         self.train_dict = {}
         self.train_count = 0
+        self.total_track_length = int(np.sum(self.data[1:, 3]))
 
         # hardcoded
         # Step 1: 12 to 1
@@ -53,7 +54,7 @@ class TrackModel(QObject):
         # Combining all paths, with explicit jumps where needed
         self.full_path = (path_62_to_100 + path_85_to_77 + path_101_to_150 + path_28_to_13 + path_12_to_1 +
                           path_13_to_57)
-        print(self.full_path)
+        # print(self.full_path)
 
     def get_train_dict(self):
         return self.train_dict
@@ -286,6 +287,7 @@ class TrackModel(QObject):
         self.train_count += 1
         self.train_dict_relative[self.train_count] = 0
         self.train_dict[self.train_count] = self.full_path[0]
+        self.train_dict_meters[self.train_count] = 0
         print(f'new train spawned, train_count = {self.train_count}')
 
     def train_presence_changed(self, train_id: int):
@@ -353,6 +355,32 @@ class TrackModel(QObject):
     def emit_ctc_ticket_sales(self) -> int:
         self.new_ticket_sales_signal.emit(self.ticket_sales)
         return int(self.ticket_sales)
+
+    # new UI getters
+    def get_block_info(self, block_id):
+        # # length, grade, speed lim, elevation
+        # self.data[block_id, (3, 4, 5, 6)]
+        # # occupied, beacon, track heated, underground
+        # self.data[block_id, (7, 11, 12, 20)]
+        # # failures 13 14 15
+        # self.data[block_id, (13, 14, 15)]
+        # TODO: switch, station, rxr crossing
+        # self.data[block_id, ]
+        # print(self.data[block_id, (3, 4, 5, 6, 7, 11, 12, 20, 13, 14, 15)])
+        return self.data[block_id, (3, 4, 5, 6, 7, 11, 12, 20, 13, 14, 15)]
+
+    def get_block_info_for_train(self, train_id):
+        block = self.train_dict[train_id]
+        return self.data[block, (4, 6, 20, 11)].tolist()
+        # grade elevation underground_status beacon
+
+    def update_authority_and_safe_speed(self, authority_safe_speed_update):
+        for i in range(0, len(authority_safe_speed_update)):
+            block_id = authority_safe_speed_update[i][0]
+            authority = authority_safe_speed_update[i][1]
+            safe_speed = authority_safe_speed_update[i][2]
+            self.authority[block_id] = authority
+            self.speed[block_id] = safe_speed
 
 # Section J will not exist, replace it with yard
 # refresh tables from UI in container every time setters are called

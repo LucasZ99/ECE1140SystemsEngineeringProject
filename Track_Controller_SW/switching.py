@@ -21,5 +21,8 @@ class Switch(object):
         else:
             self.current_pos = self.pos_a
 
+    def to_tuple(self):
+        return self.block, self.current_pos
+
     def to_string(self):
         return str(f'Switch at block {self.block} -> {self.current_pos}')

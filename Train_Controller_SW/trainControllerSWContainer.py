@@ -14,8 +14,9 @@ class TrainControllerSWContainer:
     def __init__(self, system_time_container: SystemTimeContainer):
         self.system_time = system_time_container.system_time
         self.trainCtrl = trainControllerSW.TrainController(self.system_time)
-        self.outputs = list()
+        self.train_model_update = list()
         self.cabin_temp = 68
+
         # actions for automatic mode launch
         # threading.Thread(target=self.trainCtrl.automode).start()  # uncomment this to see how auto mode will start
         # threading.Thread(target=self.powerrefresh).start()
@@ -38,17 +39,27 @@ class TrainControllerSWContainer:
         print("updating train values")
         print(num)
         if num == 0:
-            self.outputs = self.trainCtrl.old_updater(inputs)
+            self.train_model_update = self.trainCtrl.old_updater(inputs)
         elif num < 1 and num > 3:
             print("update type out of range")
         else:
-            self.outputs = self.trainCtrl.updater(inputs, num)
+            self.train_model_update = self.trainCtrl.updater(inputs, num)
 
         # update values, perform all new calcs, and send back list of new values
         # self.outputs = self.trainCtrl.updater(inputs)
         self.cabin_temp = self.trainCtrl.getcabintemp()
 
         return
+
+    def update_train_controller_from_train_model(self, authority_safe_speed, track_info, train_info):
+
+        # probably gonna split the updater into 3 separate functions in the future but this should work fine for now
+        self.trainCtrl.updater(authority_safe_speed, 1)
+        self.trainCtrl.updater(track_info, 2)
+        self.trainCtrl.updater(train_info, 3)
+
+        self.train_model_update = self.trainCtrl.update_train_model_from_train_controller()
+        return self.train_model_update
 
 
 def main():

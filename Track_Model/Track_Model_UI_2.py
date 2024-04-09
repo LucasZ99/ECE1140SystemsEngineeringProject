@@ -16,7 +16,6 @@ from Track_Model.map import Map
 import time
 
 
-
 ##############################
 # Main Window
 ##############################
@@ -56,6 +55,8 @@ class Window(QMainWindow):
         fm_group_layout.addWidget(f3_title, 2, 0)
 
         self.str_list_blocks = list(self.track_model.get_data()[1:, 2].astype(str))
+        for i in range(1, len(self.str_list_blocks) + 1):
+            self.str_list_blocks[i-1] = self.track_model.get_data()[i, 1] + self.str_list_blocks[i-1]
         self.combo1 = QComboBox()
         self.combo1.addItems(self.str_list_blocks)
         self.combo1.activated.connect(self.combo1_new_item_selected)
@@ -68,9 +69,9 @@ class Window(QMainWindow):
         self.combo3.addItems(self.str_list_blocks)
         self.combo3.activated.connect(self.combo3_new_item_selected)
 
-        self.combo1.setFixedSize(50, 25)
-        self.combo2.setFixedSize(50, 25)
-        self.combo3.setFixedSize(50, 25)
+        self.combo1.setFixedSize(60, 25)
+        self.combo2.setFixedSize(60, 25)
+        self.combo3.setFixedSize(60, 25)
 
         fm_group_layout.addWidget(self.combo1, 0, 1)
         fm_group_layout.addWidget(self.combo2, 1, 1)
@@ -134,10 +135,50 @@ class Window(QMainWindow):
         self.upload_layout_group.setLayout(ul_layout)
 
         # block view
-        self.block_view_layout_group = QGroupBox("View Blocks")
+        self.block_view_layout_group = QGroupBox("Block Info")
         bv_layout = QVBoxLayout()
-
+        # block selection combo
+        self.block_info_combo = QComboBox()
+        self.block_info_combo.addItems(self.str_list_blocks)
+        self.block_info_combo.activated.connect(self.refresh_block_info)
+        self.block_info_combo.setFixedSize(60, 25)
+        bv_layout.addWidget(self.block_info_combo)
+        # block info labels
+        info = track_model.get_block_info(1)
+        self.length_label = QLabel('length = ' + str(info[0]))
+        self.grade_label = QLabel('grade = ' + str(info[1]))
+        self.speed_lim_label = QLabel('speed lim = ' + str(info[2]))
+        self.elevation_label = QLabel('elevation = ' + str(info[3]))
+        self.occupied_label = QLabel('occupied = ' + str(info[4]))
+        self.beacon_label = QLabel('beacon = ' + str(info[5]))
+        self.track_heated_label = QLabel('track heated = ' + str(info[6]))
+        self.underground_label = QLabel('underground = ' + str(info[7]))
+        self.power_fail_label = QLabel('power failure = ' + str(info[8]))
+        self.track_circ_fail_label = QLabel('track circuit failure = ' + str(info[9]))
+        self.broken_rail_label = QLabel('broken rail failure = ' + str(info[10]))
+        bv_layout.addWidget(self.length_label)
+        bv_layout.addWidget(self.grade_label)
+        bv_layout.addWidget(self.speed_lim_label)
+        bv_layout.addWidget(self.elevation_label)
+        bv_layout.addWidget(self.occupied_label)
+        bv_layout.addWidget(self.beacon_label)
+        bv_layout.addWidget(self.track_heated_label)
+        bv_layout.addWidget(self.underground_label)
+        # failures
+        bv_layout.addWidget(self.power_fail_label)
+        bv_layout.addWidget(self.track_circ_fail_label)
+        bv_layout.addWidget(self.broken_rail_label)
+        # train dictionary display
+        self.train_dict_label = QLabel('Trains: ' + str(self.track_model.get_train_dict()))
+        bv_layout.addWidget(self.train_dict_label)
+        # failure combo/toggle
+        self.failure_combo = QComboBox()
+        self.failure_combo.addItems(self.str_list_blocks)
+        self.failure_combo.activated.connect(self.failure_combo_updated)
         self.block_view_layout_group.setLayout(bv_layout)
+        self.failure_toggle = AnimatedToggle()
+        self.failure_toggle.setFixedSize(self.failure_toggle.sizeHint())
+        self.failure_toggle.clicked.connect(self.failure_toggle_clicked)
         # map
         self.map_layout_group = QGroupBox("Map")
         m_layout = QVBoxLayout()
@@ -195,50 +236,75 @@ class Window(QMainWindow):
 
     def combo1_new_item_selected(self):
         # sets the value of the toggle based on the value from our data
-        block = int(self.combo1.currentText())
+        block = int(self.combo1.currentText()[1:])
         print(self.track_model.get_data()[block, 13])
         self.toggle1.setChecked(self.track_model.get_data()[block, 13])
 
     def toggle1_clicked(self):
-        block = int(self.combo1.currentText())
-        val = int(self.toggle1.isChecked())
+        block = int(self.combo1.currentText()[1:])
+        val = bool(self.toggle1.isChecked())
         self.track_model.set_power_failure(block, val)
         self.refresh()
 
     def combo2_new_item_selected(self):
         # sets the value of the toggle based on the value from our data
-        block = int(self.combo2.currentText())
+        block = int(self.combo2.currentText()[1:])
         self.toggle2.setChecked(self.track_model.get_data()[block, 14])
 
     def toggle2_clicked(self):
-        block = int(self.combo2.currentText())
-        val = int(self.toggle2.isChecked())
+        block = int(self.combo2.currentText()[1:])
+        val = bool(self.toggle2.isChecked())
         self.track_model.set_track_circuit_failure(block, val)
         self.refresh()
 
     def combo3_new_item_selected(self):
         # sets the value of the toggle based on the value from our data
-        block = int(self.combo3.currentText())
+        block = int(self.combo3.currentText()[1:])
         self.toggle3.setChecked(self.track_model.get_data()[block, 15])
 
     def toggle3_clicked(self):
-        block = int(self.combo3.currentText())
-        val = int(self.toggle3.isChecked())
+        block = int(self.combo3.currentText()[1:])
+        val = bool(self.toggle3.isChecked())
         self.track_model.set_broken_rail_failure(block, val)
         self.refresh()
 
+    def failure_combo_updated(self):
+        self.current
+
+    def failure_toggle_clicked(self):
+        pass
+
     def test_bench_button_clicked(self):
-        self.counter += 1
-        self.move_block(self.full_path[self.counter])
+        print('Testing Benchmark')
+        self.map.populate_map({1: 63, 2: 120})
+        print('passed')
+        # self.counter += 1
+        # self.move_block(self.full_path[self.counter])
+
+    def refresh_block_info(self):
+        block = int(self.block_info_combo.currentText()[1:])
+        info = self.track_model.get_block_info(block)
+        self.length_label.setText('length = ' + str(info[0]))
+        self.grade_label.setText('grade = ' + str(info[1]))
+        self.speed_lim_label.setText('speed lim = ' + str(info[2]))
+        self.elevation_label.setText('elevation = ' + str(info[3]))
+        self.occupied_label.setText('occupied = ' + str(info[4]))
+        self.beacon_label.setText('beacon = ' + str(info[5]))
+        self.track_heated_label.setText('track heated = ' + str(info[6]))
+        self.underground_label.setText('underground = ' + str(info[7]))
+        self.power_fail_label.setText('power failure = ' + str(info[8]))
+        self.track_circ_fail_label.setText('track circuit failure = ' + str(info[9]))
+        self.broken_rail_label.setText('broken rail failure = ' + str(info[10]))
+
+        self.train_dict_label.setText('Trains: ' + str(self.track_model.get_train_dict()))
 
     def move_block(self, num):
         print(f'num: {num}')
-        [x, y] = self.pix_dict[str(num)]
+        [x, y] = self.pix_dict[num]
         self.map.move_box(x, y)
 
     def refresh(self):
-        occupancy = self.track_model.get_occupancy_list()
-        # occupancy =
+        self.refresh_block_info()
         print('implement refresh pls')
 
 
