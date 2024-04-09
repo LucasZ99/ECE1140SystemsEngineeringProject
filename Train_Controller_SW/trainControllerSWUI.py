@@ -44,13 +44,14 @@ class UI(QMainWindow):
 
         self.doorsLeft.setChecked(False)
         self.doorsRight.setChecked(False)
-        self.speedLim.setText(f'{self.trainctrl.speedLim}')
+        self.speedLim.setText(f'{self.trainctrl.speedlim}')
         self.temp.setValue(int(self.trainctrl.cabinTemp))
         self.kp.setValue(int(self.trainctrl.kp))
         self.ki.setValue(int(self.trainctrl.ki))
-        self.currSpeed.setText(f'{self.trainctrl.currSpeed}')
+        self.currSpeed.setText(f'{self.trainctrl.actualSpeed}')
         self.power.setText(f'{self.trainctrl.power}')
         self.setPtSpeed.setValue(int(self.trainctrl.setPtSpeed))
+        #self.train_list.addItems(train_list)  # TODO when reload tot container
 
         # TODO make connections
         self.testBench.clicked.connect(self.testingbench)
@@ -130,19 +131,22 @@ class UI(QMainWindow):
         return
 
     def changecurrspeed(self):
-        self.trainctrl.setcurrspeed = self.actSpeedTB.value()
-        self.currSpeed.setText(str(self.trainctrl.currSpeed))
+        self.trainctrl.actualspeed = self.actSpeedTB.value()
+        self.currSpeed.setText(str(self.trainctrl.actualSpeed))
+
+        # TODO make it so change on enter (maybe just to text box)
 
     def changecmdspeed(self):
         self.trainctrl.cmdSpeed = self.cmdSpeedTB.value()
 
     def changespeedlim(self):
-        self.trainctrl.speedLim = self.speedLimTB.value()
-        self.speedLim.setText(str(self.trainctrl.speedLim))
+        self.trainctrl.speedlim = self.speedLimTB.value()
+        self.speedLim.setText(str(self.trainctrl.speedlim))
 
     def changevitalauth(self):
         self.trainctrl.vitalAuth = self.vitalAuthTB.value()
 
+    # I can probably get rid of accel and decel lim edits since they are static data and never updated.
     def changeaccellim(self):
         self.trainctrl.accelLim = self.accelLimTB.value()
 
@@ -150,20 +154,25 @@ class UI(QMainWindow):
         self.trainctrl.decelLim = self.decelLimTB.value()
 
     def passebrake(self):
-
         self.trainctrl.passebrakecontrol()
         self.refreshengine()
-        if self.trainctrl.passEBrake == 0:
-            self.passEBrakeTB.setText("Off")
-        elif self.trainctrl.passEBrake == 1:
+        print("refreshed engine")
+        if self.trainctrl.passEBrake == 1:
+            print("e brake on")
             self.passEBrakeTB.setText("On")
-            self.setPtSpeed.setValue(self.trainctrl.setPtSpeed)
+        elif self.trainctrl.passEBrake == 0:
+            print("e brake off")
+            self.passEBrakeTB.setText("Off")
+            self.setPtSpeed.setValue(int(self.trainctrl.setPtSpeed))
 
     def trackstate(self):
-        self.trainctrl.circuitpolaritycontrol()
-        if self.trainctrl.circuitPolarity() == 0:  # track is negative polarity
+
+        newpolarity = not self.trainctrl.polarity
+
+        self.trainctrl.polaritycontrol(newpolarity)
+        if self.trainctrl.polarity == 0:  # track is negative polarity
             self.trackStateTB.setText("-")
-        elif self.trainctrl.circuitPolarity() == 1:  # track is positive polarity
+        elif self.trainctrl.polarity == 1:  # track is positive polarity
             self.trackStateTB.setText("+")
 
     def signalfail(self):
@@ -192,7 +201,7 @@ class UI(QMainWindow):
         self.trainctrl.brakefailcontrol()
         if self.trainctrl.brakeFail == 0:  # no signal pickup failure
             self.failBrakeTB.setText("Off")
-            self.brakeFail.setChecked(self.trainctrl.brakeFail())  # should be false
+            self.brakeFail.setChecked(self.trainctrl.brakeFail)  # should be false
         elif self.trainctrl.brakeFail == 1:  # signal pickup failure
             self.failBrakeTB.setText("On")
             self.brakeFail.setChecked(self.trainctrl.brakeFail)  # should be true
@@ -308,8 +317,8 @@ class UI(QMainWindow):
 
     def refreshengine(self):
         self.setPtSpeed.setValue(int(self.trainctrl.setPtSpeed))
-        self.speedLim.setText(str(self.trainctrl.speedLim))
-        self.currSpeed.setText(str(int(self.trainctrl.currSpeed)))
+        self.speedLim.setText(str(self.trainctrl.speedlim))
+        self.currSpeed.setText(str(int(self.trainctrl.actualSpeed)))
         self.power.setText(str(self.trainctrl.power))
         self.kp.setValue(int(self.trainctrl.kp))
         self.ki.setValue(int(self.trainctrl.ki))
