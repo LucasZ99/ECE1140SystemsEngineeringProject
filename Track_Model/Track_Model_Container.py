@@ -1,7 +1,7 @@
 import os
 import sys
 
-from PyQt6.QtCore import QObject, pyqtSignal
+from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
 from PyQt6.QtWidgets import QApplication
 
 from Track_Model.Track_Model import TrackModel
@@ -12,6 +12,10 @@ from Train_Model import TrainModelContainer
 class TrackModelContainer(QObject):
 
     # Signals
+    # Upstream
+    update_wayside_from_track_model = pyqtSignal(dict[int, bool])
+
+
     new_block_occupancy_signal = pyqtSignal(list)
     new_ticket_sales_signal = pyqtSignal(int)
 
@@ -28,6 +32,15 @@ class TrackModelContainer(QObject):
         # connect external signals
         self.train_model_container.new_train_added.connect(self.train_spawned)
         self.train_model_container.train_enters_new_block.connect(self.train_presence_changed)
+
+    @pyqtSlot(list, list, list, list, list)
+    def update_track_model_from_wayside(self,
+                                        authority_safe_speed_update: list[tuple[int, int, float]],
+                                        switch_changed_indexes: list[int],
+                                        signal_changed_indexes: list[int],
+                                        rr_crossing_indexes: list[int],
+                                        toggle_block_indexes: list[int]):
+        pass
 
     # show ui
     def show_ui(self):
