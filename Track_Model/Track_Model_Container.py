@@ -49,25 +49,26 @@ class TrackModelContainer(QObject):
     # Track Controller
 
     # Receiving inputs
-    # TODO: every time train enters new block also update authority/speed
-    def update_authority(self, authority: list[int]):
-        print('track model update authority called')
-        self.track_model.update_authority(authority)  # update our track model object
-        print(f'yard block authority track model is using: {authority[61]}')
-        if authority[61]:
-            self.train_model_container.add_train()
-        print(f'track model got this authority from controller: {authority}')
-        print(f'track model is giving train model speed = {self.track_model.get_tm_speed(1)}, authority = {self.track_model.get_tm_authority(1)}')
-        self.train_model_container.track_model_inputs(
-            [self.track_model.get_tm_speed(1), self.track_model.get_tm_authority(1)], 1)  # send new info to train model
 
-    def update_speed(self, speed: list[float]):
-        print('update speed called')
-        self.track_model.update_speed(speed)  # update our track model object
-        print(f'track model got this speed from controller: {speed}')
-        print(f'track model is giving train model speed = {self.track_model.get_tm_speed(1)}, authority = {self.track_model.get_tm_authority(1)}')
-        self.train_model_container.track_model_inputs(
-            [self.track_model.get_tm_speed(1), self.track_model.get_tm_authority(1)], 1)  # send new info to train model
+
+    # def update_authority(self, authority: list[int]):
+    #     print('track model update authority called')
+    #     self.track_model.update_authority(authority)  # update our track model object
+    #     print(f'yard block authority track model is using: {authority[61]}')
+    #     if authority[61]:
+    #         self.train_model_container.add_train()
+    #     print(f'track model got this authority from controller: {authority}')
+    #     print(f'track model is giving train model speed = {self.track_model.get_tm_speed(1)}, authority = {self.track_model.get_tm_authority(1)}')
+    #     self.train_model_container.track_model_inputs(
+    #         [self.track_model.get_tm_speed(1), self.track_model.get_tm_authority(1)], 1)  # send new info to train model
+    #
+    # def update_speed(self, speed: list[float]):
+    #     print('update speed called')
+    #     self.track_model.update_speed(speed)  # update our track model object
+    #     print(f'track model got this speed from controller: {speed}')
+    #     print(f'track model is giving train model speed = {self.track_model.get_tm_speed(1)}, authority = {self.track_model.get_tm_authority(1)}')
+    #     self.train_model_container.track_model_inputs(
+    #         [self.track_model.get_tm_speed(1), self.track_model.get_tm_authority(1)], 1)  # send new info to train model
 
     def toggle_switch(self, block_id: int):
         print('toggle switch called')
@@ -171,15 +172,16 @@ class TrackModelContainer(QObject):
         for key in train_dict:
             block_info_dict[key] = self.track_model.get_block_info_for_train(key)
         # emit
-        self.update_train_model_from_track_model.emit(authority_safe_speed_update, block_info_dict, add_train, remove_train), remove_train, embarking_passengers_update
+        self.update_train_model_from_track_model.emit(authority_safe_speed_update, block_info_dict, add_train,
+                                                      remove_train, remove_train, embarking_passengers_update)
 
     def update_track_model_from_train_model(self, delta_x_dict, disembarking_passengers_update):
         ticket_sales = 0  # TODO: implement ticket sales for ctc
-        block_occupancy_update = {}    # TODO: dict output for block occupancy rather than list
+        block_occupancy_update = {}    # TODO: dict output for block occupancy for track controller rather than list
         # for each train, calculate current block given delta x
         # update our track model train dict (train will get block info in next downstream)
 
         # emit
         self.update_ctc_from_track_model.emit(ticket_sales)
-        self.update_wayside_from_track_model(block_occupancy_update)
+        self.update_wayside_from_track_model.emit(block_occupancy_update)
 
