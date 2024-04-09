@@ -5,4 +5,4 @@ class Block:
         self.speed_limit = block_speed_limit
 
     def id(self):
-        return self.name[1:]
+        return int(self.name[1:])
