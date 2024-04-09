@@ -616,7 +616,7 @@
    <widget class="QLabel" name="currentlyin">
     <property name="geometry">
      <rect>
-      <x>40</x>
+      <x>190</x>
       <y>11</y>
       <width>91</width>
       <height>20</height>
@@ -634,7 +634,7 @@
    <widget class="QPushButton" name="autoMode">
     <property name="geometry">
      <rect>
-      <x>384</x>
+      <x>424</x>
       <y>10</y>
       <width>91</width>
       <height>23</height>
@@ -647,7 +647,7 @@
    <widget class="QPushButton" name="manualMode">
     <property name="geometry">
      <rect>
-      <x>470</x>
+      <x>510</x>
       <y>10</y>
       <width>91</width>
       <height>23</height>
@@ -660,7 +660,7 @@
    <widget class="QLabel" name="inMode">
     <property name="geometry">
      <rect>
-      <x>140</x>
+      <x>290</x>
       <y>11</y>
       <width>121</width>
       <height>20</height>
@@ -1353,6 +1353,46 @@
     </property>
     <property name="text">
      <string>doorLabel</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>13</y>
+      <width>61</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Train #</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="trains_list">
+    <property name="geometry">
+     <rect>
+      <x>80</x>
+      <y>10</y>
+      <width>51</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="editable">
+     <bool>true</bool>
+    </property>
+    <property name="currentText">
+     <string>2</string>
+    </property>
+    <property name="currentIndex">
+     <number>-1</number>
+    </property>
+    <property name="minimumContentsLength">
+     <number>1</number>
     </property>
    </widget>
   </widget>
