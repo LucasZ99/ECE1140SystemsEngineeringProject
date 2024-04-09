@@ -36,77 +36,28 @@ class TrainControler_HW_Container(QObject):
     #================================================================================
 
     def show_ui(self):
+        self.trainCtrl.updateTot()      
+        
+        
+    #--------------------------------
+    def update_train_controller_from_train_model(self, authority_safe_speed, track_info, train_info):
+        print("Train Controller HW Container")
+        #print(f"TrainC HW Container update1: {authority_safe_speed}")
+        #print(f"TrainC HW Container update2: {track_info}")
+        #print(f"TrainC HW Container update3: {train_info}")
+
+        #authority_safe_speed_update
+        self.trainCtrl.TrainModel_arr[2] = authority_safe_speed[0]#Auth
+        self.trainCtrl.TrainModel_arr[1] = authority_safe_speed[1]#Cmd_Spd
+        #track_info_update
+        self.trainCtrl.TrainModel_arr[4] = track_info[0]#Track_Cicuit
+        self.trainCtrl.TrainModel_arr[5] = track_info[1]#Aboveground
+        self.trainCtrl.TrainModel_arr[6] = track_info[2]#beacon
+        #train_info_update
+        self.trainCtrl.TrainModel_arr[0] = train_info[0]#Actual_Spd
+        self.trainCtrl.TrainModel_arr[3] = train_info[1]#Pass_ebrake
+
         self.trainCtrl.updateTot()
-
-
-
-
-    #  receiver functions
-    #Auth, Cmd_Spd
-    def authority_safe_speed_update(self, inputs):  # Sam call this to update traincontroller values
-        print("Train Controller TOT Container, type1: values updated, sending signals next")
-        print(f"Train Controller HW: inputs: {inputs}")
-        #print(f"Train Controller HW: before TrainModel_arr: {self.trainCtrl.TrainModel_arr}")
-        
-        self.trainCtrl.TrainModel_arr[2] = inputs[0]#Auth
-        self.trainCtrl.TrainModel_arr[1] = inputs[1]#Cmd_Spd
-            
-        self.trainCtrl.updateTot()
-        #print(f"Train Controller HW: after2  TrainModel_arr: {self.trainCtrl.TrainModel_arr}")
-        self.outputs = self.trainCtrl.output_arr[:-1]
-        self.cabin_temp = self.trainCtrl.output_arr[-1]
-        
-        # send signal with updated values
-        #self.new_train_values_signal.emit(self.trainCtrl.outputs, 1)
-        #self.new_train_temp_signal.emit(self.trainCtrl.cabin_temp, 1)
-        
-        
-        
-        
-        
-    #Track_Cicuit, Aboveground, beacon
-    def track_info_update(self, inputs):  # Sam call this to update traincontroller values
-        print("Train Controller TOT Container, type2: values updated, sending signals next")
-        print(f"Train Controller HW: inputs: {inputs}")
-        #print(f"Train Controller HW: before TrainModel_arr: {self.trainCtrl.TrainModel_arr}")
-
-        self.trainCtrl.TrainModel_arr[4] = inputs[0]#Track_Cicuit
-        self.trainCtrl.TrainModel_arr[5] = inputs[1]#Aboveground
-        self.trainCtrl.TrainModel_arr[6] = inputs[2]#beacon
-            
-        self.trainCtrl.updateTot()
-        #print(f"Train Controller HW: after2  TrainModel_arr: {self.trainCtrl.TrainModel_arr}")
-        self.outputs = self.trainCtrl.output_arr[:-1]
-        self.cabin_temp = self.trainCtrl.output_arr[-1]
-        
-        # send signal with updated values
-        #self.new_train_values_signal.emit(self.trainCtrl.outputs, 1)
-        #self.new_train_temp_signal.emit(self.trainCtrl.cabin_temp, 1)
-        
-        
-        
-        
-        
-    #Actual_Spd, Pass_ebrake
-    def train_info_update(self, inputs):  # Sam call this to update traincontroller values
-        print("Train Controller TOT Container, type3: values updated, sending signals next")
-        print(f"Train Controller HW: inputs: {inputs}")
-        #print(f"Train Controller HW: before TrainModel_arr: {self.trainCtrl.TrainModel_arr}")
-        
-        self.trainCtrl.TrainModel_arr[0] = inputs[0]#Actual_Spd
-        self.trainCtrl.TrainModel_arr[3] = inputs[1]#Pass_ebrake
-            
-        self.trainCtrl.updateTot()
-        #print(f"Train Controller HW: after2  TrainModel_arr: {self.trainCtrl.TrainModel_arr}")
-        self.outputs = self.trainCtrl.output_arr[:-1]
-        self.cabin_temp = self.trainCtrl.output_arr[-1]
-        
-        # send signal with updated values
-        #self.new_train_values_signal.emit(self.trainCtrl.outputs, 1)
-        #self.new_train_temp_signal.emit(self.trainCtrl.cabin_temp, 1)
-        
-        
-    def update_train_model_from_train_controller(self):
         return self.trainCtrl.output_arr
 
 
@@ -117,6 +68,7 @@ class TrainControler_HW_Container(QObject):
 
 
 #================================================================================
+# due to SystemTimeContainer library positioning, must test through total container
 '''def TrainC_HW_main():
     system_time = SystemTimeContainer()
     trainctrlcntr = TrainControler_HW_Container(system_time)
