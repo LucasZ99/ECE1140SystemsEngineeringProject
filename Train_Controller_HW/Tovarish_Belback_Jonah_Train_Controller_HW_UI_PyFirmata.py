@@ -5,7 +5,10 @@ from PyQt6.QtWidgets import *
 #import sys
 import linecache
 import threading
-if __name__ != "__main__": from SystemTime import SystemTime
+import sys
+#print(f"FILE:\t\t<{__file__[-10:-3]}>")
+#print(f"FILE2:\t\t<{sys.argv[0][-10:-3]}>")
+if __name__ != "__main__" and sys.argv[0][-10:-3] != "Testing": from SystemTime import SystemTime
 import math
 
 
@@ -52,6 +55,8 @@ except:
     NoHW=True
     print("No Train Controller HW detected: Arduino COM")
 
+
+#================================================================================
 #mini classes---------------------------------------------------------
 class LED_PyF():
     def __init__(self,Pin):
@@ -101,9 +106,12 @@ class DISP_PyF():
             #print("."+str(temp)+".")
             self.laststring = writing
 
+
+
+#================================================================================
 #arduino verison of HW UI----------------------------------------------
 class HW_UI_JEB382_PyFirmat():
-    def __init__(self,in_Driver_arr,in_TrainModel_arr,in_output_arr,system_time: SystemTime,TestBench=False):
+    def __init__(self,in_Driver_arr,in_TrainModel_arr,in_output_arr,system_time=None,TestBench=False):
         
         #TODO: ADJUST LENGTH AND INDEX BASED ON I/O dictionary
         
@@ -113,33 +121,10 @@ class HW_UI_JEB382_PyFirmat():
         
         in_output_arr = [0.0,0.0, False, False, 0, "", False, False, 68.0]
         self.output_arr = in_output_arr
-        
-        #-------adjust arrays-------
-        #array inputed as an init gets updated as UI is used
-        #classes that created this TB have the array they passed locally update with it as well
-        '''if len(in_TrainModel_arr)<10:
-            #if array is empty or missing values, autofills at end of missing indexes
-            t_TrainModel_arr = [0.0, 0.0, 0.0, False, False, False, False, False, False,"00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"]
-            in_TrainModel_arr = in_TrainModel_arr + t_TrainModel_arr[len(in_TrainModel_arr):]
-        #if over, snips
-        elif len(in_TrainModel_arr)>10: in_TrainModel_arr = in_TrainModel_arr[0:-(len(in_TrainModel_arr)-12)]
-        #ensure beacon arr indx is proper size
-        print("PYF")
-        print(in_TrainModel_arr)
-        if len(str(in_TrainModel_arr[-1]))<128:
-            in_TrainModel_arr[-1] = "0"*(128-len(str(in_TrainModel_arr[-1])))+str(in_TrainModel_arr[-1])
-        elif len(str(in_TrainModel_arr[-1]))>128:
-            in_TrainModel_arr[-1] = str(in_TrainModel_arr[-1])[len(str(in_TrainModel_arr[-1]))-128:]
-        #check tickboxes are within limit(0,100)
-        limit1=0;limit2=100
-        for i in range(0,4):
-            if   in_TrainModel_arr[i] < limit1: in_TrainModel_arr[i]=limit1
-            elif in_TrainModel_arr[i] > limit2: in_TrainModel_arr[i]=limit2'''
-
         self.TrainModel_arr = in_TrainModel_arr
 
         if self.TrainModel_arr[-1] == None or str(self.TrainModel_arr[-1]) == "nan":
-            self.TrainModel_arr[-1] = "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+            self.TrainModel_arr[-1] = "0"*128
 
         print(self.TrainModel_arr)
         
@@ -147,17 +132,7 @@ class HW_UI_JEB382_PyFirmat():
         in_Driver_arr = [50.0, 50.0, 0.0, False, False, 0.0, False, False, False, False, False]
         self.Driver_arr = in_Driver_arr
         
-        
-        
-        
         #+-+-+-+-
-        #self.init_clk = time.time()#replace with shared time module when created and we do integration
-        
-        if __name__ == "__main__": self.init_clk = time.time()
-        else: self.init_clk = self.system_time.time()
-        
-        self.Announcements=""
-        self.Mode = False
         
         #input sets
         try:
@@ -189,9 +164,7 @@ class HW_UI_JEB382_PyFirmat():
             self.LED_Brk_Fail   = LED_PyF(32)
             self.LED_EBRK       = LED_PyF(33)
             self.LED_SBRK       = LED_PyF(34)
-            
-            #self.Announcements=""
-            
+                        
             self.DISP = DISP_PyF()
         
         except:
@@ -199,22 +172,26 @@ class HW_UI_JEB382_PyFirmat():
             NoHW = True
             print("No Train Controller HW detected")
         
+        self.Announcements=""
+        self.Mode = False
+        
         #PowerCalc Inits
         self.uk1=0
         self.ek1=0
-        self.timeL=0
+        if __name__ != "__main__" and sys.argv[0][-10:-3] != "Testing":
+            self.timeL = self.system_time.time()
+        else:
+            print(f"TRAIN CONTROLLER HW: sys.argv[0]: <{sys.argv[0][-10:-3]}>")
+            self.timeL = time.time()
         self.Pcmd=0
         self.polarity = bool(self.TrainModel_arr[4])
         self.blockNum = 1#62 [IT3 application]
         self.speedlimit=30
-        
-        #TestBench
-        #self.printout = 3
-        '''if __name__ == "__main__":# and TestBench:
-            #self.printout = 3
-            self.HW_UI_fin(TestBench)
-            #self.updateTot()'''
     
+    
+    
+    
+    #================================================================================
     def updateRead(self):
         self.Driver_arr[3] = self.BTN_CabnLgt.read()
         self.Driver_arr[4] = self.BTN_HeadLgt.read()
@@ -229,7 +206,11 @@ class HW_UI_JEB382_PyFirmat():
         self.Driver_arr[2] = self.TCK_CmdSpd.read()
         self.Driver_arr[5] = self.TCK_Temp.read()
         self.Mode = self.BTN_Mode.read()
-            
+    
+    
+    
+    
+    #================================================================================
     def updateDisplay(self):
         '''
         self.LED_CabnLgt   .write(self.BTN_CabnLgt.read())
@@ -270,9 +251,6 @@ class HW_UI_JEB382_PyFirmat():
         self.LED_Track_Circ.write( bool(self.TrainModel_arr[4])  )
         self.LED_Stat_Side2.write( bool(self.stat_Dside%2) ) #_x 2,3
         self.LED_Stat_Side1.write( bool(self.stat_Dside>1) ) #x_ 1,3
-        #self.LED_Sig_Fail  .write( bool(self.TrainModel_arr[-4]) )
-        #self.LED_Eng_Fail  .write( bool(self.TrainModel_arr[-3]) )
-        #self.LED_Brk_Fail  .write( bool(self.TrainModel_arr[-2]) )
         self.LED_EBRK  .write( bool(self.output_arr[3]) )
         self.LED_SBRK  .write( bool(self.output_arr[2]) )
         
@@ -282,19 +260,22 @@ class HW_UI_JEB382_PyFirmat():
         if len(self.Announcements) < 16: self.Announcements = self.Announcements+(" "*16)
         self.Announcements = self.Announcements[:16]
         #print(f"<{self.Announcements}> {len(self.Announcements)}")
-        self.DISP.send(f"{self.Announcements}{int(self.TrainModel_arr[0])}  {int(self.output_arr[0])}  {self.speedlimit}")
+        
+        #m/s to mph
+        #actual, COMspd, speedlimit
+        self.DISP.send(f"{self.Announcements}{int(self.TrainModel_arr[0]*2.237)}  {int(self.output_arr[0]*2.237)}  {self.speedlimit*2.237}")
         
         
         
-    def updateCalc(self):
-        #self.output_arr=[1.0,1.0, False,False, False,False, False,False, 0.0, ""]
-        #SB_temp = False
-        #EB_temp = False
         
-        
+    #================================================================================
+    def updateCalc(self,file=None):    
         #[NOT IT3] get beacon if possible, overwrite current variable keeping track of what block train is on
         #[NOT IT3] use beacon pickup order to decide which direction its going
         #[NOT IT3] use beacon before station to decide if stoping at current block or next
+        
+        
+        
         #every block flips in polarity, +/- on edge
         if self.polarity != self.TrainModel_arr[4]:
             self.blockNum+=1
@@ -312,17 +293,17 @@ class HW_UI_JEB382_PyFirmat():
         
         for i in range(int(self.TrainModel_arr[2])):
             particular_line = linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum+i).split("\t")
-            print(f"LINE: {particular_line}")
+            #print(f"LINE: {particular_line}")
             distance_to_station += int(particular_line[3])
 
             if particular_line[5][:7] == "STATION":
                 app_stat=particular_line[5][9:]
-                print(f"PART: {particular_line[5][9:]}")
+                #print(f"PART: {particular_line[5][9:]}")
                 if "Left" in particular_line[6]: self.stat_Dside+=1
                 if "Right" in particular_line[6]: self.stat_Dside+=2
         
         infra = linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum).split('\t')[5]
-        print(f".txt infra: <{infra[:7]}>, app_stat: <{app_stat}>")
+        #print(f".txt infra: <{infra[:7]}>, app_stat: <{app_stat}>")
         self.output_arr[5] = ""
         if linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum).split("\t")[5][:7] != "STATION":
             self.Announcements = "APP:"+app_stat[:12]
@@ -333,55 +314,39 @@ class HW_UI_JEB382_PyFirmat():
             self.output_arr[5] = infra[9:]
             
         
-        print(f"BlockNum: {self.blockNum}")
-        print(f"ANNOUNCE: <{self.Announcements}>")
-        print(f"DIST: {distance_to_station}")
+        #print(f"BlockNum: {self.blockNum}")
+        #print(f"ANNOUNCE: <{self.Announcements}>")
+        #print(f"DIST: {distance_to_station}")
         
-        #beacon information from file
-        '''#Line       Section Block#      BlockLength     Speed Limit     Infrastructure
-        if self.TrainModel_arr[-1] != "":
-            particular_line = linecache.getline('Beacon_info.txt', int(self.TrainModel_arr[-1], 16))
-            #print(int(self.TrainModel_arr[-1], 16))
-        else: particular_line=""
-        #print("<"+particular_line+">")
-        particular_line =particular_line.split("\t")
-        #print(particular_line)'''
+        
+         #2   On/Off Service Brake	        Boolean	    Slow down vital control from train controller
+        if not self.Mode:#auto
+            if int(self.TrainModel_arr[2]) == 0: self.output_arr[2]=True
+        else:#manual
+            self.output_arr[2] = self.Driver_arr[9]
+                    
+                        
+        #3   On/Off Emergency Brake	        Boolean	    Emergency Slow down vital control from train controller
+        self.output_arr[3] = (self.TrainModel_arr[3] and not (self.Driver_arr[10]) ) or self.Driver_arr[8]
+        if self.output_arr[3]: self.output_arr[2] = False
+        
         
         displace_buffer=10
         #service
         t1=( (0-float(self.TrainModel_arr[0]))/(-1.2 ) )*(5/18)
         s1=0.5*(0+float(self.TrainModel_arr[0]))*t1*(5/18)#1/2 * u * t * conversion of km/hr to m/s
-        #emergency
-        #t2=( (0-float(self.TrainModel_arr[0]))/(-2.73) )*(5/18)
-        #s2=0.5*(0+float(self.TrainModel_arr[0]))*t2*(5/18)#1/2 * u * t * conversion of km/hr to m/s
         
         #if authority<4 and distance to station <= s1 + buffer: serivce brake, power=0, commanded speed=0
-        if distance_to_station <= s1+displace_buffer:
+        if distance_to_station <= s1+displace_buffer or distance_to_station == s1:
             self.output_arr[0] = 0
             self.output_arr[1] = 0
             self.output_arr[2] = True
-            self.output_arr[2] = True
         #elif authority<4 and distance to station <= s1: emergency brake, power=0, commanded speed=0
-        elif distance_to_station <= s1:
+        elif distance_to_station < s1:
             self.output_arr[0] = 0
             self.output_arr[1] = 0
             self.output_arr[3] = True
-        else:
-            
-            #2   On/Off Service Brake	        Boolean	    Slow down vital control from train controller
-            if not self.Mode:#auto
-                if int(self.TrainModel_arr[2]) == 0: self.output_arr[2]=True
-                #edge case for Station Green Line Block 16
-            else:#manual
-                self.output_arr[2] = self.Driver_arr[9]
-                    
-                        
-            #3   On/Off Emergency Brake	        Boolean	    Emergency Slow down vital control from train controller
-            self.output_arr[3] = (self.TrainModel_arr[3] and not (self.Driver_arr[10]) ) or self.Driver_arr[8]
-            
-            if self.output_arr[3]: self.output_arr[2] = False
-            
-            
+        else:          
             
             #fill out self.output_arr and self.Announcements
             #0   Commanded Speed	                m/s	        How fast the driver has commanded the train to go
@@ -401,18 +366,29 @@ class HW_UI_JEB382_PyFirmat():
             elif self.TrainModel_arr[0] == 0 or self.TrainModel_arr[1] == 0:
                 self.output_arr[1] = 0
             else:
-                if __name__ == "__main__": currtime = time.time()
-                else: currtime = self.system_time.time()
+                if __name__ != "__main__" and sys.argv[0][-10:-3] != "Testing":
+                    currtime = self.system_time.time()
+                else:
+                    currtime = time.time()
                 
                 
-                V_err = self.output_arr[0] - self.TrainModel_arr[4] #Verr=Vcmd-Vactual
-                T = currtime-self.timeL
+                V_err = self.output_arr[0] - self.TrainModel_arr[0] #Verr=Vcmd-Vactual ; m/s-m/s
+                T = currtime-self.timeL #sec-sec
                 global Pmax
                 if self.Pcmd < Pmax:
-                    uk = self.uk1+( (T/2)*(V_err-self.ek1) )
+                    uk = self.uk1+( (T/2)*(V_err-self.ek1) )  # m + ( s*(m/s-m/s) )
                 else:
                     uk = self.uk1
-                self.Pcmd = (self.Driver_arr[0]*V_err) + (self.Driver_arr[1]*uk)
+                self.Pcmd = (self.Driver_arr[0]*V_err) + (self.Driver_arr[1]*uk) #(m/s*m/s)+(Ki*m) ; m2/s2 + m
+                
+                if file:
+                    file.write(f"curr:{currtime},\t last:{self.timeL}\n")
+                    file.write(f"T: {T}\n")
+                    file.write(f"Verr: {V_err}\n")
+                    file.write(f"ek1: {self.ek1}\n")
+                    file.write(f"uk: {uk}")
+                    file.write(f"uk1: {self.uk1}\n")
+                    file.write(f"Pcmd: {self.Pcmd}\n")
                 
                 if self.Pcmd > Pmax: self.Pcmd=Pmax
                 elif self.Pcmd < 0: self.Pcmd=0
@@ -429,20 +405,7 @@ class HW_UI_JEB382_PyFirmat():
             
             #-----------------------------------------------------------------------------------------------------------------------
             #Look ahead algo (returns arr of total distance)
-            
-            
-        '''#2   On/Off Service Brake	        Boolean	    Slow down vital control from train controller
-        if not self.Mode:#auto
-            if self.TrainModel_arr[2] == 0: self.output_arr[2]=True
-            #edge case for Station Green Line Block 16
-        else:#manual
-            self.output_arr[2] = SB_temp or self.Driver_arr[9]
-                
-                    
-        #3   On/Off Emergency Brake	        Boolean	    Emergency Slow down vital control from train controller
-        self.output_arr[3] = EB_temp or (self.TrainModel_arr[3] and not (self.Driver_arr[10]) ) or self.Driver_arr[8]
-        
-        if self.output_arr[3]: self.output_arr[2] = False'''
+
         
         #-----------------------------------------------------------------------------------------------------------------------
         #4   Open/Close Left/Right Doors	    integer	    Which Doors to open; 0:none, 1:left, 2:right, 3:both
@@ -461,9 +424,9 @@ class HW_UI_JEB382_PyFirmat():
         
         
         #6   Cabin lights (interior)	        Boolean	    lights inside cabin; Automatically turned on from enviroment or toggled by driver; 1 on, 0 off
-        self.output_arr[6] = not self.TrainModel_arr[5] or (self.Driver_arr[3] and self.Mode)
+        self.output_arr[6] = self.TrainModel_arr[5] or (self.Driver_arr[3] and self.Mode)
         #7   headlights (exterior)	        Boolean	    Automatically turned on from enviroment or toggled by driver; 1 on, 0 off
-        self.output_arr[7] = not self.TrainModel_arr[5] or (self.Driver_arr[4] and self.Mode)
+        self.output_arr[7] = self.TrainModel_arr[5] or (self.Driver_arr[4] and self.Mode)
         
         #-----------------------------------------------------------------------------------------------------------------------
         #8   Cabin Temperature	            Fahrenheit  What temperature to make cabin
@@ -473,36 +436,28 @@ class HW_UI_JEB382_PyFirmat():
         #-----------------------------------------------------------------------------------------------------------------------
         #x   Act On Faults/Failures	        N/A	        No specific unit, but a change in behavior represented in one of these other outputs
         
-    
-    #def Lookahead(self):
-    
+        #print(f"Output TrainC #1:\t{self.output_arr}\t{'AUTO' if not self.Mode else 'MANUAL'}")
         
+    
+    
+    
+    #================================================================================
     def updateTot(self):
-        #print(f'Train Controller HW: NAN check {self.TrainModel_arr[-1]} <{str(self.TrainModel_arr[-1])}> {str(self.TrainModel_arr[-1]) == "nan"}')
-        if self.TrainModel_arr[-1] == None or str(self.TrainModel_arr[-1]) == "nan":
-            #print('Train Controller HW: caught nan')
-            self.TrainModel_arr[-1] = "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
-            #print(f'Train Controller HW: nan check1 {self.TrainModel_arr[-1]}')
-            #print(f'Train Controller HW: nan check2 {self.TrainModel_arr}')
+        if self.TrainModel_arr[-1] == None or str(self.TrainModel_arr[-1]) == "nan": self.TrainModel_arr[-1] = "0"*128
 
-        global NoHW
-        #if not NoHW:
-        print("update")
-        #sys.stdout.write("p")
-        #bugfix: cant get updates without a printout????? i hate pyfrimata
-        with open('TrainC_HW_bugfix.txt', 'w') as f:
-            f.write('Hi')
+        with open('TrainC_HW_bugfix.txt', 'w') as f: f.write('Hi')
         
+        global NoHW
         if not NoHW:
             print("updateRead")
             self.updateRead()
-        
-        print("updateCalc")
-        self.updateCalc()
-        
-        if not NoHW:
+            print("updateCalc")
+            self.updateCalc()
             print("updateDisplay")
             self.updateDisplay()
+        else:
+            print("updateCalc")
+            self.updateCalc()
         
         if __name__ != "__main__":
             print(f"\nDriver TrainC #1:\t{self.Driver_arr}\t{'AUTO' if not self.Mode else 'MANUAL'}")
@@ -512,10 +467,14 @@ class HW_UI_JEB382_PyFirmat():
         
     def __del__(self):
         print('HW_UI_JEB382_PyFirmat: Destructor called')
-        #if self.TB_window: sys.exit(self.app.exec())
 
 
 
+
+
+
+
+    #================================================================================
     #[{!!!!!!!!!!!!!!!!!!!!!!!!}]
     #can call this just as its class, this implies its not getting information from a testbench which requires threading
     def HW_UI_mainloop_fast(self):
@@ -525,15 +484,15 @@ class HW_UI_JEB382_PyFirmat():
         #global printout
         global NoHW
         prin=True
-        while True and not NoHW:
+        while True:
             
             with open('TrainC_HW_bugfix.txt', 'w') as f: f.write('Hi')
             
-            self.updateRead()
+            if not NoHW: self.updateRead()
             self.updateCalc()
             if (int(time.time())-int(ptime))%2==0 and prin:                
                 prin=False
-                self.updateDisplay()
+                if not NoHW: self.updateDisplay()
                 #if self.printout == 1 and not NoHW: print(f"Driver TrainC #1:\t{self.Driver_arr}\t{'AUTO' if not self.Mode else 'MANUAL'}")
                 #elif self.printout == 2 and not NoHW: print(f"TrainModel TrainC #1:\t{self.TrainModel_arr} {'AUTO' if not self.Mode else 'MANUAL'}")
                 #elif self.printout == 3 and not NoHW: print(f"Output TrainC #1:\t{self.output_arr}\t{'AUTO' if not self.Mode else 'MANUAL'}")
@@ -548,8 +507,6 @@ class HW_UI_JEB382_PyFirmat():
             #print(self.Mode)
             #if self.Mode or not self.Mode: sys.stdout.write("")
             
-
-
     def HW_UI_fin(self, TestBench=False):
         print(f"HW_UI_fin: {TestBench}")#,\t{self.printout}")
         
@@ -561,7 +518,12 @@ class HW_UI_JEB382_PyFirmat():
             t2.start()
             t2.join()
         t1.join()
-        
+    
+    
+
+
+#================================================================================
+#help funcs------------------------------------------------------------
 def TC_HW_init(driver,trainmodel,output,system_time,TestB=False):
     print("TC_HW_init")
     Arduino = True
@@ -574,18 +536,13 @@ def TC_HW_init(driver,trainmodel,output,system_time,TestB=False):
                                   system_time,
                                   TestB)
 
-
-if __name__ == "__main__":
+def def_main():
     Arduino = True
     
     main_Driver_arr = []#[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-    #main_TrainModel_arr = [0.0, 0.0, 0.0, 0.0, False, False, False , False, False, False,
-    #                       "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"]
     main_TrainModel_arr = [0,0,4,False,True,False,
-                           "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"]
-    #[]
-    main_output_arr = [] #[7.00]*90
-    #w = HW_UI_JEB382_PyFirmat(main_Driver_arr,main_TrainModel_arr,True)
+                           "0"*128]
+    main_output_arr = []
     
     try:
         it = util.Iterator(board)  
@@ -593,13 +550,54 @@ if __name__ == "__main__":
     except:
         print("No Train Controller HW detected: util.Iterator")
     
-    #global glob_UI
-    #global printout
-    #printout=2
-    #print("-1234567890abcdefghijklmnopqrstuvvvvv")
-    glob_UI = HW_UI_JEB382_PyFirmat(main_Driver_arr,
-                                    main_TrainModel_arr,
-                                    main_output_arr,
-                                    True)
+    glob_UI = HW_UI_JEB382_PyFirmat(main_Driver_arr, main_TrainModel_arr, main_output_arr, TestBench=True)
+    glob_UI.HW_UI_fin(True)
+
+def PWR_Unit_test(expected, err, ActSpd, CmdSpd):    
     
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    print(dir_path)
+    file = open(dir_path+f'\Testlogs\TrainC_HW_PWRo{expected}o{err}o{ActSpd}o{CmdSpd}.txt', 'w')
+    file.write("Hi\n")
+    
+    #testing 29m/s actual speed, 25m/s commanded speed == look for Power in Watts
+    main_TrainModel_arr = [0,0,4,False,False,False,
+                           "0"*128]
+    main_output_arr = []
+    main_Driver_arr = []
+    
+    try:
+        it = util.Iterator(board)  
+        it.start()
+    except:
+        print("No Train Controller HW detected: util.Iterator")
+    
+    glob_UI = HW_UI_JEB382_PyFirmat(main_Driver_arr, main_TrainModel_arr, main_output_arr)
+    ptime = time.time()
+    while(time.time()<ptime+1): glob_UI.updateCalc(file)
+    
+    
+    glob_UI.TrainModel_arr = [ActSpd,CmdSpd,4,False,False,False,
+                           "0"*128]
+    ptime = time.time()
+    while(time.time()<ptime+0.5): glob_UI.updateCalc(file)
+    
+    print(f"Driver TrainC #1:\t{glob_UI.Driver_arr}\t{'AUTO' if not glob_UI.Mode else 'MANUAL'}")
+    print(f"TrainModel TrainC #1:\t{glob_UI.TrainModel_arr} {'AUTO' if not glob_UI.Mode else 'MANUAL'}")
+    print(f"Output TrainC #1:\t{glob_UI.output_arr}\t{'AUTO' if not glob_UI.Mode else 'MANUAL'}")
+    
+    
+    print("\n================================================")
+    test = ( glob_UI.output_arr[1] <= expected*(1+err) and glob_UI.output_arr[1] >= expected*(1-err) )
+    print(f"range: {expected*(1+err)}\tto\t{expected*(1-err)}")
+    
+    print(f"\nUNIT TEST {'PASS' if test else 'FAIL'}:\nPWR:\t{glob_UI.output_arr[1]}\nGOAL:\t{expected} *{err*100}%")
+    print(f"ERR:\t{glob_UI.output_arr[1] - expected}")
+    
+
+
+#================================================================================
+if __name__ == "__main__":
+    #def_main()
+    PWR_Unit_test(expected=150 ,err=0.05 ,ActSpd=1 ,CmdSpd=4 )
         
