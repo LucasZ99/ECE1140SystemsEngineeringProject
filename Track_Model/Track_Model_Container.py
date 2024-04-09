@@ -155,7 +155,7 @@ class TrackModelContainer(QObject):
                     add_train = True
                     self.track_model.train_spawned()
         # TODO: implement removing trains
-        train_dict = self.train_model.get_train_dict()  # copy train dict
+        train_dict = self.track_model.get_train_dict()  # copy train dict
 
         # change authority_safe_speed_update to be train based instead of block based
         # list[tuple[block_id: int, authority: int, safe_speed: float]] ->
