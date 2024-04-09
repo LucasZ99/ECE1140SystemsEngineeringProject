@@ -29,7 +29,7 @@ from Track_Controller_HW import SlotsSigs
 
 class Tb_Ui(QMainWindow):
 
-    occupancy_changed_signal = pyqtSignal(list)
+    occupancy_changed_signal = pyqtSignal(dict)
     switch_changed_signal = pyqtSignal(list)
     authority_updated_signal = pyqtSignal(bool)
     sug_speed_updated_signal = pyqtSignal(list)
@@ -312,4 +312,5 @@ class Tb_Ui(QMainWindow):
         self.slots_sigs.new_switches(self.switches)
 
     #print("Event connections completed.2")
+
 
