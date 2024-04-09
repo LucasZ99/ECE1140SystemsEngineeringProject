@@ -308,7 +308,6 @@ class Window(QMainWindow):
         print('implement refresh pls')
 
 
-
 ##############################
 # Run app
 ##############################

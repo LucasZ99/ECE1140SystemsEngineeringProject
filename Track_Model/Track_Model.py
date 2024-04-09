@@ -29,12 +29,13 @@ class TrackModel(QObject):
             if self.data[i, 16] == 0:
                 self.data[i, 16] = random.randint(1, 100)
                 self.data[i, 17] = random.randint(1, self.data[i, 16])
-        self.authority = []
-        self.speed = [0] * 150
+        self.authority = [0] * self.num_blocks
+        self.speed = [0.0] * self.num_blocks
 
         self.train_dict_relative = {}
         self.train_dict = {}
         self.train_count = 0
+        self.total_track_length = int(np.sum(self.data[1:, 3]))
 
         # hardcoded
         # Step 1: 12 to 1
@@ -286,6 +287,7 @@ class TrackModel(QObject):
         self.train_count += 1
         self.train_dict_relative[self.train_count] = 0
         self.train_dict[self.train_count] = self.full_path[0]
+        self.train_dict_meters[self.train_count] = 0
         print(f'new train spawned, train_count = {self.train_count}')
 
     def train_presence_changed(self, train_id: int):
@@ -371,6 +373,14 @@ class TrackModel(QObject):
         block = self.train_dict[train_id]
         return self.data[block, (4, 6, 20, 11)].tolist()
         # grade elevation underground_status beacon
+
+    def update_authority_and_safe_speed(self, authority_safe_speed_update):
+        for i in range(0, len(authority_safe_speed_update)):
+            block_id = authority_safe_speed_update[i][0]
+            authority = authority_safe_speed_update[i][1]
+            safe_speed = authority_safe_speed_update[i][2]
+            self.authority[block_id] = authority
+            self.speed[block_id] = safe_speed
 
 # Section J will not exist, replace it with yard
 # refresh tables from UI in container every time setters are called
