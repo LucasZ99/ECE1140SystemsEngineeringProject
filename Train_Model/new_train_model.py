@@ -84,3 +84,26 @@ class TrainModel:
 
         self.heater.physics_calculation(time)
         return delta_x
+
+    def update_controller(self):
+        auth_speed_list = [self.signals.authority, self.signals.commanded_speed]
+        block_list = [self.track_circuit, self.new_block.underground, self.signals.beacon]
+        phys_list = [self.velocity, self.brakes.passenger_ebrake]
+
+        output_list: list
+        output_list = self.controller.update_train_controller_from_train_model(auth_speed_list, block_list, phys_list)
+
+        # output_list = [Commanded Speed: float, power: float, service_brake: bool, e_brake: bool, door_side: int,
+        # announcement: string, interior_lights: bool, exterior_lights: bool, cabin_temperature: float]
+
+        self.engine.set_power(output_list[1])
+        self.brakes.service_brake = output_list[2]
+        self.brakes.driver_ebrake = output_list[3]
+        self.brakes.passenger_ebrake = output_list[3]
+        self.interior_functions.left_doors = (int(output_list[4] % 2) == 1)
+        self.interior_functions.right_doors = (int(output_list[4] / 2) == 1)
+        self.interior_functions.announcement = output_list[5]
+        self.interior_functions.interior_lights = output_list[6]
+        self.interior_functions.exterior_lights = output_list[7]
+        if output_list[8] != self.heater.target_temp:
+            self.heater.update_target(output_list[8])
