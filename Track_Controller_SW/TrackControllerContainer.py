@@ -92,26 +92,28 @@ class TrackControllerContainer(QObject):
                                 blocks_to_close_open: list[tuple[int, bool]],
                                 updated_switches: list[Switch]):
 
-        self.check_safe_speed(authority_speed_update)
-
-        safe_toggle_blocks = []
-        if maintenance_mode_override_flag:
-            safe_toggle_blocks = self.check_safe_toggle_block(blocks_to_close_open)
-            self.toggle_switch_if_safe(updated_switches)
-
-        # call downstream endpoint after processing of CTC data
+        print(f"authority speed update received in wayside: {authority_speed_update[0]}")
+        # self.check_safe_speed(authority_speed_update)
+        #
+        # safe_toggle_blocks = []
+        # if maintenance_mode_override_flag:
+        #     safe_toggle_blocks = self.check_safe_toggle_block(blocks_to_close_open)
+        #     self.toggle_switch_if_safe(updated_switches)
+        #
+        # # call downstream endpoint after processing of CTC data
         self.update_track_model_from_wayside.emit(
             [track_signal.to_tuple() for track_signal in authority_speed_update],
             [switch.to_tuple() for switch in self.switch_list],
             [light.to_tuple() for light in self.lights_list],
             [crossing.to_tuple() for crossing in self.rr_crossing_list],
-            safe_toggle_blocks
+            []
         )
 
     # Track Model Endpoint
     @pyqtSlot(dict)
     def update_wayside_from_track_model(self, block_occupancy_update: dict[int, bool]):
-        self.update_occupancy(block_occupancy_update)
+        print(f"block occupancy update from wayside received, block 62 status: {block_occupancy_update[62]}")
+        # self.update_occupancy(block_occupancy_update)
         self.update_ctc_from_wayside.emit(
             block_occupancy_update,
             self.switch_list,
@@ -154,11 +156,11 @@ class TrackControllerContainer(QObject):
         print("TrackControllerContainer.update_occupancy called")
 
         # update occupancy dicts with new data
-        self.occupancy_dict = block_occupancy_dict
-        self.occupancy_dict_A = dict(itertools.islice(self.occupancy_dict.items(), 32))
-        self.occupancy_dict_B = dict(itertools.islice(self.occupancy_dict.items(), 28, 72))
+        self.occupancy_dict.update(block_occupancy_dict)
+        self.occupancy_dict_A.update(dict(itertools.islice(self.occupancy_dict.items(), 32)))
+        self.occupancy_dict_B.update(dict(itertools.islice(self.occupancy_dict.items(), 28, 72)))
         self.occupancy_dict_B.update(dict(itertools.islice(self.occupancy_dict.items(), 96, 146)))
-        self.occupancy_dict_C = dict(itertools.islice(self.occupancy_dict.items(), 72, 100))
+        self.occupancy_dict_C.update(dict(itertools.islice(self.occupancy_dict.items(), 72, 100)))
 
         # call the update occupancy functions to trigger plc logic and ui updates
         update_occupancy_A_result = self.trackControllerA.update_occupancy(self.occupancy_dict_A)
@@ -203,8 +205,10 @@ class TrackControllerContainer(QObject):
 
     @pyqtSlot(int)
     def update_track_switch(self, switch_block: int) -> None:
-        print(f"Updating Track Model switch at block: {switch_block}")
-        self.switch_list[switch_block].toggle()
+        print(f"Updating switch at block: {switch_block}")
+        for switch in self.switch_list:
+            if switch.block == switch_block:
+                switch.toggle()
 
     @pyqtSlot(bool)
     def update_rr_crossing_status_A(self, rr_crossing_status: bool) -> None:
@@ -246,7 +250,7 @@ class TrackControllerContainer(QObject):
 
 def main():
     trackControllerContainer = TrackControllerContainer()
-
+    trackControllerContainer.show_ui("C")
 
 if __name__ == "__main__":
     main()
