@@ -4,12 +4,9 @@ import time
 import os
 
 from PyQt6.QtWidgets import *
-from PyQt6.QtCore import *
-from PyQt6.QtGui import *
 import sys
 from PyQt6.uic import loadUi
-
-# from Train_Controller_SW.trainControllerSW import TrainController
+from PyQt6.QtCore import pyqtSlot, pyqtSignal, QObject
 
 
 class UI(QMainWindow):
@@ -337,15 +334,17 @@ class UI(QMainWindow):
             time.sleep(5)
 
     def changetrain(self):
-        self.train_list.clear()
-        self.train_list.add(self.ctrl_list)  # how does this update when new ctrl is added in container..
+        self.ctrl_list.clear()
+        self.ctrl_list.add(self.ctrl_list)  # how does this update when new ctrl is added in container..
         # probably gonna have to use a signal for ^^, looking into it
+
 
 def main():
     # initialize the app
     app = QApplication(sys.argv)
     UIWindow = UI()
     app.exec()
+
 
 if __name__ == '__main__':
     main()

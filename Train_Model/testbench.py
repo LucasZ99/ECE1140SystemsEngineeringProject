@@ -77,10 +77,7 @@ class ContainerTB(QMainWindow):
         input_lst = list()
         input_lst.append(float(lst[0]))
         input_lst.append(int(lst[0]))
-        try:
-            self.container.track_model_inputs(input_lst, 1)
-        except Exception as error:
-            print(error)
+        self.container.track_model_inputs(input_lst, 1)
 
     def controller_pressed(self):
         lst = str(self.controllerInput.text()).split(", ", -1)
@@ -126,10 +123,7 @@ class ContainerTB(QMainWindow):
         self.container.add_train()
 
     def remove_trn(self):
-        try:
-            self.container.remove_train(max(self.container.train_dict.keys()))
-        except Exception as error:
-            print(error)
+        self.container.remove_train(max(self.container.train_dict.keys()))
 
 
 contain = TrainModelContainer(TrainController_Tot_Container(SystemTimeContainer()), SystemTimeContainer())

@@ -38,8 +38,6 @@ class UITrain(QMainWindow):
         else:
             self.index = min(self.train_dict.keys())
 
-
-
         # define widgets
         self.physicsButton = self.findChild(QPushButton, "physicsButton")
         self.passengerButton = self.findChild(QPushButton, "passengerButton")
@@ -132,7 +130,6 @@ class UITrain(QMainWindow):
         except Exception as e:
             print("Error with loading Icon file: ", e)
 
-
         self.phyGroup_tb.hide()
         self.trainGroup_tb.hide()
         self.transGroup_tb.hide()
@@ -193,11 +190,17 @@ class UITrain(QMainWindow):
         self.trainSelect.addItem(f'Train {index}')
 
     def train_removed(self, index):
-        itemIndex = self.trainSelect.findText(f'Train {index}')
-        if itemIndex == -1:
+        print("ui train remove")
+        item_index = self.trainSelect.findText(f'Train {index}')
+        print("index calculated")
+        if item_index == -1:
+            print("train index not present")
             return
         else:
-            self.trainSelect.removeItem(itemIndex)
+            print("removing train")
+            self.trainSelect.removeItem(item_index)
+            print("train removed")
+
 
     def combo_selection(self):
         string = str(self.trainSelect.currentText())
