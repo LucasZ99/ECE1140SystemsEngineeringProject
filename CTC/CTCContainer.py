@@ -20,6 +20,8 @@ class CTCContainer(QObject):
         self.ctc = CTC(self.system_time)
         self.ctc.update_wayside_from_ctc_signal.connect(self.update_wayside_from_ctc_signal)
 
+        self.ctc.send_initial_message()
+
         init_end_time = python_time.time()
         print("Initializing CTCContainer Done. t={0}".format(init_end_time))
         print("CTCContainer Initialization time t={0}".format(init_end_time - init_start_time))
