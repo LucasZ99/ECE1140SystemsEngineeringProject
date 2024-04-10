@@ -89,11 +89,11 @@ class ContainerTB(QMainWindow):
         input_list = list()
         input_list.append(float(lst[0]))
         input_list.append(float(lst[1]))
-        input_list.append(lst[2] == "True")
-        input_list.append(lst[3] == "True")
+        input_list.append(bool(lst[2]))
+        input_list.append(bool(lst[3]))
         input_list.append(int(lst[4]))
-        input_list.append(lst[5] == "True")
-        input_list.append(lst[7] == "True")
+        input_list.append(bool(lst[5]))
+        input_list.append(bool(lst[7]))
         self.container.train_controller_inputs(input_list, 1)
 
     def block_pressed(self):
@@ -123,10 +123,7 @@ class ContainerTB(QMainWindow):
         self.container.add_train()
 
     def remove_trn(self):
-        try:
-            self.container.remove_train(max(self.container.train_dict.keys()))
-        except Exception as error:
-            print(error)
+        self.container.remove_train(max(self.container.train_dict.keys()))
 
 
 contain = TrainModelContainer(TrainController_Tot_Container(SystemTimeContainer()), SystemTimeContainer())

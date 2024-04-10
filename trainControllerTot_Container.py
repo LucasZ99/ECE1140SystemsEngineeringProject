@@ -21,6 +21,7 @@ class TrainController_Tot_Container(QObject):
     # new_train_values_signal = pyqtSignal(list, int)
     # new_train_temp_signal = pyqtSignal(float, int)
     # sam connect these signals to your respective update train model values command
+    new_train_controller_signal = pyqtSignal(object)
 
     def __init__(self, system_time_container: SystemTimeContainer):
         super().__init__()
@@ -32,21 +33,20 @@ class TrainController_Tot_Container(QObject):
     
     
     #================================================================================
-    # return HW/SW Container
+   # return HW/SW Container
     def new_train_controller(self):
         if self.HW_index:
             trainCtrl = TrainControllerSWContainer(self.system_time)
+            #self.new_train_controller_signal.emit(trainCtrl)
+            print("software train controller made")
         else:
             self.HW_index = len(self.ctrl_list)
-            trainCtrl = TrainControler_HW_Container(self.system_time)
+            trainCtrl = TrainControler_HW_Container(self.system_time,True)
         self.ctrl_list.append(trainCtrl)
         return trainCtrl
 
-
-
-    #================================================================================
     # gonna need a show ui method for the list of sw controllers
-    # not sure we will want to handle the hw ui though...
+    # not sure how we will want to handle the hw ui though...
 
     # like this maybe ? vvv
     def show_hwui(self):
@@ -54,7 +54,6 @@ class TrainController_Tot_Container(QObject):
             self.ctrl_list[self.HW_index].show_ui()
         else:
             print("WARNING: TrainController_Tot_Container: show_hwui without HW Controller")
-
     def show_swui(self):
         app = QApplication.instance()
 
@@ -71,12 +70,13 @@ class TrainController_Tot_Container(QObject):
 
 
 #================================================================================
-def TrainC_main(system_time, type=True):
+def TrainC_main(system_time):
     trainctrlcntr = TrainController_Tot_Container(system_time)
     cntrl = trainctrlcntr.new_train_controller()  # removed (type) as parameter
-    while True: cntrl.show_ui()
+    while True:
+        cntrl.show_ui()
 
 
 if __name__ == "__main__":
     system_time = SystemTimeContainer()
-    TrainC_main(system_time, False)
+    TrainC_main(system_time)

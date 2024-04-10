@@ -123,11 +123,8 @@ class TrackController(QObject):
             app = QApplication([])  # If QApplication instance doesn't exist, create a new one
             # app_flag = True
 
-        print("before ui call")
         self.ui = UI(self.business_logic)
-        print("before ui show")
         self.ui.show()
-        print("After ui show")
 
         # if app_flag is True:
         app.exec()

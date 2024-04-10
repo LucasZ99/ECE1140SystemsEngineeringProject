@@ -6,47 +6,37 @@ from PyQt6.QtWidgets import QApplication
 
 from CTC.CTCContainer import CTCContainer
 from SystemTime.SystemTimeContainer import SystemTimeContainer
+from TrackControllerTest import TrackControllerTestBenchContainer
 from Track_Controller_SW.TrackControllerContainer import TrackControllerContainer
 from Track_Model.Track_Model_Container import TrackModelContainer
 from launcherui import LauncherUi
 from trainControllerTot_Container import TrainController_Tot_Container
 from Train_Model import TrainModelContainer
 
-import time  # for debugging
-
 
 class LauncherContainer(QObject):
     def __init__(self):
         super().__init__()
-        start = time.time()
         self.time_module = SystemTimeContainer()
-        end = time.time()
-        print(f'system time module = {end - start}')
-        start = time.time()
-        self.trainControllerContainer = TrainController_Tot_Container(self.time_module)
-        end = time.time()
-        print(f'train controller Tot = {end - start}')
-        start = time.time()
-        self.train_model_container = TrainModelContainer(self.trainControllerContainer, self.time_module)
-        end = time.time()
-        print(f'train model = {end - start}')
-        start = time.time()
-        self.track_model_container = TrackModelContainer()
-        end = time.time()
-        print(f'track model = {end - start}')
-        start = time.time()
-        self.track_controller_container = TrackControllerContainer()
-        end = time.time()
-        print(f'track controller = {end - start}')
-        start = time.time()
         self.ctc_container = CTCContainer(self.time_module)
-        end = time.time()
-        print(f'ctc = {end - start}')
-        # Connect signals between modules
+        self.track_controller_container = TrackControllerContainer()
+        self.ctc_container.ctc.send_initial_message()
+        self.track_model_container = TrackModelContainer()
+        self.trainControllerContainer = TrainController_Tot_Container(self.time_module)
+        self.train_model_container = TrainModelContainer(self.trainControllerContainer, self.time_module)
 
+        # Test containers
+        self.track_controller_testbench_container = TrackControllerTestBenchContainer()
+
+        # Test container signals
+        # CTC to Wayside
+        self.track_controller_testbench_container.test_update_wayside_from_ctc.connect(self.track_controller_container.update_wayside_from_ctc)
+        # Track Model to Wayside
+        self.track_controller_testbench_container.test_update_wayside_from_track_model.connect(self.track_controller_container.update_wayside_from_track_model)
+
+        # Connect signals between modules
         # Downstream
-        self.ctc_container.update_wayside_from_ctc_signal.connect(
-            self.track_controller_container.update_wayside_from_ctc)
+        self.ctc_container.update_wayside_from_ctc_signal.connect(self.track_controller_container.update_wayside_from_ctc)
 
         self.track_controller_container.update_track_model_from_wayside.connect(
             self.track_model_container.update_track_model_from_wayside)
@@ -65,6 +55,11 @@ class LauncherContainer(QObject):
             self.track_controller_container.update_wayside_from_track_model)
 
         self.track_controller_container.update_ctc_from_wayside.connect(self.ctc_container.update_ctc_from_wayside)
+
+        # Connection Testing
+        print("Sending intial message from CTC")
+        self.ctc_container.ctc.send_initial_message()
+
 
     def init_launcher_ui(self):
         app = QApplication.instance()
@@ -103,9 +98,12 @@ class LauncherContainer(QObject):
         print("Open Track Controller UI Signal received, section:", section)
         self.track_controller_container.show_ui(section)
 
-    def open_track_controller_tb_ui(self, section: str):
-        print("Open Track Controller TB UI Signal received, section:", section)
-        self.track_controller_container.show_testbench_ui(section)
+    def open_track_controller_tb_ui(self):
+        print("Open Track Controller TB UI Signal received")
+        try:
+            self.track_controller_testbench_container.show_ui()
+        except Exception as e:
+            print(f"Error: {e}")
 
     def open_track_model_ui(self):
         print("Open Track Model UI Signal received")
@@ -113,12 +111,10 @@ class LauncherContainer(QObject):
 
     def open_train_controller_SW_ui(self):
         print("Open Train Controller SW UI Signal received")
-        self.trainControllerContainer = TrainController_Tot_Container(self.time_module)
         self.trainControllerContainer.show_swui()
 
     def open_train_controller_HW_ui(self):
         print("Open Train Controller HW UI Signal received")
-        self.trainControllerContainer = TrainController_Tot_Container(self.time_module)
         self.trainControllerContainer.show_hwui()
 
     def open_train_model_ui(self):
