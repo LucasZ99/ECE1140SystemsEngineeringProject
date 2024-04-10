@@ -8,7 +8,7 @@ from Common import Switch, Light, RRCrossing
 
 class CTCContainer(QObject):
     # TODO: you need to define the types here
-    update_wayside_from_ctc_signal = pyqtSignal()
+    update_wayside_from_ctc_signal = pyqtSignal(list, bool, list, list)
 
     def __init__(self, system_time_container: SystemTimeContainer):
         super().__init__()

@@ -142,6 +142,7 @@ class TrackModelContainer(QObject):
         self.track_model_ui.refresh()
 
     def update_track_model_from_wayside(self, authority_safe_speed_update):
+        print('Track Model: update_track_model_from_wayside')
         add_train = False  # default
         remove_train = -1  # default
         embarking_passengers_update = 0  # TODO: implement embarking passengers
