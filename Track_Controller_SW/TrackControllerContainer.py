@@ -92,7 +92,7 @@ class TrackControllerContainer(QObject):
                                 blocks_to_close_open: list[tuple[int, bool]],
                                 updated_switches: list[Switch]):
 
-        print(authority_speed_update[0])
+        print(f"authority speed update received in wayside: {authority_speed_update[0]}")
         # self.check_safe_speed(authority_speed_update)
         #
         # safe_toggle_blocks = []
@@ -112,7 +112,7 @@ class TrackControllerContainer(QObject):
     # Track Model Endpoint
     @pyqtSlot(dict)
     def update_wayside_from_track_model(self, block_occupancy_update: dict[int, bool]):
-        print("block occupancy update from wayside received")
+        print(f"block occupancy update from wayside received, block 62 status: {}")
         # self.update_occupancy(block_occupancy_update)
         # self.update_ctc_from_wayside.emit(
         #     block_occupancy_update,
@@ -156,11 +156,11 @@ class TrackControllerContainer(QObject):
         print("TrackControllerContainer.update_occupancy called")
 
         # update occupancy dicts with new data
-        self.occupancy_dict = block_occupancy_dict
-        self.occupancy_dict_A = dict(itertools.islice(self.occupancy_dict.items(), 32))
-        self.occupancy_dict_B = dict(itertools.islice(self.occupancy_dict.items(), 28, 72))
+        self.occupancy_dict.update(block_occupancy_dict)
+        self.occupancy_dict_A.update(dict(itertools.islice(self.occupancy_dict.items(), 32)))
+        self.occupancy_dict_B.update(dict(itertools.islice(self.occupancy_dict.items(), 28, 72)))
         self.occupancy_dict_B.update(dict(itertools.islice(self.occupancy_dict.items(), 96, 146)))
-        self.occupancy_dict_C = dict(itertools.islice(self.occupancy_dict.items(), 72, 100))
+        self.occupancy_dict_C.update(dict(itertools.islice(self.occupancy_dict.items(), 72, 100)))
 
         # call the update occupancy functions to trigger plc logic and ui updates
         update_occupancy_A_result = self.trackControllerA.update_occupancy(self.occupancy_dict_A)
