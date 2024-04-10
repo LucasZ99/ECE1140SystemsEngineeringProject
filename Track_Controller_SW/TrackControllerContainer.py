@@ -203,8 +203,10 @@ class TrackControllerContainer(QObject):
 
     @pyqtSlot(int)
     def update_track_switch(self, switch_block: int) -> None:
-        print(f"Updating Track Model switch at block: {switch_block}")
-        self.switch_list[switch_block].toggle()
+        print(f"Updating switch at block: {switch_block}")
+        for switch in self.switch_list:
+            if switch.block == switch_block:
+                switch.toggle()
 
     @pyqtSlot(bool)
     def update_rr_crossing_status_A(self, rr_crossing_status: bool) -> None:
@@ -246,7 +248,7 @@ class TrackControllerContainer(QObject):
 
 def main():
     trackControllerContainer = TrackControllerContainer()
-
+    trackControllerContainer.show_ui("C")
 
 if __name__ == "__main__":
     main()
