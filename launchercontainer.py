@@ -95,7 +95,6 @@ class LauncherContainer(QObject):
 
     def open_track_controller_tb_ui(self):
         print("Open Track Controller TB UI Signal received")
-
         try:
             self.track_controller_testbench_container.show_ui()
         except Exception as e:
