@@ -148,8 +148,10 @@ class TrackModelContainer(QObject):
         remove_train = -1  # default
         embarking_passengers_update = 0  # TODO: implement embarking passengers
         # update track_model
+        print('Track Model: updating self.track_model')
         self.track_model.update_authority_and_safe_speed(authority_safe_speed_update)
         # check if we should spawn a new train (authority @ 62 = nonzero & no train on 62)
+        print('Track Model: check if we should spawn a new train')
         for i in range(0, len(authority_safe_speed_update)):
             block_id = authority_safe_speed_update[i][0]
             authority = authority_safe_speed_update[i][1]
@@ -163,20 +165,21 @@ class TrackModelContainer(QObject):
                     # spawn train
                     add_train = True
                     self.track_model.train_spawned()
-        # TODO: implement removing trains
+        # TODO: implement removing trains (on way up maybe)
         train_dict = self.track_model.get_train_dict()  # copy train dict
 
         # change authority_safe_speed_update to be train based instead of block based
         # list[tuple[block_id: int, authority: int, safe_speed: float]] ->
         # dict[train_id:int, (authority: int, safe_speed: float)]
+        print('Track Model: change authority_safe_speed_update to be train based instead of block based')
+
         for i in range(0, len(authority_safe_speed_update)):
             block_id = authority_safe_speed_update[i][0]
-            train_id = 0
-            for key, val in train_dict.items():
+            for key, val in train_dict.items():  # train_id, block
                 if val == block_id:
-                    train_id = key
-            authority_safe_speed_update[i][0] = train_id
+                    authority_safe_speed_update[i][0] = key
         # get new block info from track_model for each train
+        print('Track Model: get new block info from track_model for each train')
         block_info_dict = {}
         for key in train_dict:
             block_info_dict[key] = self.track_model.get_block_info_for_train(key)
