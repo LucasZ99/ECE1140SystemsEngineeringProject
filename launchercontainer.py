@@ -18,12 +18,12 @@ class LauncherContainer(QObject):
     def __init__(self):
         super().__init__()
         self.time_module = SystemTimeContainer()
-        self.trainControllerContainer = TrainController_Tot_Container(self.time_module)
-
-        self.train_model_container = TrainModelContainer(self.trainControllerContainer, self.time_module)
-        self.track_model_container = TrackModelContainer()
-        self.track_controller_container = TrackControllerContainer()
         self.ctc_container = CTCContainer(self.time_module)
+        self.track_controller_container = TrackControllerContainer()
+        self.ctc_container.ctc.send_initial_message()
+        self.track_model_container = TrackModelContainer()
+        self.trainControllerContainer = TrainController_Tot_Container(self.time_module)
+        self.train_model_container = TrainModelContainer(self.trainControllerContainer, self.time_module)
 
         # Test containers
         self.track_controller_testbench_container = TrackControllerTestBenchContainer()
@@ -55,6 +55,11 @@ class LauncherContainer(QObject):
             self.track_controller_container.update_wayside_from_track_model)
 
         self.track_controller_container.update_ctc_from_wayside.connect(self.ctc_container.update_ctc_from_wayside)
+
+        # Connection Testing
+        print("Sending intial message from CTC")
+        self.ctc_container.ctc.send_initial_message()
+
 
     def init_launcher_ui(self):
         app = QApplication.instance()

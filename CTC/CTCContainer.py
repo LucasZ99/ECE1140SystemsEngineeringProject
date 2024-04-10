@@ -21,9 +21,6 @@ class CTCContainer(QObject):
         self.ctc.update_wayside_from_ctc_signal.connect(self.update_wayside_from_ctc)
         print("CTC wired to CTC container")
 
-        self.ctc.send_initial_message()
-        print("CTC: Initial message sent.")
-
         init_end_time = python_time.time()
         print("Initializing CTCContainer Done. t={0}".format(init_end_time))
         print("CTCContainer Initialization time t={0}".format(init_end_time - init_start_time))
