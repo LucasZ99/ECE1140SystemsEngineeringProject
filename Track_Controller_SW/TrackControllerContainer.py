@@ -92,32 +92,34 @@ class TrackControllerContainer(QObject):
                                 blocks_to_close_open: list[tuple[int, bool]],
                                 updated_switches: list[Switch]):
 
-        self.check_safe_speed(authority_speed_update)
-
-        safe_toggle_blocks = []
-        if maintenance_mode_override_flag:
-            safe_toggle_blocks = self.check_safe_toggle_block(blocks_to_close_open)
-            self.toggle_switch_if_safe(updated_switches)
-
-        # call downstream endpoint after processing of CTC data
-        self.update_track_model_from_wayside.emit(
-            [track_signal.to_tuple() for track_signal in authority_speed_update],
-            [switch.to_tuple() for switch in self.switch_list],
-            [light.to_tuple() for light in self.lights_list],
-            [crossing.to_tuple() for crossing in self.rr_crossing_list],
-            safe_toggle_blocks
-        )
+        print(authority_speed_update[0])
+        # self.check_safe_speed(authority_speed_update)
+        #
+        # safe_toggle_blocks = []
+        # if maintenance_mode_override_flag:
+        #     safe_toggle_blocks = self.check_safe_toggle_block(blocks_to_close_open)
+        #     self.toggle_switch_if_safe(updated_switches)
+        #
+        # # call downstream endpoint after processing of CTC data
+        # self.update_track_model_from_wayside.emit(
+        #     [track_signal.to_tuple() for track_signal in authority_speed_update],
+        #     [switch.to_tuple() for switch in self.switch_list],
+        #     [light.to_tuple() for light in self.lights_list],
+        #     [crossing.to_tuple() for crossing in self.rr_crossing_list],
+        #     safe_toggle_blocks
+        # )
 
     # Track Model Endpoint
     @pyqtSlot(dict)
     def update_wayside_from_track_model(self, block_occupancy_update: dict[int, bool]):
-        self.update_occupancy(block_occupancy_update)
-        self.update_ctc_from_wayside.emit(
-            block_occupancy_update,
-            self.switch_list,
-            self.lights_list,
-            self.rr_crossing_list
-        )
+        print("block occupancy update from wayside received")
+        # self.update_occupancy(block_occupancy_update)
+        # self.update_ctc_from_wayside.emit(
+        #     block_occupancy_update,
+        #     self.switch_list,
+        #     self.lights_list,
+        #     self.rr_crossing_list
+        # )
 
     def check_safe_speed(self, track_signal: list[TrackSignal]):
         for signal in track_signal:
