@@ -59,8 +59,7 @@ class TrainModelContainer(QObject):
         else:
             self.business_logic.track_model_inputs(input_list, index)
             self.train_dict = self.business_logic.train_dict
-            self.controller.getvaluesfromtrain_update1([self.train_dict[index].signals.authority,
-                                                        self.train_dict[index].signals.commanded_speed, ])
+
 
     def train_controller_inputs(self, input_list, index):
         print("Train model: train_controller_inputs called")
@@ -83,9 +82,6 @@ class TrainModelContainer(QObject):
             return
         self.business_logic.track_update_block(block_vals, index)
         self.train_dict = self.business_logic.train_dict
-        self.controller.getvaluesfromtrain_update2([self.train_dict[index].track_circuit,
-                                                    self.train_dict[index].underground,
-                                                    self.train_dict[index].signals.beacon])
         print('track_update_block passed')
 
     def track_update_passengers(self, num, index):
@@ -94,11 +90,11 @@ class TrainModelContainer(QObject):
             return
         if not (index in self.train_dict.keys()):
             return
-        self.business_logic.passengers_updated(num, index)
+        try:
+            self.business_logic.track_update_passengers(num, index)
+        except Exception as error:
+            print(error)
         self.train_dict = self.business_logic.train_dict
-        self.controller.getvaluesfromtrain_update2([self.train_dict[index].track_circuit,
-                                                    self.train_dict[index].new_block.underground,
-                                                    self.train_dict[index].signals.beacon])
 
     def controller_update_temp(self, num, index):
         self.train_dict = self.business_logic.train_dict

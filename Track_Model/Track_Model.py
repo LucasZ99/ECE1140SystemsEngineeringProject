@@ -310,7 +310,7 @@ class TrackModel(QObject):
             self.train_dict_meters[key] = value
         # relative based on path
         for key, value in self.train_dict_meters.items():
-
+            pass
         # actual block
         for key, value in self.train_dict_relative.items():
             self.train_dict[key] = self.full_path[value]
