@@ -5,6 +5,7 @@ import random
 from PyQt6.QtCore import pyqtSignal, QObject
 from PyQt6.QtWidgets import QApplication
 import time
+import openpyxl
 
 # TODO: for loop -> list comprehension
 #
@@ -90,10 +91,15 @@ class TrackModel(QObject):
 
     # long runtimes
     def set_data(self, file_name):
+        start = time.time()
         d = pd.read_excel(file_name,
                           header=None)  # We will also load our header row, and block IDs will map to index
+        end = time.time()
+        print(f'pandas read time = {end-start}')
         data = d.to_numpy()
-
+        end = time.time()
+        print(f'pandas time = {end-start}')
+        start = time.time()
         false_col = np.full((data.shape[0], 1), False, dtype=bool)
         temp = np.full((data.shape[0], 1), 74, dtype=int)
         new_data = np.hstack((data[:, 0:7], np.copy(false_col)))
@@ -110,7 +116,10 @@ class TrackModel(QObject):
         new_data = np.hstack((new_data, np.copy(nan_array)))
         new_data = np.hstack((new_data, np.copy(false_col)))
         new_data = np.hstack((new_data, np.copy(nan_array)))
+        end = time.time()
+        print(f'hstack time = {end-start}')
         # initialize signals from switch info
+        start = time.time()
         for i in range(1, new_data.shape[0]):
             inf_list = str(new_data[i, 9]).lower().split(';')
             for s in inf_list:
@@ -136,6 +145,8 @@ class TrackModel(QObject):
                 new_data[i, 20] = True
             if 'switch' in str(new_data[i, 9]).lower() or 'railway crossing' in str(new_data[i, 9]).lower():
                 new_data[i, 19] = False
+        end = time.time()
+        print(f'loops time = {end-start}')
 
         new_data[0, 7] = 'Block Occupancy'
         new_data[0, 8] = 'Temperature'
