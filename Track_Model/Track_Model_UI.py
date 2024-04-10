@@ -33,7 +33,7 @@ class Window(QMainWindow):
         self.resize(1920 // 2, 1080 // 2)
         layout = QGridLayout()
         # signals
-        self.track_model.refresh_map_signal.connect(self.refresh)
+        self.track_model.refresh_ui_signal.connect(self.refresh)
         # Style
         self.setStyleSheet("""
             QMainWindow{

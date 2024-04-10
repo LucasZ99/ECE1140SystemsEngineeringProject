@@ -1,6 +1,6 @@
 from time import localtime, strftime
 
-from CTC.Track import *
+from Common.GreenLine import *
 
 
 class Stop:
@@ -11,8 +11,8 @@ class Stop:
 
     def __str__(self):
         s = f"{self.block}"
-        if get_block(GREEN_LINE, self.block) in STATIONS[GREEN_LINE]:
-            s += f": " + STATIONS[GREEN_LINE][get_block(GREEN_LINE, self.block)]
+        if get_block(self.block) in GREEN_LINE[STATIONS]:
+            s += f": " + GREEN_LINE[STATIONS][get_block(self.block)]
 
         arrival_time_str = strftime("%H:%m", localtime(self.arrival_time))
         departure_time_str = strftime("%H:%m", localtime(self.departure_time))
@@ -21,17 +21,19 @@ class Stop:
 
         return s
 
-def get_block(line_id: int, block: int) -> int:
-    if block in DOUBLE_TRACK_SECTIONS[line_id]:
-        return DOUBLE_TRACK_SECTIONS[line_id][block]
+
+def get_block(block: int) -> int:
+    if block in GREEN_LINE[TWO_WAY_BLOCKS].keys():
+        return GREEN_LINE[TWO_WAY_BLOCKS][block]
     else:
         return block
 
-def find_path(line_id: int, block1: int, block2: int) -> list[int]:
-    start_idx = PATH[line_id].index(block1)
-    end_idx = PATH[line_id].index(block2)
 
-    return PATH[line_id][start_idx:end_idx + 1]
+def find_path(line_id: int, block1: int, block2: int) -> list[int]:
+    start_idx = GREEN_LINE[ROUTE].index(block1)
+    end_idx = GREEN_LINE[ROUTE].index(block2)
+
+    return GREEN_LINE[ROUTE][start_idx:end_idx + 1]
 
 
 def find_route(line_id: int, block1: int, block2: int) -> list[int]:
@@ -41,7 +43,7 @@ def find_route(line_id: int, block1: int, block2: int) -> list[int]:
 
         # train will only stop at station stops until final block
         for block in route[1:-1]:
-            if get_block(line_id, block) in STATIONS[line_id]:
+            if get_block(block) in GREEN_LINE[STATIONS]:
                 stops.append(block)
         stops.append(route[-1])
         return stops
@@ -59,10 +61,12 @@ def get_block_pair_travel_time(line_id: int, block1: int, block2: int) -> float:
         for block1, block2 in zip(route_block1_to_block2[:-1], route_block1_to_block2[1:]):
             # calculate travel time - hr
 
-            time_between_blocks += ((LENGTHS_SPEED_LIMITS[line_id][get_block(line_id, block1)][LENGTH] / (
-                    LENGTHS_SPEED_LIMITS[line_id][get_block(line_id, block1)][SPEED_LIMIT] * 1000)) / 2.0) \
-                + ((LENGTHS_SPEED_LIMITS[line_id][get_block(line_id, block2)][LENGTH] / (
-                    LENGTHS_SPEED_LIMITS[line_id][get_block(line_id, block2)][SPEED_LIMIT] * 1000)) / 2.0)
+            print(GREEN_LINE[BLOCKS][get_block(block1)])
+
+            time_between_blocks += ((GREEN_LINE[BLOCKS][get_block(block1)].length / (
+                    GREEN_LINE[BLOCKS][get_block(block1)].speed_limit * 1000)) / 2.0) \
+                                   + ((GREEN_LINE[BLOCKS][get_block(block2)].length / (
+                    GREEN_LINE[BLOCKS][get_block(block2)].speed_limit * 1000)) / 2.0)
 
             # convert hr to seconds
         time_between_blocks *= 3600

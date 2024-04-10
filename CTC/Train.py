@@ -1,7 +1,8 @@
 from CTC.Route import Stop
 import CTC.Route as Route
 from SystemTime import SystemTime
-from CTC.Track import MSSD, GREEN_LINE_YARD_SPAWN, GREEN_LINE_YARD_DELETE, PATH
+from Common.Constants import MSSD
+from Common.GreenLine import *
 
 
 class Train:
@@ -76,8 +77,8 @@ class Train:
             return 0
 
     def next_block(self, block: int) -> int:
-        curr_block_idx = PATH[self.line_id].index(block)
-        return PATH[self.line_id][curr_block_idx+1]
+        curr_block_idx = GREEN_LINE[ROUTE].index(block)
+        return GREEN_LINE[ROUTE][curr_block_idx+1]
 
     def get_next_stop(self) -> int:
         return self.next_stop

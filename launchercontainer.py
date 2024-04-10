@@ -6,6 +6,7 @@ from PyQt6.QtWidgets import QApplication
 
 from CTC.CTCContainer import CTCContainer
 from SystemTime.SystemTimeContainer import SystemTimeContainer
+from TrackControllerTest import TrackControllerTestBenchContainer
 from Track_Controller_SW.TrackControllerContainer import TrackControllerContainer
 from Track_Model.Track_Model_Container import TrackModelContainer
 from launcherui import LauncherUi
@@ -20,18 +21,40 @@ class LauncherContainer(QObject):
         self.trainControllerContainer = TrainController_Tot_Container(self.time_module)
 
         self.train_model_container = TrainModelContainer(self.trainControllerContainer, self.time_module)
-        self.track_model_container = TrackModelContainer(train_model_container=self.train_model_container)
-        self.track_controller_container = TrackControllerContainer(track_model=self.track_model_container)
+        self.track_model_container = TrackModelContainer()
+        self.track_controller_container = TrackControllerContainer()
         self.ctc_container = CTCContainer(self.time_module)
+
+        # Test containers
+        self.track_controller_testbench_container = TrackControllerTestBenchContainer()
+
+        # Test container signals
+        # CTC to Wayside
+        self.track_controller_testbench_container.test_update_wayside_from_ctc.connect(self.track_controller_container.update_wayside_from_ctc)
+        # Track Model to Wayside
+        self.track_controller_testbench_container.test_update_wayside_from_track_model.connect(self.track_controller_container.update_wayside_from_track_model)
 
         # Connect signals between modules
         # Downstream
-        self.ctc_container.update_wayside_from_ctc.connect(self.track_controller_container.update_wayside_from_ctc)
-        self.track_controller_container.update_track_model_from_wayside.connect(self.track_model_container.update_track_model_from_wayside)
+        self.ctc_container.update_wayside_from_ctc_signal.connect(self.track_controller_container.update_wayside_from_ctc)
+
+        self.track_controller_container.update_track_model_from_wayside.connect(
+            self.track_model_container.update_track_model_from_wayside)
+
+        self.track_model_container.update_train_model_from_track_model.connect(
+            self.train_model_container.update_train_model_from_track_model)
 
         # Upstream
+
+        self.train_model_container.update_track_model_from_train_model.connect(
+            self.track_model_container.update_track_model_from_train_model)
+
+        self.track_model_container.update_ctc_from_track_model.connect(self.ctc_container.update_ctc_from_track_model)
+
+        self.track_model_container.update_wayside_from_track_model.connect(
+            self.track_controller_container.update_wayside_from_track_model)
+
         self.track_controller_container.update_ctc_from_wayside.connect(self.ctc_container.update_ctc_from_wayside)
-        self.track_model_container.update_wayside_from_track_model.connect(self.track_controller_container.update_wayside_from_track_model)
 
     def init_launcher_ui(self):
         app = QApplication.instance()
@@ -70,9 +93,13 @@ class LauncherContainer(QObject):
         print("Open Track Controller UI Signal received, section:", section)
         self.track_controller_container.show_ui(section)
 
-    def open_track_controller_tb_ui(self, section: str):
-        print("Open Track Controller TB UI Signal received, section:", section)
-        self.track_controller_container.show_testbench_ui(section)
+    def open_track_controller_tb_ui(self):
+        print("Open Track Controller TB UI Signal received")
+
+        try:
+            self.track_controller_testbench_container.show_ui()
+        except Exception as e:
+            print(f"Error: {e}")
 
     def open_track_model_ui(self):
         print("Open Track Model UI Signal received")
