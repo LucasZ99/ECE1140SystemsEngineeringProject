@@ -1,6 +1,6 @@
 from threading import Timer, Thread
 import time as python_time
-from PyQt6.QtCore import QObject, pyqtSignal
+from PyQt6.QtCore import QObject
 
 
 def time_to_str(t: float):
