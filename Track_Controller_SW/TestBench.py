@@ -1,3 +1,4 @@
+import itertools
 import sys
 from copy import copy
 
@@ -20,8 +21,9 @@ class TbMainWindow(QMainWindow):
         super(TbMainWindow, self).__init__()
         try:
             self.business_logic = business_logic
-            self.block_list = copy(business_logic.block_indexes)
-            self.occupancy_list = copy(business_logic.occupancy_dict)
+            self.occupancy_dict = business_logic.occupancy_dict
+            self.block_list = copy(list(business_logic.occupancy_dict.keys()))
+            self.occupancy_list = copy(list(business_logic.occupancy_dict.values()))
             self.switches_list = copy(business_logic.switches_list)
 
             self.setObjectName("MainWindow")
@@ -173,7 +175,8 @@ class TbMainWindow(QMainWindow):
         else:
             self.occupancy_list[self.comboBox_3.currentIndex()] = False
 
-        self.business_logic.occupancy_changed(self.occupancy_list)
+        self.occupancy_dict.update(dict(itertools.islice(self.occupancy_list, 0)))
+        self.business_logic.occupancy_changed(self.occupancy_dict)
 
     def auth_handler(self):  # When the checkbox is changed for authority
         pass
