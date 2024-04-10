@@ -11,8 +11,8 @@ class Stop:
 
     def __str__(self):
         s = f"{self.block}"
-        if get_block(GREEN_LINE, self.block) in STATIONS[GREEN_LINE]:
-            s += f": " + STATIONS[GREEN_LINE][get_block(GREEN_LINE, self.block)]
+        if get_block(self.block) in GREEN_LINE[STATIONS]:
+            s += f": " + GREEN_LINE[STATIONS][get_block(self.block)]
 
         arrival_time_str = strftime("%H:%m", localtime(self.arrival_time))
         departure_time_str = strftime("%H:%m", localtime(self.departure_time))
@@ -23,7 +23,7 @@ class Stop:
 
 
 def get_block(block: int) -> int:
-    if block in GREEN_LINE[TWO_WAY_BLOCKS]:
+    if block in GREEN_LINE[TWO_WAY_BLOCKS].keys():
         return GREEN_LINE[TWO_WAY_BLOCKS][block]
     else:
         return block
@@ -60,6 +60,8 @@ def get_block_pair_travel_time(line_id: int, block1: int, block2: int) -> float:
     if route_block1_to_block2 is not None:
         for block1, block2 in zip(route_block1_to_block2[:-1], route_block1_to_block2[1:]):
             # calculate travel time - hr
+
+            print(GREEN_LINE[BLOCKS][get_block(block1)])
 
             time_between_blocks += ((GREEN_LINE[BLOCKS][get_block(block1)].length / (
                     GREEN_LINE[BLOCKS][get_block(block1)].speed_limit * 1000)) / 2.0) \

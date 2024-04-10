@@ -11,7 +11,7 @@ class TrackModel(QObject):
     new_block_occupancy_signal = pyqtSignal(list)
     new_ticket_sales_signal = pyqtSignal(int)
     # internal signals (to UI)
-    refresh_map_signal = pyqtSignal()
+    refresh_ui_signal = pyqtSignal()
 
     def __init__(self, file_name):
         super().__init__()
@@ -34,6 +34,7 @@ class TrackModel(QObject):
 
         self.train_dict_relative = {}
         self.train_dict = {}
+        self.train_dict_meters = {}
         self.train_count = 0
         self.total_track_length = int(np.sum(self.data[1:, 3]))
 
@@ -228,7 +229,7 @@ class TrackModel(QObject):
             self.set_block_occupancy(block, True)
         else:
             self.set_block_occupancy(block, False)
-        self.refresh_map()  # ui
+        self.refresh_ui()  # ui
         self.emit_tc_block_occupancy()
 
     def set_occupancy_from_train_presence(self):
@@ -239,13 +240,13 @@ class TrackModel(QObject):
         # key = train id, value = block id
         for key in self.train_dict:
             self.set_block_occupancy(self.train_dict[key], True)
-        self.refresh_map()  # ui
+        self.refresh_ui()  # ui
         self.emit_tc_block_occupancy()
 
     # communication to ui
 
-    def refresh_map(self):
-        self.refresh_map_signal.emit()
+    def refresh_ui(self):
+        self.refresh_ui_signal.emit()
 
     #
     #
@@ -290,18 +291,29 @@ class TrackModel(QObject):
         self.train_dict_meters[self.train_count] = 0
         print(f'new train spawned, train_count = {self.train_count}')
 
-    def train_presence_changed(self, train_id: int):
-        if self.train_dict_relative[train_id] >= 170:
-            # train goes back to yard
-            print('train going back to yard...')
-            self.train_count -= 1
-            del self.train_dict_relative[train_id]
-            del self.train_dict[train_id]
-        else:
-            self.train_dict_relative[train_id] += 1
-            self.train_dict[train_id] = self.full_path[self.train_dict_relative[train_id]]
-            self.set_occupancy_from_train_presence()
-            print(f'train {train_id} moved to {self.train_dict[train_id]}')
+    # def train_presence_changed(self, train_id: int):
+    #     if self.train_dict_relative[train_id] >= 170:
+    #         # train goes back to yard
+    #         print('train going back to yard...')
+    #         self.train_count -= 1
+    #         del self.train_dict_relative[train_id]
+    #         del self.train_dict[train_id]
+    #     else:
+    #         self.train_dict_relative[train_id] += 1
+    #         self.train_dict[train_id] = self.full_path[self.train_dict_relative[train_id]]
+    #         self.set_occupancy_from_train_presence()
+    #         print(f'train {train_id} moved to {self.train_dict[train_id]}')
+
+    def update_delta_x_dict(self, delta_x_dict):
+        # meters
+        for key, value in delta_x_dict.items():
+            self.train_dict_meters[key] = value
+        # relative based on path
+        for key, value in self.train_dict_meters.items():
+
+        # actual block
+        for key, value in self.train_dict_relative.items():
+            self.train_dict[key] = self.full_path[value]
 
     def set_disembarking_passengers(self, station_id: int, disembarking_passengers: int):
         self.data[station_id, 21] = disembarking_passengers
