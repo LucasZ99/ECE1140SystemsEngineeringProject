@@ -1,6 +1,7 @@
 from CTC.CTCConstants import *
 from CTC.CTCSchedule import CTCSchedule
 from CTC.Train import Train
+from Common.TrackSignal import TrackSignal
 from SystemTime import SystemTime
 from Common.switching import Switch
 from Common.Block import Block
@@ -11,6 +12,14 @@ from Common.GreenLine import *
 class CTC(QObject):
     update_ui_signal = pyqtSignal()
     update_wayside_from_ctc_signal = pyqtSignal(list, bool, list, list)
+
+    ui_update_rr_crossings = pyqtSignal()
+    ui_update_signals = pyqtSignal()
+    ui_update_block_occupancies = pyqtSignal()
+    ui_update_switches = pyqtSignal()
+    ui_update_schedule = pyqtSignal()
+    ui_update_ticket_sales = pyqtSignal()
+    ui_update_throughput = pyqtSignal()
 
     def __init__(self, system_time: SystemTime):
         super().__init__()
@@ -54,7 +63,6 @@ class CTC(QObject):
         for crossing in GREEN_LINE[CROSSINGS]:
             self.rr_crossings[crossing] = False
 
-        self.system_time.update_time_signal.connect(self.update_ctc_queues)
         self.update_track_controller()
 
     @pyqtSlot()
@@ -116,6 +124,12 @@ class CTC(QObject):
                                                   key=lambda train: train.get_destination().arrival_time)
         return sort_by_destination_arrival_time
 
+    def set_track_signals(self) -> list[TrackSignal]:
+        wayside_track_signal_updates = []
+        for block in list(set(self.changed_authorities) | set(self.changed_authorities)):
+            wayside_track_signal_updates.append(TrackSignal(block, self.authorities[block], self.suggested_speeds[block]))
+        return wayside_track_signal_updates
+
     def set_block_authority(self) -> bool:
         print("CTC: authority function")
         for train in self.get_running_trains_sorted_by_priority():
@@ -163,30 +177,45 @@ class CTC(QObject):
                 self.running_trains.remove(train)
                 print("CTC: Train %d reached yard.", train.id)
 
-    def update_switch_position(self, line_id: int, block_id: int, position: int):
+    def update_switch_positions(self, switches: list[Switch]):
+        for switch in switches:
+            self.update_switch_position(switch.block, switch.current_pos)
+
+    def update_switch_position(self, block_id: int, position: int):
         self.switches[block_id].current_pos = position
 
-    def update_signal_status(self, line_id: int, block_id: int, signal_green: bool):
+    def update_signal_statuses(self, signals: list[Light]):
+        for signal in signals:
+            self.update_signal_status(signal.block, signal.val)
+
+    def update_signal_status(self, block_id: int, signal_green: bool):
         self.lights[block_id] = signal_green
 
-    def update_block_occupancy(self, line_id: int, block_id: int, occupied: bool):
+    def update_block_occupancies(self, blocks: dict[int, bool]):
+        for block in blocks:
+            self.update_block_occupancy(block, blocks[block])
+
+    def update_block_occupancy(self, block_id: int, occupied: bool):
         update = False
         self.blocks[block_id] = occupied
         occupied_str = "occupied" if occupied else "vacant"
         print(f"CTC: Block {block_id} set to {occupied_str}.")
+
+    def update_running_trains(self):
         for train in [running_train for running_train in self.running_trains if abs(running_train.current_block) == block_id]:
             print(f"CTC: Train {train.id} block status update.")
             self.update_train_position(train)
-            update = update or self.set_block_authority() or self.set_block_suggested_speeds()
+            self.set_block_authority()
+            self.set_block_suggested_speeds()
 
-        if update:
-            self.update_track_controller()
-        self.update_ui_signal.emit()
+    def update_railroad_crossing_statuses(self, rr_crossings: list[RRCrossing]):
+        for rr_crossing in rr_crossings:
+            self.update_railroad_crossing_status(rr_crossing.block, rr_crossing.val)
 
-    def update_railroad_crossing_status(self, line_id: int, block_id: int, crossing_activated: bool):
+    def update_railroad_crossing_status(self, block_id: int, crossing_activated: bool):
         self.rr_crossings[block_id] = crossing_activated
 
-    def update_ticket_sales(self, line_id: int, sales: int):
+    def update_ticket_sales(self, ticket_sales: int):
         pass
 
     def timer_handler(self):
