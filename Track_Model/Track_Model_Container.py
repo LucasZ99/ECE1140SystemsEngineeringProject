@@ -142,7 +142,7 @@ class TrackModelContainer(QObject):
         self.track_model_ui.refresh()
 
     def update_track_model_from_wayside(self, authority_safe_speed_update):
-        print('Track Model: update_track_model_from_wayside')
+        print('Track Model: update_track_model_from_wayside called')
         add_train = False  # default
         remove_train = -1  # default
         embarking_passengers_update = 0  # TODO: implement embarking passengers
@@ -180,10 +180,12 @@ class TrackModelContainer(QObject):
         for key in train_dict:
             block_info_dict[key] = self.track_model.get_block_info_for_train(key)
         # emit
+        print('Track Model: emitting update_train_model_from_track_model')
         self.update_train_model_from_track_model.emit(authority_safe_speed_update, block_info_dict, add_train,
                                                       remove_train, remove_train, embarking_passengers_update)
 
     def update_track_model_from_train_model(self, delta_x_dict, disembarking_passengers_update):
+        print('Track Model: update_track_model_from_train_model called')
         ticket_sales = 0  # TODO: implement ticket sales for ctc
         block_occupancy_update = {}    # TODO: dict output for block occupancy for track controller rather than list
         # for each train, calculate current block given delta x
@@ -191,6 +193,8 @@ class TrackModelContainer(QObject):
         # update our track model train dict (train will get block info in next downstream)
 
         # emit
+        print('Track Model: emitting update_ctc_from_track_model')
         self.update_ctc_from_track_model.emit(ticket_sales)
+        print('Track Model: emitting update_wayside_from_track_model')
         self.update_wayside_from_track_model.emit(block_occupancy_update)
 

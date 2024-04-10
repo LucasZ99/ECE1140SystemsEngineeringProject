@@ -31,7 +31,7 @@
     <property name="geometry">
      <rect>
       <x>330</x>
-      <y>50</y>
+      <y>60</y>
       <width>201</width>
       <height>51</height>
      </rect>
@@ -44,7 +44,7 @@
     <property name="geometry">
      <rect>
       <x>330</x>
-      <y>130</y>
+      <y>110</y>
       <width>201</width>
       <height>51</height>
      </rect>
@@ -57,7 +57,7 @@
     <property name="geometry">
      <rect>
       <x>330</x>
-      <y>210</y>
+      <y>160</y>
       <width>201</width>
       <height>51</height>
      </rect>
@@ -109,7 +109,7 @@
     <property name="geometry">
      <rect>
       <x>320</x>
-      <y>270</y>
+      <y>240</y>
       <width>221</width>
       <height>91</height>
      </rect>
@@ -118,43 +118,17 @@
      <string>Time Module</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="track_controller_A_testbench_button">
+   <widget class="QPushButton" name="track_controller_testbench_button">
     <property name="geometry">
      <rect>
-      <x>330</x>
-      <y>30</y>
-      <width>201</width>
-      <height>23</height>
+      <x>310</x>
+      <y>12</y>
+      <width>241</width>
+      <height>41</height>
      </rect>
     </property>
     <property name="text">
-     <string>Track Controller A Testbench</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="track_controller_B_testbench_button">
-    <property name="geometry">
-     <rect>
-      <x>330</x>
-      <y>110</y>
-      <width>201</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Track Controller B Testbench</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="track_controller_C_testbench_button">
-    <property name="geometry">
-     <rect>
-      <x>330</x>
-      <y>190</y>
-      <width>201</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Track Controller C Testbench</string>
+     <string>Track Controller Testbench</string>
     </property>
    </widget>
    <widget class="QPushButton" name="train_controller_button_HW">
@@ -177,7 +151,7 @@
      <x>0</x>
      <y>0</y>
      <width>863</width>
-     <height>22</height>
+     <height>26</height>
     </rect>
    </property>
   </widget>

@@ -52,13 +52,20 @@ class TrainControllerSWContainer:
         return
 
     def update_train_controller_from_train_model(self, authority_safe_speed, track_info, train_info):
+        print("updating train controller from train model")
 
         # probably gonna split the updater into 3 separate functions in the future but this should work fine for now
         self.trainCtrl.updater(authority_safe_speed, 1)
+        print("authority safe speed updated")
         self.trainCtrl.updater(track_info, 2)
+        print("track info updated")
         self.trainCtrl.updater(train_info, 3)
+        print("train info updated")
 
         self.train_model_update = self.trainCtrl.update_train_model_from_train_controller()
+        print("updated train model update list!")
+
+        print("sending values from train controller to train model")
         return self.train_model_update
 
 
