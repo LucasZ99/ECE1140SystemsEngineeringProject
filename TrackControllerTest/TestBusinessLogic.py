@@ -18,6 +18,8 @@ class TestBusinessLogic(QObject):
         for i in range(62, 151):
             self.occupancy_dict[i] = False
 
+        self.blocks = list(self.occupancy_dict.keys())
+
     def track_signal_authority_update(self, authority: int):
         self.track_signal.authority = authority
 
