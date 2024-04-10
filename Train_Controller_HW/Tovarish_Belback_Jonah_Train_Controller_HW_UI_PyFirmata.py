@@ -187,6 +187,10 @@ class HW_UI_JEB382_PyFirmat():
         self.polarity = bool(self.TrainModel_arr[4])
         self.blockNum = 1#62 [IT3 application]
         self.speedlimit=30
+        self.passover=False
+        self.traveled=0 #over block
+        self.distleft=0 #dist left in block
+        self.lastspd=0
     
     
     
@@ -279,6 +283,9 @@ class HW_UI_JEB382_PyFirmat():
         #every block flips in polarity, +/- on edge
         if self.polarity != self.TrainModel_arr[4]:
             self.blockNum+=1
+            self.traveled=0
+            self.passover=True
+        else: self.passover=False
         self.polarity = self.TrainModel_arr[4]
         
         self.stat_Dside=0
@@ -291,7 +298,7 @@ class HW_UI_JEB382_PyFirmat():
         #print(f"<{self.TrainModel_arr[2]}>")
             
         
-        for i in range(int(self.TrainModel_arr[2])):
+        for i in range(int(self.TrainModel_arr[2])+1):
             particular_line = linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum+i).split("\t")
             #print(f"LINE: {particular_line}")
             distance_to_station += int(particular_line[3])
@@ -316,7 +323,7 @@ class HW_UI_JEB382_PyFirmat():
         
         #print(f"BlockNum: {self.blockNum}")
         #print(f"ANNOUNCE: <{self.Announcements}>")
-        #print(f"DIST: {distance_to_station}")
+        #print(f"DIST: {distance_to_station},\tANNOUNCE: <{self.Announcements}>")
         
         
          #2   On/Off Service Brake	        Boolean	    Slow down vital control from train controller
@@ -336,6 +343,19 @@ class HW_UI_JEB382_PyFirmat():
         t1=( (0-float(self.TrainModel_arr[0]))/(-1.2 ) )*(5/18)
         s1=0.5*(0+float(self.TrainModel_arr[0]))*t1*(5/18)#1/2 * u * t * conversion of km/hr to m/s
         
+        if __name__ != "__main__" and sys.argv[0][-10:-3] != "Testing": currtime = self.system_time.time()
+        else: currtime = time.time()
+        T = currtime-self.timeL #sec-sec
+        
+        if( not self.passover ): self.traveled += 0.5*(float(self.TrainModel_arr[0])+self.lastspd)*T*(5/18)
+        distance_to_station -= self.traveled
+        
+        
+        
+        #print(f"DIST: {distance_to_station},\tANNOUNCE: <{self.Announcements}>,\t{self.traveled}")
+        
+            
+        
         #if authority<4 and distance to station <= s1 + buffer: serivce brake, power=0, commanded speed=0
         if distance_to_station <= s1+displace_buffer or distance_to_station == s1:
             self.output_arr[0] = 0
@@ -347,7 +367,6 @@ class HW_UI_JEB382_PyFirmat():
             self.output_arr[1] = 0
             self.output_arr[3] = True
         else:          
-            
             #fill out self.output_arr and self.Announcements
             #0   Commanded Speed	                m/s	        How fast the driver has commanded the train to go
             if self.Mode: #Manual
@@ -366,14 +385,14 @@ class HW_UI_JEB382_PyFirmat():
             elif self.TrainModel_arr[0] == 0 or self.TrainModel_arr[1] == 0:
                 self.output_arr[1] = 0
             else:
-                if __name__ != "__main__" and sys.argv[0][-10:-3] != "Testing":
+                '''if __name__ != "__main__" and sys.argv[0][-10:-3] != "Testing":
                     currtime = self.system_time.time()
                 else:
-                    currtime = time.time()
+                    currtime = time.time()'''
                 
                 
                 V_err = self.output_arr[0] - self.TrainModel_arr[0] #Verr=Vcmd-Vactual ; m/s-m/s
-                T = currtime-self.timeL #sec-sec
+                #T = currtime-self.timeL #sec-sec
                 global Pmax
                 if self.Pcmd < Pmax:
                     uk = self.uk1+( (T/2)*(V_err-self.ek1) )  # m + ( s*(m/s-m/s) )
@@ -395,17 +414,17 @@ class HW_UI_JEB382_PyFirmat():
             
                 #print(f"Pcmd: {self.Pcmd}\t{V_err}\t{uk}\n{T}\t{currtime}\t{self.timeL}")
             
-                self.timeL = currtime
+                #self.timeL = currtime
                 self.uk1 = uk
                 self.ek1 = V_err
             
                 self.output_arr[1] = self.Pcmd
                 
                 
-            
+        self.timeL = currtime
             #-----------------------------------------------------------------------------------------------------------------------
             #Look ahead algo (returns arr of total distance)
-
+        
         
         #-----------------------------------------------------------------------------------------------------------------------
         #4   Open/Close Left/Right Doors	    integer	    Which Doors to open; 0:none, 1:left, 2:right, 3:both
@@ -437,6 +456,7 @@ class HW_UI_JEB382_PyFirmat():
         #x   Act On Faults/Failures	        N/A	        No specific unit, but a change in behavior represented in one of these other outputs
         
         #print(f"Output TrainC #1:\t{self.output_arr}\t{'AUTO' if not self.Mode else 'MANUAL'}")
+        self.lastspd = self.TrainModel_arr[0]
         
     
     
@@ -540,7 +560,7 @@ def def_main():
     Arduino = True
     
     main_Driver_arr = []#[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-    main_TrainModel_arr = [0,0,4,False,True,False,
+    main_TrainModel_arr = [0,0,3,False,True,False,
                            "0"*128]
     main_output_arr = []
     
@@ -561,7 +581,7 @@ def PWR_Unit_test(expected, err, ActSpd, CmdSpd):
     file.write("Hi\n")
     
     #testing 29m/s actual speed, 25m/s commanded speed == look for Power in Watts
-    main_TrainModel_arr = [0,0,4,False,False,False,
+    main_TrainModel_arr = [0,0,3,False,False,False,
                            "0"*128]
     main_output_arr = []
     main_Driver_arr = []
@@ -598,6 +618,6 @@ def PWR_Unit_test(expected, err, ActSpd, CmdSpd):
 
 #================================================================================
 if __name__ == "__main__":
-    #def_main()
-    PWR_Unit_test(expected=150 ,err=0.05 ,ActSpd=1 ,CmdSpd=4 )
+    def_main()
+    #PWR_Unit_test(expected=150 ,err=0.05 ,ActSpd=1 ,CmdSpd=4 )
         

@@ -41,7 +41,7 @@ class TrainController_Tot_Container(QObject):
             print("software train controller made")
         else:
             self.HW_index = len(self.ctrl_list)
-            trainCtrl = TrainControler_HW_Container(self.system_time)
+            trainCtrl = TrainControler_HW_Container(self.system_time,True)
         self.ctrl_list.append(trainCtrl)
         return trainCtrl
 
@@ -70,7 +70,7 @@ class TrainController_Tot_Container(QObject):
 
 
 #================================================================================
-def TrainC_main(system_time, type=True):
+def TrainC_main(system_time):
     trainctrlcntr = TrainController_Tot_Container(system_time)
     cntrl = trainctrlcntr.new_train_controller()  # removed (type) as parameter
     while True:
@@ -79,4 +79,4 @@ def TrainC_main(system_time, type=True):
 
 if __name__ == "__main__":
     system_time = SystemTimeContainer()
-    TrainC_main(system_time, False)
+    TrainC_main(system_time)
