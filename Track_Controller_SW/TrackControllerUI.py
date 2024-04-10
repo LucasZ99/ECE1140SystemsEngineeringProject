@@ -59,7 +59,6 @@ class UI(QMainWindow):
 
         super(UI, self).__init__()
         self.fname = "filename"
-        self.block_indexes = None
         self.switch_list_widget = None
         self.block_number = None
         self.manual_mode_window = None
@@ -148,18 +147,17 @@ class UI(QMainWindow):
 
     # must initialize with business object data, then have it dynamically update when running
     def init_occupancy(self) -> None:
-        self.block_indexes = copy(self.business_logic.block_indexes)
         self.block_number.clear()
-        for index, occupancy in zip(self.business_logic.block_indexes, self.business_logic.occupancy_dict):
+        for index, occupancy in self.business_logic.occupancy_dict.items():
             # for occupancy in self.business_logic.occupancy_list:
             item = QListWidgetItem(str(index) + " " + str(occupancy))
             self.block_number.addItem(item)
 
     # dynamically updating endpoint called by business logic
-    @pyqtSlot(list)
-    def update_occupancy(self, occupancy_list : list) -> None:
+    @pyqtSlot(dict)
+    def update_occupancy(self, occupancy_dict : dict) -> None:
         self.block_number.clear()
-        for index, occupancy in zip(self.block_indexes, occupancy_list):
+        for index, occupancy in occupancy_dict.items():
             # for occupancy in self.business_logic.occupancy_list:
             item = QListWidgetItem(str(index) + " " + str(occupancy))
             self.block_number.addItem(item)
@@ -191,17 +189,12 @@ class UI(QMainWindow):
             self.light_2_b.setStyleSheet("background-color: rgb(0, 224, 34)")
             self.light_2_a.setStyleSheet("background-color: rgb(222, 62, 38)")
 
-
-
-
     def manual_mode_dialogue(self):
         self.manual_mode_window = ManualMode(self.business_logic)
         self.manual_mode_window.switch_changed_signal.connect(self.business_logic.switches_changed)
         self.manual_mode_window.adjustSize()
         self.manual_mode_window.show()
         self.show()
-
-
 
     @pyqtSlot(bool)
     def activate_rr_crossing(self, active_bool: bool) -> None:
