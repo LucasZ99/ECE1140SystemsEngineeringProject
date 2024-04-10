@@ -28,6 +28,7 @@ class TrainController_Tot_Container(QObject):
     # new_train_values_signal = pyqtSignal(list, int)
     # new_train_temp_signal = pyqtSignal(float, int)
     # sam connect these signals to your respective update train model values command
+    new_train_controller_signal = pyqtSignal(object)
 
     def __init__(self, system_time_container: SystemTimeContainer):
         super().__init__()
@@ -47,14 +48,19 @@ class TrainController_Tot_Container(QObject):
     def new_train_controller(self):
         if self.HW_exist:
             trainCtrl = TrainControllerSWContainer(self.system_time)
+            #self.new_train_controller_signal.emit(trainCtrl)
+            print("software train controller made")
         else:
             self.HW_exist = True
             trainCtrl = TrainControler_HW_Container(self.system_time)
+            print("hardware train controller made")
+
         self.ctrl_list.append(trainCtrl)
+
         return trainCtrl
 
     # gonna need a show ui method for the list of sw controllers
-    # not sure we will want to handle the hw ui though...
+    # not sure how we will want to handle the hw ui though...
 
     # like this maybe ? vvv
     def show_hwui(self):
@@ -73,10 +79,12 @@ class TrainController_Tot_Container(QObject):
 
         app.exec()
 
+
 def TrainC_main(system_time, type=True):
     trainctrlcntr = TrainController_Tot_Container(system_time)
     cntrl = trainctrlcntr.new_train_controller()  # removed (type) as parameter
-    while True: cntrl.show_ui()
+    while True:
+        cntrl.show_ui()
 
 
 if __name__ == "__main__":
