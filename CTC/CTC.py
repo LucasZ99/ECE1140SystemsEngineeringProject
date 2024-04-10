@@ -8,6 +8,8 @@ from Common.Block import Block
 from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
 from Common.GreenLine import *
 
+import time as python_time
+
 
 class CTC(QObject):
     update_ui_signal = pyqtSignal()
@@ -22,6 +24,9 @@ class CTC(QObject):
     ui_update_throughput = pyqtSignal()
 
     def __init__(self, system_time: SystemTime):
+        init_start_time = python_time.time()
+        print("CTC Init started t={0}".format(init_start_time))
+
         super().__init__()
 
         self.mode = AUTOMATIC_MODE
@@ -63,7 +68,13 @@ class CTC(QObject):
         for crossing in GREEN_LINE[CROSSINGS]:
             self.rr_crossings[crossing] = False
 
-        self.update_track_controller()
+        init_end_time = python_time.time()
+        print("CTC Init finished. t={0}".format(init_end_time))
+        print("CTC Init time elapsed t={0}".format(init_end_time - init_start_time))
+
+    def send_initial_message(self):
+        print("CTC: send initial message")
+        self.update_wayside_from_ctc_signal.emit([TrackSignal(GREEN_LINE_YARD_SPAWN, 0, 0)], False, [], [])
 
     @pyqtSlot()
     def update_ctc_queues(self):

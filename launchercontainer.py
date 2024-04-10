@@ -107,12 +107,10 @@ class LauncherContainer(QObject):
 
     def open_train_controller_SW_ui(self):
         print("Open Train Controller SW UI Signal received")
-        self.trainControllerContainer = TrainController_Tot_Container(self.time_module)
         self.trainControllerContainer.show_swui()
 
     def open_train_controller_HW_ui(self):
         print("Open Train Controller HW UI Signal received")
-        self.trainControllerContainer = TrainController_Tot_Container(self.time_module)
         self.trainControllerContainer.show_hwui()
 
     def open_train_model_ui(self):
