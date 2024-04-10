@@ -1,13 +1,11 @@
 from PyQt6.QtCore import pyqtSignal, QObject, pyqtSlot
 from PyQt6.QtWidgets import QApplication
 
-from Common import Light
-from Track_Controller_SW.TestbenchContainer import TestbenchContainer
-from Track_Controller_SW.TrackControllerUI import UI
+from Common import Light, RRCrossing, Switch
 from Track_Controller_SW.BusinessLogic import BusinessLogic
 from Track_Controller_SW.PLC_Logic import PlcProgram
-from Common import Switch
-from Common import RRCrossing
+from Track_Controller_SW.TestbenchContainer import TestbenchContainer
+from Track_Controller_SW.TrackControllerUI import UI
 
 
 class TrackController(QObject):

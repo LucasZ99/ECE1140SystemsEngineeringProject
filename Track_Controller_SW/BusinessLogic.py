@@ -1,9 +1,8 @@
 from PyQt6.QtCore import QObject, pyqtSignal
 from PyQt6.QtCore import pyqtSlot
 
-from Track_Controller_SW import Light
+from Common import Light, Switch
 from Track_Controller_SW.PLC_Logic import PlcProgram
-from Common.switching import Switch
 
 
 class BusinessLogic(QObject):

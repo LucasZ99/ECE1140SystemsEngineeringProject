@@ -8,7 +8,7 @@ from PyQt6.QtWidgets import QFileDialog, QMainWindow, QWidget, QVBoxLayout, QPus
 from PyQt6.uic import loadUi
 
 from Track_Controller_SW.BusinessLogic import BusinessLogic
-from Common.switching import Switch
+from Common import Switch
 
 
 class ManualMode(QWidget):
