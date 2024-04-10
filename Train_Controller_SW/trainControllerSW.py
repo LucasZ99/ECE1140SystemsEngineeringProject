@@ -79,8 +79,8 @@ class TrainController:
         self.ek1 = float(0)
         self.T = 0  # time between sample from train model(eg time between train controller value updates for IT3)
         # PID gain values, as inputs from engineer
-        self.ki = float(1000)  # integral gain as float,
-        self.kp = float(2000)  # proportional gain as float
+        self.ki = float(50)  # integral gain as float,
+        self.kp = float(50)  # proportional gain as float
 
         # authority and distance
         self.distanceTraveled = float(-25)
@@ -88,7 +88,7 @@ class TrainController:
         self.currentBlock = int(62)
 
         # vital flags
-        self.stopsoon = bool(0)
+        self.stopSoon = bool(0)
         self.trainMoving = bool(0)
         self.trainSafeToMove = bool(0)
         self.trainStopped = bool(1)
@@ -101,16 +101,16 @@ class TrainController:
         self.line = self.blockline[0]
         self.section = self.blockline[1]
         self.block = self.blockline[2]
-        self.length = self.blockline[3]
-        self.speedlim = self.blockline[4]
+        self.length = float(self.blockline[3])
+        self.speedlim = float(self.blockline[4])
         self.notes = self.blockline[5]
 
         self.blockline = linecache.getline('Resources/IT3_GreenLine.txt', self.i+1).split("\t")
         self.nextline = self.blockline[0]
         self.nextsection = self.blockline[1]
         self.nextblock = self.blockline[2]
-        self.nextlength = self.blockline[3]
-        self.nextspeedlim = self.blockline[4]
+        self.nextlength = float(self.blockline[3])
+        self.nextspeedlim = float(self.blockline[4])
         self.nextnotes = self.blockline[5]
 
     def settestbenchstate(self, newtestbenchstate):
@@ -151,12 +151,11 @@ class TrainController:
         self.servBrake = newservbrake
         return
 
-    def ebrakecontrol(self):
-        if self.eBrake == 0:  # ebrake is off
-            self.eBrake = 1  # enable ebrake
-            self.power = 0  # kill power
-        elif self.eBrake == 1:  # ebrake is on
-            self.eBrake = 0  # disable ebrake
+    def ebrakecontrol(self, newbrake):
+        self.eBrake = newbrake
+
+        if self.eBrake == 1:  # ebrake is on, need to cut power
+            self.power = 0
         return
 
     def passebrakecontrol(self):
@@ -173,6 +172,18 @@ class TrainController:
         elif self.intLights == 1:
             self.intLights = 0  # turn off cabin lights
         return
+
+    def intlightson(self):
+        self.intLights = 1
+
+    def intlightsoff(self):
+        self.intLights = 0
+
+    def extlightson(self):
+        self.extLights = 1
+
+    def extlightsoff(self):
+        self.extLights = 0
 
     def extlightscontrol(self):
         if self.extLights == 0:
@@ -212,17 +223,18 @@ class TrainController:
             print("polarity changed, train has entered new block")
             self.polarity = newpolarity
             self.blocksTraveled += 1
+
+            print("updating distance travelled")
+            self.distanceTraveled += self.length
+
             self.i += 1
             self.blockline = linecache.getline('Resources/IT3_GreenLine.txt', self.i).split("\t")
             self.line = self.blockline[0]
             self.section = self.blockline[1]
             self.block = self.blockline[2]
-            self.length = self.blockline[3]
-            self.speedlim = self.blockline[4]
+            self.length = float(self.blockline[3])
+            self.speedlim = float(self.blockline[4])
             self.notes = self.blockline[5]
-
-            print("updating distance travelled")
-            self.distanceTraveled += int(self.length)
 
         # if self.polarity == 0:  # track is negative
         #     self.polarity = 1  # switch to positive
@@ -253,7 +265,7 @@ class TrainController:
             self.brakeFail = 0  # disable failure
         return
 
-    def parsebeacon(self, beaconinfo):  # i am getting to this now
+    def parsebeacon(self, beaconinfo):
         currentblock = int(beaconinfo)
 
     def testbenchcontrol(self):
@@ -267,7 +279,7 @@ class TrainController:
             self.power = 0
 
     def powercontrol(self):
-        if not self.stopsoon:  # do power checks and calcs, train doesn't need to stop
+        if not self.stopSoon and not self.eBrake:  # do power checks and calcs, train doesn't need to stop, brake not on
 
             if self.nextspeedlim < self.speedlim:
                 self.power = 0  # kill power
@@ -292,7 +304,7 @@ class TrainController:
                 if self.power > self.maxPower:
                     self.power = self.maxPower
 
-        # print(f'power is : {self.power}')
+        print(f'power is : {self.power}')
 
         # closing value updates
         self.last_update_time = self.update_time  # update time becomes last_update_time for next call
@@ -302,9 +314,14 @@ class TrainController:
     def authority(self):
         print("in authority fxn")
         if self.vitalAuth < 3:
-            print("in the authority if")
-            self.stopsoon = True
+            print(f'train authority less then 4, currently at" {self.vitalAuth}')
+            self.stopSoon = True
             self.power = 0
+            self.servBrake = True
+        elif self.vitalAuth == 4:
+            self.stopSoon = False
+            self.servBrake = False
+            print("train authority has been given authority 4, able to move forward")
 
     def vitalitycheck(self):
         # perform vitality checks to determine if train has right parameters to move
@@ -320,10 +337,10 @@ class TrainController:
 
     def speedcheck(self):
         # check if cmd speed and actual speed are within legal speed limits:
-        if self.cmdSpeed > float(self.speedlim):
+        if self.cmdSpeed > self.speedlim:
             print("command speed too high, limiting to speed limit")
             self.cmdSpeed = self.speedlim
-        elif self.cmdSpeed <= float(self.speedlim):
+        elif self.cmdSpeed <= self.speedlim:
             print("command speed within speed limits")
 
     def automode(self):  # deprecated in IT3, used in IT2 for testing. honk mimimi
@@ -357,7 +374,7 @@ class TrainController:
         return ms * self.mph2ms
 
     def updater(self, inputs, num):
-        print("train controller values being updated in new")
+        print("train controller values being updated in back")
         self.servBrake = 0  # turn off service brake, will be turned on if needed again
         #print("serve brake turned off")
         # called from train controller container when train sends new values
@@ -384,11 +401,21 @@ class TrainController:
             # check if in new block and update block values
             self.polaritycontrol(inputs[0])
             self.isUnderground = inputs[1]
+
+            if self.isUnderground:
+                self.intlightson()
+                self.extlightson()
+            elif not self.isUnderground:
+                self.intlightsoff()
+                self.extlightsoff()
+
             self.beacon = inputs[2]
+            self.parsebeacon(self.beacon)
         elif num == 3:
             print("update type 3 values (train info): actual speed, passenger e-brake")
             self.actualSpeed = inputs[0]
             self.passEBrake = inputs[1]
+            self.ebrakecontrol(self.passEBrake)
 
             # power stuff
             self.powercontrol()
@@ -447,6 +474,7 @@ class TrainController:
         return outputs
 
     def update_train_model_from_train_controller(self):
+        print("updating train model values")
 
         # update all values in output array and call train model container update function
         # reference adjacent container (train model cntr)
