@@ -1,29 +1,25 @@
 from PyQt6.QtCore import pyqtSignal, QObject, pyqtSlot
 from PyQt6.QtWidgets import QApplication
 
-from Track_Controller_SW.lighting import Light
-from Track_Controller_SW.TestbenchContainer import TestbenchContainer
-from Track_Controller_SW.TrackControllerUI import UI
+from Common import Light, RRCrossing, Switch
 from Track_Controller_SW.BusinessLogic import BusinessLogic
 from Track_Controller_SW.PLC_Logic import PlcProgram
-from Track_Controller_SW.switching import Switch
+from Track_Controller_SW.TestbenchContainer import TestbenchContainer
+from Track_Controller_SW.TrackControllerUI import UI
 
 
 class TrackController(QObject):
-
     switch_changed_index_signal = pyqtSignal(int)
     rr_crossing_signal = pyqtSignal(bool)
     lights_list_A_changed_signal = pyqtSignal(list)
     lights_list_C_changed_signal = pyqtSignal(list)
 
-
-    def __init__(self, occupancy_list: list, section: str):
+    def __init__(self, occupancy_dict: dict[int, bool], section: str):
         super().__init__()
+
+        self.block_indexes = list(occupancy_dict.keys())
+
         if section == "A":
-            self.block_indexes = [1, 2, 3, 4, 5, 6, 7, 8, 9,
-                                  10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
-                                  20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
-                                  30, 31, 32]
             self.switches_list = \
                 [
                     Switch(13, 12, 1, 12),
@@ -36,11 +32,11 @@ class TrackController(QObject):
                     Light(29, True),
                     Light(150, False)
                 ]
+            self.rr_crossing = \
+                [
+                    RRCrossing(19, False)
+                ]
         elif section == "C":
-            self.block_indexes = [77, 78, 79,
-                                  80, 81, 82, 83, 84, 85, 86, 87, 88, 89,
-                                  90, 91, 92, 93, 94, 95, 96, 97, 98, 99,
-                                  100, 101, 102, 103, 104]
             self.switches_list = \
                 [
                     Switch(77, 76, 101, 76),
@@ -55,12 +51,12 @@ class TrackController(QObject):
                 ]
 
         self.plc_logic = PlcProgram()
-        self.occupancy_list = occupancy_list
-        self.zero_speed_flag_list = [False] * len(self.occupancy_list)
+        self.occupancy_dict = occupancy_dict
+        self.zero_speed_flag_dict = dict(zip(self.block_indexes, [False]*len(self.block_indexes)))
         self.section = section
 
         self.business_logic = BusinessLogic(
-            self.occupancy_list,
+            self.occupancy_dict,
             self.switches_list,
             self.lights_list,
             self.plc_logic,
@@ -89,29 +85,35 @@ class TrackController(QObject):
         elif self.section == "C":
             self.lights_list_C_changed_signal.emit(lights_list)
 
-
-    def run(self) -> None:
-        pass
-
-    # CTC endpoints
-    def update_switch(self, line_id: int, block_id: int, switch_status: Switch) -> None:
-        pass
-
-    def set_block_maintenance(self, line_id: int, block_index: int, open: bool) -> None:
-        pass
-
-    def set_authority(self, line_id: int, block_id: int, authority: int) -> None:
-        pass
-
-    # Track Model endpoints
-    def update_occupancy(self, block_occupancy_list: list[bool]):
+    def update_occupancy(self, block_occupancy_dict: dict[int, bool]):
+        unsafe_close_blocks = None
+        unsafe_toggle_switches = None
         if self.section == "A":
             # update the zero_speed flag list
-            self.zero_speed_flag_list[23:27] = self.business_logic.occupancy_changed(block_occupancy_list)
+            occupancy_changed_result = self.business_logic.occupancy_changed(block_occupancy_dict)
+
+            zero_speed_blocks_25_to_28 = occupancy_changed_result[0]
+            unsafe_close_blocks = occupancy_changed_result[1]
+            unsafe_toggle_switches = occupancy_changed_result[2]
+
+            self.zero_speed_flag_dict.update({25: zero_speed_blocks_25_to_28[0],
+                                              26: zero_speed_blocks_25_to_28[1],
+                                              27: zero_speed_blocks_25_to_28[2],
+                                              28: zero_speed_blocks_25_to_28[3]})
         if self.section == "C":
-            self.zero_speed_flag_list[77:81] = self.business_logic.occupancy_changed(block_occupancy_list)
-        self.occupancy_list = block_occupancy_list
-        return self.zero_speed_flag_list
+            occupancy_changed_result = self.business_logic.occupancy_changed(block_occupancy_dict)
+
+            zero_speed_blocks_77_to_80 = occupancy_changed_result[0]
+            unsafe_close_blocks = occupancy_changed_result[1]
+            unsafe_toggle_switches = occupancy_changed_result[2]
+
+            self.zero_speed_flag_dict.update({77: zero_speed_blocks_77_to_80[0],
+                                              78: zero_speed_blocks_77_to_80[1],
+                                              79: zero_speed_blocks_77_to_80[2],
+                                              80: zero_speed_blocks_77_to_80[3]})
+
+        self.occupancy_dict = block_occupancy_dict
+        return [self.zero_speed_flag_dict, unsafe_close_blocks, unsafe_toggle_switches]
 
     def show_ui(self):
         app = QApplication.instance()  # Get the QApplication instance
