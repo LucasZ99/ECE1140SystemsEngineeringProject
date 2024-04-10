@@ -4,12 +4,15 @@ import sys
 import random
 from PyQt6.QtCore import pyqtSignal, QObject
 from PyQt6.QtWidgets import QApplication
+import time
 
+# TODO: for loop -> list comprehension
+#
 
 class TrackModel(QObject):
     # external signals
-    new_block_occupancy_signal = pyqtSignal(list)
-    new_ticket_sales_signal = pyqtSignal(int)
+    # new_block_occupancy_signal = pyqtSignal(list)
+    # new_ticket_sales_signal = pyqtSignal(int)
     # internal signals (to UI)
     refresh_ui_signal = pyqtSignal()
 
@@ -18,7 +21,10 @@ class TrackModel(QObject):
         # d = pd.read_excel(file_name, header=None)  # We will also load our header row, and block IDs will map to index
         # self.data = d.to_numpy()
         # self.check_data()
+        start = time.time()
         self.data = self.set_data(file_name)
+        end = time.time()
+        print(f'set_data time = {end - start}')
         # self.output_data_as_excel()
         self.line_name = self.data[0, 0]
         self.num_blocks = len(self.data)
@@ -28,7 +34,7 @@ class TrackModel(QObject):
         for i in range(0, self.num_blocks):
             if self.data[i, 16] == 0:
                 self.data[i, 16] = random.randint(1, 100)
-                self.data[i, 17] = random.randint(1, self.data[i, 16])
+                self.data[i, 17] = random.randint(1, int(self.data[i, 16]))
         self.authority = [0] * self.num_blocks
         self.speed = [0.0] * self.num_blocks
 
@@ -82,6 +88,7 @@ class TrackModel(QObject):
         last_index = self.num_blocks - self.data[:, 1].tolist()[::-1].index(section_id_end)
         return self.data[first_index:last_index, :]
 
+    # long runtimes
     def set_data(self, file_name):
         d = pd.read_excel(file_name,
                           header=None)  # We will also load our header row, and block IDs will map to index
@@ -116,8 +123,6 @@ class TrackModel(QObject):
                         num = int(n)
                         if num_dict[n] == 1:
                             new_data[num, 21] = False
-
-        for i in range(1, new_data.shape[0]):
             if 'station' in str(new_data[i, 9]).lower():
                 new_data[i, 12] = False
                 new_data[i, 16] = 0
@@ -325,9 +330,9 @@ class TrackModel(QObject):
     def get_occupancy_list(self):
         return self.data[1:, 7].tolist()
 
-    def emit_tc_block_occupancy(self) -> list[bool]:  # giving everything now
-        self.new_block_occupancy_signal.emit(self.data[1:, 7].tolist())
-        return self.data[1:, 7].tolist()
+    # def emit_tc_block_occupancy(self) -> list[bool]:  # giving everything now
+    #     self.new_block_occupancy_signal.emit(self.data[1:, 7].tolist())
+    #     return self.data[1:, 7].tolist()
 
     # train model
 
@@ -364,9 +369,9 @@ class TrackModel(QObject):
         return int(self.data[block_id, 3])
 
     # ctc (technically still track controller)
-    def emit_ctc_ticket_sales(self) -> int:
-        self.new_ticket_sales_signal.emit(self.ticket_sales)
-        return int(self.ticket_sales)
+    # def emit_ctc_ticket_sales(self) -> int:
+    #     self.new_ticket_sales_signal.emit(self.ticket_sales)
+    #     return int(self.ticket_sales)
 
     # new UI getters
     def get_block_info(self, block_id):

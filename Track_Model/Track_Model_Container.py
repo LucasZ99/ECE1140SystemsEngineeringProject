@@ -74,6 +74,7 @@ class TrackModelContainer(QObject):
     #     self.train_model_container.track_model_inputs(
     #         [self.track_model.get_tm_speed(1), self.track_model.get_tm_authority(1)], 1)  # send new info to train model
 
+
     def toggle_switch(self, block_id: int):
         print('toggle switch called')
         self.track_model.toggle_switch(block_id)

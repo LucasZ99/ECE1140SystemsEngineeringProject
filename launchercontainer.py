@@ -12,22 +12,41 @@ from launcherui import LauncherUi
 from trainControllerTot_Container import TrainController_Tot_Container
 from Train_Model import TrainModelContainer
 
+import time  # for debugging
+
 
 class LauncherContainer(QObject):
     def __init__(self):
         super().__init__()
+        start = time.time()
         self.time_module = SystemTimeContainer()
+        end = time.time()
+        print(f'system time module = {end - start}')
+        start = time.time()
         self.trainControllerContainer = TrainController_Tot_Container(self.time_module)
-
+        end = time.time()
+        print(f'train controller Tot = {end - start}')
+        start = time.time()
         self.train_model_container = TrainModelContainer(self.trainControllerContainer, self.time_module)
+        end = time.time()
+        print(f'train model = {end - start}')
+        start = time.time()
         self.track_model_container = TrackModelContainer()
+        end = time.time()
+        print(f'track model = {end - start}')
+        start = time.time()
         self.track_controller_container = TrackControllerContainer()
+        end = time.time()
+        print(f'track controller = {end - start}')
+        start = time.time()
         self.ctc_container = CTCContainer(self.time_module)
-
+        end = time.time()
+        print(f'ctc = {end - start}')
         # Connect signals between modules
 
         # Downstream
-        self.ctc_container.update_wayside_from_ctc_signal.connect(self.track_controller_container.update_wayside_from_ctc)
+        self.ctc_container.update_wayside_from_ctc_signal.connect(
+            self.track_controller_container.update_wayside_from_ctc)
 
         self.track_controller_container.update_track_model_from_wayside.connect(
             self.track_model_container.update_track_model_from_wayside)

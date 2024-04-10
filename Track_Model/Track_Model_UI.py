@@ -261,7 +261,7 @@ class Window(QMainWindow):
         self.map_table.setRowCount(m - 1)
         self.map_table.setColumnCount(n)
         print(self.track_model.get_data()[0, :])
-        self.track_model.output_data_as_excel()
+        # self.track_model.output_data_as_excel()
         self.map_table.setHorizontalHeaderLabels(self.track_model.get_data()[0, :])
         self.map_table.verticalHeader().setVisible(False)
         self.map_table.setMinimumWidth(300)
