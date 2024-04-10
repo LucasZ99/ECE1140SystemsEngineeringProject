@@ -13,7 +13,7 @@ from Track_Model.Track_Model_UI import Window
 class TrackModelContainer(QObject):
 
     # Signals to launcher
-    update_train_model_from_track_model = pyqtSignal(object, object, bool, int, object)
+    update_train_model_from_track_model = pyqtSignal(object, object, bool, int, object, int)
     update_ctc_from_track_model = pyqtSignal(int)
     update_wayside_from_track_model = pyqtSignal(object)
 
@@ -191,7 +191,8 @@ class TrackModelContainer(QObject):
     def update_track_model_from_train_model(self, delta_x_dict, disembarking_passengers_update):
         print('Track Model: update_track_model_from_train_model called')
         ticket_sales = 0  # TODO: implement ticket sales for ctc
-        block_occupancy_update = {}    # TODO: dict output for block occupancy for track controller rather than list
+        block_occupancy_update = dict(enumerate(self.track_model.get_occupancy_list(), 1))
+
         # for each train, calculate current block given delta x
 
         # update our track model train dict (train will get block info in next downstream)
@@ -200,5 +201,8 @@ class TrackModelContainer(QObject):
         print('Track Model: emitting update_ctc_from_track_model')
         self.update_ctc_from_track_model.emit(ticket_sales)
         print('Track Model: emitting update_wayside_from_track_model')
-        self.update_wayside_from_track_model.emit(block_occupancy_update)
-
+        print(f'Track Model: block_occupancy_update = {block_occupancy_update}')
+        try:
+            self.update_wayside_from_track_model.emit(block_occupancy_update)
+        except Exception as e:
+            print(e)
