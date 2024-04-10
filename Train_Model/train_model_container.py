@@ -19,28 +19,31 @@ class TrainModelContainer(QObject):
 
     def update_train_model_from_track_model(self, auth_speed_list: dict, block_dict: dict, new_train: bool,
                                             remove_train: int, passenger_list: dict):
-        self.business_logic.passenger_return.clear()
-        self.business_logic.delta_x_return.clear()
-
-        if remove_train in self.train_dict.keys():
-            self.remove_train(remove_train)
-
-        if new_train:
-            self.add_train()
-
-        for i in auth_speed_list.keys():
-            self.track_model_inputs([auth_speed_list[i][1], auth_speed_list[i][0]], i)
-
-        for i in block_dict.keys():
-            self.track_update_block(block_dict[i], i)
-
-        for i in passenger_list.keys():
-            if not (passenger_list[i] <= 0):
-                self.track_update_passengers(passenger_list[i], i)
+        print("reached update_train_model_from_track_model")
+        # self.business_logic.passenger_return.clear()
+        # self.business_logic.delta_x_return.clear()
+        #
+        # if remove_train in self.train_dict.keys():
+        #     self.remove_train(remove_train)
+        #
+        # if new_train:
+        #     self.add_train()
+        #
+        # for i in auth_speed_list.keys():
+        #     self.track_model_inputs([auth_speed_list[i][1], auth_speed_list[i][0]], i)
+        #
+        # for i in block_dict.keys():
+        #     self.track_update_block(block_dict[i], i)
+        #
+        # for i in passenger_list.keys():
+        #     if not (passenger_list[i] <= 0):
+        #         self.track_update_passengers(passenger_list[i], i)
 
         self.business_logic.train_update_controller()
 
-        self.physics_calculation()
+        print("train_update_controller successful")
+
+        # self.physics_calculation()
 
         self.update_track_model_from_train_model.emit(self.business_logic.delta_x_return,
                                                       self.business_logic.passenger_return)
@@ -113,7 +116,9 @@ class TrainModelContainer(QObject):
         print("train added in train container")
 
     def remove_train(self, index):
-        self.business_logic.train_removed(index)
+        print("train remove hit")
+        self.business_logic.remove_train(index)
+        print("train removed from container")
 
     def show_ui(self):
         app = QApplication.instance()
