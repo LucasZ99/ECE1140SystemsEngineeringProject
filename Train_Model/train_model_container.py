@@ -16,8 +16,6 @@ class TrainModelContainer(QObject):
         self.business_logic = TrainBusinessLogic(time)
         self.train_dict = self.business_logic.train_dict
         self.controller = controller
-        self.controller.new_train_values_signal.connect(self.train_controller_inputs)
-        self.controller.new_train_temp_signal.connect(self.controller_update_temp)
 
     def update_train_model_from_track_model(self, auth_speed_list: dict, block_dict: dict, new_train: bool,
                                             remove_train: int, passenger_list: dict):
@@ -39,6 +37,8 @@ class TrainModelContainer(QObject):
         for i in passenger_list.keys():
             if not (passenger_list[i] <= 0):
                 self.track_update_passengers(passenger_list[i], i)
+
+        self.business_logic.train_update_controller()
 
         self.physics_calculation()
 

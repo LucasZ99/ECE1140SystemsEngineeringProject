@@ -9,12 +9,12 @@ current_dir = os.path.dirname(__file__)  # setting up dir to work in any locatio
 class SlotsSigs(QObject):
     plc_path = ''  # updated at import time
     # Define Signals
-    occupancy_signal = pyqtSignal(list)
+    occupancy_signal = pyqtSignal(dict)
     switches_signal = pyqtSignal(list)
     suggested_speed_signal = pyqtSignal(list)
     rr_crossing_signal = pyqtSignal(bool)
 
-    def __init__(self, mode: bool, authority: list, switches: list, blocks: list,
+    def __init__(self, mode: bool, authority: list, switches: list, blocks: dict[int, bool],
                  suggested_speed: list, rr_crossing: bool):
         # assigning values to the signals
 
@@ -35,21 +35,26 @@ class SlotsSigs(QObject):
         self.stops = [False] * len(self.blocks)
 
     # Signal to update the occupancy
-    @pyqtSlot(list)
-    def new_occupancy(self, new_occupancy: list):
+    @pyqtSlot(dict)
+    def new_occupancy(self, new_occupancy: dict[int, bool]):
         print("new occupancy")
-        self.blocks = new_occupancy
+
+        self.blocks = new_occupancy  # set the blocks to the new occupancy
         self.plc.assign_vals(self.blocks, self.switches, self.rr_crossing, self.mode)
         self.stops, self.blocks, self.new_rr_crossing = self.plc.run_plc_logic()
         self.occupancy_signal.emit(new_occupancy)
+
         print("rr_crossing: ", self.rr_crossing)
         print("new_rr_crossing: ", self.new_rr_crossing)
-        if self.rr_crossing != self.new_rr_crossing:
+
+        if self.rr_crossing != self.new_rr_crossing:  # if the rr_crossing value has changed, emit the signal
             self.rr_crossing_signal.emit(True)
         else:
             self.rr_crossing_signal.emit(False)
         self.rr_crossing = self.new_rr_crossing
         self.hw_ui.show_hw_data(self.blocks, self.mode, self.rr_crossing, self.switches)
+        return self.stops
+
     # Signal to update the switches
     @pyqtSlot(list)
     def new_switches(self, new_switches: list):

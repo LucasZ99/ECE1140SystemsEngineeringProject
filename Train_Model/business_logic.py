@@ -8,9 +8,9 @@ class TrainBusinessLogic(QObject):
 
     # declare signals
     num_cars = 1
-    train_dict: dict
-    delta_x_return: dict
-    passenger_return: dict
+    train_dict = dict()
+    delta_x_return = dict()
+    passenger_return = dict()
     values_updated = pyqtSignal()
     block_updated = pyqtSignal(int)
     passengers_updated = pyqtSignal(int)
@@ -108,3 +108,7 @@ class TrainBusinessLogic(QObject):
         else:
             self.train_dict.pop(index)
             self.train_removed.emit(index)
+
+    def train_update_controller(self):
+        for train in self.train_dict:
+            train.update_controller()

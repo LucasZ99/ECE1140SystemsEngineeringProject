@@ -6,9 +6,8 @@ from PyQt6.QtCore import QObject, pyqtSignal
 def time_to_str(t: float):
     return python_time.strftime("%H:%m", python_time.localtime(t))
 
-class SystemTime(QObject):
-    update_time_signal = pyqtSignal()
 
+class SystemTime(QObject):
     def __init__(self):
         super().__init__()
         self.__scale: float = 1
@@ -32,10 +31,9 @@ class SystemTime(QObject):
                     break
 
             self.__sys_time += self.__update_interval
-            self.update_time_signal.emit()
 
     def __del__(self):
-        self.__timer_flag.value = 0
+        self.__timer_flag = 0
         self.__time_update_thread.join()
 
     def time(self) -> float:

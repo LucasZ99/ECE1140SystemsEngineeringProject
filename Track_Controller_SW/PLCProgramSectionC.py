@@ -6,9 +6,11 @@ def run_plc(occupancy_list):
     two_way_occupied = False
     loop_occupied = False
     zero_speed_flags = [False] * 4
+    unsafe_close_blocks = []
+    unsafe_toggle_switches = [False, False]
 
     # check if loop is occupied
-    for i  in range(9, 24):
+    for i in range(9, 24):
         if occupancy_list[i]:
             loop_occupied = True
 
@@ -23,6 +25,12 @@ def run_plc(occupancy_list):
             zero_speed_flags = [True] * 4
 
     # Switching logic
+    # check if switches are safe to toggle
+    if occupancy_list[0] or occupancy_list[1]:
+        unsafe_toggle_switches[0] = True
+    if occupancy_list[8] or occupancy_list[9] or occupancy_list[23]:
+        unsafe_toggle_switches[1] = True
+
     # if two-way section is not occupied
     if two_way_occupied is False:
         # if the entire section is empty, get ready for entry
@@ -38,7 +46,15 @@ def run_plc(occupancy_list):
         switch_loop = True
         switch_entry = False
 
-    return [switch_entry, switch_loop, False, zero_speed_flags]
+    return \
+        [
+            switch_entry,
+            switch_loop,
+            False,  # no rr crossing exists
+            zero_speed_flags,
+            unsafe_close_blocks,
+            unsafe_toggle_switches
+        ]
 
 
 def main():

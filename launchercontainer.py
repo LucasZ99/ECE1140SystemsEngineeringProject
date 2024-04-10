@@ -27,7 +27,7 @@ class LauncherContainer(QObject):
         # Connect signals between modules
 
         # Downstream
-        self.ctc_container.update_wayside_from_ctc.connect(self.track_controller_container.update_wayside_from_ctc)
+        self.ctc_container.update_wayside_from_ctc_signal.connect(self.track_controller_container.update_wayside_from_ctc)
 
         self.track_controller_container.update_track_model_from_wayside.connect(
             self.track_model_container.update_track_model_from_wayside)
