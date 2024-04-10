@@ -12,7 +12,9 @@ from CTC.Train import Train
 
 import CTC.Route as Route
 from SystemTime import SystemTime
-from CTC.Track import *
+from Common import Light, Switch
+from Common.GreenLine import *
+from Common.Constants import *
 from SystemTime.SystemTime import time_to_str
 
 
@@ -70,12 +72,12 @@ class CTCMainWindow(QMainWindow):
 
             destination_list_combo_box = QComboBox()
             destination_list_combo_box.addItem("Select Destination...")
-            for block in BLOCK_NAMES[id]:
-                block_list_name = ""
-                if BLOCK_NAMES[id][block] in STATIONS[id]:
-                    block_list_name = block + " (STATION: %s)" % STATIONS[id][BLOCK_NAMES[id][block]]
+            print(GREEN_LINE[STATIONS])
+            for block in GREEN_LINE[BLOCKS]:
+                if block in GREEN_LINE[STATIONS]:
+                    block_list_name = GREEN_LINE[BLOCKS][block].name + " (STATION: %s)" % GREEN_LINE[STATIONS][block]
                 else:
-                    block_list_name = block
+                    block_list_name = GREEN_LINE[BLOCKS][block].name
                 destination_list_combo_box.addItem(block_list_name)
 
             destination_list_combo_box.setFixedSize(destination_list_combo_box.sizeHint())
@@ -437,14 +439,11 @@ class CTCMainWindow(QMainWindow):
 
         # handles the double tracked sections
         if selected_id >= 1:
-            self.route = Route.find_route(line_id, GREEN_LINE_YARD_SPAWN, BLOCKS[GREEN_LINE][selected_id - 1])
+            self.route = Route.find_route(line_id, GREEN_LINE_YARD_SPAWN, GREEN_LINE[BLOCKS][selected_id - 1])
 
         dispatch_train_schedule.setRowCount(0)
         if selected_id != 0:
             for stop in self.route[:-1]:
-
-
-
                 stop_name = self.stop_name(line_id, stop)
                 row_number = dispatch_train_schedule.rowCount()
                 dispatch_train_schedule.insertRow(row_number)
@@ -503,7 +502,7 @@ class CTCMainWindow(QMainWindow):
             destination = self.stop_name(train.line_id, Route.get_block(train.line_id, train.get_destination().block))
 
             table.setItem(row, 0, QTableWidgetItem(train_number))
-            table.setItem(row, 1, QTableWidgetItem(train_line[0]))
+            table.setItem(row, 1, QTableWidgetItem(LINES[train.line_id]))
             table.setItem(row, 2, QTableWidgetItem(destination))
             table.setItem(row, 3, QTableWidgetItem(time_to_str(train.get_destination().arrival_time)))
             table.setItem(row, 4, QTableWidgetItem(self.stop_name(train.line_id, train.route[train.next_stop].block)))
@@ -550,11 +549,11 @@ class BlockTable(QTableWidget):
         self.setRowCount(0)
 
         # TODO fix block data
-        for row, block in enumerate(TRACK[line_id]):
-            self.insertRow(block)
+        for row, block in enumerate(GREEN_LINE[BLOCKS]):
+            self.insertRow(row)
             block_id = block
-            block_length_ft = float(LENGTHS_SPEED_LIMITS[line_id][block][LENGTH]) * 3.28084
-            block_speed_limit_mph = LENGTHS_SPEED_LIMITS[line_id][block][SPEED_LIMIT] / 1.609
+            block_length_ft = float(GREEN_LINE[BLOCKS][block].length) * 3.28084
+            block_speed_limit_mph = GREEN_LINE[BLOCKS][block].speed_limit / 1.609
 
             occupied = "Yes" if self.ctc.blocks[block] is True else "No"
 
@@ -570,12 +569,12 @@ class BlockTable(QTableWidget):
         self.setRowCount(0)
 
         # TODO fix block data
-        for block in TRACK[line_id]:
+        for block in GREEN_LINE[BLOCKS]:
             row = self.rowCount()
             self.insertRow(row)
             block_id = block
-            block_length_ft = float(LENGTHS_SPEED_LIMITS[line_id][block][LENGTH]) * 3.28084
-            block_speed_limit_mph = LENGTHS_SPEED_LIMITS[line_id][block][SPEED_LIMIT] / 1.609
+            block_length_ft = float(GREEN_LINE[BLOCKS][block].length) * 3.28084
+            block_speed_limit_mph = GREEN_LINE[BLOCKS][block].speed_limit / 1.609
 
             occupied = "Yes" if self.ctc.blocks[block] is True else "No"
 

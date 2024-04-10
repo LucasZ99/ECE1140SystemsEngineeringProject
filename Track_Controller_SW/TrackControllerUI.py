@@ -1,7 +1,6 @@
 from copy import copy
 
 import os
-import numpy as np
 from PyQt6 import QtCore
 from PyQt6.QtCore import pyqtSignal, pyqtSlot
 from PyQt6.QtWidgets import QFileDialog, QMainWindow, QWidget, QVBoxLayout, QPushButton, QLabel, \
@@ -9,7 +8,7 @@ from PyQt6.QtWidgets import QFileDialog, QMainWindow, QWidget, QVBoxLayout, QPus
 from PyQt6.uic import loadUi
 
 from Track_Controller_SW.BusinessLogic import BusinessLogic
-from Track_Controller_SW.switching import Switch
+from Common.switching import Switch
 
 
 class ManualMode(QWidget):

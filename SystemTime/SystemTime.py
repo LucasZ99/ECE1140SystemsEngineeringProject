@@ -35,7 +35,7 @@ class SystemTime(QObject):
             self.update_time_signal.emit()
 
     def __del__(self):
-        self.__timer_flag.value = 0
+        self.__timer_flag = 0
         self.__time_update_thread.join()
 
     def time(self) -> float:
