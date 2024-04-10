@@ -3,7 +3,7 @@ from PyQt6.QtWidgets import QApplication
 from CTC import CTC, GREEN_LINE, TRACK
 from CTC.CTC_UI_Main import CTCMainWindow
 from SystemTime import SystemTimeContainer
-from Track_Controller_SW import TrackControllerContainer, Switch, Light, RRCrossing
+from Common import Switch, Light, RRCrossing
 
 
 class CTCContainer(QObject):
@@ -32,7 +32,7 @@ class CTCContainer(QObject):
         # if app_flag is True:
         app.exec()
 
-    @pyqtSlot(list[tuple[int, int, float]], bool, list[tuple[int, bool]], list)
+    @pyqtSlot(list, bool, list, list)
     def update_wayside_from_ctc(self, authority_speed_update: list[tuple[int, int, float]],
                                 maintenance_mode_override_flag: bool,
                                 blocks_to_close_open: list[tuple[int, bool]],
@@ -44,7 +44,7 @@ class CTCContainer(QObject):
                                                  blocks_to_close_open,
                                                  updated_switches)
 
-    @pyqtSlot(dict[int, bool], list, list, list)
+    @pyqtSlot(dict, list, list, list)
     def update_ctc_from_wayside(self,
                                 block_occupancy_update: dict[int, bool],
                                 switch_positions: list[Switch],
