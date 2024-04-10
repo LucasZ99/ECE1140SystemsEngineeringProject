@@ -101,25 +101,25 @@ class TrackControllerContainer(QObject):
         #     self.toggle_switch_if_safe(updated_switches)
         #
         # # call downstream endpoint after processing of CTC data
-        # self.update_track_model_from_wayside.emit(
-        #     [track_signal.to_tuple() for track_signal in authority_speed_update],
-        #     [switch.to_tuple() for switch in self.switch_list],
-        #     [light.to_tuple() for light in self.lights_list],
-        #     [crossing.to_tuple() for crossing in self.rr_crossing_list],
-        #     safe_toggle_blocks
-        # )
+        self.update_track_model_from_wayside.emit(
+            [track_signal.to_tuple() for track_signal in authority_speed_update],
+            [switch.to_tuple() for switch in self.switch_list],
+            [light.to_tuple() for light in self.lights_list],
+            [crossing.to_tuple() for crossing in self.rr_crossing_list],
+            []
+        )
 
     # Track Model Endpoint
     @pyqtSlot(dict)
     def update_wayside_from_track_model(self, block_occupancy_update: dict[int, bool]):
-        print(f"block occupancy update from wayside received, block 62 status: {}")
+        print(f"block occupancy update from wayside received, block 62 status: {block_occupancy_update[62]}")
         # self.update_occupancy(block_occupancy_update)
-        # self.update_ctc_from_wayside.emit(
-        #     block_occupancy_update,
-        #     self.switch_list,
-        #     self.lights_list,
-        #     self.rr_crossing_list
-        # )
+        self.update_ctc_from_wayside.emit(
+            block_occupancy_update,
+            self.switch_list,
+            self.lights_list,
+            self.rr_crossing_list
+        )
 
     def check_safe_speed(self, track_signal: list[TrackSignal]):
         for signal in track_signal:
