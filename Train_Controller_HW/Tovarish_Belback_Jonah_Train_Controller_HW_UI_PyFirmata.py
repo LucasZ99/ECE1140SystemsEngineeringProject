@@ -187,6 +187,8 @@ class HW_UI_JEB382_PyFirmat():
         self.polarity = bool(self.TrainModel_arr[4])
         self.blockNum = 1#62 [IT3 application]
         self.speedlimit=30
+        
+        #distance traveled
         self.passover=False
         self.traveled=0 #over block
         self.distleft=0 #dist left in block
@@ -288,15 +290,15 @@ class HW_UI_JEB382_PyFirmat():
         else: self.passover=False
         self.polarity = self.TrainModel_arr[4]
         
+        
+        
+        
+        #!!!!!!! distance left in authority [Greenline]
         self.stat_Dside=0
-
         distance_to_station=0
+        app_stat=""
         #add up all block's length allowed by authority (num of blocks)
         #Line0, Section1, Block Num2, Block Len3, SpeedLimit4, Infrastructure5, Station Side6
-        app_stat=""
-        
-        #print(f"<{self.TrainModel_arr[2]}>")
-            
         
         for i in range(int(self.TrainModel_arr[2])+1):
             particular_line = linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum+i).split("\t")
@@ -320,6 +322,9 @@ class HW_UI_JEB382_PyFirmat():
             #else:  self.output_arr[5] = infra[5][9:]
             self.output_arr[5] = infra[9:]
             
+            
+            
+            
         
         #print(f"BlockNum: {self.blockNum}")
         #print(f"ANNOUNCE: <{self.Announcements}>")
@@ -338,21 +343,22 @@ class HW_UI_JEB382_PyFirmat():
         if self.output_arr[3]: self.output_arr[2] = False
         
         
+        #distance traveled-----------
         displace_buffer=10
         #service
-        t1=( (0-float(self.TrainModel_arr[0]))/(-1.2 ) )*(5/18)
-        s1=0.5*(0+float(self.TrainModel_arr[0]))*t1*(5/18)#1/2 * u * t * conversion of km/hr to m/s
+        t1=( (0-float(self.TrainModel_arr[0]))/(-1.2 ) )#*(5/18)
+        s1=0.5*(0+float(self.TrainModel_arr[0]))*t1#*(5/18)#1/2 * u * t * conversion of km/hr to m/s
         
         if __name__ != "__main__" and sys.argv[0][-10:-3] != "Testing": currtime = self.system_time.time()
         else: currtime = time.time()
         T = currtime-self.timeL #sec-sec
         
-        if( not self.passover ): self.traveled += 0.5*(float(self.TrainModel_arr[0])+self.lastspd)*T*(5/18)
+        if( not self.passover ): self.traveled += 0.5*(float(self.TrainModel_arr[0])+self.lastspd)*T#*(5/18)
         distance_to_station -= self.traveled
         
         
         
-        #print(f"DIST: {distance_to_station},\tANNOUNCE: <{self.Announcements}>,\t{self.traveled}")
+        print(f"DIST: {distance_to_station},\tANNOUNCE: <{self.Announcements}>,\t{self.traveled}")
         
             
         
@@ -361,11 +367,13 @@ class HW_UI_JEB382_PyFirmat():
             self.output_arr[0] = 0
             self.output_arr[1] = 0
             self.output_arr[2] = True
+            #while True: print("SBRAKE")
         #elif authority<4 and distance to station <= s1: emergency brake, power=0, commanded speed=0
         elif distance_to_station < s1:
             self.output_arr[0] = 0
             self.output_arr[1] = 0
             self.output_arr[3] = True
+            #while True: print("EBRAKE")
         else:          
             #fill out self.output_arr and self.Announcements
             #0   Commanded Speed	                m/s	        How fast the driver has commanded the train to go
