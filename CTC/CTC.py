@@ -73,7 +73,8 @@ class CTC(QObject):
         print("CTC Init time elapsed t={0}".format(init_end_time - init_start_time))
 
     def send_initial_message(self):
-        self.update_wayside_from_ctc_signal.emit(TrackSignal(GREEN_LINE_YARD_SPAWN, 0, 0), False, [], [])
+        print("CTC: send initial message")
+        self.update_wayside_from_ctc_signal.emit([TrackSignal(GREEN_LINE_YARD_SPAWN, 0, 0)], False, [], [])
 
     @pyqtSlot()
     def update_ctc_queues(self):
