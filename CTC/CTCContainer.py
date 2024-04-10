@@ -8,7 +8,7 @@ from Common import Switch, Light, RRCrossing
 
 class CTCContainer(QObject):
     # TODO: you need to define the types here
-    update_ctc_from_wayside_signal = pyqtSignal()
+    update_wayside_from_ctc_signal = pyqtSignal()
 
     def __init__(self, system_time_container: SystemTimeContainer):
         super().__init__()
@@ -39,7 +39,7 @@ class CTCContainer(QObject):
                                 updated_switches: list[Switch]):
         # TODO: Update authority_speed_update to be a TrackSignal before emitting the signal
         # TODO: Define the types for this signal at the top of this file
-        self.update_ctc_from_wayside_signal.emit(authority_speed_update,
+        self.update_wayside_from_ctc_signal.emit(authority_speed_update,
                                                  maintenance_mode_override_flag,
                                                  blocks_to_close_open,
                                                  updated_switches)
@@ -50,4 +50,19 @@ class CTCContainer(QObject):
                                 switch_positions: list[Switch],
                                 light_states: list[Light],
                                 rr_crossing_states: list[RRCrossing]):
-        pass
+        self.ctc.update_switch_positions(switch_positions)
+        self.ctc.update_signal_statuses(light_states)
+        self.ctc.update_railroad_crossing_statuses(rr_crossing_states)
+        self.ctc.update_block_occupancies(block_occupancy_update)
+
+        track_signals_to_wayside = self.ctc.set_track_signals()
+
+        # send update to wayside
+        self.update_wayside_from_ctc_signal.emit(track_signals_to_wayside,
+                                                 False,
+                                                 [],
+                                                 [])
+
+    @pyqtSlot(int)
+    def update_ctc_from_track_model(self, ticket_sales:int):
+        self.ctc.update_ticket_sales(ticket_sales)
