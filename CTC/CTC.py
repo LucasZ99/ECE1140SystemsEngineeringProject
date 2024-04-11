@@ -56,9 +56,8 @@ class CTC(QObject):
             self.blocks[block] = False
 
         self.switches: dict[int, Switch] = {}
-
-        # for switch in track_controller_container_ref.switch_list:
-        #     self.switches[switch.block] = switch
+        for switch in GREEN_LINE[SWITCHES]:
+            self.switches[switch.block] = switch
 
         self.lights: dict[int:bool] = {}
         for light in GREEN_LINE[LIGHTS]:
