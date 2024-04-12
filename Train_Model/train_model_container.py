@@ -11,9 +11,9 @@ from SystemTime import SystemTimeContainer
 class TrainModelContainer(QObject):
     update_track_model_from_train_model = pyqtSignal(object, object)
 
-    def __init__(self, controller: TrainController_Tot_Container, time: SystemTimeContainer):
+    def __init__(self, controller: TrainController_Tot_Container):
         super().__init__()
-        self.business_logic = TrainBusinessLogic(time)
+        self.business_logic = TrainBusinessLogic()
         self.train_dict = self.business_logic.train_dict
         self.controller = controller
 

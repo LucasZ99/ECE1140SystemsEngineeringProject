@@ -17,17 +17,18 @@ class LauncherContainer(QObject):
     def __init__(self):
         super().__init__()
         self.time_module = SystemTimeContainer()
-        self.trainControllerContainer = TrainController_Tot_Container(self.time_module)
+        self.trainControllerContainer = TrainController_Tot_Container()
 
-        self.train_model_container = TrainModelContainer(self.trainControllerContainer, self.time_module)
+        self.train_model_container = TrainModelContainer(self.trainControllerContainer)
         self.track_model_container = TrackModelContainer()
         self.track_controller_container = TrackControllerContainer()
-        self.ctc_container = CTCContainer(self.time_module)
+        self.ctc_container = CTCContainer()
 
         # Connect signals between modules
 
         # Downstream
-        self.ctc_container.update_wayside_from_ctc_signal.connect(self.track_controller_container.update_wayside_from_ctc)
+        self.ctc_container.update_wayside_from_ctc_signal.connect(
+            self.track_controller_container.update_wayside_from_ctc)
 
         self.track_controller_container.update_track_model_from_wayside.connect(
             self.track_model_container.update_track_model_from_wayside)
@@ -108,4 +109,3 @@ class LauncherContainer(QObject):
             self.train_model_container.show_ui()
         except Exception as e:
             print(e)
-

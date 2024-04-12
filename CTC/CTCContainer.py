@@ -1,8 +1,7 @@
 from PyQt6.QtCore import QObject, pyqtSlot, pyqtSignal
 from PyQt6.QtWidgets import QApplication
-from CTC import CTC, GREEN_LINE, TRACK
+from CTC import CTC
 from CTC.CTC_UI_Main import CTCMainWindow
-from SystemTime import SystemTimeContainer
 from Common import Switch, Light, RRCrossing
 
 import time as python_time
@@ -11,13 +10,12 @@ import time as python_time
 class CTCContainer(QObject):
     update_wayside_from_ctc_signal = pyqtSignal(list, bool, list, list)
 
-    def __init__(self, system_time_container: SystemTimeContainer):
+    def __init__(self):
         init_start_time = python_time.time()
         print("Initializing CTCContainer t={0}".format(init_start_time))
 
         super().__init__()
-        self.system_time = system_time_container.system_time
-        self.ctc = CTC(self.system_time)
+        self.ctc = CTC()
         self.ctc.update_wayside_from_ctc_signal.connect(self.update_wayside_from_ctc)
         print("CTC wired to CTC container")
 
@@ -37,7 +35,7 @@ class CTCContainer(QObject):
             # app_flag = True
 
         print("before ui call")
-        self.ui = CTCMainWindow(self.ctc, self.system_time)
+        self.ui = CTCMainWindow(self.ctc)
         print("before ui show")
         self.ui.show()
         print("After ui show")

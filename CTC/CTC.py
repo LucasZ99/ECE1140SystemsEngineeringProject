@@ -1,10 +1,7 @@
 from CTC.CTCConstants import *
 from CTC.CTCSchedule import CTCSchedule
 from CTC.Train import Train
-from Common.TrackSignal import TrackSignal
-from SystemTime import SystemTime
-from Common.switching import Switch
-from Common.Block import Block
+from Common import TrackSignal
 from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
 from Common.GreenLine import *
 
@@ -23,19 +20,18 @@ class CTC(QObject):
     ui_update_ticket_sales = pyqtSignal()
     ui_update_throughput = pyqtSignal()
 
-    def __init__(self, system_time: SystemTime):
+    def __init__(self):
         init_start_time = python_time.time()
         print("CTC Init started t={0}".format(init_start_time))
 
         super().__init__()
 
         self.mode = AUTOMATIC_MODE
-        self.system_time = system_time
 
         self.wayside_update_list: list[tuple[int, int, float]] = []
 
-        self.scheduled_trains = CTCSchedule(system_time)
-        self.dispatched_trains = CTCSchedule(system_time)
+        self.scheduled_trains = CTCSchedule()
+        self.dispatched_trains = CTCSchedule()
 
         self.running_trains: list[Train] = []
 
@@ -212,7 +208,7 @@ class CTC(QObject):
         print(f"CTC: Block {block_id} set to {occupied_str}.")
 
     def update_running_trains(self):
-        for train in [running_train for running_train in self.running_trains if abs(running_train.current_block) == block_id]:
+        for train in self.running_trains:
             print(f"CTC: Train {train.id} block status update.")
             self.update_train_position(train)
             self.set_block_authority()

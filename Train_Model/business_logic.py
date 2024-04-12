@@ -1,5 +1,6 @@
 from PyQt6.QtCore import pyqtSignal, QObject, pyqtSlot
-from SystemTime import SystemTimeContainer
+
+import SystemTime
 from Train_Model.new_train_model import TrainModel
 from trainControllerTot_Container import TrainController_Tot_Container
 
@@ -18,10 +19,8 @@ class TrainBusinessLogic(QObject):
     train_added = pyqtSignal(int)
     train_removed = pyqtSignal(int)
     
-    def __init__(self, time: SystemTimeContainer):
+    def __init__(self):
         super().__init__()
-        self.time_keeper = time
-        self.time = self.time_keeper.system_time.time()
 
     def track_model_inputs(self, input_list, index):
         if len(self.train_dict) == 0:
@@ -84,8 +83,8 @@ class TrainBusinessLogic(QObject):
         self.temp_updated.emit(index)
 
     def physics_calculation(self):
-        interval = self.time_keeper.system_time.time() - self.time
-        self.time = self.time_keeper.system_time.time()
+        interval = SystemTime.time() - self.time
+        self.time = SystemTime.time()
         for i in self.train_dict:
             self.delta_x_return[i] = self.train_dict[i].physics_calculation(interval)
         self.values_updated.emit()

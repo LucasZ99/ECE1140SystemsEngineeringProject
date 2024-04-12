@@ -8,45 +8,37 @@ def time_to_str(t: float):
 
 
 class SystemTime(QObject):
-    def __init__(self):
-        super().__init__()
-        self.__scale: float = 1
+    time_paused = False
+    scale: float = 1
 
-        init_time = python_time.time()
-        # print(init_time)
-        self.__sys_time = init_time
-        self.__update_timeout = 0.1
-        self.__update_interval = 0.1
-        self.__timer_flag = 1
+    last_captured_real_time = python_time.time()
+    sys_time = last_captured_real_time
+    print("SystemTime Object Created")
 
-        self.__time_update_thread = Thread(target=self.update_time)
-        self.__time_update_thread.start()
 
-    def update_time(self):
-        while self.__timer_flag:
-            start_time = python_time.time()
+def time() -> float:
+    # For any time t, the time system elapsed since the last real time captured is the change in time * scale
+    if not SystemTime.time_paused:
+        real_time_elapsed = python_time.time() - SystemTime.last_captured_real_time
+        SystemTime.last_captured_real_time = python_time.time()
+        delta_sys_time = real_time_elapsed * SystemTime.scale
+        SystemTime.sys_time = SystemTime.sys_time + delta_sys_time
+    return SystemTime.sys_time
 
-            while True:
-                if python_time.time() >= start_time + self.__update_timeout:
-                    break
 
-            self.__sys_time += self.__update_interval
+def play():
+    SystemTime.time_paused = False
 
-    def __del__(self):
-        self.__timer_flag = 0
-        self.__time_update_thread.join()
 
-    def time(self) -> float:
-        sys_time = self.__sys_time
-        return sys_time
+def pause():
+    time()
+    SystemTime.time_paused = True
 
-    def play(self):
-        pass
 
-    def pause(self):
-        pass
+def set_multiplier(multiplier: float) -> None:
+    # update system time
+    time()
 
-    def set_multiplier(self, multiplier: float) -> None:
-        self.__scale = multiplier
-        self.__update_timeout = self.__update_interval / self.__scale
-        print(f"multiplier set: {multiplier}")
+    SystemTime.scale = multiplier
+    print(f"multiplier set: {multiplier}")
+    print("SystemTime started")

@@ -22,10 +22,9 @@ class TrainController_Tot_Container(QObject):
     # new_train_temp_signal = pyqtSignal(float, int)
     # sam connect these signals to your respective update train model values command
 
-    def __init__(self, system_time_container: SystemTimeContainer):
+    def __init__(self):
         super().__init__()
-        
-        self.system_time = system_time_container
+
         self.ctrl_list = []
         self.HW_index = None # index for future utility incase of handling recovery of deleted HW Controller
     
@@ -35,10 +34,10 @@ class TrainController_Tot_Container(QObject):
     # return HW/SW Container
     def new_train_controller(self):
         if self.HW_index:
-            trainCtrl = TrainControllerSWContainer(self.system_time)
+            trainCtrl = TrainControllerSWContainer(SystemTime.time())
         else:
             self.HW_index = len(self.ctrl_list)
-            trainCtrl = TrainControler_HW_Container(self.system_time)
+            trainCtrl = TrainControler_HW_Container(SystemTime.time())
         self.ctrl_list.append(trainCtrl)
         return trainCtrl
 
@@ -72,7 +71,7 @@ class TrainController_Tot_Container(QObject):
 
 #================================================================================
 def TrainC_main(system_time, type=True):
-    trainctrlcntr = TrainController_Tot_Container(system_time)
+    trainctrlcntr = TrainController_Tot_Container()
     cntrl = trainctrlcntr.new_train_controller()  # removed (type) as parameter
     while True: cntrl.show_ui()
 
