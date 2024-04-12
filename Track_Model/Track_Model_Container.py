@@ -147,7 +147,7 @@ class TrackModelContainer(QObject):
         # print(f'authority_safe_speed_update: {authority_safe_speed_update}')
         add_train = False  # default
         remove_train = self.track_model.get_remove_train()
-        embarking_passengers_update = 0  # TODO: implement embarking passengers
+        embarking_passengers_update = {}  # TODO: implement embarking passengers dict per train
         # update track_model
         print('Track Model: updating self.track_model')
         self.track_model.update_authority_and_safe_speed(authority_safe_speed_update)
