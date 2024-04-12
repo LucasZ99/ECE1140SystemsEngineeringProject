@@ -39,12 +39,12 @@ class SystemTimeUi(QMainWindow):
         self.show()
 
     def toggle_play_pause_button(self):
-        if self.play_pause_button.text() == 'pause':
-            self.play_pause_button.setText('play')
+        if self.pause_play_button.text() == 'pause':
+            self.pause_play_button.setText('play')
             self.toggle_play_pause_signal.emit(False)
 
         else:
-            self.play_pause_button.setText('pause')
+            self.pause_play_button.setText('pause')
             self.toggle_play_pause_signal.emit(True)
 
     def update_multiplier_one(self):

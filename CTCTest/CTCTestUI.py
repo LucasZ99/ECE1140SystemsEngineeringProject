@@ -1,3 +1,5 @@
+import sys
+
 from PyQt6.QtCore import pyqtSignal, pyqtSlot, QObject
 from PyQt6.QtWidgets import QMainWindow, QWidget, QApplication
 
@@ -23,14 +25,11 @@ class CTCTestUI(QMainWindow):
         self.setCentralWidget(self.ctc_test_ui_main_layout_widget)
 
 
-
-
-
-def show_ctc_test_ui():
-    app = QApplication(sys.argv)
-    ui = CTCTestUI()
-    ui.show()
-    app.exec()
+    def show_ctc_test_ui(self):
+        app = QApplication(sys.argv)
+        # ui = CTCTestUI()
+        self.show()
+        app.exec()
 
     @pyqtSlot(list, bool, list, list)
     def update_test_ui_from_wayside(self):

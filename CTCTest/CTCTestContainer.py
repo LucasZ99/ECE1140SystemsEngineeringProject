@@ -13,22 +13,35 @@ class CTCTestContainer(QObject):
         super().__init__()
         self.ctc_container = CTCContainer()
         self.track_controller_model = TrackControllerModel()
+        self.system_time_container = SystemTimeContainer()
 
-    def init_test_ui(self):
         app = QApplication.instance()
 
         if app is None:
             app = QApplication([])
 
-        test_ui = CTCTestUI(self.track_controller_model)
-        test_ui.show()
+        self.test_ui = CTCTestUI(self.track_controller_model)
+
         self.ctc_container.show_ui()
+        self.system_time_container.show_ui()
+
+        app.exec()
+
+    # def init_test_ui(self):
+    #
+    #
+    #     #  app.exec()
+    #
+    #
+    #     self.ctc_container.show_ui()
+    #     self.system_time_container.show_ui()
 
 
 def run_ctc_test_container():
     app = QApplication([])
     ctc_test_container = CTCTestContainer()
-    ctc_test_container.init_test_ui()
+    # ctc_test_container.init_test_ui()
+    app.exec()
 
 
 if __name__ == '__main__':

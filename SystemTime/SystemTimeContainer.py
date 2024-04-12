@@ -10,6 +10,7 @@ class SystemTimeContainer(QObject):
         super().__init__()
 
     def show_ui(self):
+        print("SystemTimeContainer: show_ui")
         app = QApplication.instance()  # Get the QApplication instance
 
         # app_flag = False
@@ -17,14 +18,14 @@ class SystemTimeContainer(QObject):
             app = QApplication([])  # If QApplication instance doesn't exist, create a new one
             # app_flag = True
 
-        print("before ui call")
+        print("SystemTimeContainer: before ui call")
         self.ui = SystemTimeUi()
 
         self.ui.multiplier_value_updated_signal.connect(self.multiplier_value_updated)
         self.ui.toggle_play_pause_signal.connect(self.toggle_play_pause)
-        print("before ui show")
+        print("SystemTimeContainer: before ui show")
         self.ui.show()
-        print("After ui show")
+        print("SystemTimeContainer: After ui show")
 
         # if app_flag is True:
         app.exec()
