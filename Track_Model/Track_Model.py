@@ -28,7 +28,7 @@ class TrackModel(QObject):
         print(f'set_data time = {end - start}')
         # self.output_data_as_excel()
         self.line_name = self.data[0, 0]
-        self.num_blocks = len(self.data)
+        self.num_blocks = len(self.data) - 1
         self.ticket_sales = 0
         self.environmental_temperature = 74
         # giving random embarking num and ticket sales
@@ -43,7 +43,7 @@ class TrackModel(QObject):
         self.train_dict = {}
         self.train_dict_meters = {}
         self.train_count = 0
-        self.total_track_length = int(np.sum(self.data[1:, 3]))
+        self.remove_train = -1
 
         # hardcoded
         # Step 1: 12 to 1
@@ -63,6 +63,13 @@ class TrackModel(QObject):
         self.full_path = (path_62_to_100 + path_85_to_77 + path_101_to_150 + path_28_to_13 + path_12_to_1 +
                           path_13_to_57)
         # print(self.full_path)
+        # cumulative distance (train_dict_meters reference)
+        self.cumulative_distance = self.full_path.copy()
+        cumulative_distance = 0
+        for i in range(0, len(self.cumulative_distance)):
+            cumulative_distance += int(self.data[self.full_path[i], 3])
+            self.cumulative_distance[i] = cumulative_distance
+        # print(self.cumulative_distance)
 
     def get_train_dict(self):
         return self.train_dict
@@ -245,19 +252,20 @@ class TrackModel(QObject):
             self.set_block_occupancy(block, True)
         else:
             self.set_block_occupancy(block, False)
-        self.refresh_ui()  # ui
-        self.emit_tc_block_occupancy()
 
     def set_occupancy_from_train_presence(self):
-        # set occupancy false
+        # set all occupancy false
         self.data[1:, 7] = np.full((self.data.shape[0]-1), False, dtype=bool)
-        # for all blocks
-        # TODO: self.set_occupancy_from_failures() asap rocky
+
+        # Failures
+        for i in range(0, self.num_blocks):
+            self.set_occupancy_from_failures(i)
+
+        # Trains
         # key = train id, value = block id
         for key in self.train_dict:
             self.set_block_occupancy(self.train_dict[key], True)
-        self.refresh_ui()  # ui
-        self.emit_tc_block_occupancy()
+        # self.refresh_ui()  # we will refresh in container
 
     # communication to ui
 
@@ -320,16 +328,31 @@ class TrackModel(QObject):
     #         self.set_occupancy_from_train_presence()
     #         print(f'train {train_id} moved to {self.train_dict[train_id]}')
 
+    def set_remove_train(self, train_id):
+        self.remove_train = train_id
+
+    def get_remove_train(self):
+        return self.remove_train
+
     def update_delta_x_dict(self, delta_x_dict):
+        self.remove_train = -1
         # meters
         for key, value in delta_x_dict.items():
             self.train_dict_meters[key] = value
-        # relative based on path
+        # relative based meters
         for key, value in self.train_dict_meters.items():
-            pass
-        # actual block
+            if value > self.cumulative_distance[self.train_dict_relative[key]]:
+                self.train_dict_relative[key] += 1
+            if self.train_dict_relative[key] >= 150:  # check if we should remove trains
+                del self.train_dict_meters[key]
+                del self.train_dict_relative[key]
+                del self.train_dict[key]
+                self.remove_train = key
+        # actual block based on relative
         for key, value in self.train_dict_relative.items():
             self.train_dict[key] = self.full_path[value]
+        self.set_occupancy_from_train_presence()
+
 
     def set_disembarking_passengers(self, station_id: int, disembarking_passengers: int):
         self.data[station_id, 21] = disembarking_passengers
