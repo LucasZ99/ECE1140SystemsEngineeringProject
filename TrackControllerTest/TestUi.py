@@ -3,8 +3,6 @@ import os
 from PyQt6.QtWidgets import QMainWindow, QComboBox, QCheckBox, QPushButton, QLineEdit
 from PyQt6.uic import loadUi
 
-import Common.GreenLine
-
 
 class TestUi(QMainWindow):
     def __init__(self, test_business_logic):
@@ -13,7 +11,7 @@ class TestUi(QMainWindow):
 
         self.test_business_logic = test_business_logic
         self.blocks = self.test_business_logic.blocks
-        self.blocks_occupancy = dict(zip(self.blocks, [False]*len(self.blocks)))
+        self.blocks_occupancy = self.test_business_logic.occupancy_dict
         self.authority = [0, 1, 2, 3, 4]
 
         # load ui
@@ -26,29 +24,55 @@ class TestUi(QMainWindow):
 
         self.authority_select = self.findChild(QComboBox, 'authority_select')
         self.occupancy_block_select = self.findChild(QComboBox, 'occupancy_block_select')
-        self.occupied_checkbox = self.findChild(QCheckBox, 'occupied_checkbox')
+        self.occupancy_toggle_button = self.findChild(QPushButton, 'occupancy_toggle_button')
         self.send_ctc_inputs_button = self.findChild(QPushButton, 'send_ctc_inputs_button')
         self.send_track_inputs_button = self.findChild(QPushButton, 'send_track_inputs_button')
         self.speed_input = self.findChild(QLineEdit, 'speed_input')
         self.track_signal_block_select = self.findChild(QComboBox, 'track_signal_block_select')
 
+        # Initialization:
+        self.init_authority_select()
+        self.update_occupancy_block_select()
+        self.init_block_list()
+
         self.authority_select.currentIndexChanged.connect(self.authority_update)
-        self.occupied_checkbox.stateChanged.connect(self.occupancy_update)
+        self.occupancy_toggle_button.clicked.connect(self.occupancy_update)
         self.track_signal_block_select.currentIndexChanged.connect(self.track_signal_block_update)
         self.speed_input.editingFinished.connect(self.update_speed)
         self.send_ctc_inputs_button.clicked.connect(self.send_ctc_inputs)
         self.send_track_inputs_button.clicked.connect(self.send_track_inputs)
 
+    def init_authority_select(self):
+        self.authority_select.clear()
+        for authority in self.authority:
+            self.authority_select.addItem(str(authority))
+            self.authority_select.adjustSize()
+
+    def update_occupancy_block_select(self):
+
+        self.occupancy_block_select.clear()
+
+        for block, occupancy in self.blocks_occupancy.items():
+            self.occupancy_block_select.addItem(str(block) + " " + str(occupancy))
+            self.occupancy_block_select.adjustSize()
+
+        self.show()
+
+    def init_block_list(self):
+        self.track_signal_block_select.clear()
+        for block in self.blocks:
+            self.track_signal_block_select.addItem(str(block))
+            self.occupancy_block_select.adjustSize()
+
     def authority_update(self):
         self.test_business_logic.track_signal_authority_update(authority=self.authority_select.currentIndex())
 
     def occupancy_update(self):
-        if self.occupied_checkbox.isChecked():
-            self.blocks_occupancy[self.occupancy_block_select.currentIndex()] = True
-        else:
-            self.blocks_occupancy[self.occupancy_block_select.currentIndex()] = False
+        self.blocks_occupancy[self.occupancy_block_select.currentIndex()+1] \
+            = not self.blocks_occupancy[self.occupancy_block_select.currentIndex()+1]
 
         self.test_business_logic.occupancy_update(blocks_occupancy=self.blocks_occupancy)
+        self.update_occupancy_block_select()
 
     def track_signal_block_update(self):
         block_list_index = self.track_signal_block_select.currentIndex()

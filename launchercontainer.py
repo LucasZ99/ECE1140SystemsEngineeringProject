@@ -56,11 +56,6 @@ class LauncherContainer(QObject):
 
         self.track_controller_container.update_ctc_from_wayside.connect(self.ctc_container.update_ctc_from_wayside)
 
-        # Connection Testing
-        print("Sending intial message from CTC")
-        self.ctc_container.ctc.send_initial_message()
-
-
     def init_launcher_ui(self):
         app = QApplication.instance()
 

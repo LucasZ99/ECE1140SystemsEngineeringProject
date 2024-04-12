@@ -1,3 +1,5 @@
+import sys
+
 from PyQt6.QtCore import QObject, pyqtSignal
 from PyQt6.QtCore import pyqtSlot
 
@@ -31,6 +33,7 @@ class BusinessLogic(QObject):
     @pyqtSlot(list)
     def occupancy_changed(self, new_occupancy: dict):
         print("Occupancy change detected on Track Controller Section: ", self.section)
+
         self.occupancy_dict = new_occupancy
         self.occupancy_signal.emit(self.occupancy_dict)
 
@@ -84,6 +87,7 @@ class BusinessLogic(QObject):
 
         # return the zero speed flag update
         return [zero_speed_flags, unsafe_close_blocks, self.unsafe_toggle_switches]
+
 
     @pyqtSlot(int)
     def switches_changed(self, index: int) -> None:
