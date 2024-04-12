@@ -223,17 +223,17 @@
      </rect>
     </property>
    </widget>
-   <widget class="QCheckBox" name="occupied_checkbox">
+   <widget class="QPushButton" name="occupancy_toggle_button">
     <property name="geometry">
      <rect>
-      <x>240</x>
-      <y>250</y>
-      <width>91</width>
-      <height>20</height>
+      <x>230</x>
+      <y>237</y>
+      <width>121</width>
+      <height>41</height>
      </rect>
     </property>
     <property name="text">
-     <string>Occupied</string>
+     <string>Toggle Occupancy</string>
     </property>
    </widget>
   </widget>

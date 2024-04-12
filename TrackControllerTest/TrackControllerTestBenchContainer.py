@@ -37,3 +37,12 @@ class TrackControllerTestBenchContainer(QObject):
         # if app_flag is True:
         app.exec()
 
+
+def main():
+    track_controller_testbench_container = TrackControllerTestBenchContainer()
+    track_controller_testbench_container.show_ui()
+
+
+if __name__ == "__main__":
+    main()
+

@@ -23,7 +23,7 @@ def main():
     try:
         launcher_thread = threading.Thread(target=run_launcher)
         launcher_thread.start()
-        print("Hello")
+        print("Launcher is starting...")
     except Exception as e:
         print(e)
 
