@@ -202,7 +202,4 @@ class TrackModelContainer(QObject):
         self.update_ctc_from_track_model.emit(ticket_sales)
         print('Track Model: emitting update_wayside_from_track_model')
         print(f'Track Model: block_occupancy_update = {block_occupancy_update}')
-        try:
-            self.update_wayside_from_track_model.emit(block_occupancy_update)
-        except Exception as e:
-            print(e)
+        self.update_wayside_from_track_model.emit(block_occupancy_update)

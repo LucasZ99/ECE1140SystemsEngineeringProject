@@ -326,7 +326,7 @@ class TrackModel(QObject):
     #         self.set_occupancy_from_train_presence()
     #         print(f'train {train_id} moved to {self.train_dict[train_id]}')
 
-    def update_delta_x_dict(self, delta_x_dict):  # TODO: implement removing trains
+    def update_delta_x_dict(self, delta_x_dict):
         # meters
         for key, value in delta_x_dict.items():
             self.train_dict_meters[key] = value
@@ -334,6 +334,8 @@ class TrackModel(QObject):
         for key, value in self.train_dict_meters.items():
             if value > self.cumulative_distance[self.train_dict_relative[key]]:
                 self.train_dict_relative[key] += 1
+            if self.train_dict_relative[key] >= 150:  # check if we should remove trains
+                pass
         # actual block based on relative
         for key, value in self.train_dict_relative.items():
             self.train_dict[key] = self.full_path[value]
