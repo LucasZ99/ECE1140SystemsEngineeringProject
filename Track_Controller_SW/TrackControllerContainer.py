@@ -190,6 +190,8 @@ class TrackControllerContainer(QObject):
         for switch_index in unsafe_toggle_switch:
             self.safe_toggle_switch[switch_index] = False
 
+        # do the same thing for B
+
         update_occupancy_C_result = self.trackControllerC.update_occupancy(self.occupancy_dict_C)
         zero_speed_flag_dict_C = update_occupancy_C_result[0]
         for key in zero_speed_flag_dict_C.keys():
@@ -202,6 +204,8 @@ class TrackControllerContainer(QObject):
         unsafe_toggle_switch = update_occupancy_C_result[2]
         for switch_index in unsafe_toggle_switch:
             self.safe_toggle_switch[switch_index+2] = False
+
+
 
         # update_occupancy_B_result = self.trackControllerB.update_occupancy(self.occupancy_dict_B)
         # self.zero_speed_flag_list[0:len(self.occupancy_list_A)] = zero_speed_flag_list_A[0:len(self.occupancy_list_A)]
