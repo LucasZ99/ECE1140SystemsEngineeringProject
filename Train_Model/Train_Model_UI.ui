@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>902</width>
-    <height>511</height>
+    <width>907</width>
+    <height>667</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -2008,6 +2008,25 @@
      <string>Passengers</string>
     </property>
    </widget>
+   <widget class="QLabel" name="adLabel">
+    <property name="geometry">
+     <rect>
+      <x>540</x>
+      <y>430</y>
+      <width>350</width>
+      <height>175</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="pixmap">
+     <pixmap>hat_ad.png</pixmap>
+    </property>
+    <property name="scaledContents">
+     <bool>true</bool>
+    </property>
+   </widget>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QMenuBar" name="menuBar">
@@ -2015,7 +2034,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>902</width>
+     <width>907</width>
      <height>26</height>
     </rect>
    </property>

@@ -38,9 +38,9 @@ class TrainModelContainer(QObject):
         for i in block_dict.keys():
             self.track_update_block(block_dict[i], i)
 
-        for i in passenger_dict.keys():
-            if not (passenger_dict[i] <= 0):
-                self.track_update_passengers(passenger_dict[i], i)
+        for key, value in passenger_dict.items():
+            if not (value <= 0):
+                self.track_update_passengers(value, key)
 
         self.business_logic.train_update_controller()
 

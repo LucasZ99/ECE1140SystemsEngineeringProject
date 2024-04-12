@@ -1,4 +1,5 @@
 import sys
+import random
 
 from PyQt6.QtGui import QIcon
 
@@ -6,6 +7,7 @@ import os
 from PyQt6 import uic
 from PyQt6.QtWidgets import (QMainWindow, QApplication, QLabel, QPushButton, QGroupBox,
                              QCheckBox, QComboBox, QProgressBar, QLineEdit)
+from PyQt6.QtGui import QPixmap
 
 import random
 
@@ -41,6 +43,24 @@ class UITrain(QMainWindow):
         # define widgets
         self.physicsButton = self.findChild(QPushButton, "physicsButton")
         self.passengerButton = self.findChild(QPushButton, "passengerButton")
+        self.adLabel = self.findChild(QLabel, "adLabel")
+        ad = random.randint(0,2)
+        if ad == 0:
+            current_dir = os.path.dirname(__file__)  # setting up to work in any dir
+            ad_path = os.path.join(current_dir, 'Aerotek.png')
+        elif ad == 1:
+            current_dir = os.path.dirname(__file__)  # setting up to work in any dir
+            ad_path = os.path.join(current_dir, 'einsteins_ad.png')
+        else:
+            current_dir = os.path.dirname(__file__)  # setting up to work in any dir
+            ad_path = os.path.join(current_dir, 'hat_ad.png')
+
+        try:
+            self.adLabel.setPixmap(QPixmap(ad_path))
+        except Exception as e:
+            print(f'Error with ad {ad} file: ,', e)
+
+
 
         self.primeGroup = self.findChild(QGroupBox, "primeGroup")
         self.trainSelect = self.findChild(QComboBox, "trainSelect")
