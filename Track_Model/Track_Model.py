@@ -7,8 +7,8 @@ from PyQt6.QtWidgets import QApplication
 import time
 import openpyxl
 
-# TODO: for loop -> list comprehension
-#
+# maybe: for loop -> list comprehension
+# TODO: Update beacons in
 
 class TrackModel(QObject):
     # external signals
