@@ -205,7 +205,6 @@ class TrackControllerContainer(QObject):
 
         # update_occupancy_B_result = self.trackControllerB.update_occupancy(self.occupancy_dict_B)
         # self.zero_speed_flag_list[0:len(self.occupancy_list_A)] = zero_speed_flag_list_A[0:len(self.occupancy_list_A)]
-        print("zero speed flag list length: ", len(self.zero_speed_flag_list))
         # print("zero speed flag list B: ", self.zero_speed_flag_list_B)
         # print("zero speed flag list B length: ", len(self.zero_speed_flag_list_B))
         # self.zero_speed_flag_list[28:78] = zero_speed_flag_list_B[0:50]
