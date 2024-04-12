@@ -13,7 +13,7 @@ class PLC:  # watchdog behavior for the PLC data
     rrCrossing = False
     switches = []
     blocks = {}
-    stops = []
+    stops = {}
     mode = False
 
     def assign_vals(self, blocks, switches, rrCrossing, mode):

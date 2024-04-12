@@ -51,6 +51,9 @@ class ContainerTB(QMainWindow):
         self.removeButton = self.findChild(QPushButton, "removeButton")
         self.removeButton.clicked.connect(self.remove_trn)
 
+        self.trainControllerUpdateButton = self.findChild(QPushButton, "trainControllerUpdateButton")
+        self.trainControllerUpdateButton.clicked.connect(self.container.business_logic.train_update_controller)
+
         # line edits
         self.trackInput = self.findChild(QLineEdit, "trackInput")
         self.controllerInput = self.findChild(QLineEdit, "controllerInput")
