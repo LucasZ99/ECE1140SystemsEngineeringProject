@@ -62,8 +62,8 @@ class TrainBusinessLogic(QObject):
             return
         if not (index in self.train_dict.keys()):
             return
-        self.train_dict[index].update_blocks(block_vals[:4])
-        self.train_dict[index].signals.beacon = block_vals[4]
+        self.train_dict[index].update_blocks(block_vals[:3])
+        self.train_dict[index].signals.beacon = block_vals[3]
         self.block_updated.emit(index)
 
     def track_update_passengers(self, num, index):
@@ -112,3 +112,4 @@ class TrainBusinessLogic(QObject):
     def train_update_controller(self):
         for i in self.train_dict.keys():
             self.train_dict[i].update_controller()
+        self.values_updated.emit()
