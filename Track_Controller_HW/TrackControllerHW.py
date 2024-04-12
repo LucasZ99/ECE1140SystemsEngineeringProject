@@ -13,7 +13,7 @@ class TrackControllerHardware(QObject):
     switches = [False] * num_switches
     blocks = {}
     suggested_speed = [0.0] * num_blocks
-    stops = [False] * num_blocks
+    stops = {}
     rr_crossing = False
 
     rr_crossing_signal = pyqtSignal(bool)
