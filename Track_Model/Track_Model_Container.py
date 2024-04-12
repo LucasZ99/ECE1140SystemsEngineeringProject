@@ -13,14 +13,14 @@ from Track_Model.Track_Model_UI import Window
 class TrackModelContainer(QObject):
 
     # Signals to launcher
-    update_train_model_from_track_model = pyqtSignal(object, object, bool, int, object, int)
+    update_train_model_from_track_model = pyqtSignal(object, object, bool, int, object)
     update_ctc_from_track_model = pyqtSignal(int)
     update_wayside_from_track_model = pyqtSignal(object)
 
     # Signals from track_model
     # new_block_occupancy_signal = pyqtSignal(list)
     # new_ticket_sales_signal = pyqtSignal(int)
-    refresh_ui_signal = pyqtSignal()
+    # refresh_ui_signal = pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -30,7 +30,7 @@ class TrackModelContainer(QObject):
         # connect internal signals (from object)
         # self.track_model.new_block_occupancy_signal.connect(self.new_block_occupancy)
         # self.track_model.new_ticket_sales_signal.connect(self.new_ticket_sales)
-        self.track_model.refresh_ui_signal.connect(self.refresh_ui)
+        # self.track_model.refresh_ui_signal.connect(self.refresh_ui)
         # connect external signal
 
 
@@ -144,8 +144,9 @@ class TrackModelContainer(QObject):
 
     def update_track_model_from_wayside(self, authority_safe_speed_update):
         print('Track Model: update_track_model_from_wayside called')
+        # print(f'authority_safe_speed_update: {authority_safe_speed_update}')
         add_train = False  # default
-        remove_train = -1  # default
+        remove_train = self.track_model.get_remove_train()
         embarking_passengers_update = 0  # TODO: implement embarking passengers
         # update track_model
         print('Track Model: updating self.track_model')
@@ -178,6 +179,9 @@ class TrackModelContainer(QObject):
             for key, val in train_dict.items():  # train_id, block
                 if val == block_id:
                     authority_safe_speed_update[i][0] = key
+        authority_safe_speed_dict = dict(authority_safe_speed_update)
+        print(f'authority_safe_speed_update: {authority_safe_speed_update}')
+        print(f'authority_safe_speed_dict: {authority_safe_speed_dict}')
         # get new block info from track_model for each train
         print('Track Model: get new block info from track_model for each train')
         block_info_dict = {}
@@ -186,8 +190,8 @@ class TrackModelContainer(QObject):
         # emit
         self.track_model_ui.refresh()  # pre-emit ui refresh
         print('Track Model: emitting update_train_model_from_track_model')
-        self.update_train_model_from_track_model.emit(authority_safe_speed_update, block_info_dict, add_train,
-                                                      remove_train, remove_train, embarking_passengers_update)
+        self.update_train_model_from_track_model.emit(authority_safe_speed_dict, block_info_dict, add_train,
+                                                      remove_train, embarking_passengers_update)
 
     def update_track_model_from_train_model(self, delta_x_dict, disembarking_passengers_update):
         print('Track Model: update_track_model_from_train_model called')

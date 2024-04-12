@@ -43,6 +43,7 @@ class TrackModel(QObject):
         self.train_dict = {}
         self.train_dict_meters = {}
         self.train_count = 0
+        self.remove_train = -1
 
         # hardcoded
         # Step 1: 12 to 1
@@ -253,12 +254,13 @@ class TrackModel(QObject):
             self.set_block_occupancy(block, False)
 
     def set_occupancy_from_train_presence(self):
-        # set occupancy false
+        # set all occupancy false
         self.data[1:, 7] = np.full((self.data.shape[0]-1), False, dtype=bool)
-        # for all blocks
+
         # Failures
         for i in range(0, self.num_blocks):
             self.set_occupancy_from_failures(i)
+
         # Trains
         # key = train id, value = block id
         for key in self.train_dict:
@@ -326,7 +328,14 @@ class TrackModel(QObject):
     #         self.set_occupancy_from_train_presence()
     #         print(f'train {train_id} moved to {self.train_dict[train_id]}')
 
+    def set_remove_train(self, train_id):
+        self.remove_train = train_id
+
+    def get_remove_train(self):
+        return self.remove_train
+
     def update_delta_x_dict(self, delta_x_dict):
+        self.remove_train = -1
         # meters
         for key, value in delta_x_dict.items():
             self.train_dict_meters[key] = value
@@ -335,11 +344,15 @@ class TrackModel(QObject):
             if value > self.cumulative_distance[self.train_dict_relative[key]]:
                 self.train_dict_relative[key] += 1
             if self.train_dict_relative[key] >= 150:  # check if we should remove trains
-                pass
+                del self.train_dict_meters[key]
+                del self.train_dict_relative[key]
+                del self.train_dict[key]
+                self.remove_train = key
         # actual block based on relative
         for key, value in self.train_dict_relative.items():
             self.train_dict[key] = self.full_path[value]
         self.set_occupancy_from_train_presence()
+
 
     def set_disembarking_passengers(self, station_id: int, disembarking_passengers: int):
         self.data[station_id, 21] = disembarking_passengers
