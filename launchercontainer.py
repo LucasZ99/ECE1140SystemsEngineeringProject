@@ -20,7 +20,7 @@ class LauncherContainer(QObject):
         self.time_module = SystemTimeContainer()
         self.ctc_container = CTCContainer(self.time_module)
         self.track_controller_container = TrackControllerContainer()
-        self.ctc_container.ctc.send_initial_message()
+        # self.ctc_container.ctc.send_initial_message()
         self.track_model_container = TrackModelContainer()
         self.trainControllerContainer = TrainController_Tot_Container(self.time_module)
         self.train_model_container = TrainModelContainer(self.trainControllerContainer, self.time_module)

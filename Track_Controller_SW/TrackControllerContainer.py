@@ -102,18 +102,18 @@ class TrackControllerContainer(QObject):
 
         print(f"update_track_model_from_wayside:\n"
               f"track signal: {authority_speed_update[0]}\n"
-              f"switch list: {self.switch_list}\n"
-              f"light list: {self.lights_list}\n"
-              f"crossing list: {self.rr_crossing_list}")
+              f"switch list: {[str(item) for item in self.switch_list]}\n"
+              f"light list: {[str(item) for item in self.lights_list]}\n"
+              f"crossing list: {[str(item) for item in self.rr_crossing_list]}")
 
         # call downstream endpoint after processing of CTC data
-        # self.update_track_model_from_wayside.emit(
-        #     [track_signal.to_tuple() for track_signal in authority_speed_update],
-        #     [switch.to_tuple() for switch in self.switch_list],
-        #     [light.to_tuple() for light in self.lights_list],
-        #     [crossing.to_tuple() for crossing in self.rr_crossing_list],
-        #     safe_toggle_blocks
-        # )
+        self.update_track_model_from_wayside.emit(
+            [track_signal.to_tuple() for track_signal in authority_speed_update],
+            [switch.to_tuple() for switch in self.switch_list],
+            [light.to_tuple() for light in self.lights_list],
+            [crossing.to_tuple() for crossing in self.rr_crossing_list],
+            safe_toggle_blocks
+        )
 
     # Track Model Endpoint
     @pyqtSlot(dict)
@@ -125,16 +125,16 @@ class TrackControllerContainer(QObject):
 
         print(f"update_ctc_from_wayside:\n"
               f"block occupancy: {block_occupancy_update}\n"
-              f"switch list: {self.switch_list[:]}\n"
-              f"lights_list: {self.lights_list[:]}\n"
-              f"rr_crossing_list: {self.rr_crossing_list[:]}")
+              f"switch list: {[str(item) for item in self.switch_list]}\n"
+              f"lights_list: {[str(item) for item in self.lights_list]}\n"
+              f"rr_crossing_list: {[str(item) for item in self.rr_crossing_list]}")
 
-        # self.update_ctc_from_wayside.emit(
-        #     block_occupancy_update,
-        #     self.switch_list,
-        #     self.lights_list,
-        #     self.rr_crossing_list
-        # )
+        self.update_ctc_from_wayside.emit(
+            block_occupancy_update,
+            self.switch_list,
+            self.lights_list,
+            self.rr_crossing_list
+        )
 
     def check_safe_speed(self, track_signal: list[TrackSignal]):
         for signal in track_signal:
@@ -179,8 +179,7 @@ class TrackControllerContainer(QObject):
         # call the update occupancy functions to trigger plc logic and ui updates
         update_occupancy_A_result = self.trackControllerA.update_occupancy(self.occupancy_dict_A)
         zero_speed_flag_dict_A = update_occupancy_A_result[0]
-        for key in zero_speed_flag_dict_A.keys():
-            self.zero_speed_flag_dict[key] = zero_speed_flag_dict_A[key]
+        self.zero_speed_flag_dict.update(zero_speed_flag_dict_A)
 
         unsafe_close_blocks_A = update_occupancy_A_result[1]
         for block in unsafe_close_blocks_A:
@@ -194,8 +193,7 @@ class TrackControllerContainer(QObject):
 
         update_occupancy_C_result = self.trackControllerC.update_occupancy(self.occupancy_dict_C)
         zero_speed_flag_dict_C = update_occupancy_C_result[0]
-        for key in zero_speed_flag_dict_C.keys():
-            self.zero_speed_flag_dict[key] = zero_speed_flag_dict_C[key]
+        self.zero_speed_flag_dict.update(zero_speed_flag_dict_C)
 
         unsafe_close_blocks_C = update_occupancy_C_result[1]
         for block in unsafe_close_blocks_C:
@@ -205,19 +203,7 @@ class TrackControllerContainer(QObject):
         for switch_index in unsafe_toggle_switch:
             self.safe_toggle_switch[switch_index+2] = False
 
-
-
-        # update_occupancy_B_result = self.trackControllerB.update_occupancy(self.occupancy_dict_B)
-        # self.zero_speed_flag_list[0:len(self.occupancy_list_A)] = zero_speed_flag_list_A[0:len(self.occupancy_list_A)]
-        # print("zero speed flag list B: ", self.zero_speed_flag_list_B)
-        # print("zero speed flag list B length: ", len(self.zero_speed_flag_list_B))
-        # self.zero_speed_flag_list[28:78] = zero_speed_flag_list_B[0:50]
-        # self.zero_speed_flag_list[101:len(self.occupancy_list_B)] = zero_speed_flag_list_B[51:len(self.occupancy_list_B)]
-        # self.zero_speed_flag_list[77:(77 + len(self.occupancy_list_C))] = zero_speed_flag_list_C[
-        #                                                                   0:len(self.occupancy_list_C)]
-
         print("TrackControllerContainer.update_occupancy finished")
-
 
     @pyqtSlot(int)
     def update_track_switch(self, switch_block: int) -> None:

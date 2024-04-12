@@ -61,7 +61,7 @@ class TbMainWindow(QMainWindow):
             self.comboBox.setObjectName("comboBox")
 
             for i in self.switches_list:
-                self.comboBox.addItem(i.to_string())
+                self.comboBox.addItem(str(i))
                 self.comboBox.adjustSize()
 
             self.label_2 = QLabel(parent=self.groupBox)
@@ -154,7 +154,7 @@ class TbMainWindow(QMainWindow):
     def update_switches(self, switch_list: list):
         self.comboBox.clear()
         for switch in switch_list:
-            self.comboBox.addItem(switch.to_string())
+            self.comboBox.addItem(str(switch))
             self.comboBox.adjustSize()
 
     # Handlers:

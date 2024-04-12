@@ -33,4 +33,4 @@ class TestSwitching(unittest.TestCase):
         )
         test_str = "Switch at block 10 -> 11"
 
-        self.assertEqual(test_str, switch_1.to_string())
+        self.assertEqual(test_str, str(switch_1))
