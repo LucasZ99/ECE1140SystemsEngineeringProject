@@ -36,9 +36,8 @@ class TestBusinessLogic(QObject):
         self.track_signal.speed = speed
 
     def send_ctc_inputs(self):
-        if self.track_signal.block_id != 0:
-            print(f"sending track signal: {self.track_signal}")
-            self.ctc_inputs_from_testbench_signal.emit([self.track_signal])
+        print(f"sending track signal: {self.track_signal}")
+        self.ctc_inputs_from_testbench_signal.emit([self.track_signal])
 
     def send_track_inputs(self):
         print(f"sending occupancy: {self.occupancy_dict}")
