@@ -1,6 +1,6 @@
 import sys
 
-from PyQt6.QtCore import QObject, pyqtSignal
+from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
 from PyQt6.QtWidgets import QApplication
 
 from Train_Model import TrainBusinessLogic, UITrain
@@ -17,33 +17,36 @@ class TrainModelContainer(QObject):
         self.train_dict = self.business_logic.train_dict
         self.controller = controller
 
-    def update_train_model_from_track_model(self, auth_speed_list: dict, block_dict: dict, new_train: bool,
-                                            remove_train: int, passenger_list: dict):
-        print("reached update_train_model_from_track_model")
-        # self.business_logic.passenger_return.clear()
-        # self.business_logic.delta_x_return.clear()
-        #
-        # if remove_train in self.train_dict.keys():
-        #     self.remove_train(remove_train)
-        #
-        # if new_train:
-        #     self.add_train()
-        #
-        # for i in auth_speed_list.keys():
-        #     self.track_model_inputs([auth_speed_list[i][1], auth_speed_list[i][0]], i)
-        #
-        # for i in block_dict.keys():
-        #     self.track_update_block(block_dict[i], i)
-        #
-        # for i in passenger_list.keys():
-        #     if not (passenger_list[i] <= 0):
-        #         self.track_update_passengers(passenger_list[i], i)
+    @pyqtSlot(dict, dict, bool, int, dict)
+    def update_train_model_from_track_model(self, auth_speed_dict: dict, block_dict: dict, new_train: bool,
+                                            remove_train: int, passenger_dict: dict):
+        
+        print("Train Model: reached update_train_model_from_track_model")
+        self.business_logic.passenger_return.clear()
+        self.business_logic.delta_x_return.clear()
+        if remove_train in self.train_dict.keys():
+            self.remove_train(remove_train)
 
-        self.business_logic.train_update_controller()
+        if new_train:
+            self.add_train()
 
-        print("train_update_controller successful")
+        for i in auth_speed_dict.keys():
+            speed = auth_speed_dict[i][1]
+            auth = auth_speed_dict[i][0]
+            self.track_model_inputs([speed, auth], i)
 
-        # self.physics_calculation()
+        for i in block_dict.keys():
+            self.track_update_block(block_dict[i], i)
+
+        for i in passenger_dict.keys():
+            if not (passenger_dict[i] <= 0):
+                self.track_update_passengers(passenger_dict[i], i)
+
+        # self.business_logic.train_update_controller()
+
+        print("Train Model: train_update_controller successful")
+
+        self.physics_calculation()
 
         self.update_track_model_from_train_model.emit(self.business_logic.delta_x_return,
                                                       self.business_logic.passenger_return)

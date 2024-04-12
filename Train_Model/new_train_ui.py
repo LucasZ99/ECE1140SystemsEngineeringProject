@@ -192,15 +192,17 @@ class UITrain(QMainWindow):
     def train_removed(self, index):
         print("ui train remove")
         item_index = self.trainSelect.findText(f'Train {index}')
-        print("index calculated")
+        print(f"index calculated {item_index}")
         if item_index == -1:
             print("train index not present")
             return
         else:
             print("removing train")
-            self.trainSelect.removeItem(item_index)
+            try:
+                self.trainSelect.removeItem(item_index)
+            except Exception as error:
+                print(error)
             print("train removed")
-
 
     def combo_selection(self):
         string = str(self.trainSelect.currentText())
