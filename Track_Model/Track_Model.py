@@ -251,19 +251,19 @@ class TrackModel(QObject):
             self.set_block_occupancy(block, True)
         else:
             self.set_block_occupancy(block, False)
-        self.refresh_ui()  # ui
-        self.emit_tc_block_occupancy()
 
     def set_occupancy_from_train_presence(self):
         # set occupancy false
         self.data[1:, 7] = np.full((self.data.shape[0]-1), False, dtype=bool)
         # for all blocks
-        # TODO: self.set_occupancy_from_failures() asap rocky
+        # Failures
+        for i in range(0, self.num_blocks):
+            self.set_occupancy_from_failures(i)
+        # Trains
         # key = train id, value = block id
         for key in self.train_dict:
             self.set_block_occupancy(self.train_dict[key], True)
-        self.refresh_ui()  # ui
-        self.emit_tc_block_occupancy()
+        # self.refresh_ui()  # we will refresh in container
 
     # communication to ui
 
@@ -339,7 +339,7 @@ class TrackModel(QObject):
         # actual block based on relative
         for key, value in self.train_dict_relative.items():
             self.train_dict[key] = self.full_path[value]
-        # TODO: update block occupancies now
+        self.set_occupancy_from_train_presence()
 
     def set_disembarking_passengers(self, station_id: int, disembarking_passengers: int):
         self.data[station_id, 21] = disembarking_passengers

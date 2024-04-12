@@ -20,7 +20,7 @@ class TrackModelContainer(QObject):
     # Signals from track_model
     # new_block_occupancy_signal = pyqtSignal(list)
     # new_ticket_sales_signal = pyqtSignal(int)
-    refresh_map_signal = pyqtSignal()
+    refresh_ui_signal = pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -75,30 +75,30 @@ class TrackModelContainer(QObject):
     #         [self.track_model.get_tm_speed(1), self.track_model.get_tm_authority(1)], 1)  # send new info to train model
 
 
-    def toggle_switch(self, block_id: int):
-        print('toggle switch called')
-        self.track_model.toggle_switch(block_id)
-        self.track_model_ui.refresh()
-
-    def toggle_signal(self, block_id: int):
-        print('toggle signal called')
-        self.track_model.toggle_signal(block_id)
-        self.track_model_ui.refresh()
-
-    def toggle_crossing(self, block_id: int):
-        print('toggle crossing called')
-        self.track_model.toggle_crossing(block_id)
-        self.track_model_ui.refresh()
-
-    def open_block(self, block_id: int):
-        print('open block called')
-        self.track_model.open_block(block_id)
-        self.track_model_ui.refresh()
-
-    def close_block(self, block_id: int):
-        print('close block called')
-        self.track_model.close_block(block_id)
-        self.track_model_ui.refresh()
+    # def toggle_switch(self, block_id: int):
+    #     print('toggle switch called')
+    #     self.track_model.toggle_switch(block_id)
+    #     self.track_model_ui.refresh()
+    #
+    # def toggle_signal(self, block_id: int):
+    #     print('toggle signal called')
+    #     self.track_model.toggle_signal(block_id)
+    #     self.track_model_ui.refresh()
+    #
+    # def toggle_crossing(self, block_id: int):
+    #     print('toggle crossing called')
+    #     self.track_model.toggle_crossing(block_id)
+    #     self.track_model_ui.refresh()
+    #
+    # def open_block(self, block_id: int):
+    #     print('open block called')
+    #     self.track_model.open_block(block_id)
+    #     self.track_model_ui.refresh()
+    #
+    # def close_block(self, block_id: int):
+    #     print('close block called')
+    #     self.track_model.close_block(block_id)
+    #     self.track_model_ui.refresh()
 
         # Emitting signals
 
@@ -184,20 +184,23 @@ class TrackModelContainer(QObject):
         for key in train_dict:
             block_info_dict[key] = self.track_model.get_block_info_for_train(key)
         # emit
+        self.track_model_ui.refresh()  # pre-emit ui refresh
         print('Track Model: emitting update_train_model_from_track_model')
         self.update_train_model_from_track_model.emit(authority_safe_speed_update, block_info_dict, add_train,
                                                       remove_train, remove_train, embarking_passengers_update)
 
     def update_track_model_from_train_model(self, delta_x_dict, disembarking_passengers_update):
         print('Track Model: update_track_model_from_train_model called')
+        print('delta_x_dict: ', delta_x_dict)
+        # TODO: disembarking passengers
+        # for each train, calculate current block given delta x
+        # update our track model train dict (train will get block info in next downstream)
+        self.track_model.update_delta_x_dict(delta_x_dict)
         ticket_sales = 0  # TODO: implement ticket sales for ctc
         block_occupancy_update = dict(enumerate(self.track_model.get_occupancy_list(), 1))
 
-        # for each train, calculate current block given delta x
-
-        # update our track model train dict (train will get block info in next downstream)
-
         # emit
+        self.track_model_ui.refresh()  # pre-emit ui refresh
         print('Track Model: emitting update_ctc_from_track_model')
         self.update_ctc_from_track_model.emit(ticket_sales)
         print('Track Model: emitting update_wayside_from_track_model')

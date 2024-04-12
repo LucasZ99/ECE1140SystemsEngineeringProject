@@ -92,7 +92,7 @@ class TrackControllerContainer(QObject):
                                 blocks_to_close_open: list[tuple[int, bool]],
                                 updated_switches: list[Switch]):
 
-        print(f"authority speed update received in wayside: {authority_speed_update[0]}")
+        # print(f"authority speed update received in wayside: {authority_speed_update[0]}")
         # self.check_safe_speed(authority_speed_update)
         #
         # safe_toggle_blocks = []
