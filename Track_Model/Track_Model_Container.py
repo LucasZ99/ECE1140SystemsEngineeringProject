@@ -173,14 +173,14 @@ class TrackModelContainer(QObject):
         # list[tuple[block_id: int, authority: int, safe_speed: float]] ->
         # dict[train_id:int, (authority: int, safe_speed: float)]
         print('Track Model: change authority_safe_speed_update to be train based instead of block based')
-
-        for i in range(0, len(authority_safe_speed_update)):
-            block_id = authority_safe_speed_update[i][0]
+        authority_safe_speed_list = [list(t) for t in authority_safe_speed_update]
+        for i in range(0, len(authority_safe_speed_list)):
+            block_id = authority_safe_speed_list[i][0]
             for key, val in train_dict.items():  # train_id, block
                 if val == block_id:
-                    authority_safe_speed_update[i][0] = key
-        authority_safe_speed_dict = dict(authority_safe_speed_update)
-        print(f'authority_safe_speed_update: {authority_safe_speed_update}')
+                    authority_safe_speed_list[i][0] = key
+        authority_safe_speed_dict = {lst[0]: lst[1:] for lst in authority_safe_speed_list}
+        print(f'authority_safe_speed_update: {authority_safe_speed_list}')
         print(f'authority_safe_speed_dict: {authority_safe_speed_dict}')
         # get new block info from track_model for each train
         print('Track Model: get new block info from track_model for each train')
