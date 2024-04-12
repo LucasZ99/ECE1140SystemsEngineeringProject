@@ -1,11 +1,16 @@
+import os
 import subprocess
 import json
 
 class PlcProgram(object):
-    def __init__(self):
+    def __init__(self, section: str):
         super().__init__()
-        self.filepath = None
-        # self.filepath_test_A = "PLCProgramSectionA.py"
+        current_dir = os.path.dirname(__file__)  # setting up to work in any dir
+        if section == "A":
+            self.filepath = os.path.join(current_dir, 'PLCProgramSectionA.py')
+        elif section == "C":
+            self.filepath = os.path.join(current_dir, 'PLCProgramSectionC.py')
+
 
     def set_filepath(self, filepath: str):
         self.filepath = filepath

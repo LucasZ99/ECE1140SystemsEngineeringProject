@@ -8,3 +8,6 @@ class Light:
 
     def toggle(self):
         self.val = not self.val
+
+    def __str__(self):
+        return f'light at {self.block} is {self.val}'

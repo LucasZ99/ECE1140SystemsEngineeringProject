@@ -133,7 +133,7 @@ class UI(QMainWindow):
     def init_switch_list(self):
         self.switch_list_widget.clear()
         for switch in self.business_logic.switches_list:
-            item = QListWidgetItem(switch.to_string())
+            item = QListWidgetItem(str(switch))
             self.switch_list_widget.addItem(item)
 
     # dynamically updating endpoint called by business logic
@@ -141,7 +141,7 @@ class UI(QMainWindow):
     def update_switches(self, switches_arr: list[Switch]) -> None:
         self.switch_list_widget.clear()
         for switch in switches_arr:
-            item = QListWidgetItem(switch.to_string())
+            item = QListWidgetItem(str(switch))
             self.switch_list_widget.addItem(item)
 
     # must initialize with business object data, then have it dynamically update when running
