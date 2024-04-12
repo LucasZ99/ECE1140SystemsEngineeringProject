@@ -32,7 +32,7 @@ class SlotsSigs(QObject):
         self.suggested_speed = suggested_speed
         self.rr_crossing = rr_crossing
         self.hw_ui = HWUI()
-        self.stops = [False] * len(self.blocks)
+        self.stops = {}
 
     # Signal to update the occupancy
     @pyqtSlot(dict)
