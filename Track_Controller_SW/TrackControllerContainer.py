@@ -92,39 +92,55 @@ class TrackControllerContainer(QObject):
                                 blocks_to_close_open: list[tuple[int, bool]],
                                 updated_switches: list[Switch]):
 
-        print(f"authority speed update received in wayside: {authority_speed_update[0]}")
-        # self.check_safe_speed(authority_speed_update)
-        #
-        # safe_toggle_blocks = []
-        # if maintenance_mode_override_flag:
-        #     safe_toggle_blocks = self.check_safe_toggle_block(blocks_to_close_open)
-        #     self.toggle_switch_if_safe(updated_switches)
-        #
-        # # call downstream endpoint after processing of CTC data
-        self.update_track_model_from_wayside.emit(
-            [track_signal.to_tuple() for track_signal in authority_speed_update],
-            [switch.to_tuple() for switch in self.switch_list],
-            [light.to_tuple() for light in self.lights_list],
-            [crossing.to_tuple() for crossing in self.rr_crossing_list],
-            []
-        )
+        print(f"authority speed update received in wayside")
+        self.check_safe_speed(authority_speed_update)
+
+        safe_toggle_blocks = []
+        if maintenance_mode_override_flag:
+            safe_toggle_blocks = self.check_safe_toggle_block(blocks_to_close_open)
+            self.toggle_switch_if_safe(updated_switches)
+
+        print(f"update_track_model_from_wayside:\n"
+              f"track signal: {authority_speed_update[0]}\n"
+              f"switch list: {self.switch_list}\n"
+              f"light list: {self.lights_list}\n"
+              f"crossing list: {self.rr_crossing_list}")
+
+        # call downstream endpoint after processing of CTC data
+        # self.update_track_model_from_wayside.emit(
+        #     [track_signal.to_tuple() for track_signal in authority_speed_update],
+        #     [switch.to_tuple() for switch in self.switch_list],
+        #     [light.to_tuple() for light in self.lights_list],
+        #     [crossing.to_tuple() for crossing in self.rr_crossing_list],
+        #     safe_toggle_blocks
+        # )
 
     # Track Model Endpoint
     @pyqtSlot(dict)
     def update_wayside_from_track_model(self, block_occupancy_update: dict[int, bool]):
-        print(f"block occupancy update from wayside received, block 62 status: {block_occupancy_update[62]}")
-        # self.update_occupancy(block_occupancy_update)
-        self.update_ctc_from_wayside.emit(
-            block_occupancy_update,
-            self.switch_list,
-            self.lights_list,
-            self.rr_crossing_list
-        )
+        print(f"update_wayside_from_track_model received:\n"
+              f"block 62 status: {block_occupancy_update[62]}")
+
+        self.update_occupancy(block_occupancy_update)
+
+        print(f"update_ctc_from_wayside:\n"
+              f"block occupancy: {block_occupancy_update}\n"
+              f"switch list: {self.switch_list[:]}\n"
+              f"lights_list: {self.lights_list[:]}\n"
+              f"rr_crossing_list: {self.rr_crossing_list[:]}")
+
+        # self.update_ctc_from_wayside.emit(
+        #     block_occupancy_update,
+        #     self.switch_list,
+        #     self.lights_list,
+        #     self.rr_crossing_list
+        # )
 
     def check_safe_speed(self, track_signal: list[TrackSignal]):
         for signal in track_signal:
             if self.zero_speed_flag_dict[signal.block_id]:
                 signal.zero_speed()
+                print(f"Signal for block {signal.block_id} speed has been zeroed")
 
     def check_safe_toggle_block(self, blocks_to_close_open: list[tuple[int, bool]]):
         safe_toggle_blocks = []
@@ -141,8 +157,6 @@ class TrackControllerContainer(QObject):
             # if it's safe to toggle that switch, just reassign the switch value to the new one, even if it's the same
             if self.safe_toggle_switch[index]:
                 self.switch_list[index] = switches_to_toggle[index]
-
-
 
     def update_switch(self, line_id: int, block_id: int, switch_status: Switch) -> None:
         pass
@@ -190,7 +204,6 @@ class TrackControllerContainer(QObject):
             self.safe_toggle_switch[switch_index+2] = False
 
         # update_occupancy_B_result = self.trackControllerB.update_occupancy(self.occupancy_dict_B)
-        update_occupancy_C_result = self.trackControllerC.update_occupancy(self.occupancy_dict_C)
         # self.zero_speed_flag_list[0:len(self.occupancy_list_A)] = zero_speed_flag_list_A[0:len(self.occupancy_list_A)]
         print("zero speed flag list length: ", len(self.zero_speed_flag_list))
         # print("zero speed flag list B: ", self.zero_speed_flag_list_B)

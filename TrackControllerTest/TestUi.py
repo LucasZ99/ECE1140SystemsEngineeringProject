@@ -24,7 +24,7 @@ class TestUi(QMainWindow):
 
         self.authority_select = self.findChild(QComboBox, 'authority_select')
         self.occupancy_block_select = self.findChild(QComboBox, 'occupancy_block_select')
-        self.occupied_checkbox = self.findChild(QCheckBox, 'occupied_checkbox')
+        self.occupancy_toggle_button = self.findChild(QPushButton, 'occupancy_toggle_button')
         self.send_ctc_inputs_button = self.findChild(QPushButton, 'send_ctc_inputs_button')
         self.send_track_inputs_button = self.findChild(QPushButton, 'send_track_inputs_button')
         self.speed_input = self.findChild(QLineEdit, 'speed_input')
@@ -36,7 +36,7 @@ class TestUi(QMainWindow):
         self.init_block_list()
 
         self.authority_select.currentIndexChanged.connect(self.authority_update)
-        self.occupied_checkbox.clicked.connect(self.occupancy_update)
+        self.occupancy_toggle_button.clicked.connect(self.occupancy_update)
         self.track_signal_block_select.currentIndexChanged.connect(self.track_signal_block_update)
         self.speed_input.editingFinished.connect(self.update_speed)
         self.send_ctc_inputs_button.clicked.connect(self.send_ctc_inputs)
@@ -68,10 +68,8 @@ class TestUi(QMainWindow):
         self.test_business_logic.track_signal_authority_update(authority=self.authority_select.currentIndex())
 
     def occupancy_update(self):
-        if self.occupied_checkbox.isChecked():
-            self.blocks_occupancy[self.occupancy_block_select.currentIndex()+1] = True
-        else:
-            self.blocks_occupancy[self.occupancy_block_select.currentIndex()+1] = False
+        self.blocks_occupancy[self.occupancy_block_select.currentIndex()+1] \
+            = not self.blocks_occupancy[self.occupancy_block_select.currentIndex()+1]
 
         self.test_business_logic.occupancy_update(blocks_occupancy=self.blocks_occupancy)
         self.update_occupancy_block_select()
