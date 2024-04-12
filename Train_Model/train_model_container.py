@@ -42,7 +42,7 @@ class TrainModelContainer(QObject):
             if not (passenger_dict[i] <= 0):
                 self.track_update_passengers(passenger_dict[i], i)
 
-        # self.business_logic.train_update_controller()
+        self.business_logic.train_update_controller()
 
         print("Train Model: train_update_controller successful")
 

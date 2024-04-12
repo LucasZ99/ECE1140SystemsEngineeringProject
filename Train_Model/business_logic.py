@@ -110,5 +110,5 @@ class TrainBusinessLogic(QObject):
             self.train_removed.emit(index)
 
     def train_update_controller(self):
-        for train in self.train_dict:
-            train.update_controller()
+        for i in self.train_dict.keys():
+            self.train_dict[i].update_controller()
