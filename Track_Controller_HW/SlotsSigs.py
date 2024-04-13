@@ -44,8 +44,8 @@ class SlotsSigs(QObject):
         self.stops, self.blocks, self.new_rr_crossing = self.plc.run_plc_logic()
         self.occupancy_signal.emit(new_occupancy)
 
-        print("rr_crossing: ", self.rr_crossing)
-        print("new_rr_crossing: ", self.new_rr_crossing)
+        #print("rr_crossing: ", self.rr_crossing)
+        #print("new_rr_crossing: ", self.new_rr_crossing)
 
         if self.rr_crossing != self.new_rr_crossing:  # if the rr_crossing value has changed, emit the signal
             self.rr_crossing_signal.emit(True)

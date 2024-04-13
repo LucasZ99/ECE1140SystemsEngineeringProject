@@ -1,6 +1,7 @@
 import time
 import os
 import sys
+import itertools
 from PyQt6.QtCore import pyqtSignal, QObject, pyqtSlot
 from Track_Controller_HW import SlotsSigs, TBShell
 
@@ -32,7 +33,8 @@ class TrackControllerHardware(QObject):
         print("track controller B update occupancy called")
         self.blocks = block_occupancy_dict
         self.stops = self.slots_sigs.new_occupancy(block_occupancy_dict)
-        print("blck occup list blck B: ",self.blocks)
+        #print("blck occup list blck B: ", self.blocks)
+        #print("stops list blck B: ", self.stops)
         return self.stops
 
     def show_testbench_ui(self):
@@ -53,13 +55,28 @@ class TrackControllerHardware(QObject):
             print("Test Passed")
         elif self.rr_crossing != expected_rr_cross_val:
             print("Test Failed")
+        #print("stops", self.stops)
 
 
 
 if __name__ == '__main__':
-    occupancy_list = {i: False for i in range(1, 96)} # init with a list of 105 False values (no rr_crossing block should be active)
-    new_occupancy_list = occupancy_list  # create a new list to update the occupancy
-    new_occupancy_list[56] = True  # set the occupancy of block 56 to True (a rr_crossing block)
-    track_controller_hw = TrackControllerHardware(occupancy_list, section="B")  # init with default vals
+    occupancy_dict = {}
+    for i in range(1, 58):
+        occupancy_dict[i] = False
+    for i in range(62, 151):
+        occupancy_dict[i] = False
+
+    occupancy_dict_B = dict(itertools.islice(occupancy_dict.items(), 28, 72))
+    occupancy_dict_B.update(dict(itertools.islice(occupancy_dict.items(), 96, 146)))
+
+
+    new_occupancy_list = {key: False for key, value in occupancy_dict_B.items() if isinstance(value, bool)}  # create a new list to update the occupancy
+    new_occupancy_list[108] = True  # set the occupancy of block 56 to True (a rr_crossing block)
+    new_occupancy_list[90] = True
+    new_occupancy_list[75] = True
+    new_occupancy_list[59] = True
+    new_occupancy_list[29] = True
+
+    track_controller_hw = TrackControllerHardware(occupancy_dict_B, section="B")  # init with default vals
     track_controller_hw.rr_cross_test(new_occupancy_list, True)  # test the PLC's rr_crossing logic
 
