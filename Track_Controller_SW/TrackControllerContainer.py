@@ -71,7 +71,7 @@ class TrackControllerContainer(QObject):
         self.occupancy_dict_C = dict(itertools.islice(self.occupancy_dict.items(), 72, 100))
 
         self.trackControllerA = TrackController(occupancy_dict=self.occupancy_dict_A, section="A")
-        # self.trackControllerB = TrackControllerHardware(occupancy_dict=self.occupancy_dict_B, section="B")
+        self.trackControllerB = TrackControllerHardware(occupancy_dict=self.occupancy_dict_B, section="B")
         self.trackControllerC = TrackController(occupancy_dict=self.occupancy_dict_C, section="C")
 
         # # Connect Internal Signals:
@@ -79,7 +79,7 @@ class TrackControllerContainer(QObject):
         self.trackControllerA.rr_crossing_signal.connect(self.update_rr_crossing_status_A)
         self.trackControllerA.lights_list_A_changed_signal.connect(self.update_lights_A_status)
 
-        # self.trackControllerB.rr_crossing_signal.connect(self.update_rr_crossing_status_B)
+        self.trackControllerB.rr_crossing_signal.connect(self.update_rr_crossing_status_B)
 
         self.trackControllerC.lights_list_C_changed_signal.connect(self.update_lights_C_status)
         self.trackControllerC.switch_changed_index_signal.connect(self.update_track_switch)
@@ -189,7 +189,11 @@ class TrackControllerContainer(QObject):
         for switch_index in unsafe_toggle_switch:
             self.safe_toggle_switch[switch_index] = False
 
-        # do the same thing for B
+        update_occupancy_B_result = self.trackControllerB.update_occupancy(self.occupancy_dict_B)
+        zero_speed_flag_dict_B = update_occupancy_B_result
+        for key in zero_speed_flag_dict_B.keys():
+            self.zero_speed_flag_dict[key] = self.zero_speed_flag_dict_B[key]
+
 
         update_occupancy_C_result = self.trackControllerC.update_occupancy(self.occupancy_dict_C)
         zero_speed_flag_dict_C = update_occupancy_C_result[0]
