@@ -48,7 +48,7 @@ class TrackControllerHardware(QObject):
         self.rr_crossing_signal.emit(rr_crossing_new_val)
 
     def rr_cross_test(self, blocks: dict, expected_rr_cross_val: bool):
-        self.blocks = blocks # set the blocks to the new occupancy
+        self.blocks = blocks  # set the blocks to the new occupancy
         self.stops = self.slots_sigs.new_occupancy(blocks)  # update the occupancy
         # PLC logic will update the rr_crossing value based on the occupancy
         if self.rr_crossing == expected_rr_cross_val:  # check if the rr_crossing value is as expected
