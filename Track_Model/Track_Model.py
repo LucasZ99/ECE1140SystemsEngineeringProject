@@ -370,37 +370,37 @@ class TrackModel(QObject):
 
     # train model
 
-    def get_tm_authority(self, train_id: int) -> int:
-        block_id = self.train_dict[train_id]
-        return int(self.authority[block_id])
-
-    def get_tm_speed(self, train_id: int) -> float:
-        block_id = self.train_dict[train_id]
-        return float(self.speed[block_id])
-
-    def get_tm_beacon(self, train_id: int) -> str:
-        block_id = self.train_dict[train_id]
-        return str(self.data[block_id, 11])
-
-    def get_tm_grade(self, train_id: int) -> int:
-        block_id = self.train_dict[train_id]
-        return int(self.data[block_id, 4])
-
-    def get_tm_elevation(self, train_id: int) -> float:
-        block_id = self.train_dict[train_id]
-        return float(self.data[block_id, 6])
-
-    def get_tm_underground_status(self, train_id: int) -> bool:
-        block_id = self.train_dict[train_id]
-        return bool(self.data[block_id, 20])
-
-    def get_tm_embarking_passengers(self, train_id: int) -> int:
-        block_id = self.train_dict[train_id]
-        return int(self.data[block_id, 17])
-    
-    def get_tm_block_length(self, train_id: int):
-        block_id = self.train_dict[train_id]
-        return int(self.data[block_id, 3])
+    # def get_tm_authority(self, train_id: int) -> int:
+    #     block_id = self.train_dict[train_id]
+    #     return int(self.authority[block_id])
+    #
+    # def get_tm_speed(self, train_id: int) -> float:
+    #     block_id = self.train_dict[train_id]
+    #     return float(self.speed[block_id])
+    #
+    # def get_tm_beacon(self, train_id: int) -> str:
+    #     block_id = self.train_dict[train_id]
+    #     return str(self.data[block_id, 11])
+    #
+    # def get_tm_grade(self, train_id: int) -> int:
+    #     block_id = self.train_dict[train_id]
+    #     return int(self.data[block_id, 4])
+    #
+    # def get_tm_elevation(self, train_id: int) -> float:
+    #     block_id = self.train_dict[train_id]
+    #     return float(self.data[block_id, 6])
+    #
+    # def get_tm_underground_status(self, train_id: int) -> bool:
+    #     block_id = self.train_dict[train_id]
+    #     return bool(self.data[block_id, 20])
+    #
+    # def get_tm_embarking_passengers(self, train_id: int) -> int:
+    #     block_id = self.train_dict[train_id]
+    #     return int(self.data[block_id, 17])
+    #
+    # def get_tm_block_length(self, train_id: int):
+    #     block_id = self.train_dict[train_id]
+    #     return int(self.data[block_id, 3])
 
     # ctc (technically still track controller)
     # def emit_ctc_ticket_sales(self) -> int:
