@@ -8,10 +8,27 @@ from PyQt6.uic import loadUi
 
 
 class TrackModelTestUI(QMainWindow):
-    update_track_model_from_wayside = pyqtSignal(list)
+    update_track_model_from_wayside = pyqtSignal(list, list, list, list, list)
     update_track_model_from_train_model = pyqtSignal(object, object)
     # TODO: Everything below this is just copied and pasted
+    # UI should include:
+    #
+    # wayside (just do str inputs for all of these?):
+    # authority_safe_speed_update: list[tuple[block_id: int, authority: int, safe_speed: float]]
+    # switch_changed_indexes: list[switch_index: int]
+    # signal_changed_indexes: list[signal_index: int]
+    # rr_crossing_indexes: list[crossing_index: int]
+    # toggle_block_indexes: list[block_index: int]
+    #
+    # train model (just do str inputs for all of these?):
+    # delta_x_dict:
+    # 			dict[train_id:int, delta_x:float]
+    # disembarking_passengers_dict:
+    # 			dict[train_id: int, disembarking_passengers: int]
+    #
+    # 2 separate buttons for each signal
 
+    #
     def __init__(self):
         super().__init__()
 
