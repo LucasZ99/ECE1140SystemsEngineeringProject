@@ -9,8 +9,7 @@ from PyQt6.uic import loadUi
 
 class TrackModelTestLauncherUI(QMainWindow):
     open_track_model_ui_signal = pyqtSignal()
-    open_track_controller_ui_signal = pyqtSignal()
-    open_train_model_ui_signal = pyqtSignal()
+    open_test_ui_signal = pyqtSignal()
 
     def __init__(self):
         super().__init__()
