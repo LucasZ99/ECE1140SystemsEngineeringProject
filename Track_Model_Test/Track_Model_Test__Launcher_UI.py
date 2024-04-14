@@ -7,10 +7,9 @@ from PyQt6.QtWidgets import QMainWindow, QApplication, QPushButton
 from PyQt6.uic import loadUi
 
 
-class TrackModelTestUI(QMainWindow):
-    update_track_model_from_wayside = pyqtSignal(list)
-    update_track_model_from_train_model = pyqtSignal(object, object)
-    # TODO: Everything below this is just copied and pasted
+class TrackModelTestLauncherUI(QMainWindow):
+    open_track_model_ui_signal = pyqtSignal()
+    open_test_ui_signal = pyqtSignal()
 
     def __init__(self):
         super().__init__()
