@@ -60,12 +60,12 @@ class UITrain(QMainWindow):
         except Exception as e:
             print(f'Error with ad {ad} file: ,', e)
 
-
-
         self.primeGroup = self.findChild(QGroupBox, "primeGroup")
         self.trainSelect = self.findChild(QComboBox, "trainSelect")
         self.trainSelect.clear()
+        self.train_name_list = list()
         for i in self.train_dict.keys():
+            self.train_name_list.append(f'Train {i}')
             self.trainSelect.addItem(f'Train {i}')
         self.emerButton = self.findChild(QPushButton, "emerButton")
         self.tbCheck = self.findChild(QCheckBox, "tbCheck")
@@ -207,25 +207,28 @@ class UITrain(QMainWindow):
         print(self.train_dict[self.index].ID)
 
     def train_added(self, index):
+        self.train_name_list.append(f'Train {index}')
         self.trainSelect.addItem(f'Train {index}')
 
     def train_removed(self, index):
-        print("ui train remove")
-        item_index = self.trainSelect.findText(f'Train {index}')
-        print(f"index calculated {item_index}")
-        if item_index == -1:
-            print("train index not present")
-            return
-        else:
-            print("removing train")
-            try:
-                self.trainSelect.removeItem(item_index)
-            except Exception as error:
-                print(error)
-            print("train removed")
+        if f'Train {index}' in self.train_name_list:
+            print("removing train in ui")
+            self.trainSelect.clear()
+            self.train_name_list.remove(f'Train {index}')
+            print(f'train_name_list in train_removed: {self.train_name_list}')
+            for name in self.train_name_list:
+                self.trainSelect.addItem(name)
+            if len(self.train_name_list) != 0:
+                self.combo_selection()
+            print("train removed in ui")
 
     def combo_selection(self):
+        print(f'train_name_list_in combo_selection: {self.train_name_list}')
+        if len(self.train_name_list) == 0:
+            return
         string = str(self.trainSelect.currentText())
+        if not ('Train' in string):
+            return
         self.index = int(string[6:])
         self.switching_trains = True
         self.populate_values()

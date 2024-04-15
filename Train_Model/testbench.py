@@ -63,7 +63,7 @@ class ContainerTB(QMainWindow):
 
         self.trackInput.setText("0, 0")
         self.controllerInput.setText("0, 0, False, False, 0, , True, False")
-        self.blockInput.setText("0, 0, 50, False, ")
+        self.blockInput.setText("0, 0, False, ")
         self.passInput.setText("0")
         self.tempInput.setText("68")
 
@@ -101,16 +101,15 @@ class ContainerTB(QMainWindow):
 
     def block_pressed(self):
         lst = str(self.blockInput.text()).split(", ", -1)
-        # [grade, elevation, block length, underground, beacon]
-        if len(lst) != 5:
+        # [grade, elevation, underground, beacon]
+        if len(lst) != 4:
             return
 
         input_list = list()
         input_list.append(float(lst[0]))
         input_list.append(float(lst[1]))
-        input_list.append(float(lst[2]))
-        input_list.append(bool(lst[3]))
-        input_list.append(lst[4])
+        input_list.append(bool(lst[2]))
+        input_list.append(lst[3])
         self.container.track_update_block(input_list, 1)
 
     def pass_pressed(self):
