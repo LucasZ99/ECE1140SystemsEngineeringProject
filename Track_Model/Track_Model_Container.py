@@ -210,7 +210,9 @@ class TrackModelContainer(QObject):
         self.track_model.update_delta_x_dict(delta_x_dict)
         # update map on ui handled by signals emitted by track_model
         ticket_sales = 0  # TODO: implement ticket sales for ctc
-        block_occupancy_update = dict(enumerate(self.track_model.get_occupancy_list(), 1))
+        # block_occupancy_update = dict(enumerate(self.track_model.get_occupancy_list(), 1))  # old way, 1-->150
+        block_occupancy_update = {i: v for i, v in enumerate(self.track_model.get_occupancy_list(), 1) if
+                                  i <= 57 or i >= 62}
 
         # emit
         self.track_model_ui.refresh()  # pre-emit ui refresh
