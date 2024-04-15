@@ -1,6 +1,9 @@
-string = "0, 0, False, False, 0, , True, False"
-lst = string.split(", ", -1)
-print(lst)
-print(int(lst[0]))
-print(int(lst[1]))
-print(bool(lst[2]))
+index = 1
+train_name_list = [f'Train {index}']
+print(train_name_list)
+
+if f'Train {index}' in train_name_list:
+    print("removing train in ui")
+    train_name_list.remove(f'Train {index}')
+
+print(train_name_list)
