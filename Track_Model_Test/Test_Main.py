@@ -3,7 +3,7 @@ import threading
 from PyQt6.QtWidgets import QApplication
 
 # from launchercontainer import LauncherContainer
-from Track_Model_Test_Launcher_Container import TrackModelTestContainer
+from Track_Model_Test_Launcher_Container import TrackModelTestContainer, TrackModelTestLauncherContainer
 
 
 def run_launcher():
@@ -11,7 +11,7 @@ def run_launcher():
     app = QApplication(sys.argv)
 
     # Create an instance of LauncherContainer, which manages the GUI components and their interactions
-    launcher_container = TrackModelTestContainer()
+    launcher_container = TrackModelTestLauncherContainer()
 
     # Initialize and run the GUI within the main thread context
     launcher_container.init_launcher_ui()
