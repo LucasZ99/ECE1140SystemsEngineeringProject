@@ -21,6 +21,7 @@ class PlcProgram(object):
 
         with open('occupancy_file.pkl', 'wb') as f:
             pickle.dump(occupancy_list, f)
+            f.close()
 
         try:
             subprocess.check_output(['python', self.filepath],
