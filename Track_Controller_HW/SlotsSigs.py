@@ -32,7 +32,7 @@ class SlotsSigs(QObject):
         self.suggested_speed = suggested_speed
         self.rr_crossing = rr_crossing
         self.hw_ui = HWUI()
-        self.stops = [False] * len(self.blocks)
+        self.stops = {}
 
     # Signal to update the occupancy
     @pyqtSlot(dict)
@@ -44,8 +44,8 @@ class SlotsSigs(QObject):
         self.stops, self.blocks, self.new_rr_crossing = self.plc.run_plc_logic()
         self.occupancy_signal.emit(new_occupancy)
 
-        print("rr_crossing: ", self.rr_crossing)
-        print("new_rr_crossing: ", self.new_rr_crossing)
+        #print("rr_crossing: ", self.rr_crossing)
+        #print("new_rr_crossing: ", self.new_rr_crossing)
 
         if self.rr_crossing != self.new_rr_crossing:  # if the rr_crossing value has changed, emit the signal
             self.rr_crossing_signal.emit(True)
