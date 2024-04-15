@@ -7,8 +7,9 @@ from PyQt6.QtWidgets import QApplication
 import time
 import openpyxl
 
-# TODO: for loop -> list comprehension
-#
+# maybe: for loop -> list comprehension
+# TODO: Update beacons in
+
 
 class TrackModel(QObject):
     # external signals
@@ -16,6 +17,8 @@ class TrackModel(QObject):
     # new_ticket_sales_signal = pyqtSignal(int)
     # internal signals (to UI)
     refresh_ui_signal = pyqtSignal()
+    map_add_train_signal = pyqtSignal()
+    map_move_train_signal = pyqtSignal(int, int)
 
     def __init__(self, file_name):
         super().__init__()
@@ -206,7 +209,6 @@ class TrackModel(QObject):
         relevant_section_data = self.get_section(section_id)[:, [9, 2, 10, 12, 16, 17]]
         arr = relevant_section_data.copy()
         filtered_arr = arr[np.array(['station' in str(x).lower() for x in arr[:, 0]])]
-
         return filtered_arr
 
     def get_infrastructure_table(self, section_id):
@@ -314,6 +316,7 @@ class TrackModel(QObject):
         self.train_dict[self.train_count] = self.full_path[0]
         self.train_dict_meters[self.train_count] = 0
         print(f'new train spawned, train_count = {self.train_count}')
+        self.map_add_train_signal.emit()  # refresh map ui
 
     # def train_presence_changed(self, train_id: int):
     #     if self.train_dict_relative[train_id] >= 170:
@@ -343,6 +346,7 @@ class TrackModel(QObject):
         for key, value in self.train_dict_meters.items():
             if value > self.cumulative_distance[self.train_dict_relative[key]]:
                 self.train_dict_relative[key] += 1
+                self.map_move_train_signal(key, self.full_path[self.train_dict_relative[key]])  # refresh map ui
             if self.train_dict_relative[key] >= 150:  # check if we should remove trains
                 del self.train_dict_meters[key]
                 del self.train_dict_relative[key]
@@ -352,7 +356,6 @@ class TrackModel(QObject):
         for key, value in self.train_dict_relative.items():
             self.train_dict[key] = self.full_path[value]
         self.set_occupancy_from_train_presence()
-
 
     def set_disembarking_passengers(self, station_id: int, disembarking_passengers: int):
         self.data[station_id, 21] = disembarking_passengers
@@ -370,37 +373,37 @@ class TrackModel(QObject):
 
     # train model
 
-    def get_tm_authority(self, train_id: int) -> int:
-        block_id = self.train_dict[train_id]
-        return int(self.authority[block_id])
-
-    def get_tm_speed(self, train_id: int) -> float:
-        block_id = self.train_dict[train_id]
-        return float(self.speed[block_id])
-
-    def get_tm_beacon(self, train_id: int) -> str:
-        block_id = self.train_dict[train_id]
-        return str(self.data[block_id, 11])
-
-    def get_tm_grade(self, train_id: int) -> int:
-        block_id = self.train_dict[train_id]
-        return int(self.data[block_id, 4])
-
-    def get_tm_elevation(self, train_id: int) -> float:
-        block_id = self.train_dict[train_id]
-        return float(self.data[block_id, 6])
-
-    def get_tm_underground_status(self, train_id: int) -> bool:
-        block_id = self.train_dict[train_id]
-        return bool(self.data[block_id, 20])
-
-    def get_tm_embarking_passengers(self, train_id: int) -> int:
-        block_id = self.train_dict[train_id]
-        return int(self.data[block_id, 17])
-    
-    def get_tm_block_length(self, train_id: int):
-        block_id = self.train_dict[train_id]
-        return int(self.data[block_id, 3])
+    # def get_tm_authority(self, train_id: int) -> int:
+    #     block_id = self.train_dict[train_id]
+    #     return int(self.authority[block_id])
+    #
+    # def get_tm_speed(self, train_id: int) -> float:
+    #     block_id = self.train_dict[train_id]
+    #     return float(self.speed[block_id])
+    #
+    # def get_tm_beacon(self, train_id: int) -> str:
+    #     block_id = self.train_dict[train_id]
+    #     return str(self.data[block_id, 11])
+    #
+    # def get_tm_grade(self, train_id: int) -> int:
+    #     block_id = self.train_dict[train_id]
+    #     return int(self.data[block_id, 4])
+    #
+    # def get_tm_elevation(self, train_id: int) -> float:
+    #     block_id = self.train_dict[train_id]
+    #     return float(self.data[block_id, 6])
+    #
+    # def get_tm_underground_status(self, train_id: int) -> bool:
+    #     block_id = self.train_dict[train_id]
+    #     return bool(self.data[block_id, 20])
+    #
+    # def get_tm_embarking_passengers(self, train_id: int) -> int:
+    #     block_id = self.train_dict[train_id]
+    #     return int(self.data[block_id, 17])
+    #
+    # def get_tm_block_length(self, train_id: int):
+    #     block_id = self.train_dict[train_id]
+    #     return int(self.data[block_id, 3])
 
     # ctc (technically still track controller)
     # def emit_ctc_ticket_sales(self) -> int:

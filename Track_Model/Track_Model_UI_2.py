@@ -298,14 +298,15 @@ class Window(QMainWindow):
 
         self.train_dict_label.setText('Trains: ' + str(self.track_model.get_train_dict()))
 
-    def move_block(self, num):
-        print(f'num: {num}')
-        [x, y] = self.pix_dict[num]
-        self.map.move_box(x, y)
+    def add_train(self):
+        self.map.add_train()
+
+    def move_train(self, train_id, block):
+        self.map.move_train(train_id, block)
 
     def refresh(self):
         self.refresh_block_info()
-        print('implement refresh pls')
+        print('refresh ui called')
 
 
 ##############################
