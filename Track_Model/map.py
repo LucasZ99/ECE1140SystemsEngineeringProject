@@ -4,73 +4,56 @@ from PyQt6.QtWidgets import QMainWindow, QApplication, QLabel, QWidget, QVBoxLay
     QGraphicsView, QHBoxLayout, QGraphicsItem
 from PyQt6.QtCore import Qt
 import time
+import os
 
 
-class Train(QWidget):
-    def __init__(self, current_block, train_id):
-        super(Train, self).__init__()
-        self.current_block = QLabel(current_block)
-        self.train_id = QLabel(train_id)
-
-        self.box = QLabel()
-        pixmap = QPixmap('yellow_box.png')
-        pixmap = pixmap.scaled(10, 10, Qt.AspectRatioMode.KeepAspectRatio)
-        self.box.setPixmap(pixmap)
-
-        layout = QVBoxLayout()
-        layout.addWidget(self.box)
-        layout.addWidget(self.current_block)
-        layout.addWidget(self.train_id)
-        self.setLayout(layout)
-
-
-
-    # def move(self, x, y):
-    #     self.box.move(x, y)
-    #     self.current_block.move(x, y)
-    #     self.train_id.move(x, y)
-
+# class Train(QWidget):
+#     def __init__(self, current_block, train_id):
+#         super(Train, self).__init__()
+#         self.current_block = QLabel(current_block)
+#         self.train_id = QLabel(train_id)
+#
+#         self.box = QLabel()
+#         pixmap = QPixmap('./yellow_box.png')
+#         pixmap = pixmap.scaled(10, 10, Qt.AspectRatioMode.KeepAspectRatio)
+#         self.box.setPixmap(pixmap)
+#
+#         layout = QVBoxLayout()
+#         layout.addWidget(self.box)
+#         layout.addWidget(self.current_block)
+#         layout.addWidget(self.train_id)
+#         self.setLayout(layout)
+#
+#     def move(self, x, y):
+#         self.box.move(x, y)
+#         self.current_block.move(x, y)
+#         self.train_id.move(x, y)
 
 class Map(QWidget):
     def __init__(self):
         super(Map, self).__init__()
-        # self.scene = QGraphicsScene(0, 0, 400, 600)
-        # bg_pixmap = QPixmap('map_3.png')
-        # bg_pixmap = bg_pixmap.scaled(400, 600, Qt.AspectRatioMode.KeepAspectRatio)
-        # bg = self.scene.addPixmap(bg_pixmap)
-        #
-        # view = QGraphicsView(self.scene)
-        # view.setRenderHint(QPainter.RenderHint.Antialiasing)
-        # hbox = QHBoxLayout(self)
-        # hbox.addWidget(view)
-        #
-        # self.setLayout(hbox)
-        #
 
         self.setWindowTitle('map')
         self.setFixedSize(400, 600)
 
+        dirname = os.path.dirname(__file__)
+        map_file = os.path.join(dirname, 'map_3.png')
+        yellow_box_file = os.path.join(dirname, 'yellow_box.png')
+
         background = QLabel(self)
-        pixmap = QPixmap('map_3.png')
+        pixmap = QPixmap(map_file)
         pixmap = pixmap.scaled(400, 600, Qt.AspectRatioMode.KeepAspectRatio)
         background.setPixmap(pixmap)
 
-        self.train_pixmap = QPixmap('yellow_box.png')
+        self.train_pixmap = QPixmap(yellow_box_file)
         self.train_pixmap = self.train_pixmap.scaled(10, 10, Qt.AspectRatioMode.KeepAspectRatio)
 
-        self.train = QLabel(self)
-        self.train.setPixmap(self.train_pixmap)
-        self.train.move(-10, -10)
-        #
+        self.train_dict = {}
+        self.train_count = 0
+
         # self.train = QLabel(self)
         # self.train.setPixmap(self.train_pixmap)
-        # self.train.move(45, 443)
-        #
-        # self.train = QLabel(self)
-        # pixmap = QPixmap('yellow_box.png')
-        # pixmap = pixmap.scaled(10, 10, Qt.AspectRatioMode.KeepAspectRatio)
-        # self.train.setPixmap(self.train_pixmap)
-        # self.train.move(60, 470)
+        # self.train.move(10, 10)
 
         self.pixel_dict = {
             # a
@@ -159,6 +142,18 @@ class Map(QWidget):
             self.train.setPixmap(self.train_pixmap)
             self.train.move(list(self.pixel_dict[block])[0], list(self.pixel_dict[block])[1])
 
+    def add_train(self):
+        print('map: add train called')
+        self.train_count += 1
+        train = QLabel(self)
+        train.setPixmap(self.train_pixmap)
+        train.move(354, 250)
+        self.train_dict[self.train_count] = train
+
+    def move_train(self, train_id, block):
+        print('map: move train called')
+        [x, y] = self.pixel_dict[block]
+        self.train_dict[train_id].move(x, y)
 
 # 33 95-100
 # app = QApplication(sys.argv)
