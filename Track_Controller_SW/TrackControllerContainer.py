@@ -93,6 +93,7 @@ class TrackControllerContainer(QObject):
                                 updated_switches: list[Switch]):
 
         print(f"authority speed update received in wayside")
+
         self.check_safe_speed(authority_speed_update)
 
         safe_toggle_blocks = []
@@ -101,7 +102,7 @@ class TrackControllerContainer(QObject):
             self.toggle_switch_if_safe(updated_switches)
 
         print(f"update_track_model_from_wayside:\n"
-              f"track signal: {authority_speed_update[0]}\n"
+              f"track signal: {[str(item) for item in authority_speed_update]}\n"
               f"switch list: {[str(item) for item in self.switch_list]}\n"
               f"light list: {[str(item) for item in self.lights_list]}\n"
               f"crossing list: {[str(item) for item in self.rr_crossing_list]}")

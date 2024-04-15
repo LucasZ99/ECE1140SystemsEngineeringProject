@@ -1,3 +1,4 @@
+import pickle
 import sys
 import json
 
@@ -58,10 +59,14 @@ def run_plc(occupancy_list):
 
 
 def main():
-    arg_json = sys.argv[1]
-    occupancy_list = json.loads(arg_json)
-    result = run_plc(occupancy_list)
-    print(json.dumps(result))
+
+    with open('occupancy_file.pkl', 'rb') as f:
+        occupancy_list = pickle.load(f)
+
+    result = run_plc(list(occupancy_list))
+
+    with open('plc_result.pkl', 'wb') as f:
+        pickle.dump(result, f)
 
 
 if __name__ == '__main__':
