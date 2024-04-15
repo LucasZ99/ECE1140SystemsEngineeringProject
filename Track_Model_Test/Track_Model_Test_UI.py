@@ -3,7 +3,7 @@ import threading
 # from Track_Controller_SW import TrackController
 
 from PyQt6.QtCore import pyqtSignal
-from PyQt6.QtWidgets import QMainWindow, QApplication, QPushButton, QLabel, QLineEdit
+from PyQt6.QtWidgets import QMainWindow, QApplication, QPushButton, QLabel, QLineEdit, QVBoxLayout, QWidget
 from PyQt6.uic import loadUi
 
 
@@ -41,28 +41,37 @@ class TrackModelTestUI(QMainWindow):
         self.disembarking_passengers_dict = {}
 
         # Instantiate labels and forms
-        authority_safe_speed_update_label = QLabel('authority_safe_speed_update:')
-        authority_safe_speed_update_input = QLineEdit()
-        authority_safe_speed_update_input.editingFinished.connect(self.authority_safe_speed_update_input_handler)
-        switch_changed_indexes_label = QLabel('switch_changed_indexes:')
-        switch_changed_indexes_input = QLineEdit()
-        switch_changed_indexes_input.editingFinished.connect(self.switch_changed_indexes_input_handler)
-        signal_changed_indexes_label = QLabel('signal_changed_indexes:')
-        signal_changed_indexes_input = QLineEdit()
-        signal_changed_indexes_input.editingFinished.connect(self.signal_changed_indexes_input_handler)
-        rr_crossing_indexes_label = QLabel('rr_crossing_indexes:')
-        rr_crossing_indexes_input = QLineEdit()
-        rr_crossing_indexes_input.editingFinished.connect(self.rr_crossing_indexes_input_handler)
-        toggle_block_indexes_label = QLabel('toggle_block_indexes:')
-        toggle_block_indexes_input = QLineEdit()
-        toggle_block_indexes_input.editingFinished.connect(self.toggle_block_indexes_input_handler)
+        self.authority_safe_speed_update_label = QLabel('authority_safe_speed_update:')
+        self.authority_safe_speed_update_input = QLineEdit()
+        self.authority_safe_speed_update_input.setText('[(62, 4, 50)]')
+        self.authority_safe_speed_update_input.editingFinished.connect(self.authority_safe_speed_update_input_handler)
+        self.switch_changed_indexes_label = QLabel('switch_changed_indexes:')
+        self.switch_changed_indexes_input = QLineEdit()
+        self.switch_changed_indexes_input.setText('[]')
+        self.switch_changed_indexes_input.editingFinished.connect(self.switch_changed_indexes_input_handler)
+        self.signal_changed_indexes_label = QLabel('signal_changed_indexes:')
+        self.signal_changed_indexes_input = QLineEdit()
+        self.signal_changed_indexes_input.setText('[]')
+        self.signal_changed_indexes_input.editingFinished.connect(self.signal_changed_indexes_input_handler)
+        self.rr_crossing_indexes_label = QLabel('rr_crossing_indexes:')
+        self.rr_crossing_indexes_input = QLineEdit()
+        self.rr_crossing_indexes_input.setText('[]')
+        self.rr_crossing_indexes_input.editingFinished.connect(self.rr_crossing_indexes_input_handler)
+        self.toggle_block_indexes_label = QLabel('toggle_block_indexes:')
+        self.toggle_block_indexes_input = QLineEdit()
+        self.toggle_block_indexes_input.setText('[]')
+        self.toggle_block_indexes_input.editingFinished.connect(self.toggle_block_indexes_input_handler)
 
         self.wayside_button = QPushButton('Send Wayside Inputs')
 
-        delta_x_dict_label = QLabel('delta_x_dict:')
-        delta_x_dict_input = QLineEdit()
-        disembarking_passengers_dict_label = QLabel('disembarking_passengers_dict')
-        disembarking_passengers_dict_input = QLineEdit()
+        self.delta_x_dict_label = QLabel('delta_x_dict:')
+        self.delta_x_dict_input = QLineEdit()
+        self.delta_x_dict_input.setText('{1:25}')
+        self.delta_x_dict_input.editingFinished.connect(self.delta_x_dict_input_handler)
+        self.disembarking_passengers_dict_label = QLabel('disembarking_passengers_dict')
+        self.disembarking_passengers_dict_input = QLineEdit()
+        self.disembarking_passengers_dict_input.setText('{}')
+        self.disembarking_passengers_dict_input.editingFinished.connect(self.disembarking_passengers_dict_input_handler)
 
         self.train_model_button = QPushButton('Send Train Model Inputs')
 
@@ -70,36 +79,68 @@ class TrackModelTestUI(QMainWindow):
         self.wayside_button.clicked.connect(self.wayside_button_clicked)
         self.train_model_button.clicked.connect(self.train_model_button_clicked)
 
-        self.show()
+        # layout
+        layout = QVBoxLayout()
+        layout.addWidget(self.authority_safe_speed_update_label)
+        layout.addWidget(self.authority_safe_speed_update_input)
+        layout.addWidget(self.switch_changed_indexes_label)
+        layout.addWidget(self.switch_changed_indexes_input)
+        layout.addWidget(self.signal_changed_indexes_label)
+        layout.addWidget(self.signal_changed_indexes_input)
+        layout.addWidget(self.rr_crossing_indexes_label)
+        layout.addWidget(self.rr_crossing_indexes_input)
+        layout.addWidget(self.toggle_block_indexes_label)
+        layout.addWidget(self.toggle_block_indexes_input)
+        layout.addWidget(self.wayside_button)
 
-    def start_test_ui(self):
-        self.open_test_ui_signal.emit()
-        print("Test ui button clicked")
+        layout.addWidget(self.delta_x_dict_label)
+        layout.addWidget(self.delta_x_dict_input)
+        layout.addWidget(self.disembarking_passengers_dict_label)
+        layout.addWidget(self.disembarking_passengers_dict_input)
+        layout.addWidget(self.train_model_button)
 
-    def start_track_model_ui(self):
-        self.open_track_model_ui_signal.emit()
-        print("Track Model ui button clicked")
+        # Create a central widget and set the layout
+        central_widget = QWidget()
+        central_widget.setLayout(layout)
+        self.setCentralWidget(central_widget)
 
     def authority_safe_speed_update_input_handler(self):
-        pass
+        self.authority_safe_speed_update = str_to_list(self.authority_safe_speed_update_input.text())
 
     def switch_changed_indexes_input_handler(self):
-        pass
+        self.switch_changed_indexes = str_to_list(self.switch_changed_indexes_input.text())
 
     def signal_changed_indexes_input_handler(self):
-        pass
+        self.signal_changed_indexes = str_to_list(self.signal_changed_indexes_input.text())
 
     def rr_crossing_indexes_input_handler(self):
-        pass
+        self.rr_crossing_indexes = str_to_list(self.rr_crossing_indexes_input.text())
 
     def toggle_block_indexes_input_handler(self):
-        pass
+        self.toggle_block_indexes = str_to_list(self.toggle_block_indexes_input.text())
 
     def wayside_button_clicked(self):
-        pass
+        print(f'Sending wayside inputs:\n'
+              f'authority_safe_speed_update = {self.authority_safe_speed_update}, '
+              f'switch_changed_indexes = {self.switch_changed_indexes}, '
+              f'signal_changed_indexes = {self.signal_changed_indexes}, '
+              f'rr_crossing_indexes = {self.rr_crossing_indexes}, '
+              f'toggle_block_indexes = {self.toggle_block_indexes}')
+
+        self.update_track_model_from_wayside.emit(
+            self.authority_safe_speed_update, self.switch_changed_indexes, self.signal_changed_indexes,
+            self.rr_crossing_indexes, self.toggle_block_indexes)
+
+    def delta_x_dict_input_handler(self):
+        self.delta_x_dict = str_to_dict(self.delta_x_dict_input.text())
+
+    def disembarking_passengers_dict_input_handler(self):
+        self.disembarking_passengers_dict = str_to_dict(self.disembarking_passengers_dict_input.text())
 
     def train_model_button_clicked(self):
-        pass
+        print(f'Sending train model inputs\n'
+              f'delta_x_dict = {self.delta_x_dict}, disembarking_passengers_dict = {self.disembarking_passengers_dict}')
+        self.update_track_model_from_train_model.emit(self.delta_x_dict, self.disembarking_passengers_dict)
 
 
 def str_to_dict(input_str):
@@ -114,7 +155,7 @@ def str_to_dict(input_str):
         print("Error:", e)
 
 
-def str_to_list_of_tuples(input_str):
+def str_to_list(input_str):
     # Get input string
     # Enter a list of tuples as a string (e.g., [('key', 'value'), ('key2', 'value2')]):
     # or just a list
@@ -128,17 +169,17 @@ def str_to_list_of_tuples(input_str):
         print("Error:", e)
 
 
-def show_launcher_ui():
-    app = QApplication(sys.argv)
-    ui = TrackModelTestLauncherUI()
-    ui.show()
-    app.exec()
-
-
-def start_launcher_ui():
-    launcher_thread = threading.Thread(target=show_launcher_ui)
-    launcher_thread.start()
-
-
-if __name__ == '__main__':
-    start_launcher_ui()
+# def show_launcher_ui():
+#     app = QApplication(sys.argv)
+#     ui = TrackModelTestUI()
+#     ui.show()
+#     app.exec()
+#
+#
+# def start_launcher_ui():
+#     launcher_thread = threading.Thread(target=show_launcher_ui)
+#     launcher_thread.start()
+#
+#
+# if __name__ == '__main__':
+#     start_launcher_ui()

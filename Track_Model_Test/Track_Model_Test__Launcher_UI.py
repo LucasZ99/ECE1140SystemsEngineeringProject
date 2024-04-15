@@ -3,7 +3,7 @@ import threading
 # from Track_Controller_SW import TrackController
 
 from PyQt6.QtCore import pyqtSignal
-from PyQt6.QtWidgets import QMainWindow, QApplication, QPushButton
+from PyQt6.QtWidgets import QMainWindow, QApplication, QPushButton, QLayout, QVBoxLayout, QHBoxLayout, QWidget
 from PyQt6.uic import loadUi
 
 
@@ -22,7 +22,19 @@ class TrackModelTestLauncherUI(QMainWindow):
         self.track_model_button.clicked.connect(self.start_track_model_ui)
         self.test_button.clicked.connect(self.start_test_ui)
 
-        self.show()
+        # layout
+        layout = QHBoxLayout()
+        layout.addWidget(self.track_model_button)
+        layout.addWidget(self.test_button)
+
+        # Create a central widget and set the layout
+        central_widget = QWidget()
+        central_widget.setLayout(layout)
+        self.setCentralWidget(central_widget)
+
+        print('TrackModelTestLauncherUI init finished')
+
+        # self.show()
 
     def start_test_ui(self):
         self.open_test_ui_signal.emit()

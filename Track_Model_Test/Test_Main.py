@@ -2,8 +2,10 @@ import sys
 import threading
 from PyQt6.QtWidgets import QApplication
 
-# from launchercontainer import LauncherContainer
 from Track_Model_Test_Launcher_Container import TrackModelTestContainer, TrackModelTestLauncherContainer
+
+# Notes:
+# You have to send authority to block b4 train bc train_dict in track model needs to be initialized
 
 
 def run_launcher():
