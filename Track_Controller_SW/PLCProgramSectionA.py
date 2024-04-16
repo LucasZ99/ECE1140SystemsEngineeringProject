@@ -68,6 +68,7 @@ def main():
 
     with open('plc_result.pkl', 'wb') as f:
         pickle.dump(result, f)
+        f.close()
 
 
 if __name__ == '__main__':

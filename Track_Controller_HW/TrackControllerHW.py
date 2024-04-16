@@ -30,7 +30,7 @@ class TrackControllerHardware(QObject):
         self.slots_sigs.rr_crossing_signal.connect(self.rr_crossing_updated)
 
     def update_occupancy(self, block_occupancy_dict: dict[int, bool]):
-        print("track controller B update occupancy called")
+        print("WS HW: track controller B update occupancy called")
         self.blocks = block_occupancy_dict
         self.stops = self.slots_sigs.new_occupancy(block_occupancy_dict)
         #print("blck occup list blck B: ", self.blocks)
@@ -43,7 +43,7 @@ class TrackControllerHardware(QObject):
 
     @pyqtSlot(bool)
     def rr_crossing_updated(self, rr_crossing_new_val: bool):
-        print("rr cross updated")
+        print("WS HW: rr cross updated")
         self.rr_crossing = rr_crossing_new_val
         self.rr_crossing_signal.emit(rr_crossing_new_val)
 

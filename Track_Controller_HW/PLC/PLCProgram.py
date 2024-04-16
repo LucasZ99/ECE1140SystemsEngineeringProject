@@ -32,7 +32,7 @@ class PLC:  # watchdog behavior for the PLC data
             self.rrCrossing = False
 
         # stops logic (padding any occupancies with 4 zero speed flags)
-        for i in range(29, 76):  # blocks 29 - 75
+        for i in range(29, 76):  # blocks 29 - 57
             #print(self.blocks[i])
             if 58 <= i < 62:
                 skipped = True
@@ -46,6 +46,18 @@ class PLC:  # watchdog behavior for the PLC data
                     self.stops[i - 3] = True
                 if i > 32:
                     self.stops[i - 4] = True
+
+        # for i in range(62, 76):
+        #     if self.blocks.get(i, False):
+        #         self.stops[i] = True
+        #         if i > 62:
+        #             self.stops[i - 1] = True
+        #         if i > 63:
+        #             self.stops[i - 2] = True
+        #         if i > 64:
+        #             self.stops[i - 3] = True
+        #         if i > 65:
+        #             self.stops[i - 4] = True
 
         for i in range(101, 150):  # blocks 101 - 150
             if self.blocks.get(i, False):

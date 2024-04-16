@@ -437,6 +437,9 @@
       <height>22</height>
      </rect>
     </property>
+    <property name="keyboardTracking">
+     <bool>false</bool>
+    </property>
    </widget>
    <widget class="QLineEdit" name="stationName">
     <property name="enabled">
@@ -488,6 +491,9 @@
       <width>51</width>
       <height>22</height>
      </rect>
+    </property>
+    <property name="keyboardTracking">
+     <bool>false</bool>
     </property>
    </widget>
    <widget class="QLineEdit" name="power">
@@ -602,6 +608,9 @@
       <height>22</height>
      </rect>
     </property>
+    <property name="keyboardTracking">
+     <bool>false</bool>
+    </property>
    </widget>
    <widget class="QSpinBox" name="ki">
     <property name="geometry">
@@ -611,6 +620,9 @@
       <width>42</width>
       <height>22</height>
      </rect>
+    </property>
+    <property name="keyboardTracking">
+     <bool>false</bool>
     </property>
    </widget>
    <widget class="QLabel" name="currentlyin">
@@ -1037,8 +1049,14 @@
       <height>22</height>
      </rect>
     </property>
+    <property name="keyboardTracking">
+     <bool>false</bool>
+    </property>
    </widget>
    <widget class="QLabel" name="accelLimInputL">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>870</x>
@@ -1117,6 +1135,9 @@
       <height>22</height>
      </rect>
     </property>
+    <property name="keyboardTracking">
+     <bool>false</bool>
+    </property>
    </widget>
    <widget class="QSpinBox" name="speedLimTB">
     <property name="geometry">
@@ -1127,8 +1148,14 @@
       <height>22</height>
      </rect>
     </property>
+    <property name="keyboardTracking">
+     <bool>false</bool>
+    </property>
    </widget>
    <widget class="QSpinBox" name="accelLimTB">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>1110</x>
@@ -1136,6 +1163,9 @@
       <width>42</width>
       <height>22</height>
      </rect>
+    </property>
+    <property name="keyboardTracking">
+     <bool>false</bool>
     </property>
    </widget>
    <widget class="QLabel" name="vitalAuthInputL">
@@ -1216,6 +1246,9 @@
       <width>42</width>
       <height>22</height>
      </rect>
+    </property>
+    <property name="keyboardTracking">
+     <bool>false</bool>
     </property>
    </widget>
    <widget class="QLabel" name="inputsL">
@@ -1302,6 +1335,9 @@
     </property>
    </widget>
    <widget class="QLabel" name="decelLimInputL">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>870</x>
@@ -1320,6 +1356,9 @@
     </property>
    </widget>
    <widget class="QSpinBox" name="decelLimTB">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>1110</x>
@@ -1327,6 +1366,9 @@
       <width>42</width>
       <height>22</height>
      </rect>
+    </property>
+    <property name="keyboardTracking">
+     <bool>false</bool>
     </property>
    </widget>
    <widget class="QLabel" name="testLabel">
@@ -1386,7 +1428,7 @@
      <bool>true</bool>
     </property>
     <property name="currentText">
-     <string>2</string>
+     <string/>
     </property>
     <property name="currentIndex">
      <number>-1</number>
