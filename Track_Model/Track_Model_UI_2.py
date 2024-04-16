@@ -156,6 +156,9 @@ class Window(QMainWindow):
         self.power_fail_label = QLabel('power failure = ' + str(info[8]))
         self.track_circ_fail_label = QLabel('track circuit failure = ' + str(info[9]))
         self.broken_rail_label = QLabel('broken rail failure = ' + str(info[10]))
+        self.switch_label = QLabel('switch = ' + str(info[11]))
+        self.signal_label = QLabel('signal = ' + str(info[12]))
+        self.rxr_label = QLabel('rxr = ' + str(info[13]))
         bv_layout.addWidget(self.length_label, 1, 0)
         bv_layout.addWidget(self.grade_label, 2, 0)
         bv_layout.addWidget(self.speed_lim_label, 3, 0)
@@ -164,11 +167,14 @@ class Window(QMainWindow):
         bv_layout.addWidget(self.beacon_label, 6, 0)
         bv_layout.addWidget(self.track_heated_label, 7, 0)
         bv_layout.addWidget(self.underground_label, 8, 0)
-        # TODO: ADD infrastructure
         # failures
-        bv_layout.addWidget(self.power_fail_label, 0, 1)
-        bv_layout.addWidget(self.track_circ_fail_label, 1, 1)
-        bv_layout.addWidget(self.broken_rail_label, 2, 1)
+        bv_layout.addWidget(self.power_fail_label, 1, 1)
+        bv_layout.addWidget(self.track_circ_fail_label, 2, 1)
+        bv_layout.addWidget(self.broken_rail_label, 3, 1)
+        # infrastructure
+        bv_layout.addWidget(self.switch_label, 4, 1)
+        bv_layout.addWidget(self.signal_label, 5, 1)
+        bv_layout.addWidget(self.rxr_label, 6, 1)
         # train dictionary display
         self.train_dict_label = QLabel('Trains: ' + str(self.track_model.get_train_dict()))
         bv_layout.addWidget(self.train_dict_label)
@@ -293,9 +299,14 @@ class Window(QMainWindow):
         self.beacon_label.setText('beacon = ' + str(info[5]))
         self.track_heated_label.setText('track heated = ' + str(info[6]))
         self.underground_label.setText('underground = ' + str(info[7]))
+
         self.power_fail_label.setText('power failure = ' + str(info[8]))
         self.track_circ_fail_label.setText('track circuit failure = ' + str(info[9]))
         self.broken_rail_label.setText('broken rail failure = ' + str(info[10]))
+
+        self.switch_label.setText('switch = ' + str(info[11]))
+        self.signal_label.setText('signal = ' + str(info[12]))
+        self.rxr_label.setText('rxr = ' + str(info[13]))
 
         self.train_dict_label.setText('Trains: ' + str(self.track_model.get_train_dict()))
 

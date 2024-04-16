@@ -27,6 +27,7 @@ class TrackModel(QObject):
         # self.check_data()
         start = time.time()
         self.data = self.set_data(file_name)
+        # self.output_data_as_excel()
         end = time.time()
         print(f'set_data time = {end - start}')
         # self.output_data_as_excel()
@@ -126,6 +127,7 @@ class TrackModel(QObject):
         new_data = np.hstack((new_data, np.copy(nan_array)))
         new_data = np.hstack((new_data, np.copy(false_col)))
         new_data = np.hstack((new_data, np.copy(nan_array)))
+        new_data = np.hstack((new_data, np.copy(nan_array)))
         end = time.time()
         print(f'hstack time = {end-start}')
         # initialize signals from switch info
@@ -153,8 +155,10 @@ class TrackModel(QObject):
                     new_data[i + 1, 12] = False
             if 'underground' in str(new_data[i, 9]).lower():
                 new_data[i, 20] = True
-            if 'switch' in str(new_data[i, 9]).lower() or 'railway crossing' in str(new_data[i, 9]).lower():
+            if 'switch' in str(new_data[i, 9]).lower():
                 new_data[i, 19] = False
+            if 'railway crossing' in str(new_data[i, 9]).lower():
+                new_data[i, 22] = False
         end = time.time()
         print(f'loops time = {end-start}')
 
@@ -167,9 +171,10 @@ class TrackModel(QObject):
         new_data[0, 16] = 'Ticket Sales'
         new_data[0, 17] = 'Embarking'
         new_data[0, 18] = 'Disembarking'
-        new_data[0, 19] = 'Infrastructure Values'
+        new_data[0, 19] = 'Switch Values'
         new_data[0, 20] = 'Underground Status'
         new_data[0, 21] = 'Signal Values'
+        new_data[0, 22] = 'RxR Values'
         return new_data
 
     def output_data_as_excel(self):
@@ -196,26 +201,26 @@ class TrackModel(QObject):
 
     # is working for initialization but not for setting data
 
-    def get_block_table(self, section_id):
-        n = len(self.get_section(section_id))
-        block_table = np.empty(shape=(n + 1, 7), dtype=object)
-        # everything comes from data except occupancy (from train model) and temp (from temp controls)
-        # but even those values will be stored in our data
-        block_table[0, :] = ['Block', 'Length', 'Grade', 'Speed Limit', 'Elevation', 'Occupancy', 'Temperature']
-        block_table[1:n + 1, 0:7] = self.get_section(section_id)[:, 2:9]
-        return block_table
+    # def get_block_table(self, section_id):
+    #     n = len(self.get_section(section_id))
+    #     block_table = np.empty(shape=(n + 1, 7), dtype=object)
+    #     # everything comes from data except occupancy (from train model) and temp (from temp controls)
+    #     # but even those values will be stored in our data
+    #     block_table[0, :] = ['Block', 'Length', 'Grade', 'Speed Limit', 'Elevation', 'Occupancy', 'Temperature']
+    #     block_table[1:n + 1, 0:7] = self.get_section(section_id)[:, 2:9]
+    #     return block_table
 
-    def get_station_table(self, section_id):
-        relevant_section_data = self.get_section(section_id)[:, [9, 2, 10, 12, 16, 17]]
-        arr = relevant_section_data.copy()
-        filtered_arr = arr[np.array(['station' in str(x).lower() for x in arr[:, 0]])]
-        return filtered_arr
+    # def get_station_table(self, section_id):
+    #     relevant_section_data = self.get_section(section_id)[:, [9, 2, 10, 12, 16, 17]]
+    #     arr = relevant_section_data.copy()
+    #     filtered_arr = arr[np.array(['station' in str(x).lower() for x in arr[:, 0]])]
+    #     return filtered_arr
 
-    def get_infrastructure_table(self, section_id):
-        arr = self.get_section(section_id)[:, [9, 2, 11]]
-        filtered_arr = arr[~np.isnan(np.array([len(str(x)) if isinstance(x, str) else x for x in arr[:, 0]])) & (
-                np.char.find(arr[:, 0].astype(str), "Station") == -1)]
-        return filtered_arr
+    # def get_infrastructure_table(self, section_id):
+    #     arr = self.get_section(section_id)[:, [9, 2, 11]]
+    #     filtered_arr = arr[~np.isnan(np.array([len(str(x)) if isinstance(x, str) else x for x in arr[:, 0]])) & (
+    #             np.char.find(arr[:, 0].astype(str), "Station") == -1)]
+    #     return filtered_arr
 
     def set_env_temperature(self, temperature):
         self.environmental_temperature = temperature
@@ -429,10 +434,10 @@ class TrackModel(QObject):
         # self.data[block_id, (7, 11, 12, 20)]
         # # failures 13 14 15
         # self.data[block_id, (13, 14, 15)]
-        # TODO: switch, station, rxr crossing
+        # TODO: add station info
         # self.data[block_id, ]
         # print(self.data[block_id, (3, 4, 5, 6, 7, 11, 12, 20, 13, 14, 15)])
-        return self.data[block_id, (3, 4, 5, 6, 7, 11, 12, 20, 13, 14, 15)]
+        return self.data[block_id, (3, 4, 5, 6, 7, 11, 12, 20, 13, 14, 15, 19, 21, 22)]
 
     def get_block_info_for_train(self, train_id):
         block = self.train_dict[train_id]
