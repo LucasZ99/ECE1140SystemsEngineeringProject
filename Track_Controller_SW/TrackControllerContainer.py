@@ -122,7 +122,8 @@ class TrackControllerContainer(QObject):
         print(f"update_wayside_from_track_model received:\n"
               f"block 62 status: {block_occupancy_update[62]}")
 
-        self.update_occupancy(block_occupancy_update)
+        if all(self.occupancy_dict.get(key) != block_occupancy_update.get(key) for key in self.occupancy_dict):
+            self.update_occupancy(block_occupancy_update)
 
         print(f"update_ctc_from_wayside:\n"
               f"block occupancy: {block_occupancy_update}\n"
