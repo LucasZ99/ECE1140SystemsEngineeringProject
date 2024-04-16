@@ -47,7 +47,7 @@ class TrackModelTestUI(QMainWindow):
         self.authority_safe_speed_update_input.editingFinished.connect(self.authority_safe_speed_update_input_handler)
         self.switch_changed_indexes_label = QLabel('switch_changed_indexes:')
         self.switch_changed_indexes_input = QLineEdit()
-        self.switch_changed_indexes_input.setText('[]')
+        self.switch_changed_indexes_input.setText('[(13, False), (28, False), (57, False), (63, False), (77, False), (85, False) ]')
         self.switch_changed_indexes_input.editingFinished.connect(self.switch_changed_indexes_input_handler)
         self.signal_changed_indexes_label = QLabel('signal_changed_indexes:')
         self.signal_changed_indexes_input = QLineEdit()

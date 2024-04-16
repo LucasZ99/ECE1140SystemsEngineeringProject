@@ -146,10 +146,10 @@ class TrackModelContainer(QObject):
         self.track_model_ui.refresh()
 
     # TODO: Add functionality for ...
-    #       switch_changed_indexes: list[switch_index: int]
-    # 		signal_changed_indexes: list[signal_index: int]
-    # 		rr_crossing_indexes: list[crossing_index: int]
-    # 		toggle_block_indexes: list[block_index: int]
+    #       switches: list[switch_index: int, value: bool]
+    # 		signals: list[signal_index: int, value: bool]
+    # 		rr_crossings: list[crossing_index: int, value: bool]
+    # 		toggle_blocks: list[block_index: int, value: bool]
     def update_track_model_from_wayside(self, authority_safe_speed_update, switch_changed_indexes,
                                         signal_changed_indexes, rr_crossing_indexes, toggle_block_indexes):
         print('Track Model: update_track_model_from_wayside called')
