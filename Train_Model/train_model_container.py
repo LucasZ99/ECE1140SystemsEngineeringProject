@@ -11,9 +11,9 @@ from SystemTime import SystemTimeContainer
 class TrainModelContainer(QObject):
     update_track_model_from_train_model = pyqtSignal(object, object)
 
-    def __init__(self, controller: TrainController_Tot_Container, time: SystemTimeContainer):
+    def __init__(self, controller: TrainController_Tot_Container):
         super().__init__()
-        self.business_logic = TrainBusinessLogic(time)
+        self.business_logic = TrainBusinessLogic()
         self.train_dict = self.business_logic.train_dict
         self.controller = controller
 
@@ -21,7 +21,7 @@ class TrainModelContainer(QObject):
     def update_train_model_from_track_model(self, auth_speed_dict: dict, block_dict: dict, new_train: bool,
                                             remove_train: int, passenger_dict: dict):
         
-        print("Train Model: reached update_train_model_from_track_model")
+        print("Train Model: reached update_train_model_from_track_model\n")
         self.business_logic.passenger_return.clear()
         self.business_logic.delta_x_return.clear()
         if remove_train in self.train_dict.keys():
@@ -44,7 +44,7 @@ class TrainModelContainer(QObject):
 
         self.business_logic.train_update_controller()
 
-        print("Train Model: train_update_controller successful")
+        print("Train Model Container: train_update_controller successful")
 
         self.physics_calculation()
 
@@ -52,9 +52,9 @@ class TrainModelContainer(QObject):
                                                       self.business_logic.passenger_return)
 
     def track_model_inputs(self, input_list, index):
-        print("train's track model inputs hit")
+        print("Train Model Container: train's track model inputs hit \n")
 
-        print(f"track_model_inputs: {index}, {input_list}")
+        print(f"Train Model Container: track_model_inputs: {index}, {input_list}")
 
         # the list provided should have entries in this order: [commanded speed, vital authority]
         self.train_dict = self.business_logic.train_dict
@@ -68,7 +68,7 @@ class TrainModelContainer(QObject):
 
 
     def train_controller_inputs(self, input_list, index):
-        print("Train model: train_controller_inputs called")
+        print("Train model Container: train_controller_inputs called")
         # the list provided should have the entries in this order: [commanded speed, power, service brake,
         # emergency brake, left/right doors, announce station, cabin lights, headlights]
         self.train_dict = self.business_logic.train_dict
@@ -88,7 +88,7 @@ class TrainModelContainer(QObject):
             return
         self.business_logic.track_update_block(block_vals, index)
         self.train_dict = self.business_logic.train_dict
-        print('track_update_block passed')
+        print('Train Model Container:track_update_block passed')
 
     def track_update_passengers(self, num, index):
         self.train_dict = self.business_logic.train_dict
@@ -99,7 +99,7 @@ class TrainModelContainer(QObject):
         try:
             self.business_logic.track_update_passengers(num, index)
         except Exception as error:
-            print(error)
+            print("Train Model Container: ", error)
         self.train_dict = self.business_logic.train_dict
 
     def controller_update_temp(self, num, index):
@@ -114,14 +114,14 @@ class TrainModelContainer(QObject):
         self.business_logic.physics_calculation()
 
     def add_train(self):
-        print("train endpoint hit")
+        print("Train Model Container: add train endpoint hit\n")
         self.business_logic.add_train(self.controller)
-        print("train added in train container")
+        print("Train Model Container: train added in train container")
 
     def remove_train(self, index):
-        print("train remove hit")
+        print("Train Model Container: train remove hit\n")
         self.business_logic.remove_train(index)
-        print("train removed from container")
+        print("Train Model Container: train removed from container")
 
     def show_ui(self):
         app = QApplication.instance()

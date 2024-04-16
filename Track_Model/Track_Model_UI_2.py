@@ -27,7 +27,7 @@ class Window(QMainWindow):
         self.file_name = 'Green Line.xlsx'
         self.track_model = track_model
         self.full_path = track_model.get_full_path()
-        self.test_bench_window = TestBenchWindow()
+        # self.test_bench_window = TestBenchWindow()
         self.counter = 0
         # Window Layout
         self.setWindowIcon(QIcon("icon.jpg"))
@@ -128,15 +128,15 @@ class Window(QMainWindow):
         ul_layout.addWidget(self.current_file_label)
 
         # Test Bench Button
-        self.test_bench_button = QPushButton("Test Bench")
-        self.test_bench_button.clicked.connect(self.test_bench_button_clicked)
-        ul_layout.addWidget(self.test_bench_button)
+        # self.test_bench_button = QPushButton("Test Bench")
+        # self.test_bench_button.clicked.connect(self.test_bench_button_clicked)
+        # ul_layout.addWidget(self.test_bench_button)
 
         self.upload_layout_group.setLayout(ul_layout)
 
         # block view
         self.block_view_layout_group = QGroupBox("Block Info")
-        bv_layout = QVBoxLayout()
+        bv_layout = QGridLayout()
         # block selection combo
         self.block_info_combo = QComboBox()
         self.block_info_combo.addItems(self.str_list_blocks)
@@ -156,18 +156,25 @@ class Window(QMainWindow):
         self.power_fail_label = QLabel('power failure = ' + str(info[8]))
         self.track_circ_fail_label = QLabel('track circuit failure = ' + str(info[9]))
         self.broken_rail_label = QLabel('broken rail failure = ' + str(info[10]))
-        bv_layout.addWidget(self.length_label)
-        bv_layout.addWidget(self.grade_label)
-        bv_layout.addWidget(self.speed_lim_label)
-        bv_layout.addWidget(self.elevation_label)
-        bv_layout.addWidget(self.occupied_label)
-        bv_layout.addWidget(self.beacon_label)
-        bv_layout.addWidget(self.track_heated_label)
-        bv_layout.addWidget(self.underground_label)
+        self.switch_label = QLabel('switch = ' + str(info[11]))
+        self.signal_label = QLabel('signal = ' + str(info[12]))
+        self.rxr_label = QLabel('rxr = ' + str(info[13]))
+        bv_layout.addWidget(self.length_label, 1, 0)
+        bv_layout.addWidget(self.grade_label, 2, 0)
+        bv_layout.addWidget(self.speed_lim_label, 3, 0)
+        bv_layout.addWidget(self.elevation_label, 4, 0)
+        bv_layout.addWidget(self.occupied_label, 5, 0)
+        bv_layout.addWidget(self.beacon_label, 6, 0)
+        bv_layout.addWidget(self.track_heated_label, 7, 0)
+        bv_layout.addWidget(self.underground_label, 8, 0)
         # failures
-        bv_layout.addWidget(self.power_fail_label)
-        bv_layout.addWidget(self.track_circ_fail_label)
-        bv_layout.addWidget(self.broken_rail_label)
+        bv_layout.addWidget(self.power_fail_label, 1, 1)
+        bv_layout.addWidget(self.track_circ_fail_label, 2, 1)
+        bv_layout.addWidget(self.broken_rail_label, 3, 1)
+        # infrastructure
+        bv_layout.addWidget(self.switch_label, 4, 1)
+        bv_layout.addWidget(self.signal_label, 5, 1)
+        bv_layout.addWidget(self.rxr_label, 6, 1)
         # train dictionary display
         self.train_dict_label = QLabel('Trains: ' + str(self.track_model.get_train_dict()))
         bv_layout.addWidget(self.train_dict_label)
@@ -292,9 +299,14 @@ class Window(QMainWindow):
         self.beacon_label.setText('beacon = ' + str(info[5]))
         self.track_heated_label.setText('track heated = ' + str(info[6]))
         self.underground_label.setText('underground = ' + str(info[7]))
+
         self.power_fail_label.setText('power failure = ' + str(info[8]))
         self.track_circ_fail_label.setText('track circuit failure = ' + str(info[9]))
         self.broken_rail_label.setText('broken rail failure = ' + str(info[10]))
+
+        self.switch_label.setText('switch = ' + str(info[11]))
+        self.signal_label.setText('signal = ' + str(info[12]))
+        self.rxr_label.setText('rxr = ' + str(info[13]))
 
         self.train_dict_label.setText('Trains: ' + str(self.track_model.get_train_dict()))
 

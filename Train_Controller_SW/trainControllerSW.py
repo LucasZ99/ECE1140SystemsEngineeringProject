@@ -2,9 +2,12 @@
 import time
 import linecache
 from SystemTime import SystemTime
+from PyQt6.QtCore import pyqtSignal
 
 
 class TrainController:
+    # send: setpt speed, speedlim, actspeed, power, kp, ki to ui
+    ui_update = pyqtSignal(float, float, float, float, float, float)
 
     maxSpeed = 19.44  # 70 kmh in m/s
     maxPower = 120000  # in watts
@@ -90,7 +93,7 @@ class TrainController:
         # vital flags
         self.stopSoon = bool(0)
         self.trainMoving = bool(0)
-        self.trainSafeToMove = bool(0)
+        self.trainSafeToMove = bool(1)
         self.trainStopped = bool(1)
 
         self.makeAnnouncement = bool(0)  # if announcement is to be made: 0 no, 1 yes
@@ -102,7 +105,7 @@ class TrainController:
         self.section = self.blockline[1]
         self.block = self.blockline[2]
         self.length = float(self.blockline[3])
-        self.speedlim = float(self.blockline[4])
+        self.speedlim = float(self.blockline[4]) / self.KMH2ms
         self.notes = self.blockline[5]
 
         self.blockline = linecache.getline('Resources/IT3_GreenLine.txt', self.i+1).split("\t")
@@ -110,7 +113,7 @@ class TrainController:
         self.nextsection = self.blockline[1]
         self.nextblock = self.blockline[2]
         self.nextlength = float(self.blockline[3])
-        self.nextspeedlim = float(self.blockline[4])
+        self.nextspeedlim = float(self.blockline[4]) / self.KMH2ms
         self.nextnotes = self.blockline[5]
 
     def settestbenchstate(self, newtestbenchstate):
@@ -157,6 +160,13 @@ class TrainController:
         if self.eBrake == 1:  # ebrake is on, need to cut power
             self.power = 0
         return
+
+    def ui_ebrakecontrol(self):
+        if self.eBrake == 1:
+            self.eBrake = 0
+        elif self.eBrake == 0:
+            self.eBrake = 1  # ebrake turns on
+            self.power = 0  # power cut
 
     def passebrakecontrol(self):
         if self.passEBrake == 0:  # ebrake is off
@@ -220,11 +230,11 @@ class TrainController:
 
     def polaritycontrol(self, newpolarity):  # TODO change to check for diff between old polarity and new polarity
         if self.polarity != newpolarity:
-            print("polarity changed, train has entered new block")
+            print("train controller sw.py: polarity changed, train has entered new block")
             self.polarity = newpolarity
             self.blocksTraveled += 1
 
-            print("updating distance travelled")
+            print("train controller sw.py: updating distance travelled")
             self.distanceTraveled += self.length
 
             self.i += 1
@@ -279,7 +289,8 @@ class TrainController:
             self.power = 0
 
     def powercontrol(self):
-        if not self.stopSoon and not self.eBrake:  # do power checks and calcs, train doesn't need to stop, brake not on
+        # do power checks and calcs, train doesn't need to stop, brake not on, train can move
+        if not self.stopSoon and not self.eBrake and not self.trainSafeToMove:
 
             if self.nextspeedlim < self.speedlim:
                 self.power = 0  # kill power
@@ -303,45 +314,52 @@ class TrainController:
                 # check to make sure max power is not exceeded
                 if self.power > self.maxPower:
                     self.power = self.maxPower
+        else:
+            self.power
 
-        print(f'power is : {self.power}')
+        print(f'train controller sw.py: power is : {self.power}')
 
         # closing value updates
         self.last_update_time = self.update_time  # update time becomes last_update_time for next call
         self.ek1 = self.ek  # current ek become ek-1 for next call
         self.uk1 = self.uk  # current ek become uk-1`for next call
 
+        self.ui_update.emit(self.setPtSpeed, self.speedlim, self.actualSpeed, self.power, self.kp, self.ki)
+        print("train controller sw.py: signal emitted")
+
     def authority(self):
-        print("in authority fxn")
+        print("train controller sw.py: in authority func")
         if self.vitalAuth < 3:
-            print(f'train authority less then 4, currently at" {self.vitalAuth}')
+            print(f'train controller sw.py: train authority less then 4, currently at" {self.vitalAuth}')
             self.stopSoon = True
             self.power = 0
             self.servBrake = True
         elif self.vitalAuth == 4:
             self.stopSoon = False
             self.servBrake = False
-            print("train authority has been given authority 4, able to move forward")
+            print("train controller sw.py: train authority has been given authority 4, able to move forward")
+
+        print("train controller sw.py: authority updated")
 
     def vitalitycheck(self):
         # perform vitality checks to determine if train has right parameters to move
         if self.vitalAuth == 0:
             self.trainSafeToMove = 0
-            print("train unsafe to move: no authority")
+            print("train controller sw.py: train unsafe to move: no authority")
         elif self.vitalAuth != 0 and self.cmdSpeed == 0:
             self.trainSafeToMove = 0
-            print("train unsafe to move: no commanded speed")
+            print("train controller sw.py: train unsafe to move: no commanded speed")
         elif self.vitalAuth != 0 and self.cmdSpeed != 0:
             self.trainSafeToMove = 1
-            print("train safe to move: authority and cmd speed received")
+            print("ttrain controller sw.py: rain safe to move: authority and cmd speed received")
 
     def speedcheck(self):
         # check if cmd speed and actual speed are within legal speed limits:
         if self.cmdSpeed > self.speedlim:
-            print("command speed too high, limiting to speed limit")
+            print("train controller sw.py: command speed too high, limiting to speed limit")
             self.cmdSpeed = self.speedlim
         elif self.cmdSpeed <= self.speedlim:
-            print("command speed within speed limits")
+            print("train controller sw.py: command speed within speed limits")
 
     def automode(self):  # deprecated in IT3, used in IT2 for testing. honk mimimi
         for i in range(0, 7):
@@ -350,17 +368,17 @@ class TrainController:
 
             if self.power < 0:
                 self.servBrake = 1
-                print("service brake enabled")
+                print("train controller sw.py: service brake enabled")
             elif self.power > 0:
                 self.servBrake = 0
-                print("service brake disabled")
+                print("train controller sw.py: service brake disabled")
 
             self.currSpeed = self.t_arr[i, 0]  # speed received from train model
             if self.ms2mph(self.currSpeed) > self.speedLim:
                 self.currSpeed = self.speedLim/self.mph2ms
 
-            print(f'power = {self.power} HP')
-            print(f'current speed = {self.ms2mph(self.currSpeed)} mph')
+            print(f'train controller sw.py: power = {self.power} HP')
+            print(f'train controller sw.py: current speed = {self.ms2mph(self.currSpeed)} mph')
             time.sleep(2)
 
     def modeswitch(self):
@@ -374,7 +392,7 @@ class TrainController:
         return ms * self.mph2ms
 
     def updater(self, inputs, num):
-        print("train controller values being updated in back")
+        print("train controller sw.py: train controller values being updated in back")
         self.servBrake = 0  # turn off service brake, will be turned on if needed again
         #print("serve brake turned off")
         # called from train controller container when train sends new values
@@ -385,7 +403,7 @@ class TrainController:
         self.update_time = self.system_time.time()
 
         if num == 1:
-            print("update type 1 values (authority safe speed): authority and cmd speed")
+            print("train controller sw.py: update type 1 values (authority safe speed): authority and cmd speed")
             self.vitalAuth = inputs[0]  # authority is distance to destination
             print(self.vitalAuth)
             print(inputs[0])
@@ -397,7 +415,7 @@ class TrainController:
             self.vitalitycheck()
             self.authority()
         elif num == 2:
-            print("update type 2 values (track info): polarity, underground, beacon")
+            print("train controller sw.py: update type 2 values (track info): polarity, underground, beacon")
             # check if in new block and update block values
             self.polaritycontrol(inputs[0])
             self.isUnderground = inputs[1]
@@ -412,7 +430,7 @@ class TrainController:
             self.beacon = inputs[2]
             self.parsebeacon(self.beacon)
         elif num == 3:
-            print("update type 3 values (train info): actual speed, passenger e-brake")
+            print("train controller sw.py: update type 3 values (train info): actual speed, passenger e-brake")
             self.actualSpeed = inputs[0]
             self.passEBrake = inputs[1]
             self.ebrakecontrol(self.passEBrake)
@@ -420,12 +438,12 @@ class TrainController:
             # power stuff
             self.powercontrol()
 
-        print(f'power is {self.power}')
+        print(f'train controller sw.py: power is {self.power}')
 
         return
 
     def old_updater(self, inputs):
-        print("train controller values being updated in old")
+        print("train controller sw.py: train controller values being updated in old")
         self.servBrake = 0  # turn off service brake, will be turned on if needed again
         # print("serve brake turned off")
         # called from train controller container when train sends new values
@@ -474,7 +492,7 @@ class TrainController:
         return outputs
 
     def update_train_model_from_train_controller(self):
-        print("updating train model values")
+        print("train controller sw.py: updating train model values")
 
         # update all values in output array and call train model container update function
         # reference adjacent container (train model cntr)

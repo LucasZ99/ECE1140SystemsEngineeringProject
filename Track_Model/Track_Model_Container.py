@@ -38,17 +38,17 @@ class TrackModelContainer(QObject):
 
     # show ui
     def show_ui(self):
-        app = QApplication.instance()  # Get the QApplication instance
-
-        # app_flag = False
-        if app is None:
-            app = QApplication([])  # If QApplication instance doesn't exist, create a new one
-            # app_flag = True
+        # app = QApplication.instance()  # Get the QApplication instance
+        #
+        # # app_flag = False
+        # if app is None:
+        #     app = QApplication([])  # If QApplication instance doesn't exist, create a new one
+        #    # app_flag = True
 
         self.track_model_ui.show()
 
-        # if app_flag is True:
-        app.exec()
+        # # if app_flag is True:
+        # app.exec()
 
     # endpoints
 
@@ -153,12 +153,14 @@ class TrackModelContainer(QObject):
     def update_track_model_from_wayside(self, authority_safe_speed_update, switch_changed_indexes,
                                         signal_changed_indexes, rr_crossing_indexes, toggle_block_indexes):
         print('Track Model: update_track_model_from_wayside called')
-        # print(f'authority_safe_speed_update: {authority_safe_speed_update}')
         add_train = False  # default
         remove_train = self.track_model.get_remove_train()
         embarking_passengers_update = {}  # TODO: implement embarking passengers dict per train
+        print('Track Model: updating self.track_model infrastructure')
+        self.track_model.update_infrastructure(switch_changed_indexes, signal_changed_indexes, rr_crossing_indexes,
+                                               toggle_block_indexes)
         # update track_model
-        print('Track Model: updating self.track_model')
+        print('Track Model: updating self.track_model authority and speed')
         self.track_model.update_authority_and_safe_speed(authority_safe_speed_update)
         # check if we should spawn a new train (authority @ 62 = nonzero & no train on 62)
         print('Track Model: check if we should spawn a new train')
@@ -210,7 +212,9 @@ class TrackModelContainer(QObject):
         self.track_model.update_delta_x_dict(delta_x_dict)
         # update map on ui handled by signals emitted by track_model
         ticket_sales = 0  # TODO: implement ticket sales for ctc
-        block_occupancy_update = dict(enumerate(self.track_model.get_occupancy_list(), 1))
+        # block_occupancy_update = dict(enumerate(self.track_model.get_occupancy_list(), 1))  # old way, 1-->150
+        block_occupancy_update = {i: v for i, v in enumerate(self.track_model.get_occupancy_list(), 1) if
+                                  i <= 57 or i >= 62}
 
         # emit
         self.track_model_ui.refresh()  # pre-emit ui refresh

@@ -20,7 +20,7 @@ class UITrain(QMainWindow):
     tons_per_kilogram = 0.00110231
     feet_per_meter = 3.28084
 
-    def __init__(self, bus=TrainBusinessLogic(SystemTimeContainer())):
+    def __init__(self, bus=TrainBusinessLogic()):
         super(UITrain, self).__init__()
 
         # load the ui file
@@ -29,7 +29,7 @@ class UITrain(QMainWindow):
         try:
             uic.loadUi(ui_path, self)
         except Exception as e:
-            print("Error with loading UI file: ", e)
+            print("Train Model UI: Error with loading UI file: ", e)
 
         # declare the train object
         self.business_logic = bus
@@ -58,7 +58,7 @@ class UITrain(QMainWindow):
         try:
             self.adLabel.setPixmap(QPixmap(ad_path))
         except Exception as e:
-            print(f'Error with ad {ad} file: ,', e)
+            print(f'Train Model UI: Error with ad {ad} file: ,', e)
 
         self.primeGroup = self.findChild(QGroupBox, "primeGroup")
         self.trainSelect = self.findChild(QComboBox, "trainSelect")
@@ -148,7 +148,7 @@ class UITrain(QMainWindow):
         try:
             self.emerButton.setIcon(QIcon(icon_path))
         except Exception as e:
-            print("Error with loading Icon file: ", e)
+            print("Train Model UI: Error with loading Icon file: ", e)
 
         self.phyGroup_tb.hide()
         self.trainGroup_tb.hide()
@@ -204,7 +204,6 @@ class UITrain(QMainWindow):
         string = str(self.trainSelect.currentText())
         if int(string[6:]) == index:
             self.populate_values()
-        print(self.train_dict[self.index].ID)
 
     def train_added(self, index):
         self.train_name_list.append(f'Train {index}')
@@ -212,18 +211,14 @@ class UITrain(QMainWindow):
 
     def train_removed(self, index):
         if f'Train {index}' in self.train_name_list:
-            print("removing train in ui")
             self.trainSelect.clear()
             self.train_name_list.remove(f'Train {index}')
-            print(f'train_name_list in train_removed: {self.train_name_list}')
             for name in self.train_name_list:
                 self.trainSelect.addItem(name)
             if len(self.train_name_list) != 0:
                 self.combo_selection()
-            print("train removed in ui")
 
     def combo_selection(self):
-        print(f'train_name_list_in combo_selection: {self.train_name_list}')
         if len(self.train_name_list) == 0:
             return
         string = str(self.trainSelect.currentText())

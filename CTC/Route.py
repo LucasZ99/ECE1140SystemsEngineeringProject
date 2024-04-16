@@ -10,7 +10,7 @@ class Stop:
         self.departure_time = departure_time
 
     def __str__(self):
-        s = f"{self.block}"
+        s = f"{self.block} {GREEN_LINE[BLOCKS][abs(self.block)].name}"
         if get_block(self.block) in GREEN_LINE[STATIONS]:
             s += f": " + GREEN_LINE[STATIONS][get_block(self.block)]
 
@@ -29,6 +29,7 @@ def get_block(block: int) -> int:
         return block
 
 
+# Returns the list of blocks from block1 to block2 including block2
 def find_path(line_id: int, block1: int, block2: int) -> list[int]:
     start_idx = GREEN_LINE[ROUTE].index(block1)
     end_idx = GREEN_LINE[ROUTE].index(block2)
@@ -36,6 +37,7 @@ def find_path(line_id: int, block1: int, block2: int) -> list[int]:
     return GREEN_LINE[ROUTE][start_idx:end_idx + 1]
 
 
+# Returns the list of stops from block1 to block2 including block2.
 def find_route(line_id: int, block1: int, block2: int) -> list[int]:
     route = find_path(line_id, block1, block2)
     if route is not None:
@@ -61,7 +63,7 @@ def get_block_pair_travel_time(line_id: int, block1: int, block2: int) -> float:
         for block1, block2 in zip(route_block1_to_block2[:-1], route_block1_to_block2[1:]):
             # calculate travel time - hr
 
-            print(GREEN_LINE[BLOCKS][get_block(block1)])
+            # print(GREEN_LINE[BLOCKS][get_block(block1)].)
 
             time_between_blocks += ((GREEN_LINE[BLOCKS][get_block(block1)].length / (
                     GREEN_LINE[BLOCKS][get_block(block1)].speed_limit * 1000)) / 2.0) \
@@ -74,8 +76,17 @@ def get_block_pair_travel_time(line_id: int, block1: int, block2: int) -> float:
     return time_between_blocks
 
 
-# get the route from a list of blocks
-def get_times_through_route(line_id: int, route: list[int]) -> list[Stop]:
+def route_arrival_time(route: list[Stop]):
+    return route[-1].arrival_time
+
+
+def route_departure_time(route: list[Stop]):
+    return route[0].departure_time
+
+
+# get the list of stops from a list of block ids
+# TODO TEST THIS!!
+def get_route_stops(line_id: int, route: list[int]) -> list[Stop]:
     # first block departure
     # Block #, Arrival Time, Departure Time
     minimum_time_between_stops = [Stop(route[0], 0, 0)]
@@ -115,6 +126,7 @@ def schedule_route(line_id, route: list[Stop], departure_time: float, arrival_ti
     proposed_travel_time = arrival_time - departure_time
     minimum_travel_time = get_route_travel_time(route)
 
+    # Add last stop to list
     route.append(Stop(GREEN_LINE_YARD_DELETE, route[-1].departure_time,
                       get_block_pair_travel_time(line_id, route[-1].block, GREEN_LINE_YARD_DELETE)))
 
