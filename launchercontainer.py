@@ -18,25 +18,28 @@ class LauncherContainer(QObject):
     def __init__(self):
         super().__init__()
         self.time_module = SystemTimeContainer()
-        self.ctc_container = CTCContainer(self.time_module)
-        self.track_controller_container = TrackControllerContainer()
-        # self.ctc_container.ctc.send_initial_message()
+        self.trainControllerContainer = TrainController_Tot_Container()
+
+        self.train_model_container = TrainModelContainer(self.trainControllerContainer)
         self.track_model_container = TrackModelContainer()
-        self.trainControllerContainer = TrainController_Tot_Container(self.time_module)
-        self.train_model_container = TrainModelContainer(self.trainControllerContainer, self.time_module)
+        self.track_controller_container = TrackControllerContainer()
+        self.ctc_container = CTCContainer()
 
         # Test containers
         self.track_controller_testbench_container = TrackControllerTestBenchContainer()
 
         # Test container signals
         # CTC to Wayside
-        self.track_controller_testbench_container.test_update_wayside_from_ctc.connect(self.track_controller_container.update_wayside_from_ctc)
+        self.track_controller_testbench_container.test_update_wayside_from_ctc.connect(
+            self.track_controller_container.update_wayside_from_ctc)
         # Track Model to Wayside
-        self.track_controller_testbench_container.test_update_wayside_from_track_model.connect(self.track_controller_container.update_wayside_from_track_model)
+        self.track_controller_testbench_container.test_update_wayside_from_track_model.connect(
+            self.track_controller_container.update_wayside_from_track_model)
 
         # Connect signals between modules
         # Downstream
-        self.ctc_container.update_wayside_from_ctc_signal.connect(self.track_controller_container.update_wayside_from_ctc)
+        self.ctc_container.update_wayside_from_ctc_signal.connect(
+            self.track_controller_container.update_wayside_from_ctc)
 
         self.track_controller_container.update_track_model_from_wayside.connect(
             self.track_model_container.update_track_model_from_wayside)
@@ -56,30 +59,21 @@ class LauncherContainer(QObject):
 
         self.track_controller_container.update_ctc_from_wayside.connect(self.ctc_container.update_ctc_from_wayside)
 
+        self.launcher_ui = LauncherUi()
+
     def init_launcher_ui(self):
-        app = QApplication.instance()
-
-        if app is None:
-            app = QApplication([])  # If QApplication instance doesn't exist, create a new one
-
-        # Create and show the launcher UI
-        launcher_ui = LauncherUi()
-
         # Create signal connections
-        launcher_ui.open_time_module_ui_signal.connect(self.open_time_module_ui)
-        launcher_ui.open_track_controller_ui_signal.connect(self.open_track_controller_ui)
-        launcher_ui.open_track_controller_tb_ui_signal.connect(self.open_track_controller_tb_ui)
-        launcher_ui.open_track_model_ui_signal.connect(self.open_track_model_ui)
-        launcher_ui.open_train_controller_SW_ui_signal.connect(self.open_train_controller_SW_ui)
-        launcher_ui.open_train_controller_HW_ui_signal.connect(self.open_train_controller_HW_ui)
-        launcher_ui.open_train_model_ui_signal.connect(self.open_train_model_ui)
-        launcher_ui.open_ctc_ui_signal.connect(self.open_ctc_ui)
+        self.launcher_ui.open_time_module_ui_signal.connect(self.open_time_module_ui)
+        self.launcher_ui.open_track_controller_ui_signal.connect(self.open_track_controller_ui)
+        self.launcher_ui.open_track_controller_tb_ui_signal.connect(self.open_track_controller_tb_ui)
+        self.launcher_ui.open_track_model_ui_signal.connect(self.open_track_model_ui)
+        self.launcher_ui.open_train_controller_SW_ui_signal.connect(self.open_train_controller_SW_ui)
+        self.launcher_ui.open_train_controller_HW_ui_signal.connect(self.open_train_controller_HW_ui)
+        self.launcher_ui.open_train_model_ui_signal.connect(self.open_train_model_ui)
+        self.launcher_ui.open_ctc_ui_signal.connect(self.open_ctc_ui)
 
         # Show launcher
-        launcher_ui.show()
-
-        # run event loop
-        app.exec()
+        self.launcher_ui.show()
 
     def open_time_module_ui(self):
         print("Open Time Module UI Signal received")
@@ -118,4 +112,3 @@ class LauncherContainer(QObject):
             self.train_model_container.show_ui()
         except Exception as e:
             print(e)
-
