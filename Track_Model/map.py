@@ -149,11 +149,14 @@ class Map(QWidget):
         train.setPixmap(self.train_pixmap)
         train.move(354, 250)
         self.train_dict[self.train_count] = train
+        # self.repaint()
 
     def move_train(self, train_id, block):
         print('map: move train called')
         [x, y] = self.pixel_dict[block]
         self.train_dict[train_id].move(x, y)
+        print(f'map: x = {x}, y = {y}')
+        # self.repaint()
 
 # 33 95-100
 # app = QApplication(sys.argv)
