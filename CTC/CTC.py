@@ -25,6 +25,10 @@ class CTC(QObject):
     ui_update_throughput = pyqtSignal()
 
     def __init__(self):
+        self.updated_switches: list[Switch] = []
+        self.blocks_to_close_open: list[tuple[int, bool]] = []
+        self.maintenance_mode_override_flag: bool = False
+        self.authority_speed_update: list[TrackSignal] = []
         init_start_time = python_time.time()
         print("CTC Init started t={0}".format(init_start_time))
 
