@@ -38,17 +38,17 @@ class TrackModelContainer(QObject):
 
     # show ui
     def show_ui(self):
-        app = QApplication.instance()  # Get the QApplication instance
-
-        # app_flag = False
-        if app is None:
-            app = QApplication([])  # If QApplication instance doesn't exist, create a new one
-            # app_flag = True
+        # app = QApplication.instance()  # Get the QApplication instance
+        #
+        # # app_flag = False
+        # if app is None:
+        #     app = QApplication([])  # If QApplication instance doesn't exist, create a new one
+        #    # app_flag = True
 
         self.track_model_ui.show()
 
-        # if app_flag is True:
-        app.exec()
+        # # if app_flag is True:
+        # app.exec()
 
     # endpoints
 
