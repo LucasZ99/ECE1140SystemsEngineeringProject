@@ -351,7 +351,7 @@ class TrackModel(QObject):
         for key, value in self.train_dict_meters.items():
             if value > self.cumulative_distance[self.train_dict_relative[key]]:
                 self.train_dict_relative[key] += 1
-                self.map_move_train_signal(key, self.full_path[self.train_dict_relative[key]])  # refresh map ui
+                self.map_move_train_signal.emit(key, self.full_path[self.train_dict_relative[key]])  # refresh map ui
             if self.train_dict_relative[key] >= 150:  # check if we should remove trains
                 del self.train_dict_meters[key]
                 del self.train_dict_relative[key]

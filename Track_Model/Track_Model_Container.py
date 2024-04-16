@@ -8,7 +8,7 @@ from PyQt6.QtCore import QObject, pyqtSignal
 from PyQt6.QtWidgets import QApplication
 
 from Track_Model.Track_Model import TrackModel
-from Track_Model.Track_Model_UI_2 import Window
+from Track_Model.Track_Model_UI import Window
 
 
 class TrackModelContainer(QObject):
@@ -221,10 +221,11 @@ class TrackModelContainer(QObject):
         print('Track Model: emitting update_ctc_from_track_model')
         self.update_ctc_from_track_model.emit(ticket_sales)
         print('Track Model: emitting update_wayside_from_track_model')
-        print(f'Track Model: block_occupancy_update = {block_occupancy_update}')
+        # print(f'Track Model: block_occupancy_update = {block_occupancy_update}')
         self.update_wayside_from_track_model.emit(block_occupancy_update)
 
     def map_add_train(self):
+        print('Track Model Container: map_add_train called')
         self.track_model_ui.add_train()
 
     def map_move_train(self, train_id, block):
