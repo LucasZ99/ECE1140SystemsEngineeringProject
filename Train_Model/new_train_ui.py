@@ -1,4 +1,5 @@
 import sys
+import random
 
 from PyQt6.QtGui import QIcon
 
@@ -6,6 +7,7 @@ import os
 from PyQt6 import uic
 from PyQt6.QtWidgets import (QMainWindow, QApplication, QLabel, QPushButton, QGroupBox,
                              QCheckBox, QComboBox, QProgressBar, QLineEdit)
+from PyQt6.QtGui import QPixmap
 
 import random
 
@@ -27,7 +29,7 @@ class UITrain(QMainWindow):
         try:
             uic.loadUi(ui_path, self)
         except Exception as e:
-            print("Error with loading UI file: ", e)
+            print("Train Model UI: Error with loading UI file: ", e)
 
         # declare the train object
         self.business_logic = bus
@@ -38,16 +40,32 @@ class UITrain(QMainWindow):
         else:
             self.index = min(self.train_dict.keys())
 
-
-
         # define widgets
         self.physicsButton = self.findChild(QPushButton, "physicsButton")
         self.passengerButton = self.findChild(QPushButton, "passengerButton")
+        self.adLabel = self.findChild(QLabel, "adLabel")
+        ad = random.randint(0,2)
+        if ad == 0:
+            current_dir = os.path.dirname(__file__)  # setting up to work in any dir
+            ad_path = os.path.join(current_dir, 'Aerotek.png')
+        elif ad == 1:
+            current_dir = os.path.dirname(__file__)  # setting up to work in any dir
+            ad_path = os.path.join(current_dir, 'einsteins_ad.png')
+        else:
+            current_dir = os.path.dirname(__file__)  # setting up to work in any dir
+            ad_path = os.path.join(current_dir, 'hat_ad.png')
+
+        try:
+            self.adLabel.setPixmap(QPixmap(ad_path))
+        except Exception as e:
+            print(f'Train Model UI: Error with ad {ad} file: ,', e)
 
         self.primeGroup = self.findChild(QGroupBox, "primeGroup")
         self.trainSelect = self.findChild(QComboBox, "trainSelect")
         self.trainSelect.clear()
+        self.train_name_list = list()
         for i in self.train_dict.keys():
+            self.train_name_list.append(f'Train {i}')
             self.trainSelect.addItem(f'Train {i}')
         self.emerButton = self.findChild(QPushButton, "emerButton")
         self.tbCheck = self.findChild(QCheckBox, "tbCheck")
@@ -130,8 +148,7 @@ class UITrain(QMainWindow):
         try:
             self.emerButton.setIcon(QIcon(icon_path))
         except Exception as e:
-            print("Error with loading Icon file: ", e)
-
+            print("Train Model UI: Error with loading Icon file: ", e)
 
         self.phyGroup_tb.hide()
         self.trainGroup_tb.hide()
@@ -187,20 +204,26 @@ class UITrain(QMainWindow):
         string = str(self.trainSelect.currentText())
         if int(string[6:]) == index:
             self.populate_values()
-        print(self.train_dict[self.index].ID)
 
     def train_added(self, index):
+        self.train_name_list.append(f'Train {index}')
         self.trainSelect.addItem(f'Train {index}')
 
     def train_removed(self, index):
-        itemIndex = self.trainSelect.findText(f'Train {index}')
-        if itemIndex == -1:
-            return
-        else:
-            self.trainSelect.removeItem(itemIndex)
+        if f'Train {index}' in self.train_name_list:
+            self.trainSelect.clear()
+            self.train_name_list.remove(f'Train {index}')
+            for name in self.train_name_list:
+                self.trainSelect.addItem(name)
+            if len(self.train_name_list) != 0:
+                self.combo_selection()
 
     def combo_selection(self):
+        if len(self.train_name_list) == 0:
+            return
         string = str(self.trainSelect.currentText())
+        if not ('Train' in string):
+            return
         self.index = int(string[6:])
         self.switching_trains = True
         self.populate_values()

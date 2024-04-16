@@ -32,20 +32,20 @@ class SlotsSigs(QObject):
         self.suggested_speed = suggested_speed
         self.rr_crossing = rr_crossing
         self.hw_ui = HWUI()
-        self.stops = [False] * len(self.blocks)
+        self.stops = {}
 
     # Signal to update the occupancy
     @pyqtSlot(dict)
     def new_occupancy(self, new_occupancy: dict[int, bool]):
-        print("new occupancy")
+        print("WS HW: new occupancy")
 
         self.blocks = new_occupancy  # set the blocks to the new occupancy
         self.plc.assign_vals(self.blocks, self.switches, self.rr_crossing, self.mode)
         self.stops, self.blocks, self.new_rr_crossing = self.plc.run_plc_logic()
         self.occupancy_signal.emit(new_occupancy)
 
-        print("rr_crossing: ", self.rr_crossing)
-        print("new_rr_crossing: ", self.new_rr_crossing)
+        #print("rr_crossing: ", self.rr_crossing)
+        #print("new_rr_crossing: ", self.new_rr_crossing)
 
         if self.rr_crossing != self.new_rr_crossing:  # if the rr_crossing value has changed, emit the signal
             self.rr_crossing_signal.emit(True)
@@ -58,14 +58,14 @@ class SlotsSigs(QObject):
     # Signal to update the switches
     @pyqtSlot(list)
     def new_switches(self, new_switches: list):
-        print("switch moved")
+        print("WS HW: switch moved")
         self.switches = new_switches
         self.hw_ui.show_hw_data(self.blocks, self.mode, self.rr_crossing, self.switches)
         self.switches_signal.emit(new_switches)
 
     @pyqtSlot(bool)
     def rr_crossing_toggled_signal(self, new_rr_crossing: bool):
-        print("rr cross toggled")
+        print("WS HW: rr cross toggled")
         self.rr_crossing = new_rr_crossing
         self.hw_ui.show_hw_data(self.blocks, self)
         self.rr_crossing_signal.emit(new_rr_crossing)
@@ -73,12 +73,12 @@ class SlotsSigs(QObject):
     # Signal to update the suggested speed
     @pyqtSlot(list)
     def new_speed(self, new_speed: list):
-        print("suggested speed changed")
+        print("WS HW: suggested speed changed")
         self.suggested_speed = new_speed
         self.suggested_speed_signal.emit(new_speed)
 
     def plc_import(self):  # guarded import of PLC, checking for existence in a specified folder of a USB drive
-        print("running PLC import wizard...")
+        print("WS HW: running PLC import wizard...")
         path = os.path.join(os.path.dirname(__file__), 'PLC')
         file = 'PLCProgram.py'
 
@@ -86,7 +86,7 @@ class SlotsSigs(QObject):
             if os.path.exists(path):
                 fullpath = os.path.join(path, file)  # found a drive!
                 if os.path.isfile(fullpath):
-                    print("Found the PLC file!")  # found the file! imported
+                    print("WS HW: Found the PLC file!")  # found the file! imported
                     self.plc_path = path  # Location of PLCProgram
 
                 else:
@@ -101,5 +101,5 @@ class SlotsSigs(QObject):
             sys.exit(1)
 
     def send_to_hw(self):
-        print("Sending data to HW")
+        print("WS HW: Sending data to HW")
         self.hw_ui.show_hw_data(self.blocks, self.mode, self.rr_crossing, self.switches)

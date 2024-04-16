@@ -36,6 +36,8 @@ class TrackController(QObject):
                 [
                     RRCrossing(19, False)
                 ]
+            self.plc_logic = PlcProgram(section)
+
         elif section == "C":
             self.switches_list = \
                 [
@@ -49,8 +51,8 @@ class TrackController(QObject):
                     Light(86, True),
                     Light(100, False)
                 ]
+            self.plc_logic = PlcProgram(section)
 
-        self.plc_logic = PlcProgram()
         self.occupancy_dict = occupancy_dict
         self.zero_speed_flag_dict = dict(zip(self.block_indexes, [False]*len(self.block_indexes)))
         self.section = section
@@ -123,11 +125,8 @@ class TrackController(QObject):
             app = QApplication([])  # If QApplication instance doesn't exist, create a new one
             # app_flag = True
 
-        print("before ui call")
         self.ui = UI(self.business_logic)
-        print("before ui show")
         self.ui.show()
-        print("After ui show")
 
         # if app_flag is True:
         app.exec()

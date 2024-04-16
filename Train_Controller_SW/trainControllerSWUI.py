@@ -4,21 +4,24 @@ import time
 import os
 
 from PyQt6.QtWidgets import *
-from PyQt6.QtCore import *
-from PyQt6.QtGui import *
 import sys
 from PyQt6.uic import loadUi
-
-# from Train_Controller_SW.trainControllerSW import TrainController
+from PyQt6.QtCore import pyqtSlot, pyqtSignal, QObject
 
 
 class UI(QMainWindow):
+
+    closed = pyqtSignal(bool)
+
     def __init__(self, ctrl_list):
         super(UI, self).__init__()
 
         # create train object
         self.ctrl_list = ctrl_list
-        self.trainctrl = self.ctrl_list[1]  # like this i think i hope, inits with first train ctrl in list
+        # self.trainctrl = self.ctrl_list[1]  # like this i think i hope, inits with first train ctrl in list
+
+        self.trainctrl = self.ctrl_list  # for testing w self module
+
         # TODO update values function when trainctrl is changed in drop down list
 
         # took from lucas (Track_Controller_SW/TrackController.UI), thank you Lucas
@@ -27,7 +30,7 @@ class UI(QMainWindow):
         try:
             loadUi(ui_path, self)
         except Exception as e:
-            print("Error with loading ui file: ", e)
+            print("train controller sw ui.py: Error with loading ui file: ", e)
 
         # open with set dimensions
         self.setFixedWidth(810)
@@ -46,13 +49,14 @@ class UI(QMainWindow):
 
         self.doorsLeft.setChecked(False)
         self.doorsRight.setChecked(False)
-        self.speedLim.setText(f'{self.trainctrl.speedlim}')
+        self.speedLim.setText(str(int(self.ms_to_mph(self.trainctrl.speedlim))))
         self.temp.setValue(int(self.trainctrl.cabinTemp))
         self.kp.setValue(int(self.trainctrl.kp))
         self.ki.setValue(int(self.trainctrl.ki))
-        self.currSpeed.setText(f'{self.trainctrl.actualSpeed}')
+        self.currSpeed.setText(str(self.ms_to_mph(self.trainctrl.actualSpeed)))
         self.power.setText(f'{self.trainctrl.power}')
-        self.setPtSpeed.setValue(int(self.trainctrl.setPtSpeed))
+        self.setPtSpeed.setValue(int(self.ms_to_mph(self.trainctrl.setPtSpeed)))
+        self.speedLimTB.setValue(int(self.ms_to_mph(self.trainctrl.speedlim)))
         #self.train_list.addItems(ctrl_list)
 
         # TODO make connections
@@ -88,6 +92,17 @@ class UI(QMainWindow):
         # show the app
         self.show()
 
+    def closeEvent(self, event):
+        print("train controller sw ui.py: hi")
+        self.closed.emit(False)
+        print("bye")
+
+    def hello(self, value):
+        if not value:
+            print("train controller sw ui.py: hi!")
+        elif value:
+            print("train controller sw ui.py: bye")
+
     # define procedures
 
     def testingbench(self):
@@ -96,13 +111,13 @@ class UI(QMainWindow):
             self.setFixedWidth(1197)
             self.setFixedHeight(733)
             self.testBench.setText("Close Test Bench")
-            print("test bench opened")
+            print("train controller sw ui.py: test bench opened")
         elif self.trainctrl.testBenchState == 1:  # close test bench
             self.trainctrl.testbenchcontrol()
             self.setFixedWidth(810)
             self.setFixedHeight(545)
             self.testBench.setText("Open Test Bench")
-            print("test bench closed")
+            print("train controller sw ui.py: test bench closed")
 
     def automodeswitcher(self):
         if self.trainctrl.mode == 1:  # train running in manual mode
@@ -141,12 +156,17 @@ class UI(QMainWindow):
     def changecmdspeed(self):
         self.trainctrl.cmdSpeed = self.cmdSpeedTB.value()
 
+        self.trainctrl.powercontrol()
+
     def changespeedlim(self):
         self.trainctrl.speedlim = self.speedLimTB.value()
         self.speedLim.setText(str(self.trainctrl.speedlim))
 
     def changevitalauth(self):
         self.trainctrl.vitalAuth = self.vitalAuthTB.value()
+
+        self.trainctrl.authority()
+        self.trainctrl.powerctrl()
 
     # I can probably get rid of accel and decel lim edits since they are static data and never updated.
     def changeaccellim(self):
@@ -156,14 +176,15 @@ class UI(QMainWindow):
         self.trainctrl.decelLim = self.decelLimTB.value()
 
     def passebrake(self):
-        self.trainctrl.passebrakecontrol()
+        self.trainctrl.ui_ebrakecontrol()
         self.refreshengine()
-        print("refreshed engine")
-        if self.trainctrl.passEBrake == 1:
-            print("e brake on")
+        print("train controller sw ui.py: refreshed engine")
+        print(f'train controller sw ui.py: ebrake now is {self.trainctrl.eBrake}')
+        if self.trainctrl.eBrake == 1:
+            print("train controller sw ui.py: e brake on")
             self.passEBrakeTB.setText("On")
-        elif self.trainctrl.passEBrake == 0:
-            print("e brake off")
+        elif self.trainctrl.eBrake == 0:
+            print("train controller sw ui.py: e brake off")
             self.passEBrakeTB.setText("Off")
             self.setPtSpeed.setValue(int(self.trainctrl.setPtSpeed))
 
@@ -278,7 +299,7 @@ class UI(QMainWindow):
             self.doorLabel.adjustSize()
 
     def ebrake(self):
-        self.trainctrl.ebrakecontrol()
+        self.trainctrl.ui_ebrakecontrol()
         if self.trainctrl.eBrake == 0:
             self.eBrake.setText("EMERGENCY BRAKE: OFF")
             self.testLabel.setText(f'ebrake off and {self.trainctrl.eBrake}')
@@ -318,34 +339,47 @@ class UI(QMainWindow):
             self.refreshengine()
 
     def refreshengine(self):
-        self.setPtSpeed.setValue(int(self.trainctrl.setPtSpeed))
-        self.speedLim.setText(str(self.trainctrl.speedlim))
-        self.currSpeed.setText(str(int(self.trainctrl.actualSpeed)))
-        self.power.setText(str(self.trainctrl.power))
+        self.setPtSpeed.setValue(int(self.ms_to_mph(self.trainctrl.setPtSpeed)))
+        self.speedLim.setText(str(int(self.ms_to_mph(self.trainctrl.speedlim))))
+        self.currSpeed.setText(str(self.ms_to_mph(self.trainctrl.actualSpeed)))
+        self.power.setText(str(self.watt_to_hp(self.trainctrl.power)))
         self.kp.setValue(int(self.trainctrl.kp))
         self.ki.setValue(int(self.trainctrl.ki))
 
-    def powerrefresh(self):
-        for i in range(0, 23):
-            self.setPtSpeed.setValue(int(self.trainctrl.setPtSpeed))
-            self.speedLim.setText(str(self.trainctrl.speedLim))
-            self.currSpeed.setText(str(int(self.trainctrl.currSpeed)))
-            self.power.setText(str(self.trainctrl.power))
-            self.kp.setValue(int(self.trainctrl.kp))
-            self.ki.setValue(int(self.trainctrl.ki))
-            print(i)
-            time.sleep(5)
+    # def powerrefresh(self):
+    #     for i in range(0, 23):
+    #         self.setPtSpeed.setValue(int(self.trainctrl.setPtSpeed))
+    #         self.speedLim.setText(str(self.trainctrl.speedLim))
+    #         self.currSpeed.setText(str(int(self.trainctrl.currSpeed)))
+    #         self.power.setText(str(self.trainctrl.power))
+    #         self.kp.setValue(int(self.trainctrl.kp))
+    #         self.ki.setValue(int(self.trainctrl.ki))
+    #         print(i)
+    #         time.sleep(5)
 
-    def changetrain(self):
-        self.train_list.clear()
-        self.train_list.add(self.ctrl_list)  # how does this update when new ctrl is added in container..
+    def addtrain(self, ctrl_list):
+        self.ctrl_list.clear()
+        self.ctrl_list = ctrl_list  # how does this update when new ctrl is added in container..
         # probably gonna have to use a signal for ^^, looking into it
+
+    def mph_to_ms(self, value):
+        return value / 2.2237
+
+    def ms_to_mph(self, value):
+        return value * 2.237
+
+    def watt_to_hp(self, value):
+        return value / 745.7
+
+    def hp_to_watt(self, value):
+        return value * 745.7
 
 def main():
     # initialize the app
     app = QApplication(sys.argv)
     UIWindow = UI()
     app.exec()
+
 
 if __name__ == '__main__':
     main()

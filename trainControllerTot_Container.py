@@ -11,10 +11,7 @@ from Train_Controller_SW.trainControllerSWUI import UI
 from SystemTime import SystemTimeContainer
 
 
-
-
-
-#================================================================================
+# ================================================================================
 class TrainController_Tot_Container(QObject):
 
     # Signals
@@ -26,33 +23,36 @@ class TrainController_Tot_Container(QObject):
         super().__init__()
 
         self.ctrl_list = []
-        self.HW_index = None # index for future utility incase of handling recovery of deleted HW Controller
-    
-    
-    
-    #================================================================================
+        self.HW_index = None # index for future utility in case of handling recovery of deleted HW Controller
+        self.SWuiExists = False
+
+        if len(self.ctrl_list) > 1:
+            self.swUI = UI(self.ctrl_list)
+            print("train controller tot container.py: made sw ui")
+
+    # ================================================================================
     # return HW/SW Container
     def new_train_controller(self):
         if self.HW_index:
-            trainCtrl = TrainControllerSWContainer(SystemTime.time())
+            trainCtrl = TrainControllerSWContainer()
+            #self.new_train_controller_signal.emit(trainCtrl)
+            print("train controller tot container.py: software train controller made")
         else:
             self.HW_index = len(self.ctrl_list)
-            trainCtrl = TrainControler_HW_Container(SystemTime.time())
+            trainCtrl = TrainControler_HW_Container(True)
         self.ctrl_list.append(trainCtrl)
+        self.add_to_list()
         return trainCtrl
 
-
-
-    #================================================================================
     # gonna need a show ui method for the list of sw controllers
-    # not sure we will want to handle the hw ui though...
+    # not sure how we will want to handle the hw ui though...
 
     # like this maybe ? vvv
     def show_hwui(self):
         if self.HW_index:
             self.ctrl_list[self.HW_index].show_ui()
         else:
-            print("WARNING: TrainController_Tot_Container: show_hwui without HW Controller")
+            print("train controller tot container.py: WARNING: TrainController_Tot_Container: show_hwui without HW Controller")
 
     def show_swui(self):
         app = QApplication.instance()
@@ -60,22 +60,34 @@ class TrainController_Tot_Container(QObject):
         if app is None:
             app = QApplication([])
 
-        self.ui = UI()
+        self.swUI = UI(self.ctrl_list)
+        self.swUI.closed.connect(self.sw_ui_state)
 
-        self.ui.show()  # this unresolved reference is fine
+        self.swUI.show()
+        self.SWuiExists = True
         # self.ui.refreshengine()
 
         app.exec()
 
+    def add_to_list(self):
+        if self.SWuiExists:
+            self.swUI.addtrain(self.ctrl_list)
+        pass
+
+    @pyqtSlot(bool)
+    def sw_ui_state(self, value):
+        self.SWuiExists = value
+        print(f'train controller tot container.py: software ui state: {self.SWuiExists}')
 
 
-#================================================================================
-def TrainC_main(system_time, type=True):
+# ================================================================================
+def TrainC_main():
     trainctrlcntr = TrainController_Tot_Container()
     cntrl = trainctrlcntr.new_train_controller()  # removed (type) as parameter
-    while True: cntrl.show_ui()
+    while True:
+        cntrl.show_ui()
 
 
 if __name__ == "__main__":
     system_time = SystemTimeContainer()
-    TrainC_main(system_time, False)
+    TrainC_main()

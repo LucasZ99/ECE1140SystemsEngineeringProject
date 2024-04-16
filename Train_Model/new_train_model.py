@@ -23,7 +23,7 @@ class TrainModel:
         self.underground = False
         self.track_circuit = False
 
-        self.crew = People()
+        self.crew = People(2)
         self.passengers = PassengerPeople()
         self.train_const = TrainConstruction(cars)
         self.engine = Engine()
@@ -55,13 +55,13 @@ class TrainModel:
 
     def physics_calculation(self, time):
         if self.position > self.train_const.train_length() / 2:
-            net_force = self.engine.force_from_engine(self.velocity,
-                                                      self.failure.engine_failure) - self.brakes.brake_force(
-                self.failure.brake_failure) + self.new_block.grav_force()
+            net_force = (self.engine.force_from_engine(self.velocity, self.failure.engine_failure)
+                         - self.brakes.brake_force(self.failure.brake_failure)
+                         + self.new_block.grav_force(self.train_const.train_mass()))
         else:
-            net_force = self.engine.force_from_engine(self.velocity,
-                                                      self.failure.engine_failure) - self.brakes.brake_force(
-                self.failure.brake_failure) + self.old_block.grav_force()
+            net_force = (self.engine.force_from_engine(self.velocity, self.failure.engine_failure)
+                         - self.brakes.brake_force(self.failure.brake_failure)
+                         + self.old_block.grav_force(self.train_const.train_mass()))
 
         if net_force >= self.max_force:
             net_force = self.max_force

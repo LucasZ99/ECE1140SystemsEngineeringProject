@@ -51,6 +51,9 @@ class ContainerTB(QMainWindow):
         self.removeButton = self.findChild(QPushButton, "removeButton")
         self.removeButton.clicked.connect(self.remove_trn)
 
+        self.trainControllerUpdateButton = self.findChild(QPushButton, "trainControllerUpdateButton")
+        self.trainControllerUpdateButton.clicked.connect(self.container.business_logic.train_update_controller)
+
         # line edits
         self.trackInput = self.findChild(QLineEdit, "trackInput")
         self.controllerInput = self.findChild(QLineEdit, "controllerInput")
@@ -60,7 +63,7 @@ class ContainerTB(QMainWindow):
 
         self.trackInput.setText("0, 0")
         self.controllerInput.setText("0, 0, False, False, 0, , True, False")
-        self.blockInput.setText("0, 0, 50, False, ")
+        self.blockInput.setText("0, 0, False, ")
         self.passInput.setText("0")
         self.tempInput.setText("68")
 
@@ -77,10 +80,7 @@ class ContainerTB(QMainWindow):
         input_lst = list()
         input_lst.append(float(lst[0]))
         input_lst.append(int(lst[0]))
-        try:
-            self.container.track_model_inputs(input_lst, 1)
-        except Exception as error:
-            print(error)
+        self.container.track_model_inputs(input_lst, 1)
 
     def controller_pressed(self):
         lst = str(self.controllerInput.text()).split(", ", -1)
@@ -101,16 +101,15 @@ class ContainerTB(QMainWindow):
 
     def block_pressed(self):
         lst = str(self.blockInput.text()).split(", ", -1)
-        # [grade, elevation, block length, underground, beacon]
-        if len(lst) != 5:
+        # [grade, elevation, underground, beacon]
+        if len(lst) != 4:
             return
 
         input_list = list()
         input_list.append(float(lst[0]))
         input_list.append(float(lst[1]))
-        input_list.append(float(lst[2]))
-        input_list.append(bool(lst[3]))
-        input_list.append(lst[4])
+        input_list.append(bool(lst[2]))
+        input_list.append(lst[3])
         self.container.track_update_block(input_list, 1)
 
     def pass_pressed(self):
@@ -126,10 +125,7 @@ class ContainerTB(QMainWindow):
         self.container.add_train()
 
     def remove_trn(self):
-        try:
-            self.container.remove_train(max(self.container.train_dict.keys()))
-        except Exception as error:
-            print(error)
+        self.container.remove_train(max(self.container.train_dict.keys()))
 
 
 contain = TrainModelContainer(TrainController_Tot_Container(SystemTimeContainer()), SystemTimeContainer())

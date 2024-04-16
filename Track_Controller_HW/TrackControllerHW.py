@@ -1,6 +1,7 @@
 import time
 import os
 import sys
+import itertools
 from PyQt6.QtCore import pyqtSignal, QObject, pyqtSlot
 from Track_Controller_HW import SlotsSigs, TBShell
 
@@ -13,7 +14,7 @@ class TrackControllerHardware(QObject):
     switches = [False] * num_switches
     blocks = {}
     suggested_speed = [0.0] * num_blocks
-    stops = [False] * num_blocks
+    stops = {}
     rr_crossing = False
 
     rr_crossing_signal = pyqtSignal(bool)
@@ -29,10 +30,11 @@ class TrackControllerHardware(QObject):
         self.slots_sigs.rr_crossing_signal.connect(self.rr_crossing_updated)
 
     def update_occupancy(self, block_occupancy_dict: dict[int, bool]):
-        print("track controller B update occupancy called")
+        print("WS HW: track controller B update occupancy called")
         self.blocks = block_occupancy_dict
         self.stops = self.slots_sigs.new_occupancy(block_occupancy_dict)
-        print("blck occup list blck B: ",self.blocks)
+        #print("blck occup list blck B: ", self.blocks)
+        #print("stops list blck B: ", self.stops)
         return self.stops
 
     def show_testbench_ui(self):
@@ -41,25 +43,40 @@ class TrackControllerHardware(QObject):
 
     @pyqtSlot(bool)
     def rr_crossing_updated(self, rr_crossing_new_val: bool):
-        print("rr cross updated")
+        print("WS HW: rr cross updated")
         self.rr_crossing = rr_crossing_new_val
         self.rr_crossing_signal.emit(rr_crossing_new_val)
 
     def rr_cross_test(self, blocks: dict, expected_rr_cross_val: bool):
-        self.blocks = blocks # set the blocks to the new occupancy
+        self.blocks = blocks  # set the blocks to the new occupancy
         self.stops = self.slots_sigs.new_occupancy(blocks)  # update the occupancy
         # PLC logic will update the rr_crossing value based on the occupancy
         if self.rr_crossing == expected_rr_cross_val:  # check if the rr_crossing value is as expected
             print("Test Passed")
         elif self.rr_crossing != expected_rr_cross_val:
             print("Test Failed")
+        #print("stops", self.stops)
 
 
 
 if __name__ == '__main__':
-    occupancy_list = {i: False for i in range(1, 96)} # init with a list of 105 False values (no rr_crossing block should be active)
-    new_occupancy_list = occupancy_list  # create a new list to update the occupancy
-    new_occupancy_list[56] = True  # set the occupancy of block 56 to True (a rr_crossing block)
-    track_controller_hw = TrackControllerHardware(occupancy_list, section="B")  # init with default vals
+    occupancy_dict = {}
+    for i in range(1, 58):
+        occupancy_dict[i] = False
+    for i in range(62, 151):
+        occupancy_dict[i] = False
+
+    occupancy_dict_B = dict(itertools.islice(occupancy_dict.items(), 28, 72))
+    occupancy_dict_B.update(dict(itertools.islice(occupancy_dict.items(), 96, 146)))
+
+
+    new_occupancy_list = {key: False for key, value in occupancy_dict_B.items() if isinstance(value, bool)}  # create a new list to update the occupancy
+    new_occupancy_list[108] = True  # set the occupancy of block 56 to True (a rr_crossing block)
+    new_occupancy_list[90] = True
+    new_occupancy_list[75] = True
+    new_occupancy_list[59] = True
+    new_occupancy_list[29] = True
+
+    track_controller_hw = TrackControllerHardware(occupancy_dict_B, section="B")  # init with default vals
     track_controller_hw.rr_cross_test(new_occupancy_list, True)  # test the PLC's rr_crossing logic
 

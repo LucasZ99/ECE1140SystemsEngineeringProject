@@ -1,3 +1,5 @@
+import sys
+
 from PyQt6.QtCore import QObject, pyqtSignal
 from PyQt6.QtCore import pyqtSlot
 
@@ -26,11 +28,12 @@ class BusinessLogic(QObject):
         self.num_blocks = len(block_occupancy)
         self.block_indexes = block_indexes
         self.section = section
-
+        self.unsafe_toggle_switches = []
     # Must call this method whenever occupancy is updated
     @pyqtSlot(list)
     def occupancy_changed(self, new_occupancy: dict):
         print("Occupancy change detected on Track Controller Section: ", self.section)
+
         self.occupancy_dict = new_occupancy
         self.occupancy_signal.emit(self.occupancy_dict)
 
@@ -53,7 +56,7 @@ class BusinessLogic(QObject):
         rr_active_result = plc_result[2]
         zero_speed_flags = plc_result[3]
         unsafe_close_blocks = plc_result[4]
-        unsafe_toggle_switches = plc_result[5]
+        self.unsafe_toggle_switches = plc_result[5]
 
         # post plc execution processing logic
         if switch_1_result != switch_1:
@@ -83,15 +86,16 @@ class BusinessLogic(QObject):
         self.lights_list_signal.emit(self.lights_list)
 
         # return the zero speed flag update
-        return [zero_speed_flags, unsafe_close_blocks, unsafe_toggle_switches]
+        return [zero_speed_flags, unsafe_close_blocks, self.unsafe_toggle_switches]
+
 
     @pyqtSlot(int)
     def switches_changed(self, index: int) -> None:
-
-        print(f"Switch at b{self.switches_list[index].block} changed")
-        self.switch_changed_index_signal.emit(self.switches_list[index].block)
-        self.switches_list[index].toggle()
-        self.switches_signal.emit(self.switches_list)
+        if index not in self.unsafe_toggle_switches:
+            print(f"Switch at b{self.switches_list[index].block} changed")
+            self.switch_changed_index_signal.emit(self.switches_list[index].block)
+            self.switches_list[index].toggle()
+            self.switches_signal.emit(self.switches_list)
 
     def set_plc_filepath(self, plc_filepath: str) -> None:
         self.plc_logic.set_filepath(plc_filepath)

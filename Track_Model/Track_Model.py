@@ -4,31 +4,42 @@ import sys
 import random
 from PyQt6.QtCore import pyqtSignal, QObject
 from PyQt6.QtWidgets import QApplication
+import time
+import openpyxl
+
+# maybe: for loop -> list comprehension
+# TODO: Update beacons in
 
 
 class TrackModel(QObject):
     # external signals
-    new_block_occupancy_signal = pyqtSignal(list)
-    new_ticket_sales_signal = pyqtSignal(int)
+    # new_block_occupancy_signal = pyqtSignal(list)
+    # new_ticket_sales_signal = pyqtSignal(int)
     # internal signals (to UI)
     refresh_ui_signal = pyqtSignal()
+    map_add_train_signal = pyqtSignal()
+    map_move_train_signal = pyqtSignal(int, int)
 
     def __init__(self, file_name):
         super().__init__()
         # d = pd.read_excel(file_name, header=None)  # We will also load our header row, and block IDs will map to index
         # self.data = d.to_numpy()
         # self.check_data()
+        start = time.time()
         self.data = self.set_data(file_name)
         # self.output_data_as_excel()
+        end = time.time()
+        print(f'set_data time = {end - start}')
+        # self.output_data_as_excel()
         self.line_name = self.data[0, 0]
-        self.num_blocks = len(self.data)
+        self.num_blocks = len(self.data) - 1
         self.ticket_sales = 0
         self.environmental_temperature = 74
         # giving random embarking num and ticket sales
         for i in range(0, self.num_blocks):
             if self.data[i, 16] == 0:
                 self.data[i, 16] = random.randint(1, 100)
-                self.data[i, 17] = random.randint(1, self.data[i, 16])
+                self.data[i, 17] = random.randint(1, int(self.data[i, 16]))
         self.authority = [0] * self.num_blocks
         self.speed = [0.0] * self.num_blocks
 
@@ -36,7 +47,7 @@ class TrackModel(QObject):
         self.train_dict = {}
         self.train_dict_meters = {}
         self.train_count = 0
-        self.total_track_length = int(np.sum(self.data[1:, 3]))
+        self.remove_train = -1
 
         # hardcoded
         # Step 1: 12 to 1
@@ -56,6 +67,13 @@ class TrackModel(QObject):
         self.full_path = (path_62_to_100 + path_85_to_77 + path_101_to_150 + path_28_to_13 + path_12_to_1 +
                           path_13_to_57)
         # print(self.full_path)
+        # cumulative distance (train_dict_meters reference)
+        self.cumulative_distance = self.full_path.copy()
+        cumulative_distance = 0
+        for i in range(0, len(self.cumulative_distance)):
+            cumulative_distance += int(self.data[self.full_path[i], 3])
+            self.cumulative_distance[i] = cumulative_distance
+        # print(self.cumulative_distance)
 
     def get_train_dict(self):
         return self.train_dict
@@ -82,11 +100,17 @@ class TrackModel(QObject):
         last_index = self.num_blocks - self.data[:, 1].tolist()[::-1].index(section_id_end)
         return self.data[first_index:last_index, :]
 
+    # long runtimes
     def set_data(self, file_name):
+        start = time.time()
         d = pd.read_excel(file_name,
                           header=None)  # We will also load our header row, and block IDs will map to index
+        end = time.time()
+        print(f'pandas read time = {end-start}')
         data = d.to_numpy()
-
+        end = time.time()
+        print(f'pandas time = {end-start}')
+        start = time.time()
         false_col = np.full((data.shape[0], 1), False, dtype=bool)
         temp = np.full((data.shape[0], 1), 74, dtype=int)
         new_data = np.hstack((data[:, 0:7], np.copy(false_col)))
@@ -103,7 +127,11 @@ class TrackModel(QObject):
         new_data = np.hstack((new_data, np.copy(nan_array)))
         new_data = np.hstack((new_data, np.copy(false_col)))
         new_data = np.hstack((new_data, np.copy(nan_array)))
+        new_data = np.hstack((new_data, np.copy(nan_array)))
+        end = time.time()
+        print(f'hstack time = {end-start}')
         # initialize signals from switch info
+        start = time.time()
         for i in range(1, new_data.shape[0]):
             inf_list = str(new_data[i, 9]).lower().split(';')
             for s in inf_list:
@@ -116,8 +144,6 @@ class TrackModel(QObject):
                         num = int(n)
                         if num_dict[n] == 1:
                             new_data[num, 21] = False
-
-        for i in range(1, new_data.shape[0]):
             if 'station' in str(new_data[i, 9]).lower():
                 new_data[i, 12] = False
                 new_data[i, 16] = 0
@@ -129,8 +155,12 @@ class TrackModel(QObject):
                     new_data[i + 1, 12] = False
             if 'underground' in str(new_data[i, 9]).lower():
                 new_data[i, 20] = True
-            if 'switch' in str(new_data[i, 9]).lower() or 'railway crossing' in str(new_data[i, 9]).lower():
+            if 'switch' in str(new_data[i, 9]).lower():
                 new_data[i, 19] = False
+            if 'railway crossing' in str(new_data[i, 9]).lower():
+                new_data[i, 22] = False
+        end = time.time()
+        print(f'loops time = {end-start}')
 
         new_data[0, 7] = 'Block Occupancy'
         new_data[0, 8] = 'Temperature'
@@ -141,9 +171,10 @@ class TrackModel(QObject):
         new_data[0, 16] = 'Ticket Sales'
         new_data[0, 17] = 'Embarking'
         new_data[0, 18] = 'Disembarking'
-        new_data[0, 19] = 'Infrastructure Values'
+        new_data[0, 19] = 'Switch Values'
         new_data[0, 20] = 'Underground Status'
         new_data[0, 21] = 'Signal Values'
+        new_data[0, 22] = 'RxR Values'
         return new_data
 
     def output_data_as_excel(self):
@@ -170,27 +201,26 @@ class TrackModel(QObject):
 
     # is working for initialization but not for setting data
 
-    def get_block_table(self, section_id):
-        n = len(self.get_section(section_id))
-        block_table = np.empty(shape=(n + 1, 7), dtype=object)
-        # everything comes from data except occupancy (from train model) and temp (from temp controls)
-        # but even those values will be stored in our data
-        block_table[0, :] = ['Block', 'Length', 'Grade', 'Speed Limit', 'Elevation', 'Occupancy', 'Temperature']
-        block_table[1:n + 1, 0:7] = self.get_section(section_id)[:, 2:9]
-        return block_table
+    # def get_block_table(self, section_id):
+    #     n = len(self.get_section(section_id))
+    #     block_table = np.empty(shape=(n + 1, 7), dtype=object)
+    #     # everything comes from data except occupancy (from train model) and temp (from temp controls)
+    #     # but even those values will be stored in our data
+    #     block_table[0, :] = ['Block', 'Length', 'Grade', 'Speed Limit', 'Elevation', 'Occupancy', 'Temperature']
+    #     block_table[1:n + 1, 0:7] = self.get_section(section_id)[:, 2:9]
+    #     return block_table
 
-    def get_station_table(self, section_id):
-        relevant_section_data = self.get_section(section_id)[:, [9, 2, 10, 12, 16, 17]]
-        arr = relevant_section_data.copy()
-        filtered_arr = arr[np.array(['station' in str(x).lower() for x in arr[:, 0]])]
+    # def get_station_table(self, section_id):
+    #     relevant_section_data = self.get_section(section_id)[:, [9, 2, 10, 12, 16, 17]]
+    #     arr = relevant_section_data.copy()
+    #     filtered_arr = arr[np.array(['station' in str(x).lower() for x in arr[:, 0]])]
+    #     return filtered_arr
 
-        return filtered_arr
-
-    def get_infrastructure_table(self, section_id):
-        arr = self.get_section(section_id)[:, [9, 2, 11]]
-        filtered_arr = arr[~np.isnan(np.array([len(str(x)) if isinstance(x, str) else x for x in arr[:, 0]])) & (
-                np.char.find(arr[:, 0].astype(str), "Station") == -1)]
-        return filtered_arr
+    # def get_infrastructure_table(self, section_id):
+    #     arr = self.get_section(section_id)[:, [9, 2, 11]]
+    #     filtered_arr = arr[~np.isnan(np.array([len(str(x)) if isinstance(x, str) else x for x in arr[:, 0]])) & (
+    #             np.char.find(arr[:, 0].astype(str), "Station") == -1)]
+    #     return filtered_arr
 
     def set_env_temperature(self, temperature):
         self.environmental_temperature = temperature
@@ -229,19 +259,20 @@ class TrackModel(QObject):
             self.set_block_occupancy(block, True)
         else:
             self.set_block_occupancy(block, False)
-        self.refresh_ui()  # ui
-        self.emit_tc_block_occupancy()
 
     def set_occupancy_from_train_presence(self):
-        # set occupancy false
+        # set all occupancy false
         self.data[1:, 7] = np.full((self.data.shape[0]-1), False, dtype=bool)
-        # for all blocks
-        # TODO: self.set_occupancy_from_failures() asap rocky
+
+        # Failures
+        for i in range(0, self.num_blocks):
+            self.set_occupancy_from_failures(i)
+
+        # Trains
         # key = train id, value = block id
         for key in self.train_dict:
             self.set_block_occupancy(self.train_dict[key], True)
-        self.refresh_ui()  # ui
-        self.emit_tc_block_occupancy()
+        # self.refresh_ui()  # we will refresh in container
 
     # communication to ui
 
@@ -290,6 +321,7 @@ class TrackModel(QObject):
         self.train_dict[self.train_count] = self.full_path[0]
         self.train_dict_meters[self.train_count] = 0
         print(f'new train spawned, train_count = {self.train_count}')
+        self.map_add_train_signal.emit()  # refresh map ui
 
     # def train_presence_changed(self, train_id: int):
     #     if self.train_dict_relative[train_id] >= 170:
@@ -304,16 +336,31 @@ class TrackModel(QObject):
     #         self.set_occupancy_from_train_presence()
     #         print(f'train {train_id} moved to {self.train_dict[train_id]}')
 
+    def set_remove_train(self, train_id):
+        self.remove_train = train_id
+
+    def get_remove_train(self):
+        return self.remove_train
+
     def update_delta_x_dict(self, delta_x_dict):
+        self.remove_train = -1
         # meters
         for key, value in delta_x_dict.items():
             self.train_dict_meters[key] = value
-        # relative based on path
+        # relative based meters
         for key, value in self.train_dict_meters.items():
-            pass
-        # actual block
+            if value > self.cumulative_distance[self.train_dict_relative[key]]:
+                self.train_dict_relative[key] += 1
+                self.map_move_train_signal(key, self.full_path[self.train_dict_relative[key]])  # refresh map ui
+            if self.train_dict_relative[key] >= 150:  # check if we should remove trains
+                del self.train_dict_meters[key]
+                del self.train_dict_relative[key]
+                del self.train_dict[key]
+                self.remove_train = key
+        # actual block based on relative
         for key, value in self.train_dict_relative.items():
             self.train_dict[key] = self.full_path[value]
+        self.set_occupancy_from_train_presence()
 
     def set_disembarking_passengers(self, station_id: int, disembarking_passengers: int):
         self.data[station_id, 21] = disembarking_passengers
@@ -325,48 +372,59 @@ class TrackModel(QObject):
     def get_occupancy_list(self):
         return self.data[1:, 7].tolist()
 
-    def emit_tc_block_occupancy(self) -> list[bool]:  # giving everything now
-        self.new_block_occupancy_signal.emit(self.data[1:, 7].tolist())
-        return self.data[1:, 7].tolist()
+    # def emit_tc_block_occupancy(self) -> list[bool]:  # giving everything now
+    #     self.new_block_occupancy_signal.emit(self.data[1:, 7].tolist())
+    #     return self.data[1:, 7].tolist()
 
     # train model
 
-    def get_tm_authority(self, train_id: int) -> int:
-        block_id = self.train_dict[train_id]
-        return int(self.authority[block_id])
-
-    def get_tm_speed(self, train_id: int) -> float:
-        block_id = self.train_dict[train_id]
-        return float(self.speed[block_id])
-
-    def get_tm_beacon(self, train_id: int) -> str:
-        block_id = self.train_dict[train_id]
-        return str(self.data[block_id, 11])
-
-    def get_tm_grade(self, train_id: int) -> int:
-        block_id = self.train_dict[train_id]
-        return int(self.data[block_id, 4])
-
-    def get_tm_elevation(self, train_id: int) -> float:
-        block_id = self.train_dict[train_id]
-        return float(self.data[block_id, 6])
-
-    def get_tm_underground_status(self, train_id: int) -> bool:
-        block_id = self.train_dict[train_id]
-        return bool(self.data[block_id, 20])
-
-    def get_tm_embarking_passengers(self, train_id: int) -> int:
-        block_id = self.train_dict[train_id]
-        return int(self.data[block_id, 17])
-    
-    def get_tm_block_length(self, train_id: int):
-        block_id = self.train_dict[train_id]
-        return int(self.data[block_id, 3])
+    # def get_tm_authority(self, train_id: int) -> int:
+    #     block_id = self.train_dict[train_id]
+    #     return int(self.authority[block_id])
+    #
+    # def get_tm_speed(self, train_id: int) -> float:
+    #     block_id = self.train_dict[train_id]
+    #     return float(self.speed[block_id])
+    #
+    # def get_tm_beacon(self, train_id: int) -> str:
+    #     block_id = self.train_dict[train_id]
+    #     return str(self.data[block_id, 11])
+    #
+    # def get_tm_grade(self, train_id: int) -> int:
+    #     block_id = self.train_dict[train_id]
+    #     return int(self.data[block_id, 4])
+    #
+    # def get_tm_elevation(self, train_id: int) -> float:
+    #     block_id = self.train_dict[train_id]
+    #     return float(self.data[block_id, 6])
+    #
+    # def get_tm_underground_status(self, train_id: int) -> bool:
+    #     block_id = self.train_dict[train_id]
+    #     return bool(self.data[block_id, 20])
+    #
+    # def get_tm_embarking_passengers(self, train_id: int) -> int:
+    #     block_id = self.train_dict[train_id]
+    #     return int(self.data[block_id, 17])
+    #
+    # def get_tm_block_length(self, train_id: int):
+    #     block_id = self.train_dict[train_id]
+    #     return int(self.data[block_id, 3])
 
     # ctc (technically still track controller)
-    def emit_ctc_ticket_sales(self) -> int:
-        self.new_ticket_sales_signal.emit(self.ticket_sales)
-        return int(self.ticket_sales)
+    # def emit_ctc_ticket_sales(self) -> int:
+    #     self.new_ticket_sales_signal.emit(self.ticket_sales)
+    #     return int(self.ticket_sales)
+
+    def update_infrastructure(self, switch_changed_indexes, signal_changed_indexes, rr_crossing_indexes,
+                                               toggle_block_indexes):
+        for index in switch_changed_indexes:
+            self.data[index, 19] = not self.data[index, 19]
+        for index in signal_changed_indexes:
+            self.data[index, 21] = not self.data[index, 21]
+        for index in rr_crossing_indexes:
+            self.data[index, 19] = not self.data[index, 19]
+        for index in toggle_block_indexes:
+            pass  # TODO
 
     # new UI getters
     def get_block_info(self, block_id):
@@ -376,10 +434,10 @@ class TrackModel(QObject):
         # self.data[block_id, (7, 11, 12, 20)]
         # # failures 13 14 15
         # self.data[block_id, (13, 14, 15)]
-        # TODO: switch, station, rxr crossing
+        # TODO: add station info
         # self.data[block_id, ]
         # print(self.data[block_id, (3, 4, 5, 6, 7, 11, 12, 20, 13, 14, 15)])
-        return self.data[block_id, (3, 4, 5, 6, 7, 11, 12, 20, 13, 14, 15)]
+        return self.data[block_id, (3, 4, 5, 6, 7, 11, 12, 20, 13, 14, 15, 19, 21, 22)]
 
     def get_block_info_for_train(self, train_id):
         block = self.train_dict[train_id]

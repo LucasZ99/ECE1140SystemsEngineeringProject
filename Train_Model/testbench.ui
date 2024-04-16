@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>556</width>
+    <width>572</width>
     <height>586</height>
    </rect>
   </property>
@@ -168,14 +168,14 @@
    <widget class="QLabel" name="label_3">
     <property name="geometry">
      <rect>
-      <x>60</x>
+      <x>100</x>
       <y>240</y>
-      <width>301</width>
+      <width>231</width>
       <height>16</height>
      </rect>
     </property>
     <property name="text">
-     <string>grade, elevation, block length, underground, beacon</string>
+     <string>grade, elevation, underground, beacon</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="blockInput">
@@ -247,13 +247,26 @@
      <string>train ui</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="trainControllerUpdateButton">
+    <property name="geometry">
+     <rect>
+      <x>410</x>
+      <y>80</y>
+      <width>151</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Train controller update</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>556</width>
+     <width>572</width>
      <height>26</height>
     </rect>
    </property>
