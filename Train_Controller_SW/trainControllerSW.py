@@ -59,7 +59,7 @@ class TrainController:
 
         # train model inputs
         self.actualSpeed = float(0)  # actual speed of the train
-        self.cmdSpeed = float(31.0686)  # commanded vital speed of the train, as passed from wayside controller
+        self.cmdSpeed = float(0)  # commanded vital speed of the train, as passed from wayside controller
         # self.speedLim = float(31.0686)  # speed limit of the current block, 50 kmh in mph, blue line speed lim
         self.vitalAuth = float(0)  # vital authority for the train, as passed from wayside controller
         self.passEBrake = bool(0)  # passenger emergency brake as bool: 0 off, 1 on
@@ -289,8 +289,9 @@ class TrainController:
             self.power = 0
 
     def powercontrol(self):
+        print("train controller sw.py: entered power control")
         # do power checks and calcs, train doesn't need to stop, brake not on, train can move
-        if not self.stopSoon and not self.eBrake and not self.trainSafeToMove:
+        if not self.stopSoon and not self.eBrake and self.trainSafeToMove:
 
             if self.nextspeedlim < self.speedlim:
                 self.power = 0  # kill power
@@ -315,7 +316,7 @@ class TrainController:
                 if self.power > self.maxPower:
                     self.power = self.maxPower
         else:
-            self.power
+            self.power = 0
 
         print(f'train controller sw.py: power is : {self.power}')
 
@@ -324,25 +325,30 @@ class TrainController:
         self.ek1 = self.ek  # current ek become ek-1 for next call
         self.uk1 = self.uk  # current ek become uk-1`for next call
 
-        self.ui_update.emit(self.setPtSpeed, self.speedlim, self.actualSpeed, self.power, self.kp, self.ki)
-        print("train controller sw.py: signal emitted")
+        # self.ui_update.emit(self.setPtSpeed, self.speedlim, self.actualSpeed, self.power, self.kp, self.ki)
+        # print("train controller sw.py: signal emitted")
+        print()
 
     def authority(self):
         print("train controller sw.py: in authority func")
-        if self.vitalAuth < 3:
+        if self.vitalAuth < 4:
             print(f'train controller sw.py: train authority less then 4, currently at" {self.vitalAuth}')
             self.stopSoon = True
             self.power = 0
             self.servBrake = True
-        elif self.vitalAuth == 4:
+        elif self.vitalAuth >= 4:
             self.stopSoon = False
             self.servBrake = False
             print("train controller sw.py: train authority has been given authority 4, able to move forward")
 
         print("train controller sw.py: authority updated")
+        print()
 
     def vitalitycheck(self):
         # perform vitality checks to determine if train has right parameters to move
+        print(f'train controller sw.py: authority is: {self.vitalAuth}')
+        print(f'train controller sw.py: cmd speed is: {self.cmdSpeed}')
+
         if self.vitalAuth == 0:
             self.trainSafeToMove = 0
             print("train controller sw.py: train unsafe to move: no authority")
@@ -351,7 +357,9 @@ class TrainController:
             print("train controller sw.py: train unsafe to move: no commanded speed")
         elif self.vitalAuth != 0 and self.cmdSpeed != 0:
             self.trainSafeToMove = 1
-            print("ttrain controller sw.py: rain safe to move: authority and cmd speed received")
+            print("train controller sw.py: rain safe to move: authority and cmd speed received")
+
+        print()
 
     def speedcheck(self):
         # check if cmd speed and actual speed are within legal speed limits:
@@ -360,6 +368,8 @@ class TrainController:
             self.cmdSpeed = self.speedlim
         elif self.cmdSpeed <= self.speedlim:
             print("train controller sw.py: command speed within speed limits")
+
+        print()
 
     def automode(self):  # deprecated in IT3, used in IT2 for testing. honk mimimi
         for i in range(0, 7):
