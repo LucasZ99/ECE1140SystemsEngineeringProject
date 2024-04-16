@@ -1,18 +1,22 @@
 import sys
 import threading
+
+from PyQt6.QtCore import QThread
 from PyQt6.QtWidgets import QApplication
 
+from CTC import CTCContainer
 from launchercontainer import LauncherContainer
 
 
 class TrainSystem(QThread):
     def __init__(self, ctc_container: CTCContainer) -> None:
-        super(self).__init__()
+        super().__init__()
         self.ctc_container = ctc_container
 
     def run(self):
         while True:
-            self.ctc_container.update_wayside_from_ctc()
+            pass
+            # self.ctc_container.update_wayside_from_ctc()
 
 
 def run_launcher():
