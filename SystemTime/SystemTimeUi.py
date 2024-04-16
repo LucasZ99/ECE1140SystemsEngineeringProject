@@ -36,7 +36,7 @@ class SystemTimeUi(QMainWindow):
         self.fifty_times_button.clicked.connect(self.update_multiplier_fifty)
         self.pause_play_button.clicked.connect(self.toggle_play_pause_button)
 
-        self.show()
+        # self.show()
 
     def toggle_play_pause_button(self):
         if self.pause_play_button.text() == 'pause':

@@ -11,37 +11,25 @@ class CTCContainer(QObject):
     update_wayside_from_ctc_signal = pyqtSignal(list, bool, list, list)
 
     def __init__(self):
+        self.ui = None
         init_start_time = python_time.time()
         print("Initializing CTCContainer t={0}".format(init_start_time))
-
         super().__init__()
         self.ctc = CTC()
         self.ctc.update_wayside_from_ctc_signal.connect(self.update_wayside_from_ctc)
         print("CTC wired to CTC container")
 
-        self.ctc.send_initial_message()
-        print("CTC: Initial message sent.")
+        # self.ctc.send_initial_message()
+        self.ui = CTCMainWindow(self.ctc)
 
         init_end_time = python_time.time()
         print("Initializing CTCContainer Done. t={0}".format(init_end_time))
         print("CTCContainer Initialization time t={0}".format(init_end_time - init_start_time))
 
     def show_ui(self):
-        app = QApplication.instance()  # Get the QApplication instance
-
-        # app_flag = False
-        if app is None:
-            app = QApplication([])  # If QApplication instance doesn't exist, create a new one
-            # app_flag = True
-
-        print("before ui call")
-        self.ui = CTCMainWindow(self.ctc)
         print("before ui show")
         self.ui.show()
         print("After ui show")
-
-        # if app_flag is True:
-        app.exec()
 
     @pyqtSlot(list, bool, list, list)
     def update_wayside_from_ctc(self, authority_speed_update: list[tuple[int, int, float]],
@@ -62,10 +50,14 @@ class CTCContainer(QObject):
                                 switch_positions: list[Switch],
                                 light_states: list[Light],
                                 rr_crossing_states: list[RRCrossing]):
+        self.ctc.update_ctc_queues()
+        self.ctc.update_running_trains()
         self.ctc.update_switch_positions(switch_positions)
         self.ctc.update_signal_statuses(light_states)
         self.ctc.update_railroad_crossing_statuses(rr_crossing_states)
         self.ctc.update_block_occupancies(block_occupancy_update)
+
+
 
         track_signals_to_wayside = self.ctc.set_track_signals()
 

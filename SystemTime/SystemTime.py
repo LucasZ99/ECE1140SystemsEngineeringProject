@@ -1,10 +1,11 @@
+from datetime import datetime
 from threading import Timer, Thread
 import time as python_time
 from PyQt6.QtCore import QObject
 
 
 def time_to_str(t: float):
-    return python_time.strftime("%H:%m", python_time.localtime(t))
+    return python_time.strftime("%H:%M:%S", python_time.localtime(t))
 
 
 class SystemTime(QObject):

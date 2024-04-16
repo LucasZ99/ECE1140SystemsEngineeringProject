@@ -8,18 +8,19 @@ from SystemTime.SystemTimeUi import SystemTimeUi
 class SystemTimeContainer(QObject):
     def __init__(self):
         super().__init__()
+        self.ui = SystemTimeUi()
 
     def show_ui(self):
         print("SystemTimeContainer: show_ui")
-        app = QApplication.instance()  # Get the QApplication instance
+        # app = QApplication.instance()  # Get the QApplication instance
 
         # app_flag = False
-        if app is None:
-            app = QApplication([])  # If QApplication instance doesn't exist, create a new one
-            # app_flag = True
+        # if app is None:
+        #     app = QApplication([])  # If QApplication instance doesn't exist, create a new one
+        #     # app_flag = True
 
         print("SystemTimeContainer: before ui call")
-        self.ui = SystemTimeUi()
+
 
         self.ui.multiplier_value_updated_signal.connect(self.multiplier_value_updated)
         self.ui.toggle_play_pause_signal.connect(self.toggle_play_pause)
@@ -28,7 +29,7 @@ class SystemTimeContainer(QObject):
         print("SystemTimeContainer: After ui show")
 
         # if app_flag is True:
-        app.exec()
+        # app.exec()
 
     @pyqtSlot(bool)
     def toggle_play_pause(self, play_pause_bool: bool):
