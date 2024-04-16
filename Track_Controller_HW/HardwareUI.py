@@ -21,7 +21,7 @@ class HWUI:
         self.serverAddress = ('192.168.1.184', 2222)
         self.bufferSize = 1024
         self.UDPClient = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        print("Track Controller HW UI started...")
+        print("WS HW: Track Controller HW UI started...")
 
     def show_hw_data(self, blocks, mode, rr_cross, switches):  # send data through server to Pi
         self.data_to_send = {
@@ -34,5 +34,5 @@ class HWUI:
         json_string = json.dumps(self.data_to_send)
 
         self.UDPClient.sendto(json_string.encode('utf-8'), self.serverAddress)
-        print("Data sent to Pi")
+        print("WS HW: Data sent to Pi")
 
