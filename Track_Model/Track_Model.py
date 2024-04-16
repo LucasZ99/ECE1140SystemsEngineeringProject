@@ -410,6 +410,17 @@ class TrackModel(QObject):
     #     self.new_ticket_sales_signal.emit(self.ticket_sales)
     #     return int(self.ticket_sales)
 
+    def update_infrastructure(self, switch_changed_indexes, signal_changed_indexes, rr_crossing_indexes,
+                                               toggle_block_indexes):
+        for index in switch_changed_indexes:
+            self.data[index, 19] = not self.data[index, 19]
+        for index in signal_changed_indexes:
+            self.data[index, 21] = not self.data[index, 21]
+        for index in rr_crossing_indexes:
+            self.data[index, 19] = not self.data[index, 19]
+        for index in toggle_block_indexes:
+            pass  # TODO
+
     # new UI getters
     def get_block_info(self, block_id):
         # # length, grade, speed lim, elevation

@@ -27,7 +27,7 @@ class Window(QMainWindow):
         self.file_name = 'Green Line.xlsx'
         self.track_model = track_model
         self.full_path = track_model.get_full_path()
-        self.test_bench_window = TestBenchWindow()
+        # self.test_bench_window = TestBenchWindow()
         self.counter = 0
         # Window Layout
         self.setWindowIcon(QIcon("icon.jpg"))
@@ -128,15 +128,15 @@ class Window(QMainWindow):
         ul_layout.addWidget(self.current_file_label)
 
         # Test Bench Button
-        self.test_bench_button = QPushButton("Test Bench")
-        self.test_bench_button.clicked.connect(self.test_bench_button_clicked)
-        ul_layout.addWidget(self.test_bench_button)
+        # self.test_bench_button = QPushButton("Test Bench")
+        # self.test_bench_button.clicked.connect(self.test_bench_button_clicked)
+        # ul_layout.addWidget(self.test_bench_button)
 
         self.upload_layout_group.setLayout(ul_layout)
 
         # block view
         self.block_view_layout_group = QGroupBox("Block Info")
-        bv_layout = QVBoxLayout()
+        bv_layout = QGridLayout()
         # block selection combo
         self.block_info_combo = QComboBox()
         self.block_info_combo.addItems(self.str_list_blocks)
@@ -156,18 +156,19 @@ class Window(QMainWindow):
         self.power_fail_label = QLabel('power failure = ' + str(info[8]))
         self.track_circ_fail_label = QLabel('track circuit failure = ' + str(info[9]))
         self.broken_rail_label = QLabel('broken rail failure = ' + str(info[10]))
-        bv_layout.addWidget(self.length_label)
-        bv_layout.addWidget(self.grade_label)
-        bv_layout.addWidget(self.speed_lim_label)
-        bv_layout.addWidget(self.elevation_label)
-        bv_layout.addWidget(self.occupied_label)
-        bv_layout.addWidget(self.beacon_label)
-        bv_layout.addWidget(self.track_heated_label)
-        bv_layout.addWidget(self.underground_label)
+        bv_layout.addWidget(self.length_label, 1, 0)
+        bv_layout.addWidget(self.grade_label, 2, 0)
+        bv_layout.addWidget(self.speed_lim_label, 3, 0)
+        bv_layout.addWidget(self.elevation_label, 4, 0)
+        bv_layout.addWidget(self.occupied_label, 5, 0)
+        bv_layout.addWidget(self.beacon_label, 6, 0)
+        bv_layout.addWidget(self.track_heated_label, 7, 0)
+        bv_layout.addWidget(self.underground_label, 8, 0)
+        # TODO: ADD infrastructure
         # failures
-        bv_layout.addWidget(self.power_fail_label)
-        bv_layout.addWidget(self.track_circ_fail_label)
-        bv_layout.addWidget(self.broken_rail_label)
+        bv_layout.addWidget(self.power_fail_label, 0, 1)
+        bv_layout.addWidget(self.track_circ_fail_label, 1, 1)
+        bv_layout.addWidget(self.broken_rail_label, 2, 1)
         # train dictionary display
         self.train_dict_label = QLabel('Trains: ' + str(self.track_model.get_train_dict()))
         bv_layout.addWidget(self.train_dict_label)
