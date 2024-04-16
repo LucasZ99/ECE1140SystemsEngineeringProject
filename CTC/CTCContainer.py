@@ -16,7 +16,7 @@ class CTCContainer(QObject):
         print("Initializing CTCContainer t={0}".format(init_start_time))
         super().__init__()
         self.ctc = CTC()
-        self.ctc.update_wayside_from_ctc_signal.connect(self.update_wayside_from_ctc)
+        # self.ctc.update_wayside_from_ctc_signal.connect(self.update_wayside_from_ctc)
         print("CTC wired to CTC container")
 
         # self.ctc.send_initial_message()
@@ -32,17 +32,18 @@ class CTCContainer(QObject):
         print("After ui show")
 
     @pyqtSlot(list, bool, list, list)
-    def update_wayside_from_ctc(self, authority_speed_update: list[tuple[int, int, float]],
-                                maintenance_mode_override_flag: bool,
-                                blocks_to_close_open: list[tuple[int, bool]],
-                                updated_switches: list[Switch]):
+    # def update_wayside_from_ctc(self, authority_speed_update: list[tuple[int, int, float]],
+    #                             maintenance_mode_override_flag: bool,
+    #                             blocks_to_close_open: list[tuple[int, bool]],
+    #                             updated_switches: list[Switch]):
+    def update_wayside_from_ctc(self):
         print("CTCContainer: update_wayside_from_ctc")
         # TODO: Update authority_speed_update to be a TrackSignal before emitting the signal
         # TODO: Define the types for this signal at the top of this file
-        self.update_wayside_from_ctc_signal.emit(authority_speed_update,
-                                                 maintenance_mode_override_flag,
-                                                 blocks_to_close_open,
-                                                 updated_switches)
+        self.update_wayside_from_ctc_signal.emit(self.ctc.authority_speed_update,
+                                                 self.ctc.maintenance_mode_override_flag,
+                                                 self.ctc.blocks_to_close_open,
+                                                 self.ctc.updated_switches)
 
     @pyqtSlot(dict, list, list, list)
     def update_ctc_from_wayside(self,
