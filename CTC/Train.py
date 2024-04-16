@@ -6,7 +6,7 @@ from Common.GreenLine import *
 
 
 class Train:
-    def __init__(self, system_time: SystemTime, id: int, line_id: int, route: list[Stop]):
+    def __init__(self, id: int, line_id: int, route: list[Stop]):
         self.id = id
         self.route = route
         self.line_id = line_id
@@ -19,11 +19,11 @@ class Train:
         self.previous_block = 0
 
         # determine slowdown of route
-        self.speed_factor = Route.get_route_travel_time(
-            Route.get_times_through_route(self.line_id, [stop.block for stop in self.route])
-        ) / Route.get_route_travel_time(self.route)
 
-        self.system_time = system_time
+        # TODO fix this with route refactor
+        self.speed_factor = Route.get_route_travel_time(
+            Route.get_route_stops(self.line_id, [stop.block for stop in self.route])
+        ) / Route.get_route_travel_time(self.route)
 
     def get_slowdown(self) -> float:
         return self.speed_factor
@@ -51,8 +51,8 @@ class Train:
         # check if at next stop
         if self.route[self.next_stop].block == self.current_block:
             # check if route is delayed
-            if self.system_time.time() > self.route[self.next_stop].arrival_time:
-                delay = self.system_time.time() - self.route[self.next_stop].arrival_time
+            if SystemTime.time() > self.route[self.next_stop].arrival_time:
+                delay = SystemTime.time() - self.route[self.next_stop].arrival_time
                 self.route[self.next_stop].departure_time += delay
                 for stop in self.route[self.next_stop + 1:]:
                     stop.arrival_time += delay

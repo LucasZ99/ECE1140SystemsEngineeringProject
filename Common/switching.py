@@ -22,7 +22,10 @@ class Switch(object):
             self.current_pos = self.pos_a
 
     def to_tuple(self):
-        return self.block, self.current_pos
+        if self.current_pos == self.pos_a:
+            return self.block, False
+        else:
+            return self.block, True
 
     def __str__(self):
         return str(f'Switch at block {self.block} -> {self.current_pos}')
