@@ -1,48 +1,49 @@
 from PyQt6.QtCore import QObject, pyqtSlot
 from PyQt6.QtWidgets import QApplication
 
-from SystemTime.SystemTime import SystemTime
+import SystemTime
 from SystemTime.SystemTimeUi import SystemTimeUi
 
 
 class SystemTimeContainer(QObject):
     def __init__(self):
         super().__init__()
-        self.system_time = SystemTime()
+        self.ui = SystemTimeUi()
 
     def show_ui(self):
-        app = QApplication.instance()  # Get the QApplication instance
+        print("SystemTimeContainer: show_ui")
+        # app = QApplication.instance()  # Get the QApplication instance
 
         # app_flag = False
-        if app is None:
-            app = QApplication([])  # If QApplication instance doesn't exist, create a new one
-            # app_flag = True
+        # if app is None:
+        #     app = QApplication([])  # If QApplication instance doesn't exist, create a new one
+        #     # app_flag = True
 
-        print("before ui call")
-        self.ui = SystemTimeUi()
+        print("SystemTimeContainer: before ui call")
+
 
         self.ui.multiplier_value_updated_signal.connect(self.multiplier_value_updated)
         self.ui.toggle_play_pause_signal.connect(self.toggle_play_pause)
-        print("before ui show")
+        print("SystemTimeContainer: before ui show")
         self.ui.show()
-        print("After ui show")
+        print("SystemTimeContainer: After ui show")
 
         # if app_flag is True:
-        app.exec()
+        # app.exec()
 
     @pyqtSlot(bool)
     def toggle_play_pause(self, play_pause_bool: bool):
         if play_pause_bool is True:
-            self.system_time.play()
+            SystemTime.play()
         else:
-            self.system_time.pause()
+            SystemTime.pause()
 
     @pyqtSlot(float)
     def multiplier_value_updated(self, multiplier: float):
-        self.system_time.set_multiplier(multiplier)
+        SystemTime.set_multiplier(multiplier)
         print(f"multiplier: {multiplier}")
 
     def time(self):
-        return self.system_time.time()
+        return SystemTime.time()
 
 

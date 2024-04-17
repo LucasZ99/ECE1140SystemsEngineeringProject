@@ -3,7 +3,7 @@ from PyQt6.QtWidgets import (
 )
 import sys
 from Track_Model import TrackModel
-from Track_Model.Track_Model_UI import Window
+from Track_Model.oldUI import Window
 import pandas as pd
 import numpy as np
 import random

@@ -11,8 +11,9 @@ from Track_Model.animated_toggle import AnimatedToggle
 import sys
 from Track_Model.Track_Model import TrackModel
 from Track_Model.dynamic_map import DynamicMap
-from Track_Model.Track_Model_TB_UI import TestBenchWindow
-
+from Track_Model.oldTB_UI import TestBenchWindow
+from Track_Model.map import Map
+import time
 
 
 ##############################
@@ -25,7 +26,9 @@ class Window(QMainWindow):
         # self.file_name = self.getFileName()
         self.file_name = 'Green Line.xlsx'
         self.track_model = track_model
-        self.test_bench_window = TestBenchWindow()
+        self.full_path = track_model.get_full_path()
+        # self.test_bench_window = TestBenchWindow()
+        self.counter = 0
         # Window Layout
         self.setWindowIcon(QIcon("icon.jpg"))
         self.setWindowTitle("Track Model")
@@ -35,171 +38,62 @@ class Window(QMainWindow):
         # signals
         self.track_model.refresh_ui_signal.connect(self.refresh)
         # Style
-        self.setStyleSheet("""
-            QMainWindow{
-                background-color: #d9d9d9;
-            }
-            QGroupBox {
-                background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-                                                  stop: 0 #d9d9d9, stop: 1 #FFFFFF);
-                border: 2px solid black;
-                border-radius: 5px;
-                margin-top: 5ex; /* leave space at the top for the title */
-            }  
-
-            QGroupBox::title {
-                subcontrol-origin: margin;
-                subcontrol-position: top left; /* position at the top center */
-                padding: 0 3px;
-            }
-
-            QTableWidget {
-                font: 12px;
-                gridline-color: black;
-            }
-
-            QHeaderView {
-                font: 12px;
-            }
-
-            QHeaderView::section {
-                font: 12px;
-                border: 1px solid black;
-            }
-
-        """)
-        # 3x5 grid
-        #     0   1   2   3   4
-        #  0 [s] [s] [m] [m] [m]
-        #  1 [s] [s] [m] [m] [m]
-        #  2 [s] [s] [f] [t] [u]
-
-        # s = (0, 0, 3, 2)
-        # m = (0, 2, 2, 3)
-        # f = (2, 2, 1, 1)
-        # t = (2, 3, 1, 1)
-        # u = (2, 4, 1, 1)
-
-        # Selected Section
-        self.selected_section = 'A'
-        self.selected_section_group = QGroupBox(f"Selected Section (Section {self.selected_section})")
-
-        ss_group_layout = QVBoxLayout()
-
-        self.table1 = QTableWidget()
-        self.table1.setAlternatingRowColors(True)
-        self.table1_data = self.track_model.get_block_table(self.selected_section)
-
-        m, n = self.table1_data.shape
-        self.table1.setRowCount(m - 1)
-        self.table1.setColumnCount(7)
-        self.table1.setHorizontalHeaderLabels(self.table1_data[0, :])
-        self.table1.verticalHeader().setVisible(False)
-        self.table1.setMinimumWidth(300)
-
-        for i in range(1, m):
-            for j in range(0, n):
-                self.table1.setItem(i - 1, j, QTableWidgetItem(str(self.table1_data[i, j])))
-        ss_group_layout.addWidget(self.table1)
-
-        # This more or less adjusts table size to valid width, but we want cell width to decrease
-        # self.table1.setVisible(False)
-        # self.table1.verticalScrollBar().setValue(0)
-        # self.table1.resizeColumnsToContents()
-        # self.table1.setVisible(True)
-        # width = self.table1.verticalHeader().width()
-        # width += self.table1.horizontalHeader().length()
-        # if self.table1.verticalScrollBar().isVisible():
-        #     width += self.table1.verticalScrollBar().width()
-        # width += self.table1.frameWidth() * 2
-        # self.table1.setFixedWidth(width)
-
-        self.table2 = QTableWidget()
-        self.table2.setAlternatingRowColors(True)
-        self.table2_data = self.track_model.get_station_table(self.selected_section)
-
-        m, n = self.table2_data.shape
-        self.table2.setRowCount(m)
-        self.table2.setColumnCount(7)
-        self.table2.setHorizontalHeaderLabels(['Station', 'Block', 'Side', 'Heaters', 'Ticket Sales',
-                                               'Embarking', 'Disembarking'])
-        self.table2.verticalHeader().setVisible(False)
-        for i in range(0, m):
-            for j in range(0, n):
-                self.table2.setItem(i, j, QTableWidgetItem(str(self.table2_data[i, j])))
-        ss_group_layout.addWidget(self.table2)
-
-        self.table3 = QTableWidget()
-        self.table3.setAlternatingRowColors(True)
-        self.table3_data = self.track_model.get_infrastructure_table(self.selected_section)
-
-        m, n = self.table3_data.shape
-        self.table3.setRowCount(m)
-        self.table3.setColumnCount(3)
-        self.table3.setHorizontalHeaderLabels(['Infrastructure', 'Block', 'Value'])
-        self.table3.verticalHeader().setVisible(False)
-        for i in range(0, m):
-            for j in range(0, n):
-                self.table3.setItem(i, j, QTableWidgetItem(str(self.table3_data[i, j])))
-        ss_group_layout.addWidget(self.table3)
-
-        self.selected_section_group.setLayout(ss_group_layout)
-        layout.addWidget(self.selected_section_group, 0, 0, 3, 2)
 
         # Failure Modes
-        self.failure_modes_group = QGroupBox("Failure Modes")
-
-        fm_group_layout = QGridLayout()
-
-        f1_title = QLabel()
-        f1_title.setText("Power Failure:")
-        f2_title = QLabel()
-        f2_title.setText("Track Circuit Failure:")
-        f3_title = QLabel()
-        f3_title.setText("Broken Rail Failure:")
-        fm_group_layout.addWidget(f1_title, 0, 0)
-        fm_group_layout.addWidget(f2_title, 1, 0)
-        fm_group_layout.addWidget(f3_title, 2, 0)
+        # self.failure_modes_group = QGroupBox("Failure Modes")
+        #
+        # fm_group_layout = QGridLayout()
+        #
+        # f1_title = QLabel()
+        # f1_title.setText("Power Failure:")
+        # f2_title = QLabel()
+        # f2_title.setText("Track Circuit Failure:")
+        # f3_title = QLabel()
+        # f3_title.setText("Broken Rail Failure:")
+        # fm_group_layout.addWidget(f1_title, 0, 0)
+        # fm_group_layout.addWidget(f2_title, 1, 0)
+        # fm_group_layout.addWidget(f3_title, 2, 0)
 
         self.str_list_blocks = list(self.track_model.get_data()[1:, 2].astype(str))
-        self.combo1 = QComboBox()
-        self.combo1.addItems(self.str_list_blocks)
-        self.combo1.activated.connect(self.combo1_new_item_selected)
-
-        self.combo2 = QComboBox()
-        self.combo2.addItems(self.str_list_blocks)
-        self.combo2.activated.connect(self.combo2_new_item_selected)
-
-        self.combo3 = QComboBox()
-        self.combo3.addItems(self.str_list_blocks)
-        self.combo3.activated.connect(self.combo3_new_item_selected)
-
-        self.combo1.setFixedSize(50, 25)
-        self.combo2.setFixedSize(50, 25)
-        self.combo3.setFixedSize(50, 25)
-
-        fm_group_layout.addWidget(self.combo1, 0, 1)
-        fm_group_layout.addWidget(self.combo2, 1, 1)
-        fm_group_layout.addWidget(self.combo3, 2, 1)
-
-        self.toggle1 = AnimatedToggle()
-        self.toggle1.setFixedSize(self.toggle1.sizeHint())
-        self.toggle1.clicked.connect(self.toggle1_clicked)
-
-        self.toggle2 = AnimatedToggle()
-        self.toggle2.setFixedSize(self.toggle2.sizeHint())
-        self.toggle2.clicked.connect(self.toggle2_clicked)
-
-        self.toggle3 = AnimatedToggle()
-        self.toggle3.setFixedSize(self.toggle3.sizeHint())
-        self.toggle3.clicked.connect(self.toggle3_clicked)
-
-        fm_group_layout.addWidget(self.toggle1, 0, 2)
-        fm_group_layout.addWidget(self.toggle2, 1, 2)
-        fm_group_layout.addWidget(self.toggle3, 2, 2)
-
-        self.failure_modes_group.setLayout(fm_group_layout)
-        layout.addWidget(self.failure_modes_group, 2, 2, 1, 1)
+        for i in range(1, len(self.str_list_blocks) + 1):
+            self.str_list_blocks[i-1] = self.track_model.get_data()[i, 1] + self.str_list_blocks[i-1]
+        # self.combo1 = QComboBox()
+        # self.combo1.addItems(self.str_list_blocks)
+        # self.combo1.activated.connect(self.combo1_new_item_selected)
+        #
+        # self.combo2 = QComboBox()
+        # self.combo2.addItems(self.str_list_blocks)
+        # self.combo2.activated.connect(self.combo2_new_item_selected)
+        #
+        # self.combo3 = QComboBox()
+        # self.combo3.addItems(self.str_list_blocks)
+        # self.combo3.activated.connect(self.combo3_new_item_selected)
+        #
+        # self.combo1.setFixedSize(60, 25)
+        # self.combo2.setFixedSize(60, 25)
+        # self.combo3.setFixedSize(60, 25)
+        #
+        # fm_group_layout.addWidget(self.combo1, 0, 1)
+        # fm_group_layout.addWidget(self.combo2, 1, 1)
+        # fm_group_layout.addWidget(self.combo3, 2, 1)
+        #
+        # self.toggle1 = AnimatedToggle()
+        # self.toggle1.setFixedSize(self.toggle1.sizeHint())
+        # self.toggle1.clicked.connect(self.toggle1_clicked)
+        #
+        # self.toggle2 = AnimatedToggle()
+        # self.toggle2.setFixedSize(self.toggle2.sizeHint())
+        # self.toggle2.clicked.connect(self.toggle2_clicked)
+        #
+        # self.toggle3 = AnimatedToggle()
+        # self.toggle3.setFixedSize(self.toggle3.sizeHint())
+        # self.toggle3.clicked.connect(self.toggle3_clicked)
+        #
+        # fm_group_layout.addWidget(self.toggle1, 0, 2)
+        # fm_group_layout.addWidget(self.toggle2, 1, 2)
+        # fm_group_layout.addWidget(self.toggle3, 2, 2)
+        #
+        # self.failure_modes_group.setLayout(fm_group_layout)
 
         # Temperature Controls
         self.temperature_controls_group = QGroupBox("Temperature Controls")
@@ -221,20 +115,6 @@ class Window(QMainWindow):
         self.slider_label.setText("74 °F")
 
         self.temperature_controls_group.setLayout(tc_layout)
-        layout.addWidget(self.temperature_controls_group, 2, 3, 1, 1)
-
-        # Map
-        self.map_group = QGroupBox("Map")
-        map_layout = QVBoxLayout()
-
-        self.dynamic_map = DynamicMap()
-        self.dynamic_map.button_a.clicked.connect(self.button_a_clicked)
-        self.dynamic_map.button_b.clicked.connect(self.button_b_clicked)
-        self.dynamic_map.button_c.clicked.connect(self.button_c_clicked)
-        map_layout.addWidget(self.dynamic_map)
-
-        self.map_group.setLayout(map_layout)
-        layout.addWidget(self.map_group, 0, 2, 2, 3)
 
         # Upload Button
         self.upload_layout_group = QGroupBox("Upload Track Layout")
@@ -247,37 +127,82 @@ class Window(QMainWindow):
         self.current_file_label = QLabel('Reading from\n"' + self.file_name.split('/')[-1] + '"')
         ul_layout.addWidget(self.current_file_label)
 
-        self.upload_layout_group.setLayout(ul_layout)
-        layout.addWidget(self.upload_layout_group, 2, 4, 1, 1)
-
-        # MAP FOR TESTING
-        self.map_group = QGroupBox("Map")
-        map_layout = QVBoxLayout()
-
-        self.map_table = QTableWidget()
-        self.map_table.setAlternatingRowColors(True)
-
-        m, n = self.track_model.get_data().shape
-        self.map_table.setRowCount(m - 1)
-        self.map_table.setColumnCount(n)
-        # print(self.track_model.get_data()[0, :])
-        # self.track_model.output_data_as_excel()
-        self.map_table.setHorizontalHeaderLabels(self.track_model.get_data()[0, :])
-        self.map_table.verticalHeader().setVisible(False)
-        self.map_table.setMinimumWidth(300)
-
-        for i in range(1, m):
-            for j in range(0, n):
-                self.map_table.setItem(i - 1, j, QTableWidgetItem(str(self.track_model.get_data()[i, j])))
-
-        map_layout.addWidget(self.map_table)
-        self.map_group.setLayout(map_layout)
-        layout.addWidget(self.map_group, 0, 2, 2, 3)
-
         # Test Bench Button
-        self.test_bench_button = QPushButton("Test Bench")
-        self.test_bench_button.clicked.connect(self.test_bench_button_clicked)
-        layout.addWidget(self.test_bench_button, 3, 4, 1, 1)
+        # self.test_bench_button = QPushButton("Test Bench")
+        # self.test_bench_button.clicked.connect(self.test_bench_button_clicked)
+        # ul_layout.addWidget(self.test_bench_button)
+
+        self.upload_layout_group.setLayout(ul_layout)
+
+        # block view
+        self.block_view_layout_group = QGroupBox("Block Info")
+        bv_layout = QGridLayout()
+        # block selection combo
+        self.block_info_combo = QComboBox()
+        self.block_info_combo.addItems(self.str_list_blocks)
+        self.block_info_combo.activated.connect(self.refresh_block_info)
+        self.block_info_combo.setFixedSize(60, 25)
+        bv_layout.addWidget(self.block_info_combo)
+        # block info labels
+        info = track_model.get_block_info(1)
+        self.length_label = QLabel('length = ' + str(info[0]))
+        self.grade_label = QLabel('grade = ' + str(info[1]))
+        self.speed_lim_label = QLabel('speed lim = ' + str(info[2]))
+        self.elevation_label = QLabel('elevation = ' + str(info[3]))
+        self.occupied_label = QLabel('occupied = ' + str(info[4]))
+        self.beacon_label = QLabel('beacon = ' + str(info[5]))
+        self.track_heated_label = QLabel('track heated = ' + str(info[6]))
+        self.underground_label = QLabel('underground = ' + str(info[7]))
+        self.power_fail_label = QLabel('power failure = ' + str(info[8]))
+        self.track_circ_fail_label = QLabel('track circuit failure = ' + str(info[9]))
+        self.broken_rail_label = QLabel('broken rail failure = ' + str(info[10]))
+        self.switch_label = QLabel('switch = ' + str(info[11]))
+        self.signal_label = QLabel('signal = ' + str(info[12]))
+        self.rxr_label = QLabel('rxr = ' + str(info[13]))
+        bv_layout.addWidget(self.length_label, 1, 0)
+        bv_layout.addWidget(self.grade_label, 2, 0)
+        bv_layout.addWidget(self.speed_lim_label, 3, 0)
+        bv_layout.addWidget(self.elevation_label, 4, 0)
+        bv_layout.addWidget(self.occupied_label, 5, 0)
+        bv_layout.addWidget(self.beacon_label, 6, 0)
+        bv_layout.addWidget(self.track_heated_label, 7, 0)
+        bv_layout.addWidget(self.underground_label, 8, 0)
+        # failures
+        bv_layout.addWidget(self.power_fail_label, 1, 1)
+        bv_layout.addWidget(self.track_circ_fail_label, 2, 1)
+        bv_layout.addWidget(self.broken_rail_label, 3, 1)
+        # infrastructure
+        bv_layout.addWidget(self.switch_label, 4, 1)
+        bv_layout.addWidget(self.signal_label, 5, 1)
+        bv_layout.addWidget(self.rxr_label, 6, 1)
+        # train dictionary display
+        self.train_dict_label = QLabel('Trains: ' + str(self.track_model.get_train_dict()))
+        bv_layout.addWidget(self.train_dict_label)
+        # failure combo/toggle
+        self.failure_combo = QComboBox()
+        self.failure_combo.addItems(['Power Failure', 'Track Circuit Failure', 'Broken Rail Failure'])
+        self.failure_combo.activated.connect(self.failure_combo_updated)
+
+        self.failure_toggle = AnimatedToggle()
+        self.failure_toggle.setFixedSize(self.failure_toggle.sizeHint())
+        self.failure_toggle.clicked.connect(self.failure_toggle_clicked)
+        self.block_view_layout_group.setLayout(bv_layout)
+        bv_layout.addWidget(self.failure_combo, 9, 0)
+        bv_layout.addWidget(self.failure_toggle, 9, 1)
+        # map
+        self.map_layout_group = QGroupBox("Map")
+        m_layout = QVBoxLayout()
+        self.map = Map()
+        self.pix_dict = self.map.get_pix_dict()
+        m_layout.addWidget(self.map)
+        self.map_layout_group.setLayout(m_layout)
+
+        # add layouts to parent layout
+        layout.addWidget(self.block_view_layout_group, 0, 0, 2, 1)
+        layout.addWidget(self.map_layout_group, 0, 1, 2, 2)
+        layout.addWidget(self.upload_layout_group, 2, 2, 1, 1)
+        layout.addWidget(self.temperature_controls_group, 2, 1, 1, 1)
+        # layout.addWidget(self.failure_modes_group, 2, 0, 1, 1)
 
         # center widget
         center_widget = QWidget()
@@ -319,149 +244,90 @@ class Window(QMainWindow):
         # return our new file name
         return self.file_name
 
-    def button_a_clicked(self):
-        self.selected_section = 'A'
-        self.section_refresh()
-
-    def button_b_clicked(self):
-        self.selected_section = 'B'
-        self.section_refresh()
-
-    def button_c_clicked(self):
-        self.selected_section = 'C'
-        self.section_refresh()
-
     def combo1_new_item_selected(self):
         # sets the value of the toggle based on the value from our data
-        block = int(self.combo1.currentText())
+        block = int(self.combo1.currentText()[1:])
         print(self.track_model.get_data()[block, 13])
         self.toggle1.setChecked(self.track_model.get_data()[block, 13])
 
     def toggle1_clicked(self):
-        block = int(self.combo1.currentText())
-        val = int(self.toggle1.isChecked())
+        block = int(self.combo1.currentText()[1:])
+        val = bool(self.toggle1.isChecked())
         self.track_model.set_power_failure(block, val)
         self.refresh()
 
     def combo2_new_item_selected(self):
         # sets the value of the toggle based on the value from our data
-        block = int(self.combo2.currentText())
+        block = int(self.combo2.currentText()[1:])
         self.toggle2.setChecked(self.track_model.get_data()[block, 14])
 
     def toggle2_clicked(self):
-        block = int(self.combo2.currentText())
-        val = int(self.toggle2.isChecked())
+        block = int(self.combo2.currentText()[1:])
+        val = bool(self.toggle2.isChecked())
         self.track_model.set_track_circuit_failure(block, val)
         self.refresh()
 
     def combo3_new_item_selected(self):
         # sets the value of the toggle based on the value from our data
-        block = int(self.combo3.currentText())
+        block = int(self.combo3.currentText()[1:])
         self.toggle3.setChecked(self.track_model.get_data()[block, 15])
 
     def toggle3_clicked(self):
-        block = int(self.combo3.currentText())
-        val = int(self.toggle3.isChecked())
+        block = int(self.combo3.currentText()[1:])
+        val = bool(self.toggle3.isChecked())
         self.track_model.set_broken_rail_failure(block, val)
         self.refresh()
 
-    def data_and_tables_refresh(self):
-        # data
-        self.table1_data = self.track_model.get_block_table(self.selected_section)
-        self.table2_data = self.track_model.get_station_table(self.selected_section)
-        self.table3_data = self.track_model.get_infrastructure_table(self.selected_section)
-        # table1
-        m, n = self.table1_data.shape
-        self.table1.setRowCount(m - 1)
-        self.table1.verticalHeader().setVisible(False)
-        for i in range(1, m):
-            for j in range(0, n):
-                self.table1.setItem(i - 1, j, QTableWidgetItem(str(self.table1_data[i, j])))
-        # table2
-        m, n = self.table2_data.shape
-        self.table2.setRowCount(m)
-        for i in range(0, m):
-            for j in range(0, n):
-                self.table2.setItem(i, j, QTableWidgetItem(str(self.table2_data[i, j])))
-        # table3
-        m, n = self.table3_data.shape
-        self.table3.setRowCount(m)
-        self.table3.setColumnCount(3)
-        for i in range(0, m):
-            for j in range(0, n):
-                self.table3.setItem(i, j, QTableWidgetItem(str(self.table3_data[i, j])))
+    def failure_combo_updated(self):
+        pass
 
-    def section_refresh(self):
-        # data
-        self.table1_data = self.track_model.get_block_table(self.selected_section)
-        self.table2_data = self.track_model.get_station_table(self.selected_section)
-        self.table3_data = self.track_model.get_infrastructure_table(self.selected_section)
-        # table1
-        m, n = self.table1_data.shape
-        self.table1.setRowCount(m - 1)
-        self.table1.verticalHeader().setVisible(False)
-        for i in range(1, m):
-            for j in range(0, n):
-                self.table1.setItem(i - 1, j, QTableWidgetItem(str(self.table1_data[i, j])))
-        # table2
-        m, n = self.table2_data.shape
-        self.table2.setRowCount(m)
-        for i in range(0, m):
-            for j in range(0, n):
-                self.table2.setItem(i, j, QTableWidgetItem(str(self.table2_data[i, j])))
-        # table3
-        m, n = self.table3_data.shape
-        self.table3.setRowCount(m)
-        self.table3.setColumnCount(3)
-        for i in range(0, m):
-            for j in range(0, n):
-                self.table3.setItem(i, j, QTableWidgetItem(str(self.table3_data[i, j])))
-
-        # failure drop-downs
-        self.str_list_blocks = list(self.table1_data[1:, 0].astype(str))
-        self.combo1.clear()
-        self.combo2.clear()
-        self.combo3.clear()
-        self.combo1.addItems(self.str_list_blocks)
-        self.combo2.addItems(self.str_list_blocks)
-        self.combo3.addItems(self.str_list_blocks)
-
-    def refresh(self):
-        # MAP FOR TESTING
-        m, n = self.track_model.get_data().shape
-        for i in range(1, m):
-            for j in range(0, n):
-                self.map_table.setItem(i - 1, j, QTableWidgetItem(str(self.track_model.get_data()[i, j])))
+    def failure_toggle_clicked(self):
+        pass
 
     def test_bench_button_clicked(self):
-        self.test_bench_window.apply_clicked.connect(self.on_apply_clicked)
-        self.test_bench_window.show()
+        print('Testing Benchmark')
+        self.map.populate_map({1: 63, 2: 120})
+        print('passed')
+        # self.counter += 1
+        # self.move_block(self.full_path[self.counter])
 
-    def on_apply_clicked(
-            self, commanded_speed, authority, switches, lights, rxr, train_presence, disembarking_passengers):
-        print(commanded_speed, authority, switches, lights, rxr, train_presence, disembarking_passengers)
-        # update switches
+    def refresh_block_info(self):
+        block = int(self.block_info_combo.currentText()[1:])
+        info = self.track_model.get_block_info(block)
+        self.length_label.setText('length = ' + str(info[0]))
+        self.grade_label.setText('grade = ' + str(info[1]))
+        self.speed_lim_label.setText('speed lim = ' + str(info[2]))
+        self.elevation_label.setText('elevation = ' + str(info[3]))
+        self.occupied_label.setText('occupied = ' + str(info[4]))
+        self.beacon_label.setText('beacon = ' + str(info[5]))
+        self.track_heated_label.setText('track heated = ' + str(info[6]))
+        self.underground_label.setText('underground = ' + str(info[7]))
 
-        # update lights
+        self.power_fail_label.setText('power failure = ' + str(info[8]))
+        self.track_circ_fail_label.setText('track circuit failure = ' + str(info[9]))
+        self.broken_rail_label.setText('broken rail failure = ' + str(info[10]))
 
-        # update rxr
+        self.switch_label.setText('switch = ' + str(info[11]))
+        self.signal_label.setText('signal = ' + str(info[12]))
+        self.rxr_label.setText('rxr = ' + str(info[13]))
 
-        # update train presence
-        # for i in range(1, self.track_model.get_num_blocks):
-        #     self.track_model.set_occupancy_from_train_presence(i, train_presence[i])
-        # update disembarking passengers
+        self.train_dict_label.setText('Trains: ' + str(self.track_model.get_train_dict()))
 
-        # disembarking from TB
-        # for i in range(0, m):
-        #     self.table2.setItem(i, 6, QTableWidgetItem('0'))
+    def add_train(self):
+        self.map.add_train()
 
-        # refresh tables
-        self.section_refresh()
+    def move_train(self, train_id, block):
+        self.map.move_train(train_id, block)
+
+    def refresh(self):
+        self.refresh_block_info()
+        print('refresh ui called')
+
 
 ##############################
 # Run app
 ##############################
-
+#
 # app = QApplication(sys.argv)
 # window = Window()
 # window.show()
