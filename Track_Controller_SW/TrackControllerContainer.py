@@ -196,7 +196,6 @@ class TrackControllerContainer(QObject):
         for key in self.zero_speed_flag_dict_B.keys():
             self.zero_speed_flag_dict[key] = self.zero_speed_flag_dict_B[key]
 
-
         update_occupancy_C_result = self.trackControllerC.update_occupancy(self.occupancy_dict_C)
         zero_speed_flag_dict_C = update_occupancy_C_result[0]
         self.zero_speed_flag_dict.update(zero_speed_flag_dict_C)

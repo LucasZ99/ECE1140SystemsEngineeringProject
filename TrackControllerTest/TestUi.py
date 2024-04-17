@@ -68,8 +68,12 @@ class TestUi(QMainWindow):
         self.test_business_logic.track_signal_authority_update(authority=self.authority_select.currentIndex())
 
     def occupancy_update(self):
-        self.blocks_occupancy[self.occupancy_block_select.currentIndex()+1] \
-            = not self.blocks_occupancy[self.occupancy_block_select.currentIndex()+1]
+        if (self.occupancy_block_select.currentIndex() + 1) < 58:
+            self.blocks_occupancy[self.occupancy_block_select.currentIndex()+1] \
+                = not self.blocks_occupancy[self.occupancy_block_select.currentIndex()+1]
+        else:
+            self.blocks_occupancy[self.occupancy_block_select.currentIndex()+5] \
+                = not self.blocks_occupancy[self.occupancy_block_select.currentIndex()+5]
 
         self.test_business_logic.occupancy_update(blocks_occupancy=self.blocks_occupancy)
         self.update_occupancy_block_select()
