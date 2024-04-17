@@ -20,7 +20,7 @@ class UITrain(QMainWindow):
     tons_per_kilogram = 0.00110231
     feet_per_meter = 3.28084
 
-    def __init__(self, bus=TrainBusinessLogic()):
+    def __init__(self, bus=TrainBusinessLogic(SystemTimeContainer())):
         super(UITrain, self).__init__()
 
         # load the ui file

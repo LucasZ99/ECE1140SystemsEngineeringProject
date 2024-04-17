@@ -21,6 +21,7 @@ class TrainBusinessLogic(QObject):
     
     def __init__(self):
         super().__init__()
+        self.time = SystemTime.time()
 
     def track_model_inputs(self, input_list, index):
         if len(self.train_dict) == 0:
@@ -90,7 +91,7 @@ class TrainBusinessLogic(QObject):
         self.values_updated.emit()
 
     def add_train(self, controller_container: TrainController_Tot_Container):
-        self.time = self.time_keeper.system_time.time()
+        self.time = SystemTime.time()
         if len(self.train_dict) == 0:
             self.train_dict[1] = TrainModel(controller_container, 1, self.num_cars)
             index = 1
