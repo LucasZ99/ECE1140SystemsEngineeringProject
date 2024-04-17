@@ -19,7 +19,7 @@ import time
 ##############################
 # Main Window
 ##############################
-class Window(QMainWindow):
+class Window(QMainWindow):  # TODO: FAILURE MODE FROM NEW COMBOBOX
     def __init__(self, track_model):
         super().__init__()
         # Backend
