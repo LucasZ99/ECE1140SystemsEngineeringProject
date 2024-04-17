@@ -19,7 +19,7 @@ class TrainSystem(QThread):
     def run(self):
         while True:
             self.ctc_container.update_ctc_from_wayside(self.track_controller.block_occupancies, [], [], [])
-            self.ctc_container.update_wayside_from_ctc
+            # self.ctc_container.update_wayside_from_ctc
 
 class CTCTestContainer(QObject):
     open_test_ui = pyqtSignal()
