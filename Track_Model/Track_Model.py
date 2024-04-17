@@ -351,7 +351,7 @@ class TrackModel(QObject):
         for key, value in self.train_dict_meters.items():
             if value > self.cumulative_distance[self.train_dict_relative[key]]:
                 self.train_dict_relative[key] += 1
-                self.map_move_train_signal(key, self.full_path[self.train_dict_relative[key]])  # refresh map ui
+                self.map_move_train_signal.emit(key, self.full_path[self.train_dict_relative[key]])  # refresh map ui
             if self.train_dict_relative[key] >= 150:  # check if we should remove trains
                 del self.train_dict_meters[key]
                 del self.train_dict_relative[key]
@@ -415,16 +415,14 @@ class TrackModel(QObject):
     #     self.new_ticket_sales_signal.emit(self.ticket_sales)
     #     return int(self.ticket_sales)
 
-    def update_infrastructure(self, switch_changed_indexes, signal_changed_indexes, rr_crossing_indexes,
-                                               toggle_block_indexes):
-        print(f'Track Model: switch_changed_indexes = {switch_changed_indexes}')
-        for index in switch_changed_indexes:
-            self.data[index, 19] = not self.data[index, 19]
-        for index in signal_changed_indexes:
-            self.data[index, 21] = not self.data[index, 21]
-        for index in rr_crossing_indexes:
-            self.data[index, 19] = not self.data[index, 19]
-        for index in toggle_block_indexes:
+    def update_infrastructure(self, switch_changed_indexes, signal_changed_indexes, rr_crossing_indexes, toggle_block_indexes):
+        for index, val in switch_changed_indexes:
+            self.data[index, 19] = val
+        for index, val in signal_changed_indexes:
+            self.data[index, 21] = val
+        for index, val in rr_crossing_indexes:
+            self.data[index, 19] = val
+        for index, val in toggle_block_indexes:
             pass  # TODO
 
     # new UI getters

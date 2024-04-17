@@ -156,27 +156,17 @@ class UI(QMainWindow):
     def changecmdspeed(self):
         self.trainctrl.cmdSpeed = self.cmdSpeedTB.value()
 
-        print("train controller sw ui.py: cmd speed updated from test bench")
-        self.trainctrl.vitalitycheck()
-        print("train controller sw ui.py: vitality checked")
         self.trainctrl.powercontrol()
-        print("train controller sw ui.py: power changed after ui")
-        print()
+
+    def changespeedlim(self):
+        self.trainctrl.speedlim = self.speedLimTB.value()
+        self.speedLim.setText(str(self.trainctrl.speedlim))
 
     def changevitalauth(self):
         self.trainctrl.vitalAuth = self.vitalAuthTB.value()
 
         self.trainctrl.authority()
-        print("train controller sw ui.py: authority changed from test bench")
-        self.trainctrl.vitalitycheck()
-        print("train controller sw ui.py: vitality checked")
-        self.trainctrl.powercontrol()
-        print("train controller sw ui.py: power changed after ui")
-        print()
-
-    def changespeedlim(self):
-        self.trainctrl.speedlim = self.speedLimTB.value()
-        self.speedLim.setText(str(self.trainctrl.speedlim))
+        self.trainctrl.powerctrl()
 
     # I can probably get rid of accel and decel lim edits since they are static data and never updated.
     def changeaccellim(self):
