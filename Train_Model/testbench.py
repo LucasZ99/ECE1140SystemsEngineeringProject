@@ -90,13 +90,14 @@ class ContainerTB(QMainWindow):
             return
 
         input_list = list()
-        input_list.append(float(lst[0]))
+        input_list.append(lst[0])
         input_list.append(float(lst[1]))
-        input_list.append(bool(lst[2]))
-        input_list.append(bool(lst[3]))
+        input_list.append(lst[2] == "True")
+        input_list.append(lst[3] == "True")
         input_list.append(int(lst[4]))
-        input_list.append(bool(lst[5]))
-        input_list.append(bool(lst[7]))
+        input_list.append(lst[5])
+        input_list.append(lst[6] == "True")
+        input_list.append(lst[7] == "True")
         self.container.train_controller_inputs(input_list, 1)
 
     def block_pressed(self):
@@ -108,7 +109,7 @@ class ContainerTB(QMainWindow):
         input_list = list()
         input_list.append(float(lst[0]))
         input_list.append(float(lst[1]))
-        input_list.append(bool(lst[2]))
+        input_list.append(lst[2] == "True")
         input_list.append(lst[3])
         self.container.track_update_block(input_list, 1)
 
