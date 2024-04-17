@@ -152,8 +152,9 @@ class Map(QWidget):
         # self.repaint()
 
     def move_train(self, train_id, block):
-        print('map: move train called')
+        print(f'map: move train called, train_id = {train_id}, block = {block}')
         [x, y] = self.pixel_dict[block]
+        print(f'map: train_dict[train_id] = {self.train_dict[train_id]}]')
         self.train_dict[train_id].move(x, y)
         print(f'map: x = {x}, y = {y}')
         # self.repaint()
