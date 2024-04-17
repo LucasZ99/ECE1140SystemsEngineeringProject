@@ -177,7 +177,7 @@ class Window(QMainWindow):  # TODO: FAILURE MODE FROM NEW COMBOBOX
         bv_layout.addWidget(self.rxr_label, 6, 1)
         # train dictionary display
         self.train_dict_label = QLabel('Trains: ' + str(self.track_model.get_train_dict()))
-        bv_layout.addWidget(self.train_dict_label)
+        bv_layout.addWidget(self.train_dict_label, 9, 0)
         # failure combo/toggle
         self.failure_combo = QComboBox()
         self.failure_combo.addItems(['Power Failure', 'Track Circuit Failure', 'Broken Rail Failure'])
