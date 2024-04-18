@@ -96,7 +96,8 @@ class TrainModel:
         # output_list = [Commanded Speed: float, power: float, service_brake: bool, e_brake: bool, door_side: int,
         # announcement: string, interior_lights: bool, exterior_lights: bool, cabin_temperature: float]
 
-        self.engine.set_power(output_list[1])
+        # self.engine.set_power(output_list[1])
+        self.engine.set_power(100.0)
         self.brakes.service_brake = output_list[2]
         self.brakes.driver_ebrake = output_list[3]
         self.brakes.passenger_ebrake = output_list[3]

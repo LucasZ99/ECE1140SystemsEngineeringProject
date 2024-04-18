@@ -13,11 +13,8 @@ from SystemTime import SystemTimeContainer
 class ContainerTB(QMainWindow):
 
     def __init__(self, container: TrainModelContainer):
-        print("im here 3")
         super(ContainerTB, self).__init__()
-        print("im here 1")
         self.container = container
-        print("im here 2")
 
         # load the ui file
         current_dir = os.path.dirname(__file__)  # setting up to work in any dir
@@ -82,7 +79,7 @@ class ContainerTB(QMainWindow):
         # [commanded speed, vital authority]
         input_lst = list()
         input_lst.append(float(lst[0]))
-        input_lst.append(int(lst[0]))
+        input_lst.append(int(lst[1]))
         self.container.track_model_inputs(input_lst, 1)
 
     def controller_pressed(self):
