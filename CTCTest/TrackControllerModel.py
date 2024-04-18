@@ -12,19 +12,21 @@ class TrackControllerModel(QObject):
     update_test_ui_speeds_authorities = pyqtSignal(list)
 
     def __init__(self):
+        print("Track Controller Model init")
         super().__init__()
-        self.block_occupancies = {}
+        self.block_occupancies: [int, bool] = {}
         self.switches = {}
         self.signals = {}
         self.rr_crossings = {}
 
-        self.updated_occupancies = {}
-        self.updated_switches = []
-        self.updated_lights = []
         self.updated_railroad_crossing_states = []
+        self.track_signals = {}
 
         for block in GREEN_LINE[BLOCKS]:
             self.block_occupancies[block] = VACANT
+
+        for block in GREEN_LINE[BLOCKS]:
+            self.track_signals[block] = TrackSignal(block, 0, 0)
 
         for switch in GREEN_LINE[SWITCHES]:
             self.switches[switch.block] = switch
@@ -35,24 +37,24 @@ class TrackControllerModel(QObject):
         for rr_crossing in GREEN_LINE[CROSSINGS]:
             self.rr_crossings[rr_crossing.block] = rr_crossing
 
-    # define to/from CTC endpoints
-    # @pyqtSlot(list, bool, list, list)
-    # def update_wayside_from_ctc(self,
-    #                             authority_speed_update: list[TrackSignal],
-    #                             maintenance_mode_override_flag: bool,
-    #                             blocks_to_close_open: list[tuple[int, bool]],
-    #                             updated_switches: list[Switch]):
-    #     self.update_test_ui_speeds_authorities.emit(authority_speed_update)
-    #     self.update_ctc_from_wayside(self.changed_occupancies, self.updated_switches, self.updated_lights, self.updated_railroad_crossing_states)
+    def get_occupancy_updates(self) -> dict[int: bool]:
+        return self.block_occupancies
 
-    def update_ctc_from_wayside(self,
-                                block_occupancy_update: dict[int, bool],
-                                switch_positions: list[Switch],
-                                light_states: list[Light],
-                                rr_crossing_states: list[RRCrossing]):
-        self.update_ctc_from_wayside_signal.emit(block_occupancy_update, switch_positions, light_states, rr_crossing_states)
+    @pyqtSlot(list, bool, list, list)
+    def update_wayside_from_ctc(self, track_signals: list[TrackSignal],
+                                maintenance_mode_override: bool,
+                                blocks_to_set_mode: list[tuple[int, bool]],
+                                switches: list[Switch]):
+        if track_signals.__len__() > 0:
+            # print("wayside: updating track signals")
+            for track_signal in track_signals:
+                self.track_signals[track_signal.block_id] = track_signal
+            self.update_test_ui_speeds_authorities.emit(track_signals)
+            track_signals.clear()
+
+        # self.update_ctc_from_wayside_signal.emit(self.block_occupancies, [], [], [])
 
     def update_block_occupancy(self, block_id: int, status: bool):
         self.block_occupancies[block_id] = status
         print(GREEN_LINE[BLOCKS][block_id].name, status)
-        self.update_ctc_from_wayside_signal.emit({block_id: status}, [], [], [])
+        # self.updated_occupancies[block_id] = status

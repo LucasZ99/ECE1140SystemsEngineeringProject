@@ -10,16 +10,16 @@ from SystemTime import SystemTimeContainer
 
 
 class TrainSystem(QThread):
-    def __init__(self, ctc_container: CTCContainer, track_controller: TrackControllerModel):
+    def __init__(self, ctc_container: CTCContainer, test_container: CTCTestUIContainer) -> None:
         super().__init__()
         self.ctc_container = ctc_container
-        self.track_controller = track_controller
+        self.test_container = test_container
 
     # main loop
     def run(self):
         while True:
-            self.ctc_container.update_ctc_from_wayside(self.track_controller.block_occupancies, [], [], [])
-            # self.ctc_container.update_wayside_from_ctc
+            self.ctc_container.update_wayside_from_ctc()
+
 
 class CTCTestContainer(QObject):
     open_test_ui = pyqtSignal()
@@ -32,21 +32,16 @@ class CTCTestContainer(QObject):
         self.ctc_test_ui_container = CTCTestUIContainer(self.track_controller)
         print("ctc container instantiated")
         self.system_time_container = SystemTimeContainer()
-
-        self.train_system_backend = TrainSystem(self.ctc_container, self.track_controller)
+        self.train_system_backend = TrainSystem(self.ctc_container, self.ctc_test_ui_container)
 
     def init_test_container(self):
-        self.track_controller.update_ctc_from_wayside_signal.connect(self.ctc_container.update_ctc_from_wayside)
-        # self.ctc_container.update_wayside_from_ctc_signal.connect(self.track_controller.update_wayside_from_ctc)
+        self.ctc_container.update_wayside_from_ctc_signal.connect(
+             self.ctc_test_ui_container.update_test_container_from_ctc_slot)
+        self.ctc_test_ui_container.update_ctc_from_test_container_signal.connect(
+             self.ctc_container.update_ctc_from_wayside)
 
         self.system_time_container.show_ui()
-
         self.ctc_container.show_ui()
-
-
-        # test_ui.show()
-        # test_ui.open_uis()
-
         self.train_system_backend.start()
         self.ctc_test_ui_container.show_ui()
 
@@ -59,6 +54,7 @@ def run_ctc_test_container():
 
 
 if __name__ == '__main__':
+    sys.settrace
     # ctc_test_thread = threading.Thread(target=run_ctc_test_container)
     # ctc_test_thread.start()
     run_ctc_test_container()
