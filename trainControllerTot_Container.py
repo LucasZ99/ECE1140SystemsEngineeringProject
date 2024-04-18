@@ -33,8 +33,9 @@ class TrainController_Tot_Container(QObject):
     # ================================================================================
     # return HW/SW Container
     def new_train_controller(self):
-        print("AHHHHHHHHHHHHHHHH",self.HW_index)
-        if self.HW_index or self.HW_index != 0:
+        #print("AHHHHHHHHHHHHHHHH",self.HW_index)
+        
+        if self.HW_index or self.HW_index == 0:
             trainCtrl = TrainControllerSWContainer()
             #self.new_train_controller_signal.emit(trainCtrl)
             print("train controller tot container.py: software train controller made")
