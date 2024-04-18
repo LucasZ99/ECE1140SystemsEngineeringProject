@@ -40,8 +40,9 @@ class TrainController_Tot_Container(QObject):
         else:
             self.HW_index = len(self.ctrl_list)
             trainCtrl = TrainControler_HW_Container(True)
+            print("train controller tot container.py: hardware train controller made")
         self.ctrl_list.append(trainCtrl)
-        self.add_to_list()
+        #self.add_to_list()
         return trainCtrl
 
     # gonna need a show ui method for the list of sw controllers
@@ -69,7 +70,7 @@ class TrainController_Tot_Container(QObject):
 
         app.exec()
 
-    def add_to_list(self):
+    '''def add_to_list(self):
         if self.SWuiExists:
             self.swUI.addtrain(self.ctrl_list)
         pass
@@ -77,7 +78,7 @@ class TrainController_Tot_Container(QObject):
     @pyqtSlot(bool)
     def sw_ui_state(self, value):
         self.SWuiExists = value
-        print(f'train controller tot container.py: software ui state: {self.SWuiExists}')
+        print(f'train controller tot container.py: software ui state: {self.SWuiExists}')'''
 
 
 # ================================================================================

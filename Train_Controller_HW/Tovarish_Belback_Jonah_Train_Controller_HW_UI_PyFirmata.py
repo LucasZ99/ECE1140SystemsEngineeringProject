@@ -398,12 +398,8 @@ class HW_UI_JEB382_PyFirmat():
             elif self.TrainModel_arr[1] == 0 or self.TrainModel_arr[2] == 0:
                 print("TrainC HW: moving: cancel: no auth and/or cmd spd")
                 self.output_arr[1] = 0
-            else:
-                '''if __name__ != "__main__" and sys.argv[0][-10:-3] != "Testing":
-                    currtime = SystemTime.time()
-                else:
-                    currtime = time.time()'''
-                
+            else:                    
+                print("TrainC HW: moving: moving confirm")
                 
                 V_err = self.output_arr[0] - self.TrainModel_arr[0] #Verr=Vcmd-Vactual ; m/s-m/s
                 #T = currtime-self.timeL #sec-sec
@@ -425,10 +421,7 @@ class HW_UI_JEB382_PyFirmat():
                 
                 if self.Pcmd > Pmax: self.Pcmd=Pmax
                 elif self.Pcmd < 0: self.Pcmd=0
-            
                 #print(f"Pcmd: {self.Pcmd}\t{V_err}\t{uk}\n{T}\t{currtime}\t{self.timeL}")
-            
-                #self.timeL = currtime
                 self.uk1 = uk
                 self.ek1 = V_err
             
