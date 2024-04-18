@@ -185,7 +185,7 @@ class HW_UI_JEB382_PyFirmat():
         self.Pcmd=0
         self.polarity = bool(self.TrainModel_arr[4])
         self.blockNum = 1#62 [IT3 application]
-        self.speedlimit=30
+        self.speedlimit=30#[IT3 application]
         
         #distance traveled
         self.passover=False
@@ -382,7 +382,7 @@ class HW_UI_JEB382_PyFirmat():
                 self.output_arr[0] = self.TrainModel_arr[1]
             
             self.speedlimit = int(linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum).split("\t")[4])
-            if self.output_arr[0] > self.speedlimit: self.output_arr[0] = float(self.speedlimit)
+            if self.output_arr[0] > (self.speedlimit/3.6): self.output_arr[0] = float((self.speedlimit/3.6))#TODO: SPDLMT is KM/HR, CONVERT
             
             
             #-----------------------------------------------------------------------------------------------------------------------
