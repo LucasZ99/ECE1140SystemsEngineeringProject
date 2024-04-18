@@ -33,7 +33,8 @@ class TrainController_Tot_Container(QObject):
     # ================================================================================
     # return HW/SW Container
     def new_train_controller(self):
-        if self.HW_index:
+        print("AHHHHHHHHHHHHHHHH",self.HW_index)
+        if self.HW_index or self.HW_index != 0:
             trainCtrl = TrainControllerSWContainer()
             #self.new_train_controller_signal.emit(trainCtrl)
             print("train controller tot container.py: software train controller made")
@@ -42,7 +43,7 @@ class TrainController_Tot_Container(QObject):
             trainCtrl = TrainControler_HW_Container(True)
             print("train controller tot container.py: hardware train controller made")
         self.ctrl_list.append(trainCtrl)
-        #self.add_to_list()
+        self.add_to_list()
         return trainCtrl
 
     # gonna need a show ui method for the list of sw controllers
@@ -70,7 +71,7 @@ class TrainController_Tot_Container(QObject):
 
         app.exec()
 
-    '''def add_to_list(self):
+    def add_to_list(self):
         if self.SWuiExists:
             self.swUI.addtrain(self.ctrl_list)
         pass
@@ -78,15 +79,22 @@ class TrainController_Tot_Container(QObject):
     @pyqtSlot(bool)
     def sw_ui_state(self, value):
         self.SWuiExists = value
-        print(f'train controller tot container.py: software ui state: {self.SWuiExists}')'''
+        print(f'train controller tot container.py: software ui state: {self.SWuiExists}')
 
 
 # ================================================================================
 def TrainC_main():
     trainctrlcntr = TrainController_Tot_Container()
     cntrl = trainctrlcntr.new_train_controller()  # removed (type) as parameter
-    while True:
-        cntrl.show_ui()
+    cntrl.show_ui()
+    cntrl = trainctrlcntr.new_train_controller()  # removed (type) as parameter
+    cntrl.show_ui()
+    cntrl = trainctrlcntr.new_train_controller()  # removed (type) as parameter
+    cntrl.show_ui()
+    cntrl = trainctrlcntr.new_train_controller()  # removed (type) as parameter
+    cntrl.show_ui()
+    '''while True:
+        cntrl.show_ui()'''
 
 
 if __name__ == "__main__":
