@@ -66,7 +66,6 @@ class TrainModelContainer(QObject):
             self.business_logic.track_model_inputs(input_list, index)
             self.train_dict = self.business_logic.train_dict
 
-
     def train_controller_inputs(self, input_list, index):
         print("Train model Container: train_controller_inputs called")
         # the list provided should have the entries in this order: [commanded speed, power, service brake,
