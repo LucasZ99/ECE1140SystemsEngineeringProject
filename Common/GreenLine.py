@@ -37,7 +37,7 @@ GREEN_LINE = {
         RRCrossing(19, False)
     ],
     BLOCKS: {
-        GREEN_LINE_YARD_SPAWN: Block("YARD", 50, 30),
+        GREEN_LINE_YARD_SPAWN: Block("K62", 50, 30),
         1: Block("A1", 100, 45),
         2: Block("A2", 100, 45),
         3: Block("A3", 100, 45),
@@ -183,7 +183,7 @@ GREEN_LINE = {
         148: Block("Y148", 50, 20),
         149: Block("Y149", 50, 20),
         150: Block("Z150", 50, 20),
-        GREEN_LINE_YARD_DELETE: Block("YARD", 50, 20)
+        GREEN_LINE_YARD_DELETE: Block("K58", 50, 20)
     },
     ROUTE: [
         GREEN_LINE_YARD_SPAWN,
@@ -255,6 +255,7 @@ GREEN_LINE = {
         119,
         120,
         121,
+        122,
         123,
         124,
         125,

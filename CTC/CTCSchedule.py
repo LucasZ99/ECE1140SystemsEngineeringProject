@@ -21,10 +21,11 @@ class CTCSchedule:
         print("CTCSchedule: Train Scheduled.")
         print("\tDeparture time: ", train.departure_time())
         print(f"\t {time_to_str(train.departure_time())}")
+        train.time_to_departure = train.departure_time() - SystemTime.time()
         self.train_list.append(train)
         self.train_list.sort(key=lambda train: train.departure_time())
         self.current_train_number += 1
-        print(f"\tTrain {0} scheduled. Departure time:".format(train.id), time_to_str(train.departure_time()))
+        print(f"\tTrain {train.id} scheduled. Departure time: {time_to_str(train.departure_time())}")
 
     # def get_trains_to_dispatch(self, time:struct_time)->list[Train]:
     #     dispatch_now_list:list[Train] = []
@@ -38,11 +39,16 @@ class CTCSchedule:
     def get_schedule(self) -> list[Train]:
         return self.train_list
 
+    def update_departure_countdowns(self):
+        for train in self.train_list:
+            train.time_to_departure = train.departure_time() - SystemTime.time()
+
     def get_trains_to_dispatch(self) -> list[Train]:
+        self.update_departure_countdowns()
         trains_to_dispatch = []
         for train in self.train_list:
             # round to this current minute 
-            if round(train.departure_time(), -2) == round(SystemTime.time(), -2):
+            if train.time_to_departure < 0:
                 print("CTCSchedule: Train added to dispatch list")
                 trains_to_dispatch.append(train)
 

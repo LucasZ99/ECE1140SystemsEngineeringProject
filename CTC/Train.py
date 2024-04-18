@@ -14,9 +14,12 @@ class Train:
         self.current_stop = 0
         self.current_block = GREEN_LINE_YARD_SPAWN
         self.authority = 0
+        self.at_yard = True
         self.at_last_stop = False
 
         self.previous_block = 0
+        self.progress = 0
+        self.time_to_departure = 0
 
         # determine slowdown of route
 
@@ -47,6 +50,7 @@ class Train:
     def set_to_next_block(self) -> int:
         self.previous_block = self.current_block
         self.current_block = self.get_next_block()
+        self.progress += 1
 
         # check if at next stop
         if self.route[self.next_stop].block == self.current_block:
@@ -120,11 +124,18 @@ class Train:
 
         return next_blocks
 
+    """
+    Returns the train's authorities for the next MSSD blocks or the blocks until the next stop (whichever is shorter),
+    including the current block.
+    """
     def get_next_authorities(self) -> list[tuple[int, int]]:
         authorities = []
         next_blocks = self.get_next_blocks()
         for i in range(0, min(MSSD + 1, self.blocks_to_next_stop())):
             authorities.append((next_blocks[i], self.blocks_to_next_stop() - i - 1))
+
+        # print("CTC.Train: get_next_authorities")
+        # print(f"\t{authorities}\n")
 
         return authorities
 
