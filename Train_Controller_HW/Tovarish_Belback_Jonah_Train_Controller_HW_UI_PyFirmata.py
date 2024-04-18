@@ -363,17 +363,20 @@ class HW_UI_JEB382_PyFirmat():
         
         #if authority<4 and distance to station <= s1 + buffer: serivce brake, power=0, commanded speed=0
         if distance_to_station <= s1+displace_buffer or distance_to_station == s1:
+            print("TrainC HW: service brake")
             self.output_arr[0] = 0
             self.output_arr[1] = 0
             self.output_arr[2] = True
             #while True: print("SBRAKE")
         #elif authority<4 and distance to station <= s1: emergency brake, power=0, commanded speed=0
         elif distance_to_station < s1:
+            print("TrainC HW: emergency brake")
             self.output_arr[0] = 0
             self.output_arr[1] = 0
             self.output_arr[3] = True
             #while True: print("EBRAKE")
-        else:          
+        else:
+            print("TrainC HW: moving")
             #fill out self.output_arr and self.Announcements
             #0   Commanded Speed	                m/s	        How fast the driver has commanded the train to go
             if self.Mode: #Manual
@@ -382,14 +385,18 @@ class HW_UI_JEB382_PyFirmat():
                 self.output_arr[0] = self.TrainModel_arr[1]
             
             self.speedlimit = int(linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum).split("\t")[4])
-            if self.output_arr[0] > (self.speedlimit/3.6): self.output_arr[0] = float((self.speedlimit/3.6))#TODO: SPDLMT is KM/HR, CONVERT
+            if self.output_arr[0] > (self.speedlimit/3.6):
+                self.output_arr[0] = float((self.speedlimit/3.6))#TODO: SPDLMT is KM/HR, CONVERT
+                print("TrainC HW: over speed limit")
             
             
             #-----------------------------------------------------------------------------------------------------------------------
             #1   Power                           Watts	    Engine power (Lec2 Slide61-65 pdf54-58)
             if (self.output_arr[2] or self.output_arr[3]): #Brake overrides
+                print("TrainC HW: moving: cancel: brake")
                 self.output_arr[1] = 0
-            elif self.TrainModel_arr[0] == 0 or self.TrainModel_arr[1] == 0:
+            elif self.TrainModel_arr[1] == 0 or self.TrainModel_arr[2] == 0:
+                print("TrainC HW: moving: cancel: no auth and/or cmd spd")
                 self.output_arr[1] = 0
             else:
                 '''if __name__ != "__main__" and sys.argv[0][-10:-3] != "Testing":
