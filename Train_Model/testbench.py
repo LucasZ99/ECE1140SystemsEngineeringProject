@@ -13,8 +13,11 @@ from SystemTime import SystemTimeContainer
 class ContainerTB(QMainWindow):
 
     def __init__(self, container: TrainModelContainer):
+        print("im here 3")
         super(ContainerTB, self).__init__()
+        print("im here 1")
         self.container = container
+        print("im here 2")
 
         # load the ui file
         current_dir = os.path.dirname(__file__)  # setting up to work in any dir
@@ -129,7 +132,7 @@ class ContainerTB(QMainWindow):
         self.container.remove_train(max(self.container.train_dict.keys()))
 
 
-contain = TrainModelContainer(TrainController_Tot_Container(SystemTimeContainer()), SystemTimeContainer())
+contain = TrainModelContainer(TrainController_Tot_Container())
 app = QApplication(sys.argv)
 ui = ContainerTB(contain)
 app.exec()
