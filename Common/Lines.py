@@ -22,6 +22,5 @@ def get_line_blocks_in_route_order() -> dict[int, Block]:
     blocks_in_route_order = {}
     for block in get_line_route():
         blocks_in_route_order[abs(block)] = get_line_blocks()[abs(block)]
-
     return blocks_in_route_order
 

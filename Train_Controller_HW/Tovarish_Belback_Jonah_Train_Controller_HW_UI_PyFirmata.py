@@ -111,13 +111,12 @@ class DISP_PyF():
 #================================================================================
 #arduino verison of HW UI----------------------------------------------
 class HW_UI_JEB382_PyFirmat():
-    def __init__(self,in_Driver_arr,in_TrainModel_arr,in_output_arr,system_time=None,TestBench=False):
+    def __init__(self,in_Driver_arr,in_TrainModel_arr,in_output_arr,TestBench=False):
         
         #TODO: ADJUST LENGTH AND INDEX BASED ON I/O dictionary
         
         #it = util.Iterator(board)
         #it.start()
-        self.system_time = system_time
         
         in_output_arr = [0.0,0.0, False, False, 0, "", False, False, 68.0]
         self.output_arr = in_output_arr
@@ -179,14 +178,14 @@ class HW_UI_JEB382_PyFirmat():
         self.uk1=0
         self.ek1=0
         if __name__ != "__main__" and sys.argv[0][-10:-3] != "Testing":
-            self.timeL = self.system_time.time()
+            self.timeL = SystemTime.time()
         else:
             print(f"TRAIN CONTROLLER HW: sys.argv[0]: <{sys.argv[0][-10:-3]}>")
             self.timeL = time.time()
         self.Pcmd=0
         self.polarity = bool(self.TrainModel_arr[4])
         self.blockNum = 1#62 [IT3 application]
-        self.speedlimit=30
+        self.speedlimit=30#[IT3 application]
         
         #distance traveled
         self.passover=False
@@ -349,7 +348,7 @@ class HW_UI_JEB382_PyFirmat():
         t1=( (0-float(self.TrainModel_arr[0]))/(-1.2 ) )#*(5/18)
         s1=0.5*(0+float(self.TrainModel_arr[0]))*t1#*(5/18)#1/2 * u * t * conversion of km/hr to m/s
         
-        if __name__ != "__main__" and sys.argv[0][-10:-3] != "Testing": currtime = self.system_time.time()
+        if __name__ != "__main__" and sys.argv[0][-10:-3] != "Testing": currtime = SystemTime.time()
         else: currtime = time.time()
         T = currtime-self.timeL #sec-sec
         
@@ -383,7 +382,7 @@ class HW_UI_JEB382_PyFirmat():
                 self.output_arr[0] = self.TrainModel_arr[1]
             
             self.speedlimit = int(linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum).split("\t")[4])
-            if self.output_arr[0] > self.speedlimit: self.output_arr[0] = float(self.speedlimit)
+            if self.output_arr[0] > (self.speedlimit/3.6): self.output_arr[0] = float((self.speedlimit/3.6))#TODO: SPDLMT is KM/HR, CONVERT
             
             
             #-----------------------------------------------------------------------------------------------------------------------
@@ -394,7 +393,7 @@ class HW_UI_JEB382_PyFirmat():
                 self.output_arr[1] = 0
             else:
                 '''if __name__ != "__main__" and sys.argv[0][-10:-3] != "Testing":
-                    currtime = self.system_time.time()
+                    currtime = SystemTime.time()
                 else:
                     currtime = time.time()'''
                 
@@ -552,7 +551,7 @@ class HW_UI_JEB382_PyFirmat():
 
 #================================================================================
 #help funcs------------------------------------------------------------
-def TC_HW_init(driver,trainmodel,output,system_time,TestB=False):
+def TC_HW_init(driver,trainmodel,output,TestB=False):
     print("TC_HW_init")
     Arduino = True
     
@@ -560,9 +559,7 @@ def TC_HW_init(driver,trainmodel,output,system_time,TestB=False):
         it = util.Iterator(board)  
         it.start()
     
-    return  HW_UI_JEB382_PyFirmat(driver, trainmodel, output,
-                                  system_time,
-                                  TestB)
+    return  HW_UI_JEB382_PyFirmat(driver, trainmodel, output, TestB)
 
 def def_main():
     Arduino = True

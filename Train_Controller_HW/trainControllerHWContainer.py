@@ -5,7 +5,6 @@ import numpy
 from PyQt6.QtCore import QObject, pyqtSignal
 from PyQt6.QtWidgets import QApplication
 
-from SystemTime import SystemTimeContainer
 
 if __name__ == "__main__":
     from Tovarish_Belback_Jonah_Train_Controller_Testbenchv2 import *
@@ -22,15 +21,14 @@ class TrainControler_HW_Container(QObject):
     new_train_values_signal = pyqtSignal(list, int)
     new_train_temp_signal = pyqtSignal(float, int)
     
-    def __init__(self,system_time_container: SystemTimeContainer,Testbench=False):
+    def __init__(self, Testbench=False):
         self.main_Driver_arr = []
         self.main_TrainModel_arr = [0,0,0,False,False,False,"00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"]
         self.outputs = []
         self.TB= Testbench
         self.cabin_temp=68
-        self.system_time = system_time_container.system_time
     
-        self.trainCtrl = TC_HW_init(self.main_Driver_arr, self.main_TrainModel_arr, self.outputs, self.system_time, Testbench)
+        self.trainCtrl = TC_HW_init(self.main_Driver_arr, self.main_TrainModel_arr, self.outputs, Testbench)
         #HW_UI_JEB382_PyFirmat(self.main_Driver_arr, self.main_TrainModel_arr, self.main_output_arr, Testbench)
 
     #================================================================================
