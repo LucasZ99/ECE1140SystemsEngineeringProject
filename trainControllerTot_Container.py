@@ -8,7 +8,7 @@ from PyQt6.QtCore import pyqtSlot, pyqtSignal, QObject
 from Train_Controller_SW.trainControllerSWContainer import TrainControllerSWContainer
 from Train_Controller_HW.trainControllerHWContainer import TrainControler_HW_Container
 from Train_Controller_SW.trainControllerSWUI import UI
-from SystemTime import SystemTimeContainer
+from SystemTime import SystemTime
 
 
 # ================================================================================
@@ -23,7 +23,7 @@ class TrainController_Tot_Container(QObject):
         super().__init__()
 
         self.ctrl_list = []
-        self.HW_index = None # index for future utility in case of handling recovery of deleted HW Controller
+        self.HW_index = None  # index for future utility in case of handling recovery of deleted HW Controller
         self.SWuiExists = False
 
         if len(self.ctrl_list) > 1:
@@ -89,5 +89,5 @@ def TrainC_main():
 
 
 if __name__ == "__main__":
-    system_time = SystemTimeContainer()
+    # system_time = SystemTimeContainer()
     TrainC_main()

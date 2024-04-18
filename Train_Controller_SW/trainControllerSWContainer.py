@@ -4,27 +4,37 @@ import threading
 
 from PyQt6.QtWidgets import QApplication
 
-from SystemTime import SystemTimeContainer
+from SystemTime import SystemTime
 from Train_Controller_SW import trainControllerSW
 from Train_Controller_SW.trainControllerSWUI import UI
+from PyQt6.QtCore import pyqtSignal, pyqtSlot, QObject
 
 
 class TrainControllerSWContainer:
 
-    def __init__(self, system_time_container: SystemTimeContainer):
-        self.system_time = system_time_container.system_time
-        self.trainCtrl = trainControllerSW.TrainController(self.system_time)
+    new_ctrl_list_to_ui = pyqtSignal(list)
+
+    def __init__(self):
+        self.system_time = SystemTime.time()
+        self.trainCtrl = trainControllerSW.TrainController()  #self.system_time)
         self.train_model_update = list()
         self.cabin_temp = 68
 
-        print("making sw ui")
+        # ******** SELF MODULE TESTING ********
+        # self.trainCtrl1 = trainControllerSW.TrainController()
+        # self.trainCtrl2 = trainControllerSW.TrainController()
+        # self.trainCtrl3 = trainControllerSW.TrainController()
+        # self.trainCtrl4 = trainControllerSW.TrainController()
+        # self.control_list = [self.trainCtrl1, self.trainCtrl2, self.trainCtrl3, self.trainCtrl4]
+
+        print("train controller sw container.py: making sw ui")
         app = QApplication.instance()
 
         if app is None:
             app = QApplication([])
 
         self.swUI = UI(self.trainCtrl)
-        print("made sw ui")
+        print("train controller sw container.py: made sw ui")
         # actions for automatic mode launch
         # threading.Thread(target=self.trainCtrl.automode).start()  # uncomment this to see how auto mode will start
         # threading.Thread(target=self.powerrefresh).start()
@@ -32,16 +42,24 @@ class TrainControllerSWContainer:
     def show_ui(self):
         app = QApplication.instance()
 
-        #if app is None:
+        # if app is None:
         app = QApplication([])
 
         self.swUI = UI(self.trainCtrl)
         self.swUI.closed.connect(self.sw_ui_state)  # comment this out for full integration (signal should go to tot cntnr)
 
+        # ui = UI(self.trainCtrl)
+        # ui.new_ctrl_list.connect(self.send_new_ctrl_list)
+
         self.swUI.show()
-        #self.ui.refreshengine()
+        # ui.show()
+        # self.ui.refreshengine()
 
         app.exec()
+
+    def send_new_ctrl_list(self):
+        print("2 train controller sw container.py: new_ctrl_list signal recieved from ui")
+        return self.control_list
 
     def sw_ui_state(self, value):
         print("train controller sw container.py: made it!")
@@ -73,7 +91,7 @@ class TrainControllerSWContainer:
         self.trainCtrl.updater(track_info, 2)
         print("train controller sw container.py: track info updated")
         self.trainCtrl.updater(train_info, 3)
-        print("ttrain controller sw container.py: rain info updated")
+        print("train controller sw container.py: train info updated")
 
         self.train_model_update = self.trainCtrl.update_train_model_from_train_controller()
         print("train controller sw container.py: updated train model update list!")
@@ -83,8 +101,8 @@ class TrainControllerSWContainer:
 
 
 def main():
-    system_time = SystemTimeContainer()
-    trainctrlcntr = TrainControllerSWContainer(system_time)
+    # system_time = SystemTimeContainer()
+    trainctrlcntr = TrainControllerSWContainer()  # system_time)
     trainctrlcntr.show_ui()
 
 
