@@ -48,8 +48,7 @@ class Map(QWidget):
         self.train_pixmap = QPixmap(yellow_box_file)
         self.train_pixmap = self.train_pixmap.scaled(10, 10, Qt.AspectRatioMode.KeepAspectRatio)
 
-        self.train_dict = {}
-        self.train_count = 0
+        self.train_list = []
 
         # self.train = QLabel(self)
         # self.train.setPixmap(self.train_pixmap)
@@ -92,9 +91,9 @@ class Map(QWidget):
             86: (55, 516), 87: (43, 515), 88: (25, 512),
             # p
             89: (9, 500), 90: (1, 480), 91: (4, 460), 92: (11, 443), 93: (25, 434), 94: (45, 443), 95: (54, 457),
-            96: (60, 470), 97: (53, 453),
+            96: (60, 470), 97: (63, 480),
             # q
-            98: (0, 0), 99: (0, 0), 100: (0, 0),
+            98: (65, 490), 99: (68, 500), 100: (70, 510),
             # r
             101: (200, 495),
             # s
@@ -119,45 +118,49 @@ class Map(QWidget):
             150: (33, 151)
         }
 
-    def test_pix_dict(self):
-        for key in self.pixel_dict:
-            self.train.move(list(self.pixel_dict[key])[0], list(self.pixel_dict[key])[1])
+    # def test_pix_dict(self):
+    #     for key in self.pixel_dict:
+    #         self.train.move(list(self.pixel_dict[key])[0], list(self.pixel_dict[key])[1])
 
     def show_ui(self):
         self.show()
         # self.test_pix_dict()
 
-    def move_box(self, x, y):
-        self.train.move(x, y)
+    # def move_box(self, x, y):
+    #     self.train.move(x, y)
 
     def get_pix_dict(self):
         return self.pixel_dict
 
-    def populate_map(self, train_dict):
-        for key in train_dict:
-            print(key)
-            print(train_dict[key])
-            block = train_dict[key]
-            self.train = QLabel(self)
-            self.train.setPixmap(self.train_pixmap)
-            self.train.move(list(self.pixel_dict[block])[0], list(self.pixel_dict[block])[1])
+    # def populate_map(self, train_dict):
+    #     for key in train_dict:
+    #         print(key)
+    #         print(train_dict[key])
+    #         block = train_dict[key]
+    #         self.train = QLabel(self)
+    #         self.train.setPixmap(self.train_pixmap)
+    #         self.train.move(list(self.pixel_dict[block])[0], list(self.pixel_dict[block])[1])
 
     def add_train(self):
         print('map: add train called')
-        self.train_count += 1
         train = QLabel(self)
         train.setPixmap(self.train_pixmap)
         train.move(354, 250)
-        self.train_dict[self.train_count] = train
-        # self.repaint()
+        train.show()
+        self.train_list.append(train)
 
     def move_train(self, train_id, block):
         print(f'map: move train called, train_id = {train_id}, block = {block}')
-        [x, y] = self.pixel_dict[block]
-        print(f'map: train_dict[train_id] = {self.train_dict[train_id]}]')
-        self.train_dict[train_id].move(x, y)
-        print(f'map: x = {x}, y = {y}')
-        # self.repaint()
+        if block != 58:
+            [x, y] = self.pixel_dict[block]
+            train = self.train_list[train_id - 1]
+            train.move(x, y)
+        else:
+            self.remove_train(train_id)
+
+    def remove_train(self, train_id):
+        train = self.train_list.pop(train_id - 1)
+        train.deleteLater()
 
 # 33 95-100
 # app = QApplication(sys.argv)

@@ -343,6 +343,7 @@ class TrackModel(QObject):
         return self.remove_train
 
     def update_delta_x_dict(self, delta_x_dict):
+        print(f'train dict relative size = {len(self.train_dict_relative)}')
         self.remove_train = -1
         # meters
         for key, value in delta_x_dict.items():
@@ -352,15 +353,19 @@ class TrackModel(QObject):
             if value > self.cumulative_distance[self.train_dict_relative[key]]:
                 self.train_dict_relative[key] += 1
                 self.map_move_train_signal.emit(key, self.full_path[self.train_dict_relative[key]])  # refresh map ui
-            if self.train_dict_relative[key] >= 150:  # check if we should remove trains
-                del self.train_dict_meters[key]
-                del self.train_dict_relative[key]
-                del self.train_dict[key]
+            if self.train_dict_relative[key] > 170:  # check if we should remove trains
                 self.remove_train = key
+            print(f'train_dict_relative[key] = {self.train_dict_relative[key]}')
         # actual block based on relative
         for key, value in self.train_dict_relative.items():
             self.train_dict[key] = self.full_path[value]
         self.set_occupancy_from_train_presence()
+        # remove trains
+        if self.remove_train != -1:
+            del self.train_dict_meters[self.remove_train]
+            del self.train_dict_relative[self.remove_train]
+            del self.train_dict[self.remove_train]
+            self.train_count -= 1
 
     def set_disembarking_passengers(self, station_id: int, disembarking_passengers: int):
         self.data[station_id, 21] = disembarking_passengers

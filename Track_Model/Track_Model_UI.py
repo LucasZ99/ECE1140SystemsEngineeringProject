@@ -187,8 +187,8 @@ class Window(QMainWindow):  # TODO: FAILURE MODE FROM NEW COMBOBOX
         self.failure_toggle.setFixedSize(self.failure_toggle.sizeHint())
         self.failure_toggle.clicked.connect(self.failure_toggle_clicked)
         self.block_view_layout_group.setLayout(bv_layout)
-        bv_layout.addWidget(self.failure_combo, 9, 0)
-        bv_layout.addWidget(self.failure_toggle, 9, 1)
+        bv_layout.addWidget(self.failure_combo, 10, 0)
+        bv_layout.addWidget(self.failure_toggle, 10, 1)
         # map
         self.map_layout_group = QGroupBox("Map")
         m_layout = QVBoxLayout()
