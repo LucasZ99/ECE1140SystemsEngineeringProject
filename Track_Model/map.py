@@ -278,6 +278,12 @@ class Map(QWidget):
         else:
             print('map: invalid toggle_signal index called')
 
+    def add_failure(self, failure_type_int, block):
+        pass
+
+    def remove_failure(self, block):
+        pass
+
 # app = QApplication(sys.argv)
 # w = Map()
 # w.add_train()

@@ -37,63 +37,11 @@ class Window(QMainWindow):  # TODO: FAILURE MODE FROM NEW COMBOBOX
         layout = QGridLayout()
         # signals
         self.track_model.refresh_ui_signal.connect(self.refresh)
-        # Style
 
-        # Failure Modes
-        # self.failure_modes_group = QGroupBox("Failure Modes")
-        #
-        # fm_group_layout = QGridLayout()
-        #
-        # f1_title = QLabel()
-        # f1_title.setText("Power Failure:")
-        # f2_title = QLabel()
-        # f2_title.setText("Track Circuit Failure:")
-        # f3_title = QLabel()
-        # f3_title.setText("Broken Rail Failure:")
-        # fm_group_layout.addWidget(f1_title, 0, 0)
-        # fm_group_layout.addWidget(f2_title, 1, 0)
-        # fm_group_layout.addWidget(f3_title, 2, 0)
-
+        # str_list_blocks
         self.str_list_blocks = list(self.track_model.get_data()[1:, 2].astype(str))
         for i in range(1, len(self.str_list_blocks) + 1):
             self.str_list_blocks[i-1] = self.track_model.get_data()[i, 1] + self.str_list_blocks[i-1]
-        # self.combo1 = QComboBox()
-        # self.combo1.addItems(self.str_list_blocks)
-        # self.combo1.activated.connect(self.combo1_new_item_selected)
-        #
-        # self.combo2 = QComboBox()
-        # self.combo2.addItems(self.str_list_blocks)
-        # self.combo2.activated.connect(self.combo2_new_item_selected)
-        #
-        # self.combo3 = QComboBox()
-        # self.combo3.addItems(self.str_list_blocks)
-        # self.combo3.activated.connect(self.combo3_new_item_selected)
-        #
-        # self.combo1.setFixedSize(60, 25)
-        # self.combo2.setFixedSize(60, 25)
-        # self.combo3.setFixedSize(60, 25)
-        #
-        # fm_group_layout.addWidget(self.combo1, 0, 1)
-        # fm_group_layout.addWidget(self.combo2, 1, 1)
-        # fm_group_layout.addWidget(self.combo3, 2, 1)
-        #
-        # self.toggle1 = AnimatedToggle()
-        # self.toggle1.setFixedSize(self.toggle1.sizeHint())
-        # self.toggle1.clicked.connect(self.toggle1_clicked)
-        #
-        # self.toggle2 = AnimatedToggle()
-        # self.toggle2.setFixedSize(self.toggle2.sizeHint())
-        # self.toggle2.clicked.connect(self.toggle2_clicked)
-        #
-        # self.toggle3 = AnimatedToggle()
-        # self.toggle3.setFixedSize(self.toggle3.sizeHint())
-        # self.toggle3.clicked.connect(self.toggle3_clicked)
-        #
-        # fm_group_layout.addWidget(self.toggle1, 0, 2)
-        # fm_group_layout.addWidget(self.toggle2, 1, 2)
-        # fm_group_layout.addWidget(self.toggle3, 2, 2)
-        #
-        # self.failure_modes_group.setLayout(fm_group_layout)
 
         # Temperature Controls
         self.temperature_controls_group = QGroupBox("Temperature Controls")
@@ -126,11 +74,6 @@ class Window(QMainWindow):  # TODO: FAILURE MODE FROM NEW COMBOBOX
 
         self.current_file_label = QLabel('Reading from\n"' + self.file_name.split('/')[-1] + '"')
         ul_layout.addWidget(self.current_file_label)
-
-        # Test Bench Button
-        # self.test_bench_button = QPushButton("Test Bench")
-        # self.test_bench_button.clicked.connect(self.test_bench_button_clicked)
-        # ul_layout.addWidget(self.test_bench_button)
 
         self.upload_layout_group.setLayout(ul_layout)
 
@@ -279,17 +222,28 @@ class Window(QMainWindow):  # TODO: FAILURE MODE FROM NEW COMBOBOX
         self.refresh()
 
     def failure_combo_updated(self):
-        pass
+        block = int(self.block_info_combo.currentText()[1:])
+        failure_mode = str(self.failure_combo.currentText())
+        failure_mode_int = 0
+        if failure_mode == 'Power Failure':
+            failure_mode_int = 13
+        elif failure_mode == 'Track Circuit Failure':
+            failure_mode_int = 14
+        else:  # broken rail failure
+            failure_mode_int = 15
+        self.failure_toggle.setChecked(self.track_model.get_data()[block, failure_mode_int])
 
     def failure_toggle_clicked(self):
-        pass
-
-    def test_bench_button_clicked(self):
-        print('Testing Benchmark')
-        self.map.populate_map({1: 63, 2: 120})
-        print('passed')
-        # self.counter += 1
-        # self.move_block(self.full_path[self.counter])
+        block = int(self.block_info_combo.currentText()[1:])
+        val = bool(self.failure_toggle.isChecked())
+        failure_mode = str(self.failure_combo.currentText())
+        if failure_mode == 'Power Failure':
+            self.track_model.set_power_failure(block, val)
+        elif failure_mode == 'Track Circuit Failure':
+            self.track_model.set_track_circuit_failure(block, val)
+        else:  # broken rail failure
+            self.track_model.set_broken_rail_failure(block, val)
+        self.refresh()
 
     def refresh_block_info(self):
         block = int(self.block_info_combo.currentText()[1:])
