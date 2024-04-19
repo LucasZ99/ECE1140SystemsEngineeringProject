@@ -269,7 +269,7 @@ class HW_UI_JEB382_PyFirmat:
         for i in range(int(self.TrainModel_arr[2])+1):
             particular_line = linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum+i).split("\t")
             #print(f"LINE: {particular_line}")
-            distance_to_station += int(particular_line[3])
+            distance_to_station += int(float(particular_line[3]))
 
             if particular_line[5][:7] == "STATION":
                 app_stat=particular_line[5][9:]
