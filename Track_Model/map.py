@@ -43,6 +43,9 @@ class Map(QWidget):
         red_light_file = os.path.join(dirname, 'redlight.png')
         rxr_unactivated_file = os.path.join(dirname, 'rxr_unactivated.png')
         rxr_activated_file = os.path.join(dirname, 'rxr_activated.png')
+        power_fail_file = os.path.join(dirname, 'power_failure.png')
+        track_circuit_fail_file = os.path.join(dirname, 'track_circuit_failure.png')
+        broken_rail_fail_file = os.path.join(dirname, 'broken_rail_failure.png')
 
         background = QLabel(self)
         pixmap = QPixmap(map_file)
@@ -64,8 +67,17 @@ class Map(QWidget):
         self.rxr_activated_pixmap = QPixmap(rxr_activated_file)
         self.rxr_activated_pixmap = self.rxr_activated_pixmap.scaled(30, 30, Qt.AspectRatioMode.KeepAspectRatio)
 
+        self.power_fail_pixmap = QPixmap(power_fail_file)
+        self.power_fail_pixmap = self.power_fail_pixmap.scaled(15, 15, Qt.AspectRatioMode.KeepAspectRatio)
+        self.track_circuit_fail_pixmap = QPixmap(track_circuit_fail_file)
+        self.track_circuit_fail_pixmap = self.track_circuit_fail_pixmap.scaled(15, 15, Qt.AspectRatioMode.KeepAspectRatio)
+        self.broken_rail_fail_pixmap = QPixmap(broken_rail_fail_file)
+        self.broken_rail_fail_pixmap = self.broken_rail_fail_pixmap.scaled(15, 15, Qt.AspectRatioMode.KeepAspectRatio)
+
         self.train_dict = {}
         self.train_id_counter = 0
+
+        self.failure_dict = {}  # block, failure type
 
         self.rxr_19 = QLabel(self)
         self.rxr_19.setPixmap(self.rxr_unactivated_pixmap)
@@ -279,10 +291,20 @@ class Map(QWidget):
             print('map: invalid toggle_signal index called')
 
     def add_failure(self, failure_type_int, block):
-        pass
+        [x, y] = self.pixel_dict[block]
+        failure = QLabel(self)
+        if failure_type_int == 0:
+            failure.setPixmap(self.power_fail_pixmap)
+        elif failure_type_int == 1:
+            failure.setPixmap(self.track_circuit_fail_pixmap)
+        else:
+            failure.setPixmap(self.broken_rail_fail_pixmap)
+
+        failure.move(x, y)
+        failure.show()
 
     def remove_failure(self, block):
-        pass
+        pass  # TODO
 
 # app = QApplication(sys.argv)
 # w = Map()
@@ -290,5 +312,6 @@ class Map(QWidget):
 # w.add_train()
 # w.move_train(1, 100)
 # w.move_train(2, 86)
+# w.add_failure(2, 100)
 # w.show()
 # sys.exit(app.exec())
