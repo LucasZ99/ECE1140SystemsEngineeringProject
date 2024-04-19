@@ -801,7 +801,7 @@ def zero_pow(folder):
     Endcase *= PTSD_test(file, "A: ACTSPD: 1", trainCtrl.TrainModel_arr[0], 8)
     Endcase *= PTSD_test(file, "A: CMDSPD: 1", trainCtrl.TrainModel_arr[1], 8)
     Endcase *= PTSD_test(file, "A: AUTH: 1",   trainCtrl.TrainModel_arr[2], 1)
-    time.sleep(1)
+    time.sleep(1)#necessary for stable testing
     trainCtrl.updateCalc()
     Endcase *= PTSD_test(file, "A: POWER: CMD SPD MATCH ACTUAL", trainCtrl.output_arr[1], 0)
     file.write("TRAIN"+str(trainCtrl.TrainModel_arr)+"\n")
@@ -920,7 +920,7 @@ def zero_pow(folder):
     Endcase *= PTSD_test(file, "M: ACTSPD: 1", trainCtrl.TrainModel_arr[0], 8)
     Endcase *= PTSD_test(file, "M: CMDSPD: 1", trainCtrl.Driver_arr[2], 8)
     Endcase *= PTSD_test(file, "M: AUTH: 1",   trainCtrl.TrainModel_arr[2], 1)
-    time.sleep(1)
+    time.sleep(1)#necessary for stable testing
     trainCtrl.updateCalc()
     Endcase *= PTSD_test(file, "M: POWER: CMD SPD MATCH ACTUAL", trainCtrl.output_arr[1], 0)
     file.write("TRAIN"+str(trainCtrl.Driver_arr)+"\n")
@@ -1001,7 +1001,7 @@ def brake_overturn(folder):
     
     #----------------------------------------------
     #making controller
-    main_TrainModel_arr = [0,0,0,False,False,False,"0"*128]
+    main_TrainModel_arr = [1,1,1,False,False,False,"0"*128]
     main_output_arr = []
     main_Driver_arr = []
     
@@ -1013,6 +1013,36 @@ def brake_overturn(folder):
     #----------------------------------------------
     #Testing
     Endcase = True
+    
+    #-----
+    #auto
+    Endcase *= PTSD_test(file, "A: SBRAKE: INIT", trainCtrl.output_arr[2], False)
+    Endcase *= PTSD_test(file, "A: EBRAKE: INIT", trainCtrl.output_arr[3], False)
+    trainCtrl.updateCalc()
+    Endcase *= PTSD_test(file, "A: SBRAKE: CALC1", trainCtrl.output_arr[2], False)
+    Endcase *= PTSD_test(file, "A: EBRAKE: CALC1", trainCtrl.output_arr[3], False)
+    
+    #-----
+    #sbrake
+    trainCtrl.TrainModel_arr[2] = 0
+    trainCtrl.updateCalc()
+    Endcase *= PTSD_test(file, "A: SBRAKE: CALC2", trainCtrl.output_arr[2], True)
+    Endcase *= PTSD_test(file, "A: EBRAKE: CALC2", trainCtrl.output_arr[3], False)
+    
+    #-----
+    #ebrake
+    trainCtrl.Driver_arr[8] = True
+    trainCtrl.updateCalc()
+    Endcase *= PTSD_test(file, "A: SBRAKE: CALC3", trainCtrl.output_arr[2], False)
+    Endcase *= PTSD_test(file, "A: EBRAKE: CALC3", trainCtrl.output_arr[3], True)
+    
+    #-----
+    #ebrake force
+    trainCtrl.Driver_arr[8] = False
+    trainCtrl.TrainModel_arr[3] = True
+    trainCtrl.updateCalc()
+    Endcase *= PTSD_test(file, "A: SBRAKE: CALC4", trainCtrl.output_arr[2], False)
+    Endcase *= PTSD_test(file, "A: EBRAKE: CALC4", trainCtrl.output_arr[3], True)
     
     
     
@@ -1030,7 +1060,7 @@ def brake_overturn(folder):
 
 #----------------------------------------------
 #Turn on both lights when given lack of ambient light in both modes
-def amb_light_on(folder):
+def amb_light(folder):
     #prints, prep log
     print("================================================================================")
     print("\n[!!!!!!!] TESTING:\t 11amb_light_on")
@@ -1040,7 +1070,7 @@ def amb_light_on(folder):
     
     #----------------------------------------------
     #making controller
-    main_TrainModel_arr = [0,0,0,False,False,False,"0"*128]
+    main_TrainModel_arr = [0,0,0,False,False,True,"0"*128]
     main_output_arr = []
     main_Driver_arr = []
     
@@ -1052,6 +1082,73 @@ def amb_light_on(folder):
     #----------------------------------------------
     #Testing
     Endcase = True
+    
+    #-----
+    #auto
+    #off
+    Endcase *= PTSD_test(file, "A: AMBIENT LIGHT: Inheritance", trainCtrl.TrainModel_arr[5], True)
+    trainCtrl.TrainModel_arr[5] = False
+    Endcase *= PTSD_test(file, "A: AMBIENT LIGHT: INIT", trainCtrl.TrainModel_arr[5], False)
+    trainCtrl.updateCalc()
+    Endcase *= PTSD_test(file, "A: INT LIGHT: INIT", trainCtrl.output_arr[6], False)
+    Endcase *= PTSD_test(file, "A: EXT LIGHT: INIT", trainCtrl.output_arr[7], False)
+    
+    #-----
+    #on
+    trainCtrl.TrainModel_arr[5] = True
+    Endcase *= PTSD_test(file, "A: AMBIENT LIGHT: CHANGE1", trainCtrl.TrainModel_arr[5], True)
+    trainCtrl.updateCalc()
+    Endcase *= PTSD_test(file, "A: INT LIGHT: CHANGE1", trainCtrl.output_arr[6], True)
+    Endcase *= PTSD_test(file, "A: EXT LIGHT: CHANGE1", trainCtrl.output_arr[7], True)
+    
+    
+    
+    
+    #-----------------
+    #manual
+    trainCtrl.Mode = True #mode
+    #off
+    trainCtrl.TrainModel_arr[5] = False
+    Endcase *= PTSD_test(file, "A: AMBIENT LIGHT: INIT", trainCtrl.TrainModel_arr[5], False)
+    trainCtrl.updateCalc()
+    Endcase *= PTSD_test(file, "A: INT LIGHT: INIT", trainCtrl.output_arr[6], False)
+    Endcase *= PTSD_test(file, "A: EXT LIGHT: INIT", trainCtrl.output_arr[7], False)
+    
+    #-----
+    #on
+    trainCtrl.TrainModel_arr[5] = True
+    Endcase *= PTSD_test(file, "A: AMBIENT LIGHT: CHANGE1", trainCtrl.TrainModel_arr[5], True)
+    trainCtrl.updateCalc()
+    Endcase *= PTSD_test(file, "A: INT LIGHT: CHANGE1", trainCtrl.output_arr[6], True)
+    Endcase *= PTSD_test(file, "A: EXT LIGHT: CHANGE1", trainCtrl.output_arr[7], True)
+    
+    #-----
+    #off2
+    trainCtrl.TrainModel_arr[5] = False
+    Endcase *= PTSD_test(file, "A: AMBIENT LIGHT: CHANGE2", trainCtrl.TrainModel_arr[5], False)
+    trainCtrl.updateCalc()
+    Endcase *= PTSD_test(file, "A: INT LIGHT: CHANGE2", trainCtrl.output_arr[6], False)
+    Endcase *= PTSD_test(file, "A: EXT LIGHT: CHANGE2", trainCtrl.output_arr[7], False)
+    
+    #-----
+    #this is also tested in driver_int_lights and driver_ext_lights
+    #driver addition int
+    trainCtrl.Driver_arr[3] = True
+    Endcase *= PTSD_test(file, "A: AMBIENT LIGHT: DRIVER1", trainCtrl.TrainModel_arr[5], False)
+    Endcase *= PTSD_test(file, "A: DRIVER INT LIGHT: DRIVER1", trainCtrl.Driver_arr[3], True)
+    trainCtrl.updateCalc()
+    Endcase *= PTSD_test(file, "A: INT LIGHT: DRIVER1", trainCtrl.output_arr[6], True)
+    Endcase *= PTSD_test(file, "A: EXT LIGHT: DRIVER1", trainCtrl.output_arr[7], False)
+    
+    #-----
+    #driver addition ext
+    trainCtrl.Driver_arr[4] = True
+    Endcase *= PTSD_test(file, "A: AMBIENT LIGHT: DRIVER2", trainCtrl.TrainModel_arr[5], False)
+    Endcase *= PTSD_test(file, "A: DRIVER INT LIGHT: DRIVER2", trainCtrl.Driver_arr[3], True)
+    Endcase *= PTSD_test(file, "A: DRIVER EXT LIGHT: DRIVER2", trainCtrl.Driver_arr[4], True)
+    trainCtrl.updateCalc()
+    Endcase *= PTSD_test(file, "A: INT LIGHT: DRIVER2", trainCtrl.output_arr[6], True)
+    Endcase *= PTSD_test(file, "A: EXT LIGHT: DRIVER2", trainCtrl.output_arr[7], True)
     
     
     
@@ -1068,45 +1165,7 @@ def amb_light_on(folder):
 
 
 #----------------------------------------------
-#turn off both lights when given ambient light in both mode, unless enabled by driver in manual
-def amb_light_off(folder):
-    #prints, prep log
-    print("================================================================================")
-    print("\n[!!!!!!!] TESTING:\t 12amb_light_off")
-    print(f"file:\t\t{folder}/12amb_light_off.txt")
-    file = open(f"{folder}/12amb_light_off.txt", 'w')
-    file.write("Hi\n")
-    
-    #----------------------------------------------
-    #making controller
-    main_TrainModel_arr = [0,0,0,False,False,False,"0"*128]
-    main_output_arr = []
-    main_Driver_arr = []
-    
-    try: it = util.Iterator(board); it.start()
-    except: print("No Train Controller HW detected: util.Iterator")
-    
-    trainCtrl = HW_UI_JEB382_PyFirmat(main_Driver_arr, main_TrainModel_arr, main_output_arr)
-    
-    #----------------------------------------------
-    #Testing
-    Endcase = True
-    
-    
-    
-    
-    
-    #----------------------------------------------
-    #Endcase
-    file.write("\n-------------\n")
-    file.write(f"[!!!!!] 12amb_light_off: <{'PASS' if Endcase else 'FAIL'}>\n")
-
-    print("\n-------------")
-    print(f"[!!!!!] 12amb_light_off: <{'PASS' if Endcase else 'FAIL'}>")
-    return Endcase
-
-
-#----------------------------------------------
+#TODO: BEACON ADDITION
 #Train calculates correct stopping distance with current speed
 def stop_dist(folder):
     #prints, prep log
@@ -1286,6 +1345,81 @@ def driver_temp(folder):
     #----------------------------------------------
     #Testing
     Endcase = True
+    
+    #-----
+    #auto
+    #init
+    trainCtrl.updateCalc()
+    Endcase *= PTSD_test(file, "A: OUTPUT TEMP: INIT", trainCtrl.output_arr[8], 68)
+    
+    #-----
+    #+10
+    trainCtrl.Driver_arr[5] = 10
+    Endcase *= PTSD_test(file, "A: DRIVER TEMP: +10", trainCtrl.Driver_arr[5], 10)
+    trainCtrl.updateCalc()
+    Endcase *= PTSD_test(file, "A: OUTPUT TEMP: CHANGE1", trainCtrl.output_arr[8], 78)
+    
+    #-----
+    #-10
+    trainCtrl.Driver_arr[5] = -10
+    Endcase *= PTSD_test(file, "A: DRIVER TEMP: +10", trainCtrl.Driver_arr[5], -10)
+    trainCtrl.updateCalc()
+    Endcase *= PTSD_test(file, "A: OUTPUT TEMP: CHANGE1", trainCtrl.output_arr[8], 58)
+    
+    #-----
+    #+20 pos max
+    trainCtrl.Driver_arr[5] = 20
+    Endcase *= PTSD_test(file, "A: DRIVER TEMP: +10", trainCtrl.Driver_arr[5], 20)
+    trainCtrl.updateCalc()
+    Endcase *= PTSD_test(file, "A: OUTPUT TEMP: CHANGE1", trainCtrl.output_arr[8], 88)
+    
+    #-----
+    #-20 neg max
+    trainCtrl.Driver_arr[5] = -20
+    Endcase *= PTSD_test(file, "A: DRIVER TEMP: +10", trainCtrl.Driver_arr[5], -20)
+    trainCtrl.updateCalc()
+    Endcase *= PTSD_test(file, "A: OUTPUT TEMP: CHANGE1", trainCtrl.output_arr[8], 48)
+    #cant test past max as thats within pyfirmata library, manual testing required
+    
+    
+    
+    
+    #-----------------
+    #manual
+    trainCtrl.Mode = True #mode
+    #init
+    trainCtrl.Driver_arr[5] = 0
+    trainCtrl.updateCalc()
+    Endcase *= PTSD_test(file, "A: OUTPUT TEMP: INIT", trainCtrl.output_arr[8], 68)
+    
+    #-----
+    #+10
+    trainCtrl.Driver_arr[5] = 10
+    Endcase *= PTSD_test(file, "A: DRIVER TEMP: +10", trainCtrl.Driver_arr[5], 10)
+    trainCtrl.updateCalc()
+    Endcase *= PTSD_test(file, "A: OUTPUT TEMP: CHANGE1", trainCtrl.output_arr[8], 78)
+    
+    #-----
+    #-10
+    trainCtrl.Driver_arr[5] = -10
+    Endcase *= PTSD_test(file, "A: DRIVER TEMP: +10", trainCtrl.Driver_arr[5], -10)
+    trainCtrl.updateCalc()
+    Endcase *= PTSD_test(file, "A: OUTPUT TEMP: CHANGE1", trainCtrl.output_arr[8], 58)
+    
+    #-----
+    #+20 pos max
+    trainCtrl.Driver_arr[5] = 20
+    Endcase *= PTSD_test(file, "A: DRIVER TEMP: +10", trainCtrl.Driver_arr[5], 20)
+    trainCtrl.updateCalc()
+    Endcase *= PTSD_test(file, "A: OUTPUT TEMP: CHANGE1", trainCtrl.output_arr[8], 88)
+    
+    #-----
+    #-20 neg max
+    trainCtrl.Driver_arr[5] = -20
+    Endcase *= PTSD_test(file, "A: DRIVER TEMP: +10", trainCtrl.Driver_arr[5], -20)
+    trainCtrl.updateCalc()
+    Endcase *= PTSD_test(file, "A: OUTPUT TEMP: CHANGE1", trainCtrl.output_arr[8], 48)
+    #cant test past max as thats within pyfirmata library, manual testing required
     
     
     
@@ -1477,37 +1611,54 @@ if __name__ == "__main__":
     
     # NOTE: Passenger Break enables eBrake
     Endcase *= pass_ebreak_enable(test_dir)
+    
     # NOTE: Driver can disable Passenger Brake's effect in any mode
     Endcase *= driver_disable_pass(test_dir)
+    
     # NOTE: Driver can enable ebrake in any mode
     Endcase *= driver_ebreak_enable(test_dir)
+    
     # NOTE: Driver can enable service brake in manual mode only
     Endcase *= driver_sbreak_enable(test_dir)
+    
     # NOTE: Driver can change door state when train is stopped in manual mode
     Endcase *= driver_door(test_dir)
+    
     # NOTE: Train opens stationside door when train is stopped in auto mode
-    #TODO: ADD BEACON TRACING
+    #!!!!!!!!!!TODO: ADD BEACON TRACING
     #Endcase *= train_door(test_dir)
     # NOTE: Driver can enable interior lights in manual when it is otherwise off
     Endcase *= driver_int_lights(test_dir)
+    
     # NOTE: Driver can enable exterior lights in manual mode when it is otherwise off.
     Endcase *= driver_ext_lights(test_dir)
+    
     # NOTE: Power is zero without authority and/or commanded speed, or matching actual
     Endcase *= zero_pow(test_dir)
+    
     # NOTE: Enable of Emergency brake turns off service brake
     Endcase *= brake_overturn(test_dir)
+    
     # NOTE: Turn on both lights when given lack of ambient light in both modes
-    Endcase *= amb_light_on(test_dir)
-    # NOTE: turn off both lights when given ambient light in both mode, unless enabled by driver in manual
-    Endcase *= amb_light_off(test_dir)
+    # NOTE: Turn off both lights when given ambient light in both modes
+    Endcase *= amb_light(test_dir)
+    
     # NOTE: Train calculates correct stopping distance with current speed
-    Endcase *= stop_dist(test_dir)
+    #!!!!!!!!!!TODO: BEACON ADDITION
+    #Endcase *= stop_dist(test_dir)
+    
     # NOTE: Train enables service brake within correct stopping distance
-    Endcase *= sbrake_dist(test_dir)
+    #!!!!!!!!!!TODO: BEACON ADDITION
+    #Endcase *= sbrake_dist(test_dir)
+    
     # NOTE: Train enables emergency brake if it cant stop in time
-    Endcase *= ebrake_dist(test_dir)
+    #!!!!!!!!!!TODO: BEACON ADDITION
+    #Endcase *= ebrake_dist(test_dir)
+    
     # NOTE: Train gives station when in the block
-    Endcase *= announce_stat_block(test_dir)
+    #!!!!!!!!!!TODO: BEACON ADDITION
+    #Endcase *= announce_stat_block(test_dir)
+    
     # NOTE: Driver can adjust Temperature in any mode within limit
     Endcase *= driver_temp(test_dir)
     
