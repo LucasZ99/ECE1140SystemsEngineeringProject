@@ -95,21 +95,37 @@ def pass_ebreak_enable(folder):
     #Testing
     Endcase = True
     
-    trainCtrl.TrainModel_arr[3] = True #passenger brake
-    Endcase *= PTSD_test(file, "PASSENGER EBRAKE: CHANGE1", trainCtrl.TrainModel_arr[3], True)
+    #-----
+    #init
+    Endcase *= PTSD_test(file, "A: PASSENGER EBRAKE: CHANGE0", trainCtrl.TrainModel_arr[3], False)
     trainCtrl.updateCalc()
-    Endcase *= PTSD_test(file, "PASSENGER EBRAKE: AUTO", trainCtrl.output_arr[3], True, Controller=trainCtrl)
+    Endcase *= PTSD_test(file, "A: PASSENGER EBRAKE: INIT", trainCtrl.output_arr[3], False, Controller=trainCtrl)
     
+    #-----
+    #on
+    trainCtrl.TrainModel_arr[3] = True #passenger brake
+    Endcase *= PTSD_test(file, "A: PASSENGER EBRAKE: CHANGE1", trainCtrl.TrainModel_arr[3], True)
+    trainCtrl.updateCalc()
+    Endcase *= PTSD_test(file, "A: PASSENGER EBRAKE: ENABLED", trainCtrl.output_arr[3], True, Controller=trainCtrl)
+    
+    #-----
+    #off
     trainCtrl.TrainModel_arr[3] = False #passenger brake
-    Endcase *= PTSD_test(file, "PASSENGER EBRAKE: CHANGE2", trainCtrl.TrainModel_arr[3], False)
+    Endcase *= PTSD_test(file, "A: PASSENGER EBRAKE: CHANGE2", trainCtrl.TrainModel_arr[3], False)
     trainCtrl.updateCalc()
-    Endcase *= PTSD_test(file, "PASSENGER EBRAKE: REMOVED", trainCtrl.output_arr[3], False, Controller=trainCtrl)
+    Endcase *= PTSD_test(file, "A: PASSENGER EBRAKE: REMOVED", trainCtrl.output_arr[3], False, Controller=trainCtrl)
     
+    #-----
+    #on, manual
     trainCtrl.TrainModel_arr[3] = True #passenger brake
-    Endcase *= PTSD_test(file, "PASSENGER EBRAKE: CHANGE3", trainCtrl.TrainModel_arr[3], True)
+    Endcase *= PTSD_test(file, "A: PASSENGER EBRAKE: CHANGE3", trainCtrl.TrainModel_arr[3], True)
     trainCtrl.Mode = True
     trainCtrl.updateCalc()
-    Endcase *= PTSD_test(file, "PASSENGER EBRAKE: MANUAL", trainCtrl.output_arr[3], True, Controller=trainCtrl)
+    Endcase *= PTSD_test(file, "M: PASSENGER EBRAKE: ENABLED", trainCtrl.output_arr[3], True, Controller=trainCtrl)
+    
+    
+    
+    
     
     #----------------------------------------------
     #Endcase
@@ -146,6 +162,77 @@ def driver_disable_pass(folder):
     #----------------------------------------------
     #Testing
     Endcase = True
+    
+    #Auto
+    #-----
+    #false,false(init):true
+    Endcase *= PTSD_test(file, "A: PASSENGER EBRAKE: CHANGE0", trainCtrl.TrainModel_arr[3], False)
+    Endcase *= PTSD_test(file, "A: DISABLE PASSENGER: CHANGE0", trainCtrl.Driver_arr[10], False)
+    trainCtrl.updateCalc()
+    Endcase *= PTSD_test(file, "A: DISABLE PASSENGER: INIT", trainCtrl.output_arr[3], False, Controller=trainCtrl)
+    
+    #-----
+    #true,false:true
+    trainCtrl.TrainModel_arr[3] = True #passenger brake
+    Endcase *= PTSD_test(file, "A: PASSENGER EBRAKE: CHANGE1", trainCtrl.TrainModel_arr[3], True)
+    Endcase *= PTSD_test(file, "A: DISABLE PASSENGER: CHANGE0", trainCtrl.Driver_arr[10], False)
+    trainCtrl.updateCalc()
+    Endcase *= PTSD_test(file, "A: DISABLE PASSENGER: ENACT", trainCtrl.output_arr[3], True, Controller=trainCtrl)
+    
+    #-----
+    #true,true:false
+    trainCtrl.Driver_arr[10] = True #disable passenger brake
+    Endcase *= PTSD_test(file, "A: PASSENGER EBRAKE: CHANGE1", trainCtrl.TrainModel_arr[3], True)
+    Endcase *= PTSD_test(file, "A: DISABLE PASSENGER: CHANGE1", trainCtrl.Driver_arr[10], True)
+    trainCtrl.updateCalc()
+    Endcase *= PTSD_test(file, "A: DISABLE PASSENGER: DISABLE", trainCtrl.output_arr[3], False, Controller=trainCtrl)
+    
+    #-----
+    #false,true:false
+    trainCtrl.TrainModel_arr[3] = False #passenger brake
+    Endcase *= PTSD_test(file, "A: PASSENGER EBRAKE: CHANGE2", trainCtrl.TrainModel_arr[3], False)
+    Endcase *= PTSD_test(file, "A: DISABLE PASSENGER: CHANGE1", trainCtrl.Driver_arr[10], True)
+    trainCtrl.updateCalc()
+    Endcase *= PTSD_test(file, "A: DISABLE PASSENGER: NONE", trainCtrl.output_arr[3], False, Controller=trainCtrl)
+    
+    
+    #=====================
+    #manual
+    trainCtrl.Mode = True
+    trainCtrl.TrainModel_arr[3] = False #passenger brake
+    trainCtrl.Driver_arr[10] = False #disable passenger brake
+    Endcase *= PTSD_test(file, "M: PASSENGER EBRAKE: CHANGE0", trainCtrl.TrainModel_arr[3], False)
+    Endcase *= PTSD_test(file, "M: DISABLE PASSENGER: CHANGE0", trainCtrl.Driver_arr[10], False)
+    #-----
+    #false,false:true
+    Endcase *= PTSD_test(file, "M: PASSENGER EBRAKE: CHANGE0", trainCtrl.TrainModel_arr[3], False)
+    Endcase *= PTSD_test(file, "M: DISABLE PASSENGER: CHANGE0", trainCtrl.Driver_arr[10], False)
+    trainCtrl.updateCalc()
+    Endcase *= PTSD_test(file, "M: DISABLE PASSENGER: AUTO", trainCtrl.output_arr[3], False, Controller=trainCtrl)
+    
+    #-----
+    #true,false:true
+    trainCtrl.TrainModel_arr[3] = True #passenger brake
+    Endcase *= PTSD_test(file, "M: PASSENGER EBRAKE: CHANGE1", trainCtrl.TrainModel_arr[3], True)
+    Endcase *= PTSD_test(file, "M: DISABLE PASSENGER: CHANGE0", trainCtrl.Driver_arr[10], False)
+    trainCtrl.updateCalc()
+    Endcase *= PTSD_test(file, "M: PASSENGER EBRAKE: MANUAL", trainCtrl.output_arr[3], True, Controller=trainCtrl)
+    
+    #-----
+    #true,true:false
+    trainCtrl.Driver_arr[10] = True #disable passenger brake
+    Endcase *= PTSD_test(file, "M: PASSENGER EBRAKE: CHANGE1", trainCtrl.TrainModel_arr[3], True)
+    Endcase *= PTSD_test(file, "M: DISABLE PASSENGER: CHANGE1", trainCtrl.Driver_arr[10], True)
+    trainCtrl.updateCalc()
+    Endcase *= PTSD_test(file, "M: DISABLE PASSENGER: AUTO", trainCtrl.output_arr[3], False, Controller=trainCtrl)
+    
+    #-----
+    #false,true:false
+    trainCtrl.TrainModel_arr[3] = False #passenger brake
+    Endcase *= PTSD_test(file, "M: PASSENGER EBRAKE: CHANGE2", trainCtrl.TrainModel_arr[3], False)
+    Endcase *= PTSD_test(file, "M: DISABLE PASSENGER: CHANGE1", trainCtrl.Driver_arr[10], True)
+    trainCtrl.updateCalc()
+    Endcase *= PTSD_test(file, "M: PASSENGER EBRAKE: REMOVED", trainCtrl.output_arr[3], False, Controller=trainCtrl)
     
     
     
@@ -185,6 +272,36 @@ def driver_ebreak_enable(folder):
     #----------------------------------------------
     #Testing
     Endcase = True
+    
+    #-----
+    #auto
+    #init
+    Endcase *= PTSD_test(file, "A: DRIVER EBRAKE: CHANGE0", trainCtrl.Driver_arr[8], False)
+    trainCtrl.updateCalc()
+    Endcase *= PTSD_test(file, "A: DRIVER EBRAKE: INIT", trainCtrl.output_arr[3], False, Controller=trainCtrl)
+    
+    #-----
+    #on
+    trainCtrl.Driver_arr[8] = True #ebrake
+    Endcase *= PTSD_test(file, "A: DRIVER EBRAKE: CHANGE1", trainCtrl.Driver_arr[8], True)
+    trainCtrl.updateCalc()
+    Endcase *= PTSD_test(file, "A: DRIVER EBRAKE: ENABLE", trainCtrl.output_arr[3], True, Controller=trainCtrl)
+    
+    #-----
+    #manual
+    #off
+    trainCtrl.Driver_arr[8] = False #ebrake
+    Endcase *= PTSD_test(file, "A: DRIVER EBRAKE: CHANGE2", trainCtrl.Driver_arr[8], False)
+    trainCtrl.updateCalc()
+    Endcase *= PTSD_test(file, "A: DRIVER EBRAKE: REMOVED", trainCtrl.output_arr[3], False, Controller=trainCtrl)
+    
+    #-----
+    #on, manual
+    trainCtrl.Driver_arr[8] = True #ebrake
+    Endcase *= PTSD_test(file, "A: DRIVER EBRAKE: CHANGE3", trainCtrl.Driver_arr[8], True)
+    trainCtrl.Mode = True
+    trainCtrl.updateCalc()
+    Endcase *= PTSD_test(file, "M: DRIVER EBRAKE: MANUAL", trainCtrl.output_arr[3], True, Controller=trainCtrl)
     
     
     
@@ -960,9 +1077,8 @@ if __name__ == "__main__":
     Endcase = True#total endcase that all tests work
     
     #Passenger Break enables eBrake
-    pass_ebreak_enable(test_dir)
+    Endcase *= pass_ebreak_enable(test_dir)
     #Driver can disable Passenger Brake's effect in any mode
-    '''
     Endcase *= driver_disable_pass(test_dir)
     #Driver can enable ebrake in any mode
     Endcase *= driver_ebreak_enable(test_dir)
@@ -996,7 +1112,6 @@ if __name__ == "__main__":
     Endcase *= announce_stat_block(test_dir)
     #Driver can adjust Temperature in any mode within limit
     Endcase *= driver_temp(test_dir)
-    '''
     
     #NOTE: [!!!!!!!!!!] Must be done manually
     #HW: correct buttons correspond to correct changes in driver array
@@ -1007,5 +1122,6 @@ if __name__ == "__main__":
 
     #----------------------------------------------
     #Endcase
-    print("\n=============-------------=============-------------=============")
+    print("================================================================================")
+    print("\n\n\n=============-------------=============-------------=============")
     print(f"[!!!ATTENTION!!!]\nTOTAL TESTING OF TRAIN CONTROLLER HW:\n<{'PASS' if Endcase else 'FAIL'}>")
