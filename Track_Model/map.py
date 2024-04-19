@@ -64,7 +64,6 @@ class Map(QWidget):
         self.rxr_activated_pixmap = QPixmap(rxr_activated_file)
         self.rxr_activated_pixmap = self.rxr_activated_pixmap.scaled(30, 30, Qt.AspectRatioMode.KeepAspectRatio)
 
-
         self.train_dict = {}
         self.train_id_counter = 0
 
@@ -219,6 +218,65 @@ class Map(QWidget):
         else:
             print(f"No train with ID {train_id} found")
 
+    def set_rxr(self, rxr_index, value):
+        print(f'map: set_rxr called w/ {rxr_index}, {value}')
+        if rxr_index == 19:
+            if value:
+                self.rxr_19.setPixmap(self.rxr_activated_pixmap)
+            else:
+                self.rxr_19.setPixmap(self.rxr_unactivated_pixmap)
+        elif rxr_index == 108:
+            if value:
+                self.rxr_108.setPixmap(self.rxr_activated_pixmap)
+            else:
+                self.rxr_108.setPixmap(self.rxr_unactivated_pixmap)
+        else:
+            print('map: invalid toggle_rxr index called')
+
+    def set_signal(self, signal_index, value):  # 1, 12, 29, 150, 77, 101, 100, 86
+        print(f'map: set_signal called w/ {signal_index}, {value}')
+        if signal_index == 1:
+            if value:
+                self.signal_1.setPixmap(self.green_light_pixmap)
+            else:
+                self.signal_1.setPixmap(self.red_light_pixmap)
+        elif signal_index == 12:
+            if value:
+                self.signal_12.setPixmap(self.green_light_pixmap)
+            else:
+                self.signal_12.setPixmap(self.red_light_pixmap)
+        elif signal_index == 29:
+            if value:
+                self.signal_29.setPixmap(self.green_light_pixmap)
+            else:
+                self.signal_29.setPixmap(self.red_light_pixmap)
+        elif signal_index == 150:
+            if value:
+                self.signal_150.setPixmap(self.green_light_pixmap)
+            else:
+                self.signal_150.setPixmap(self.red_light_pixmap)
+        elif signal_index == 77:
+            if value:
+                self.signal_77.setPixmap(self.green_light_pixmap)
+            else:
+                self.signal_77.setPixmap(self.red_light_pixmap)
+        elif signal_index == 101:
+            if value:
+                self.signal_101.setPixmap(self.green_light_pixmap)
+            else:
+                self.signal_101.setPixmap(self.red_light_pixmap)
+        elif signal_index == 100:
+            if value:
+                self.signal_100.setPixmap(self.green_light_pixmap)
+            else:
+                self.signal_100.setPixmap(self.red_light_pixmap)
+        elif signal_index == 86:
+            if value:
+                self.signal_86.setPixmap(self.green_light_pixmap)
+            else:
+                self.signal_86.setPixmap(self.red_light_pixmap)
+        else:
+            print('map: invalid toggle_signal index called')
 
 # app = QApplication(sys.argv)
 # w = Map()

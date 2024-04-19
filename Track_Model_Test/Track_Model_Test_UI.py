@@ -51,7 +51,7 @@ class TrackModelTestUI(QMainWindow):
         self.switch_changed_indexes_input.editingFinished.connect(self.switch_changed_indexes_input_handler)
         self.signal_changed_indexes_label = QLabel('signal_changed_indexes:')
         self.signal_changed_indexes_input = QLineEdit()
-        self.signal_changed_indexes_input.setText('[(1, False), (12, False), (29, False), (76, False), (87, False), (100, False), (101, False), (150, False)]')
+        self.signal_changed_indexes_input.setText('[(1, False), (12, False), (29, False), (77, False), (86, False), (100, False), (101, False), (150, False)]')
         self.signal_changed_indexes_input.editingFinished.connect(self.signal_changed_indexes_input_handler)
         self.rr_crossing_indexes_label = QLabel('rr_crossing_indexes:')
         self.rr_crossing_indexes_input = QLineEdit()

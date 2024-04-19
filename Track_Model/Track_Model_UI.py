@@ -319,6 +319,12 @@ class Window(QMainWindow):  # TODO: FAILURE MODE FROM NEW COMBOBOX
     def move_train(self, train_id, block):
         self.map.move_train(train_id, block)
 
+    def map_update_signal(self, index, val):
+        self.map.set_signal(index, val)
+
+    def map_update_rxr(self, index, val):
+        self.map.set_rxr(index, val)
+
     def refresh(self):
         self.refresh_block_info()
         print('refresh ui called')
