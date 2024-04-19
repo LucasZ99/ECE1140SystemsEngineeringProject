@@ -87,13 +87,11 @@ class TrainController_Tot_Container(QObject):
 def TrainC_main():
     trainctrlcntr = TrainController_Tot_Container()
     cntrl = trainctrlcntr.new_train_controller()  # removed (type) as parameter
-    cntrl.show_ui()
+    trainctrlcntr.show_hwui()
     cntrl = trainctrlcntr.new_train_controller()  # removed (type) as parameter
-    cntrl.show_ui()
     cntrl = trainctrlcntr.new_train_controller()  # removed (type) as parameter
-    cntrl.show_ui()
     cntrl = trainctrlcntr.new_train_controller()  # removed (type) as parameter
-    cntrl.show_ui()
+    trainctrlcntr.show_swui()
     '''while True:
         cntrl.show_ui()'''
 
