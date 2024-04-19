@@ -39,8 +39,8 @@ class Map(QWidget):
         dirname = os.path.dirname(__file__)
         map_file = os.path.join(dirname, 'map_3.png')
         yellow_box_file = os.path.join(dirname, 'yellow_box.png')
-        green_light_file = os.path.join(dirname, 'green_light.png')
-        red_light_file = os.path.join(dirname, 'red_light.png')
+        green_light_file = os.path.join(dirname, 'greenlight.png')
+        red_light_file = os.path.join(dirname, 'redlight.png')
         rxr_unactivated_file = os.path.join(dirname, 'rxr_unactivated.png')
         rxr_activated_file = os.path.join(dirname, 'rxr_activated.png')
 
@@ -53,8 +53,10 @@ class Map(QWidget):
         self.train_pixmap = self.train_pixmap.scaled(10, 10, Qt.AspectRatioMode.KeepAspectRatio)
 
         self.green_light_pixmap = QPixmap(green_light_file)
+        # self.green_light_pixmap = self.green_light_pixmap.scaled(25, 25, Qt.AspectRatioMode.KeepAspectRatio)
 
         self.red_light_pixmap = QPixmap(red_light_file)
+        # self.red_light_pixmap = self.red_light_pixmap.scaled(25, 25, Qt.AspectRatioMode.KeepAspectRatio)
 
         self.rxr_unactivated_pixmap = QPixmap(rxr_unactivated_file)
         self.rxr_unactivated_pixmap = self.rxr_unactivated_pixmap.scaled(30, 30, Qt.AspectRatioMode.KeepAspectRatio)
@@ -76,32 +78,31 @@ class Map(QWidget):
 
         self.signal_1 = QLabel(self)
         self.signal_1.setPixmap(self.red_light_pixmap)
-        self.signal_1.move(170, 16)
-
+        self.signal_1.move(138, 12)
         self.signal_12 = QLabel(self)
         self.signal_12.setPixmap(self.green_light_pixmap)
+        self.signal_12.move(154, 20)
 
         self.signal_29 = QLabel(self)
         self.signal_29.setPixmap(self.green_light_pixmap)
+        self.signal_29.move(55, 145)
+        self.signal_150 = QLabel(self)
+        self.signal_150.setPixmap(self.red_light_pixmap)
+        self.signal_150.move(20, 130)
 
         self.signal_77 = QLabel(self)
         self.signal_77.setPixmap(self.green_light_pixmap)
-
-        self.signal_86 = QLabel(self)
-        self.signal_86.setPixmap(self.green_light_pixmap)
+        self.signal_77.move(170, 525)
+        self.signal_101 = QLabel(self)
+        self.signal_101.setPixmap(self.red_light_pixmap)
+        self.signal_101.move(170, 490)
 
         self.signal_100 = QLabel(self)
         self.signal_100.setPixmap(self.red_light_pixmap)
-
-        self.signal_101 = QLabel(self)
-        self.signal_101.setPixmap(self.red_light_pixmap)
-
-        self.signal_150 = QLabel(self)
-        self.signal_150.setPixmap(self.red_light_pixmap)
-
-        # self.train = QLabel(self)
-        # self.train.setPixmap(self.train_pixmap)
-        # self.train.move(10, 10)
+        self.signal_100.move(80, 490)
+        self.signal_86 = QLabel(self)
+        self.signal_86.setPixmap(self.green_light_pixmap)
+        self.signal_86.move(50, 528)
 
         self.pixel_dict = {
             # a
@@ -223,7 +224,7 @@ class Map(QWidget):
 # w = Map()
 # w.add_train()
 # w.add_train()
-# w.move_train(1, 1)
-# w.move_train(2, 12)
+# w.move_train(1, 100)
+# w.move_train(2, 86)
 # w.show()
 # sys.exit(app.exec())
