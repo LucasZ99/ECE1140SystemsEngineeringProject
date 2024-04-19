@@ -189,6 +189,9 @@ class TrackModelContainer(QObject):
             for key, val in train_dict.items():  # train_id, block
                 if val == block_id:
                     authority_safe_speed_list[i][0] = key
+        # for key, value in train_dict.items():
+        #     authority_safe_speed_dict[key] = value
+        print(authority_safe_speed_list)
         authority_safe_speed_dict = {lst[0]: lst[1:] for lst in authority_safe_speed_list}
         print(f'authority_safe_speed_update: {authority_safe_speed_list}')
         print(f'authority_safe_speed_dict: {authority_safe_speed_dict}')
