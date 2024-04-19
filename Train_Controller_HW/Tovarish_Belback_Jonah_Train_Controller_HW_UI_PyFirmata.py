@@ -181,12 +181,37 @@ class HW_UI_JEB382_PyFirmat:
         if __name__ != "__main__" and sys.argv[0][-10:-3] != "Testing":
             self.timeL = SystemTime.time()
         else:
-            print(f"TRAIN CONTROLLER HW: sys.argv[0]: <{sys.argv[0][-10:-3]}>")
+            print(f"TRAINC HW: sys.argv[0]: <{sys.argv[0][-10:-3]}>")
             self.timeL = time.time()
         self.Pcmd=0
+        
+        #Block traversal
+        self.line=None #False:Greenline, True:Redline
         self.polarity = bool(self.TrainModel_arr[4])
-        self.blockNum = 1#62 [IT3 application]
-        self.speedlimit=30#[IT3 application]
+        #which line, train spawn has beacon
+        print(f"TRAINC HW INIT BEACON SPAWN: <{self.TrainModel_arr[-1][-4:]}>")
+        if self.TrainModel_arr[-1] == "0"*128:
+            #NOTE: should raise error but due to state of system, nessecary
+            #raise Exception("TRAINC HW INIT: NOT SPAWNED ON SPECIFIED BLOCK")
+            
+            print("TRAINC HW INIT: NOT SPAWNED ON SPECIFIED BLOCK, ASSUMPTION GREENLINE")
+            self.line=False
+            self.speedlimit=30#[IT3 application]
+        elif self.TrainModel_arr[-1][-4] == "G":
+            #greenline
+            self.line=False
+            print("TRAINC HW INIT: SPAWNED ON GREENLINE: PROPER")
+            self.speedlimit=30#[IT3 application]
+        elif self.TrainModel_arr[-1][-4] == "R":
+            #redline
+            self.line=True
+            print("TRAINC HW INIT: SPAWNED ON REDLINE: PROPER")
+            self.speedlimit=40
+        else: raise Exception(f"TRAINC HW INIT: SPAWN BLOCK IS NONSENSE:\n<{self.TrainModel_arr[-1]}>")
+        
+        self.polarity = bool(self.TrainModel_arr[4])
+        self.blockNum = 1
+        self.direction = False #False:Downlist, True:Uplist
         
         #distance traveled
         self.passover=False
@@ -241,52 +266,76 @@ class HW_UI_JEB382_PyFirmat:
         
         
     #================================================================================
-    def updateCalc(self,file=None):    
-        #[NOT IT3] get beacon if possible, overwrite current variable keeping track of what block train is on
-        #[NOT IT3] use beacon pickup order to decide which direction its going
-        #[NOT IT3] use beacon before station to decide if stoping at current block or next
+    def updateCalc(self,file=None):
+        #on polarity edge case:
+            #greenline:
+                #curr++, read txt
+            #redline:
+                #if beacon: curr_override
+                #else: calc block number from traveled since beacon
+
+        #return:
+            #speed limit
+            #distance alloted from authority
         
         
         
         #every block flips in polarity, +/- on edge
         if self.polarity != self.TrainModel_arr[4]:
-            self.blockNum+=1
+            print("TRAINC HW: NEW BLOCK")
+            #greenline
+            if not self.line:
+                self.blockNum+=1
+                
+                #!!!!!!! distance left in authority [Greenline]
+                self.stat_Dside=0
+                distance_to_station=0
+                app_stat=""
+                #add up all block's length allowed by authority (num of blocks)
+                #Line0, Section1, Block Num2, Block Len3, SpeedLimit4, Infrastructure5, Station Side6
+                
+                for i in range(int(self.TrainModel_arr[2])+1):
+                    particular_line = linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum+i).split("\t")
+                    #print(f"LINE: {particular_line}")
+                    distance_to_station += int(float(particular_line[3]))
+
+                    if particular_line[5][:7] == "STATION":
+                        app_stat=particular_line[5][9:]
+                        #print(f"PART: {particular_line[5][9:]}")
+                        if "Left" in particular_line[6]: self.stat_Dside+=1
+                        if "Right" in particular_line[6]: self.stat_Dside+=2
+                
+                infra = linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum).split('\t')[5]
+                #print(f".txt infra: <{infra[:7]}>, app_stat: <{app_stat}>")
+                self.output_arr[5] = ""
+                if linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum).split("\t")[5][:7] != "STATION":
+                    self.Announcements = "APP:"+app_stat[:12]
+                elif linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum).split("\t")[5][:7] == "STATION":
+                    self.Announcements = "NOW:"+infra[9:]#app_stat[:12]
+                    #if app_stat != "": self.output_arr[5] = app_stat
+                    #else:  self.output_arr[5] = infra[5][9:]
+                    self.output_arr[5] = infra[9:]
+            
+            #redline
+            else:
+                #figure out self.direction, distance_to_station
+                
+                #if beacon: curr_override
+                #else: calc block number from traveled since beacon
+                if self.TrainModel_arr[-1] != "0"*128 and not self.passover:
+                    #new beacon,read: curr_override
+                    block = int(self.TrainModel_arr[-1][-3:])
+                else:
+                    #in new block but unbeaconed
+                    #calc block number from traveled since beacon
+                    pass
+            
+            
             self.traveled=0
             self.passover=True
-        else: self.passover=False
+        else:
+            self.passover=False
         self.polarity = self.TrainModel_arr[4]
-        
-        
-        
-        
-        #!!!!!!! distance left in authority [Greenline]
-        self.stat_Dside=0
-        distance_to_station=0
-        app_stat=""
-        #add up all block's length allowed by authority (num of blocks)
-        #Line0, Section1, Block Num2, Block Len3, SpeedLimit4, Infrastructure5, Station Side6
-        
-        for i in range(int(self.TrainModel_arr[2])+1):
-            particular_line = linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum+i).split("\t")
-            #print(f"LINE: {particular_line}")
-            distance_to_station += int(float(particular_line[3]))
-
-            if particular_line[5][:7] == "STATION":
-                app_stat=particular_line[5][9:]
-                #print(f"PART: {particular_line[5][9:]}")
-                if "Left" in particular_line[6]: self.stat_Dside+=1
-                if "Right" in particular_line[6]: self.stat_Dside+=2
-        
-        infra = linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum).split('\t')[5]
-        #print(f".txt infra: <{infra[:7]}>, app_stat: <{app_stat}>")
-        self.output_arr[5] = ""
-        if linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum).split("\t")[5][:7] != "STATION":
-            self.Announcements = "APP:"+app_stat[:12]
-        elif linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum).split("\t")[5][:7] == "STATION":
-            self.Announcements = "NOW:"+infra[9:]#app_stat[:12]
-            #if app_stat != "": self.output_arr[5] = app_stat
-            #else:  self.output_arr[5] = infra[5][9:]
-            self.output_arr[5] = infra[9:]
             
             
             
@@ -299,7 +348,11 @@ class HW_UI_JEB382_PyFirmat:
         
          #2   On/Off Service Brake	        Boolean	    Slow down vital control from train controller
         if not self.Mode:#auto
-            if int(self.TrainModel_arr[2]) == 0: self.output_arr[2]=True
+            if int(self.TrainModel_arr[2]) == 0:
+                self.output_arr[2]=True
+            else:
+                #reset from previous non auth, if needs to brake will be caught later
+                self.output_arr[2]=False
         else:#manual
             self.output_arr[2] = self.Driver_arr[9]
                     
@@ -354,7 +407,7 @@ class HW_UI_JEB382_PyFirmat:
             self.speedlimit = int(linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum).split("\t")[4])
             if self.output_arr[0] > (self.speedlimit/3.6):
                 self.output_arr[0] = float((self.speedlimit/3.6))#TODO: SPDLMT is KM/HR, CONVERT
-                print("TrainC HW: over speed limit")
+                #print("TrainC HW: over speed limit")
             
             
             #-----------------------------------------------------------------------------------------------------------------------
@@ -362,7 +415,7 @@ class HW_UI_JEB382_PyFirmat:
             if self.output_arr[2] or self.output_arr[3]: #Brake overrides
                 print("TrainC HW: moving: cancel: brake")
                 self.output_arr[1] = 0
-            elif self.TrainModel_arr[1] == 0 or self.TrainModel_arr[2] == 0:
+            elif (not self.Mode and self.TrainModel_arr[1] == 0) or (self.Mode and self.Driver_arr[2] == 0) or self.TrainModel_arr[2] == 0:
                 print("TrainC HW: moving: cancel: no auth and/or cmd spd")
                 self.output_arr[1] = 0
             else:                    
@@ -478,7 +531,7 @@ class HW_UI_JEB382_PyFirmat:
         #global printout
         global NoHW
         prin=True
-        while True:
+        while False:
             
             with open('TrainC_HW_bugfix.txt', 'w') as f: f.write('Hi')
             
@@ -528,11 +581,14 @@ def TC_HW_init(driver,trainmodel,output,TestB=False):
     
     return  HW_UI_JEB382_PyFirmat(driver, trainmodel, output, TestB)
 
-def def_main():
+def def_main(line=4):
     Arduino = True
     
     main_Driver_arr = []#[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-    main_TrainModel_arr = [0,0,3,False,True,False, "0"*128]
+    if line == 0: main_TrainModel_arr = [0,0,3,False,True,False, "0"*128]#nonspecified
+    elif line == 1: main_TrainModel_arr = [0,0,3,False,True,False, "0"*124+"G062"]#greenline
+    elif line == 2: main_TrainModel_arr = [0,0,3,False,True,False, "0"*124+"R000"]#redline
+    else: main_TrainModel_arr = [0,0,3,False,True,False, "5"*128]#nonsense
     main_output_arr = []
     
     try:
@@ -549,6 +605,8 @@ def def_main():
 
 #================================================================================
 if __name__ == "__main__":
-    def_main()
-    #PWR_Unit_test(expected=150 ,err=0.05 ,ActSpd=1 ,CmdSpd=4 )
+    def_main(0)
+    #def_main(1)
+    #def_main(2)
+    #def_main()
         
