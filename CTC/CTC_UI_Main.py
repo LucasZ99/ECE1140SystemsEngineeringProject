@@ -39,10 +39,17 @@ def get_block_id(line_id: int, route_block_index: int) -> int:
     return abs(GREEN_LINE[ROUTE][route_block_index])
 
 
-def calculate_times_through_route(line_id: int, departure_time: float, arrival_time: float, route: list[int]) -> list[
-    Stop]:
+def calculate_times_through_route(line_id: int, departure_time: float, arrival_time: float, route: list[int]) \
+        -> list[Stop]:
     route_stops = Route.get_route_stops(line_id, route)
     minimum_travel_time = Route.get_route_travel_time(route_stops)
+
+    print("============= Testing Arrival Time ============")
+    print(f"\tDeparture time: {time_to_str(departure_time)}")
+    print(f"\tArrival time: {time_to_str(arrival_time)}")
+    print(f"\tMinimum travel time: {minimum_travel_time}")
+    print(f"\tProposed travel time: {arrival_time - departure_time}")
+
 
     # TODO handle next day issue
     suggested_travel_time = arrival_time - departure_time
@@ -222,11 +229,11 @@ class CTCMainWindow(QMainWindow):
         self.ctc.update_ui_running_trains_table_signal.connect(self.refresh_ctc_schedule_data)
         self.ctc.update_ui_block_table.connect(self.block_table.update_table)
 
-        # self.time_update_timer = QTimer()
-        # self.time_update_timer.timeout.connect(self.update_time)
+        self.time_update_timer = QTimer()
+        self.time_update_timer.timeout.connect(self.update_ctc)
 
         # 100 msec
-        # self.time_update_timer.start(100)
+        self.time_update_timer.start(100)
 
     @pyqtSlot()
     def refresh_ctc_schedule_data(self):
@@ -313,6 +320,10 @@ class CTCMainWindow(QMainWindow):
             table.setItem(row, 4, QTableWidgetItem(stop_name(train.line_id, train.route[train.next_stop].block)))
             table.setItem(row, 6, QTableWidgetItem(str(train.current_block)))
             table.setItem(row, 7, QTableWidgetItem(str(train.blocks_to_next_stop() - 1)))
+
+    def update_ctc(self):
+        self.ctc.update_ctc_queues()
+        self.update_time()
 
     def update_time(self):
         current_time = strftime("%H:%M:%S", localtime(SystemTime.time()))
@@ -430,7 +441,7 @@ class DispatchTrainLayout(QVBoxLayout):
         self.whole_route: list[int] = []
 
         self.departure_time.timeChanged.connect(self.update_route)
-        self.arrival_time.timeChanged.connect(self.arrival_time_changed)
+        # self.arrival_time.timeChanged.connect(self.arrival_time_changed)
 
         self.load_destinations_to_selector_list(self.line_id)
         self.destination_selector_list.currentIndexChanged.connect(self.stop_selected)
@@ -440,6 +451,7 @@ class DispatchTrainLayout(QVBoxLayout):
         self.set_arrival_time(self.get_arrival_time())
         if self.route.__len__() > 0:
             self.update_route()
+        pass
 
     def clear_route(self):
         self.dispatch_train_schedule.setRowCount(0)
@@ -554,9 +566,10 @@ class DispatchTrainLayout(QVBoxLayout):
                                                        route_to_schedule)
             print("CTCUI: Route travel time calculated")
 
-            self.arrival_time.timeChanged.disconnect()
+            # self.arrival_time.timeChanged.disconnect()
+            #if self.get_arrival_time() < Route.route_arrival_time(self.route):
             self.set_arrival_time(Route.route_arrival_time(self.route))
-            self.arrival_time.timeChanged.connect(self.arrival_time_changed)
+            # self.arrival_time.timeChanged.connect(self.arrival_time_changed)
 
             # update table
             self.fill_route_table(self.route)
@@ -713,7 +726,7 @@ class DispatchArrivalTime(QWidget):
         dt.setSecsSinceEpoch(int(time))
         self.dispatch_train_arrival_time.setTime(dt.time())
 
-    def time(self):
+    def time(self) -> QTime:
         return self.dispatch_train_arrival_time.time()
 
 
