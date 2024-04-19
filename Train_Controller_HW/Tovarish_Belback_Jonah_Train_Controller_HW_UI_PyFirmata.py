@@ -279,42 +279,12 @@ class HW_UI_JEB382_PyFirmat:
             #distance alloted from authority
         
         
-        
+        distance_to_station=0
         #every block flips in polarity, +/- on edge
         if self.polarity != self.TrainModel_arr[4]:
             print("TRAINC HW: NEW BLOCK")
             #greenline
-            if not self.line:
-                self.blockNum+=1
-                
-                #!!!!!!! distance left in authority [Greenline]
-                self.stat_Dside=0
-                distance_to_station=0
-                app_stat=""
-                #add up all block's length allowed by authority (num of blocks)
-                #Line0, Section1, Block Num2, Block Len3, SpeedLimit4, Infrastructure5, Station Side6
-                
-                for i in range(int(self.TrainModel_arr[2])+1):
-                    particular_line = linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum+i).split("\t")
-                    #print(f"LINE: {particular_line}")
-                    distance_to_station += int(float(particular_line[3]))
-
-                    if particular_line[5][:7] == "STATION":
-                        app_stat=particular_line[5][9:]
-                        #print(f"PART: {particular_line[5][9:]}")
-                        if "Left" in particular_line[6]: self.stat_Dside+=1
-                        if "Right" in particular_line[6]: self.stat_Dside+=2
-                
-                infra = linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum).split('\t')[5]
-                #print(f".txt infra: <{infra[:7]}>, app_stat: <{app_stat}>")
-                self.output_arr[5] = ""
-                if linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum).split("\t")[5][:7] != "STATION":
-                    self.Announcements = "APP:"+app_stat[:12]
-                elif linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum).split("\t")[5][:7] == "STATION":
-                    self.Announcements = "NOW:"+infra[9:]#app_stat[:12]
-                    #if app_stat != "": self.output_arr[5] = app_stat
-                    #else:  self.output_arr[5] = infra[5][9:]
-                    self.output_arr[5] = infra[9:]
+            if not self.line: self.blockNum+=1
             
             #redline
             else:
@@ -336,6 +306,44 @@ class HW_UI_JEB382_PyFirmat:
         else:
             self.passover=False
         self.polarity = self.TrainModel_arr[4]
+        
+        
+        
+        #-----------------------------
+        #distance
+        distance_to_station=0
+        self.stat_Dside=0
+        app_stat=""
+        if not self.line:
+            #!!!!!!! distance left in authority [Greenline]
+            #add up all block's length allowed by authority (num of blocks)
+            #Line0, Section1, Block Num2, Block Len3, SpeedLimit4, Infrastructure5, Station Side6
+            
+            for i in range(int(self.TrainModel_arr[2])+1):
+                particular_line = linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum+i).split("\t")
+                #print(f"LINE: {particular_line}")
+                distance_to_station += int(float(particular_line[3]))
+
+                if particular_line[5][:7] == "STATION":
+                    app_stat=particular_line[5][9:]
+                    #print(f"PART: {particular_line[5][9:]}")
+                    if "Left" in particular_line[6]: self.stat_Dside+=1
+                    if "Right" in particular_line[6]: self.stat_Dside+=2
+            
+            infra = linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum).split('\t')[5]
+            #print(f".txt infra: <{infra[:7]}>, app_stat: <{app_stat}>")
+            self.output_arr[5] = ""
+            if linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum).split("\t")[5][:7] != "STATION":
+                self.Announcements = "APP:"+app_stat[:12]
+            elif linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum).split("\t")[5][:7] == "STATION":
+                self.Announcements = "NOW:"+infra[9:]#app_stat[:12]
+                #if app_stat != "": self.output_arr[5] = app_stat
+                #else:  self.output_arr[5] = infra[5][9:]
+                self.output_arr[5] = infra[9:]
+        else:
+            #redline
+            pass
+            
             
             
             
