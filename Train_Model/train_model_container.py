@@ -123,12 +123,5 @@ class TrainModelContainer(QObject):
         print("Train Model Container: train removed from container")
 
     def show_ui(self):
-        app = QApplication.instance()
-
-        if app is None:
-            app = QApplication([])
-
         self.ui = UITrain(self.business_logic)
         self.ui.show()
-
-        app.exec()
