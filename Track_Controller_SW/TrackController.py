@@ -1,11 +1,9 @@
 from PyQt6.QtCore import pyqtSignal, QObject, pyqtSlot
-from PyQt6.QtWidgets import QApplication
 
 from Common import Light, RRCrossing, Switch
 from Track_Controller_SW.BusinessLogic import BusinessLogic
 from Track_Controller_SW.PLC_Logic import PlcProgram
-from Track_Controller_SW.TestbenchContainer import TestbenchContainer
-from Track_Controller_SW.TrackControllerUI import UI
+from Track_Controller_SW.TrackControllerSignals import TrackControllerSignals
 
 
 class TrackController(QObject):
@@ -18,6 +16,7 @@ class TrackController(QObject):
         super().__init__()
 
         self.block_indexes = list(occupancy_dict.keys())
+        self.signals = TrackControllerSignals()
 
         if section == "A":
             self.switches_list = \
@@ -37,6 +36,7 @@ class TrackController(QObject):
                     RRCrossing(19, False)
                 ]
             self.plc_logic = PlcProgram(section)
+            # self.ui = UI(section)
 
         elif section == "C":
             self.switches_list = \
@@ -52,6 +52,7 @@ class TrackController(QObject):
                     Light(100, False)
                 ]
             self.plc_logic = PlcProgram(section)
+            # self.ui = UI(section)
 
         self.occupancy_dict = occupancy_dict
         self.zero_speed_flag_dict = dict(zip(self.block_indexes, [False]*len(self.block_indexes)))
@@ -65,27 +66,32 @@ class TrackController(QObject):
             self.block_indexes,
             self.section
         )
-        self.testbench_container = TestbenchContainer(self.business_logic)
 
-        self.business_logic.switch_changed_index_signal.connect(self.send_switch_changed_index)
-        self.business_logic.rr_crossing_signal.connect(self.rr_crossing_updated)
-        self.business_logic.lights_list_signal.connect(self.lights_list_updated)
+        self.signals.send_switch_changed_A_signal.connect(self.send_switch_changed_index)
+        self.signals.send_switch_changed_C_signal.connect(self.send_switch_changed_index)
+        self.signals.send_rr_crossing_A_signal.connect(self.rr_crossing_updated)
+        self.signals.send_lights_signal.connect(self.lights_list_updated)
+
 
     @pyqtSlot(int)
     def send_switch_changed_index(self, switch_block: int):
-        self.switch_changed_index_signal.emit(switch_block)
+        if self.section == "A":
+            self.signals.track_controller_A_switch_changed_signal.emit(switch_block)
+        else:
+            self.signals.track_controller_C_switch_changed_signal.emit(switch_block)
+
 
     @pyqtSlot(bool)
     def rr_crossing_updated(self, rr_crossing_active: bool):
-        self.rr_crossing_signal.emit(rr_crossing_active)
+        self.signals.track_controller_A_rr_crossing_signal.emit(rr_crossing_active)
 
     @pyqtSlot(list)
     def lights_list_updated(self, lights_list: list):
         self.lights_list = lights_list
         if self.section == "A":
-            self.lights_list_A_changed_signal.emit(lights_list)
+            self.signals.track_controller_A_lights_changed_signal.emit(lights_list)
         elif self.section == "C":
-            self.lights_list_C_changed_signal.emit(lights_list)
+            self.signals.track_controller_C_lights_changed_signal.emit(lights_list)
 
     def update_occupancy(self, block_occupancy_dict: dict[int, bool]):
         unsafe_close_blocks = None
@@ -117,22 +123,18 @@ class TrackController(QObject):
         self.occupancy_dict = block_occupancy_dict
         return [self.zero_speed_flag_dict, unsafe_close_blocks, unsafe_toggle_switches]
 
-    def show_ui(self):
-        app = QApplication.instance()  # Get the QApplication instance
+    # def show_ui(self):
+        # app = QApplication.instance()  # Get the QApplication instance
 
         # app_flag = False
-        if app is None:
-            app = QApplication([])  # If QApplication instance doesn't exist, create a new one
-            # app_flag = True
+        # if app is None:
+        #     app = QApplication([])  # If QApplication instance doesn't exist, create a new one
+        #     # app_flag = True
 
-        self.ui = UI(self.business_logic)
-        self.ui.show()
+        # self.ui.show()
 
         # if app_flag is True:
-        app.exec()
-
-    def show_testbench_ui(self):
-        self.testbench_container.show_ui()
+        # app.exec()
 
 
 def main():

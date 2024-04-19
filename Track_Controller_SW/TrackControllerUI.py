@@ -7,20 +7,36 @@ from PyQt6.QtWidgets import QFileDialog, QMainWindow, QWidget, QVBoxLayout, QPus
     QListWidgetItem, QButtonGroup, QListWidget
 from PyQt6.uic import loadUi
 
-from Track_Controller_SW.BusinessLogic import BusinessLogic
 from Common import Switch
+
+from Track_Controller_SW.TrackControllerSignals import TrackControllerSignals
 
 
 class ManualMode(QWidget):
-    switch_changed_signal = pyqtSignal(int)
 
-    def __init__(self, business_logic: BusinessLogic):
+    def __init__(self, section: str):
         super().__init__()
-        self.setWindowTitle('Maintenance Mode')
+        self.section = section
+        self.setWindowTitle(f"Maintenance Mode {self.section}")
         self.setMinimumSize(200, 200)
         self.layout = QVBoxLayout(self)
-        self.business_logic = business_logic
-        self.switches_list = copy(self.business_logic.switches_list)
+        self.switches_list = []
+        self.signals = TrackControllerSignals()
+
+        # Connect internal signals
+        self.switch_button_group.buttonClicked.connect(self.switch_button_pressed)
+
+        # Connect external signals
+        if section == 'A':
+            self.signals.send_switches_list_A_switch_ui_signal.connect(self.get_switches_list)
+            self.signals.get_switches_list_A_switch_ui_signal.emit()
+        else:
+            self.signals.send_switches_list_C_switch_ui_signal.connect(self.get_switches_list)
+            self.signals.get_switches_list_C_switch_ui_signal.emit()
+
+    @pyqtSlot(list)
+    def get_switches_list(self, switches: list):
+        self.switches_list = switches
 
         self.switch_button_group = QButtonGroup()
         button_id = 0
@@ -33,11 +49,11 @@ class ManualMode(QWidget):
             button_id += 1
             self.layout.addWidget(button)
 
-        self.switch_button_group.buttonClicked.connect(self.switch_button_pressed)
-
     def switch_button_pressed(self, button: QPushButton) -> None:
-        QtCore.QMetaObject.invokeMethod(self, "switch_changed_signal",
-                                        QtCore.Q_ARG(int, self.switch_button_group.id(button)))
+        if self.section == 'A':
+            self.signals.maintenance_switch_changed_A_signal.emit(self.switch_button_group.id(button))
+        else:
+            self.signals.maintenance_switch_changed_C_signal.emit(self.switch_button_group.id(button))
 
     def switch_button_ret(self, size=None, text1=None, checkable=True, style1=None, style2=None):
         button = QPushButton()
@@ -54,14 +70,16 @@ class ManualMode(QWidget):
 
 
 class UI(QMainWindow):
-    def __init__(self, business_logic):
+    def __init__(self, section: str):
 
         super(UI, self).__init__()
+        self.section = section
         self.fname = "filename"
         self.switch_list_widget = None
         self.block_number = None
         self.manual_mode_window = None
         self.lights_list = None
+        self.signals = TrackControllerSignals()
 
         # load ui
         current_dir = os.path.dirname(__file__)  # setting up to work in any dir
@@ -74,9 +92,6 @@ class UI(QMainWindow):
         # Fix the size
         self.setFixedWidth(757)
         self.setFixedHeight(649)
-
-        # Assign attributes
-        self.business_logic = business_logic
 
         # Define widgets
         self.manual_mode = self.findChild(QPushButton, 'manual_mode')
@@ -96,73 +111,82 @@ class UI(QMainWindow):
         # self.tb_button = self.findChild(QPushButton, 'tb_button')
         self.block_number = self.findChild(QListWidget, 'block_number')
 
-        # Testbench
-        # self.tb_window = None
+        # Connect outside signals
+        if self.section == 'A':
 
-        # Initialize switch list
-        self.init_switch_list()
+            # Initialize / update switch list
+            self.signals.send_switches_list_A_signal.connect(self.update_switches)
 
-        # Initialize occupancy list
-        self.init_occupancy()
+            # Initialize / update occupancy list
+            self.signals.send_occupancy_A_signal.connect(self.update_occupancy)
 
-        # Initialize lights
-        self.init_lights()
+            # Initialize lights
+            self.signals.init_lights_A_signal.connect(self.init_lights)
 
-        # Initialize filename
-        try:
-            self.filename.setText(self.business_logic.filepath)
-            self.filename.adjustSize()
-        except Exception as e:
-            print(e)
+            # Update light
+            self.signals.send_light_A_signal.connect(self.update_light)
 
-        # define connections
+            # Initialize filename
+            self.signals.send_filename_A_signal.connect(self.init_filename)
+
+            # Update RR crossing
+            self.signals.send_rr_crossing_A_signal.connect(self.activate_rr_crossing)
+
+            self.signals.get_switches_list_A_signal.emit()
+            self.signals.get_occupancy_A_signal.emit()
+            self.signals.get_lights_A_signal.emit()
+            self.signals.get_filename_A_signal.emit()
+
+        else:  # section is C
+            # Initialize / update switch list
+            self.signals.send_switches_list_C_signal.connect(self.update_switches)
+
+            # Initialize / update occupancy list
+            self.signals.send_occupancy_C_signal.connect(self.update_occupancy)
+
+            # Initialize lights
+            self.signals.init_lights_C_signal.connect(self.init_lights)
+
+            # Update light
+            self.signals.send_light_C_signal.connect(self.update_light)
+
+            # Initialize filename
+            self.signals.send_filename_C_signal.connect(self.init_filename)
+
+            # No RR crossing
+            self.rr_crossing.hide()
+
+            self.signals.get_switches_list_C_signal.emit()
+            self.signals.get_occupancy_C_signal.emit()
+            self.signals.get_lights_C_signal.emit()
+            self.signals.get_filename_C_signal.emit()
+
+        # define internal connections
         self.browse_button.clicked.connect(self.browse_files)
         self.manual_mode.clicked.connect(self.manual_mode_dialogue)
-        # self.tb_button.clicked.connect(self.open_tb)
 
-        # outside signals
-        self.business_logic.occupancy_signal.connect(self.update_occupancy)
-        self.business_logic.switches_signal.connect(self.update_switches)
-        self.business_logic.rr_crossing_signal.connect(self.activate_rr_crossing)
-        self.business_logic.light_signal.connect(self.update_light)
-
-        # show the app
-        self.show()
-
-    # must initialize with business object data, then have it dynamically update when running
-    def init_switch_list(self):
-        self.switch_list_widget.clear()
-        for switch in self.business_logic.switches_list:
-            item = QListWidgetItem(str(switch))
-            self.switch_list_widget.addItem(item)
+    @pyqtSlot(str)
+    def init_filename(self, filename: str):
+        self.filename.setText(filename)
 
     # dynamically updating endpoint called by business logic
     @pyqtSlot(list)
-    def update_switches(self, switches_arr: list[Switch]) -> None:
+    def update_switches(self, switches_list: list[Switch]) -> None:
         self.switch_list_widget.clear()
-        for switch in switches_arr:
+        for switch in switches_list:
             item = QListWidgetItem(str(switch))
             self.switch_list_widget.addItem(item)
 
-    # must initialize with business object data, then have it dynamically update when running
-    def init_occupancy(self) -> None:
-        self.block_number.clear()
-        for index, occupancy in self.business_logic.occupancy_dict.items():
-            # for occupancy in self.business_logic.occupancy_list:
-            item = QListWidgetItem(str(index) + " " + str(occupancy))
-            self.block_number.addItem(item)
-
-    # dynamically updating endpoint called by business logic
     @pyqtSlot(dict)
-    def update_occupancy(self, occupancy_dict : dict) -> None:
+    def update_occupancy(self, occupancy_dict: dict) -> None:
         self.block_number.clear()
         for index, occupancy in occupancy_dict.items():
-            # for occupancy in self.business_logic.occupancy_list:
             item = QListWidgetItem(str(index) + " " + str(occupancy))
             self.block_number.addItem(item)
 
-    def init_lights(self):
-        self.lights_list = copy(self.business_logic.lights_list)
+    @pyqtSlot(list)
+    def init_lights(self, lights_list: list):
+        self.lights_list = lights_list
         self.light_1_a.setText(f"Light @ b{self.lights_list[0].block}")
         self.light_1_b.setText(f"Light @ b{self.lights_list[1].block}")
         self.light_2_a.setText(f"Light @ b{self.lights_list[2].block}")
@@ -189,8 +213,7 @@ class UI(QMainWindow):
             self.light_2_a.setStyleSheet("background-color: rgb(222, 62, 38)")
 
     def manual_mode_dialogue(self):
-        self.manual_mode_window = ManualMode(self.business_logic)
-        self.manual_mode_window.switch_changed_signal.connect(self.business_logic.switches_changed)
+        self.manual_mode_window = ManualMode(self.section)
         self.manual_mode_window.adjustSize()
         self.manual_mode_window.show()
         self.show()
@@ -208,4 +231,8 @@ class UI(QMainWindow):
         self.fname, _ = QFileDialog.getOpenFileName(self, 'Open PLC File', 'C:/Users/lucas')
         self.filename.setText(self.fname)
         self.filename.adjustSize()
-        self.business_logic.set_plc_filepath(self.fname)
+        if self.section == 'A':
+            self.signals.set_plc_filepath_A_signal.emit(self.fname)
+        else:
+            self.signals.set_plc_filepath_C_signal.emit(self.fname)
+

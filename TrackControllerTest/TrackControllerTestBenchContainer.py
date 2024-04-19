@@ -1,28 +1,30 @@
 from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
 from PyQt6.QtWidgets import QApplication
 
-from TrackControllerTest import TestBusinessLogic, TestUi
+from TrackControllerTest import TestBackend, TestUi
+from TrackControllerTest.TrackControllerTestSignals import TrackControllerTestSignals
+from TopLevelSignals import TopLevelSignals
 
 
 class TrackControllerTestBenchContainer(QObject):
 
-    test_update_wayside_from_ctc = pyqtSignal(list, bool, list, list)
-    test_update_wayside_from_track_model = pyqtSignal(dict)
-
     def __init__(self):
         super().__init__()
-        self.test_business_logic = TestBusinessLogic()
+        self.test_backend = TestBackend()
+        self.ui = TestUi()
+        self.signals = TrackControllerTestSignals()
+        self.topLevelSignals = TopLevelSignals()
 
-        self.test_business_logic.ctc_inputs_from_testbench_signal.connect(self.update_wayside_from_ctc)
-        self.test_business_logic.track_inputs_from_testbench_signal.connect(self.update_wayside_from_track_model)
+        self.signals.ctc_inputs_from_testbench_signal.connect(self.update_wayside_from_ctc)
+        self.signals.track_inputs_from_testbench_signal.connect(self.update_wayside_from_track_model)
 
     @pyqtSlot(list)
     def update_wayside_from_ctc(self, track_signal: list):
-        self.test_update_wayside_from_ctc.emit(track_signal, False, [], [])
+        self.topLevelSignals.test_update_wayside_from_ctc.emit(track_signal, False, [], [])
 
     @pyqtSlot(dict)
     def update_wayside_from_track_model(self, occupancy_dict: dict):
-        self.test_update_wayside_from_track_model.emit(occupancy_dict)
+        self.topLevelSignals.test_update_wayside_from_track_model.emit(occupancy_dict)
 
     def show_ui(self):
         app = QApplication.instance()  # Get the QApplication instance
@@ -31,7 +33,6 @@ class TrackControllerTestBenchContainer(QObject):
         if app is None:
             app = QApplication([])  # If QApplication instance doesn't exist, create a new one
 
-        self.ui = TestUi(self.test_business_logic)
         self.ui.show()
 
         # if app_flag is True:
