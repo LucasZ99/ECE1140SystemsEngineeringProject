@@ -299,7 +299,11 @@ class HW_UI_JEB382_PyFirmat:
         
          #2   On/Off Service Brake	        Boolean	    Slow down vital control from train controller
         if not self.Mode:#auto
-            if int(self.TrainModel_arr[2]) == 0: self.output_arr[2]=True
+            if int(self.TrainModel_arr[2]) == 0:
+                self.output_arr[2]=True
+            else:
+                #reset from previous non auth, if needs to brake will be caught later
+                self.output_arr[2]=False
         else:#manual
             self.output_arr[2] = self.Driver_arr[9]
                     
@@ -330,20 +334,20 @@ class HW_UI_JEB382_PyFirmat:
         
         #if authority<4 and distance to station <= s1 + buffer: serivce brake, power=0, commanded speed=0
         if distance_to_station <= s1+displace_buffer or distance_to_station == s1:
-            #print("TrainC HW: service brake")
+            print("TrainC HW: service brake")
             self.output_arr[0] = 0
             self.output_arr[1] = 0
             self.output_arr[2] = True
             #while True: print("SBRAKE")
         #elif authority<4 and distance to station <= s1: emergency brake, power=0, commanded speed=0
         elif distance_to_station < s1:
-            #print("TrainC HW: emergency brake")
+            print("TrainC HW: emergency brake")
             self.output_arr[0] = 0
             self.output_arr[1] = 0
             self.output_arr[3] = True
             #while True: print("EBRAKE")
         else:
-            #print("TrainC HW: moving")
+            print("TrainC HW: moving")
             #fill out self.output_arr and self.Announcements
             #0   Commanded Speed	                m/s	        How fast the driver has commanded the train to go
             if self.Mode: #Manual
@@ -360,13 +364,13 @@ class HW_UI_JEB382_PyFirmat:
             #-----------------------------------------------------------------------------------------------------------------------
             #1   Power                           Watts	    Engine power (Lec2 Slide61-65 pdf54-58)
             if self.output_arr[2] or self.output_arr[3]: #Brake overrides
-                #print("TrainC HW: moving: cancel: brake")
+                print("TrainC HW: moving: cancel: brake")
                 self.output_arr[1] = 0
-            elif self.TrainModel_arr[1] == 0 or self.TrainModel_arr[2] == 0:
-                #print("TrainC HW: moving: cancel: no auth and/or cmd spd")
+            elif (not self.Mode and self.TrainModel_arr[1] == 0) or (self.Mode and self.Driver_arr[2] == 0) or self.TrainModel_arr[2] == 0:
+                print("TrainC HW: moving: cancel: no auth and/or cmd spd")
                 self.output_arr[1] = 0
             else:                    
-                #print("TrainC HW: moving: moving confirm")
+                print("TrainC HW: moving: moving confirm")
                 
                 V_err = self.output_arr[0] - self.TrainModel_arr[0] #Verr=Vcmd-Vactual ; m/s-m/s
                 #T = currtime-self.timeL #sec-sec
