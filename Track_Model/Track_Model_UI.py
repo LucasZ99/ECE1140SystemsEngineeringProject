@@ -19,7 +19,7 @@ import time
 ##############################
 # Main Window
 ##############################
-class Window(QMainWindow):
+class Window(QMainWindow):  # TODO: FAILURE MODE FROM NEW COMBOBOX
     def __init__(self, track_model):
         super().__init__()
         # Backend
@@ -177,7 +177,7 @@ class Window(QMainWindow):
         bv_layout.addWidget(self.rxr_label, 6, 1)
         # train dictionary display
         self.train_dict_label = QLabel('Trains: ' + str(self.track_model.get_train_dict()))
-        bv_layout.addWidget(self.train_dict_label)
+        bv_layout.addWidget(self.train_dict_label, 9, 0)
         # failure combo/toggle
         self.failure_combo = QComboBox()
         self.failure_combo.addItems(['Power Failure', 'Track Circuit Failure', 'Broken Rail Failure'])
@@ -187,8 +187,8 @@ class Window(QMainWindow):
         self.failure_toggle.setFixedSize(self.failure_toggle.sizeHint())
         self.failure_toggle.clicked.connect(self.failure_toggle_clicked)
         self.block_view_layout_group.setLayout(bv_layout)
-        bv_layout.addWidget(self.failure_combo, 9, 0)
-        bv_layout.addWidget(self.failure_toggle, 9, 1)
+        bv_layout.addWidget(self.failure_combo, 10, 0)
+        bv_layout.addWidget(self.failure_toggle, 10, 1)
         # map
         self.map_layout_group = QGroupBox("Map")
         m_layout = QVBoxLayout()
