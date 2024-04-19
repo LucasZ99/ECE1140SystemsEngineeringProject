@@ -118,6 +118,8 @@ def pass_ebreak_enable(folder):
 
     print("\n-------------")
     print(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>")
+    return Endcase
+
 
 
 #----------------------------------------------
@@ -152,10 +154,11 @@ def driver_disable_pass(folder):
     #----------------------------------------------
     #Endcase
     file.write("\n-------------\n")
-    file.write(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>\n")
+    file.write(f"[!!!!!] 01driver_disable_pass: <{'PASS' if Endcase else 'FAIL'}>\n")
 
     print("\n-------------")
-    print(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>")
+    print(f"[!!!!!] 01driver_disable_pass: <{'PASS' if Endcase else 'FAIL'}>")
+    return Endcase
 
 
 #----------------------------------------------
@@ -190,10 +193,11 @@ def driver_ebreak_enable(folder):
     #----------------------------------------------
     #Endcase
     file.write("\n-------------\n")
-    file.write(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>\n")
+    file.write(f"[!!!!!] 02driver_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>\n")
 
     print("\n-------------")
-    print(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>")
+    print(f"[!!!!!] 02driver_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>")
+    return Endcase
 
 
 #----------------------------------------------
@@ -228,10 +232,11 @@ def driver_sbreak_enable(folder):
     #----------------------------------------------
     #Endcase
     file.write("\n-------------\n")
-    file.write(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>\n")
+    file.write(f"[!!!!!] 03driver_sbreak_enable: <{'PASS' if Endcase else 'FAIL'}>\n")
 
     print("\n-------------")
-    print(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>")
+    print(f"[!!!!!] 03driver_sbreak_enable: <{'PASS' if Endcase else 'FAIL'}>")
+    return Endcase
 
 
 #----------------------------------------------
@@ -266,10 +271,11 @@ def driver_door(folder):
     #----------------------------------------------
     #Endcase
     file.write("\n-------------\n")
-    file.write(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>\n")
+    file.write(f"[!!!!!] 04driver_door: <{'PASS' if Endcase else 'FAIL'}>\n")
 
     print("\n-------------")
-    print(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>")
+    print(f"[!!!!!] 04driver_door: <{'PASS' if Endcase else 'FAIL'}>")
+    return Endcase
 
 
 #----------------------------------------------
@@ -304,10 +310,11 @@ def train_door(folder):
     #----------------------------------------------
     #Endcase
     file.write("\n-------------\n")
-    file.write(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>\n")
+    file.write(f"[!!!!!] 05train_door: <{'PASS' if Endcase else 'FAIL'}>\n")
 
     print("\n-------------")
-    print(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>")
+    print(f"[!!!!!] 05train_door: <{'PASS' if Endcase else 'FAIL'}>")
+    return Endcase
 
 
 #----------------------------------------------
@@ -342,10 +349,11 @@ def driver_int_lights(folder):
     #----------------------------------------------
     #Endcase
     file.write("\n-------------\n")
-    file.write(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>\n")
+    file.write(f"[!!!!!] 06driver_int_lights: <{'PASS' if Endcase else 'FAIL'}>\n")
 
     print("\n-------------")
-    print(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>")
+    print(f"[!!!!!] 06driver_int_lights: <{'PASS' if Endcase else 'FAIL'}>")
+    return Endcase
 
 
 #----------------------------------------------
@@ -380,10 +388,11 @@ def driver_ext_lights(folder):
     #----------------------------------------------
     #Endcase
     file.write("\n-------------\n")
-    file.write(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>\n")
+    file.write(f"[!!!!!] 07driver_ext_lights: <{'PASS' if Endcase else 'FAIL'}>\n")
 
     print("\n-------------")
-    print(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>")
+    print(f"[!!!!!] 07driver_ext_lights: <{'PASS' if Endcase else 'FAIL'}>")
+    return Endcase
 
 
 #----------------------------------------------
@@ -418,10 +427,11 @@ def zero_pow_auth(folder):
     #----------------------------------------------
     #Endcase
     file.write("\n-------------\n")
-    file.write(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>\n")
+    file.write(f"[!!!!!] 08zero_pow_auth: <{'PASS' if Endcase else 'FAIL'}>\n")
 
     print("\n-------------")
-    print(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>")
+    print(f"[!!!!!] 08zero_pow_auth: <{'PASS' if Endcase else 'FAIL'}>")
+    return Endcase
 
 
 #----------------------------------------------
@@ -456,10 +466,11 @@ def zero_pow_cmdspd(folder):
     #----------------------------------------------
     #Endcase
     file.write("\n-------------\n")
-    file.write(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>\n")
+    file.write(f"[!!!!!] 09zero_pow_cmdspd: <{'PASS' if Endcase else 'FAIL'}>\n")
 
     print("\n-------------")
-    print(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>")
+    print(f"[!!!!!] 09zero_pow_cmdspd: <{'PASS' if Endcase else 'FAIL'}>")
+    return Endcase
 
 
 #----------------------------------------------
@@ -494,10 +505,11 @@ def brake_overturn(folder):
     #----------------------------------------------
     #Endcase
     file.write("\n-------------\n")
-    file.write(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>\n")
+    file.write(f"[!!!!!] 10brake_overturn: <{'PASS' if Endcase else 'FAIL'}>\n")
 
     print("\n-------------")
-    print(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>")
+    print(f"[!!!!!] 10brake_overturn: <{'PASS' if Endcase else 'FAIL'}>")
+    return Endcase
 
 
 #----------------------------------------------
@@ -532,10 +544,11 @@ def amb_light_on(folder):
     #----------------------------------------------
     #Endcase
     file.write("\n-------------\n")
-    file.write(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>\n")
+    file.write(f"[!!!!!] 11amb_light_on: <{'PASS' if Endcase else 'FAIL'}>\n")
 
     print("\n-------------")
-    print(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>")
+    print(f"[!!!!!] 11amb_light_on: <{'PASS' if Endcase else 'FAIL'}>")
+    return Endcase
 
 
 #----------------------------------------------
@@ -570,10 +583,11 @@ def amb_light_off(folder):
     #----------------------------------------------
     #Endcase
     file.write("\n-------------\n")
-    file.write(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>\n")
+    file.write(f"[!!!!!] 12amb_light_off: <{'PASS' if Endcase else 'FAIL'}>\n")
 
     print("\n-------------")
-    print(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>")
+    print(f"[!!!!!] 12amb_light_off: <{'PASS' if Endcase else 'FAIL'}>")
+    return Endcase
 
 
 #----------------------------------------------
@@ -608,10 +622,11 @@ def stop_dist(folder):
     #----------------------------------------------
     #Endcase
     file.write("\n-------------\n")
-    file.write(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>\n")
+    file.write(f"[!!!!!] 13stop_dist: <{'PASS' if Endcase else 'FAIL'}>\n")
 
     print("\n-------------")
-    print(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>")
+    print(f"[!!!!!] 13stop_dist: <{'PASS' if Endcase else 'FAIL'}>")
+    return Endcase
 
 
 #----------------------------------------------
@@ -646,10 +661,11 @@ def sbrake_dist(folder):
     #----------------------------------------------
     #Endcase
     file.write("\n-------------\n")
-    file.write(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>\n")
+    file.write(f"[!!!!!] 14sbrake_dist: <{'PASS' if Endcase else 'FAIL'}>\n")
 
     print("\n-------------")
-    print(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>")
+    print(f"[!!!!!] 14sbrake_dist: <{'PASS' if Endcase else 'FAIL'}>")
+    return Endcase
 
 
 #----------------------------------------------
@@ -684,10 +700,11 @@ def ebrake_dist(folder):
     #----------------------------------------------
     #Endcase
     file.write("\n-------------\n")
-    file.write(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>\n")
+    file.write(f"[!!!!!] 15ebrake_dist: <{'PASS' if Endcase else 'FAIL'}>\n")
 
     print("\n-------------")
-    print(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>")
+    print(f"[!!!!!] 15ebrake_dist: <{'PASS' if Endcase else 'FAIL'}>")
+    return Endcase
 
 
 #----------------------------------------------
@@ -722,10 +739,11 @@ def announce_stat_block(folder):
     #----------------------------------------------
     #Endcase
     file.write("\n-------------\n")
-    file.write(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>\n")
+    file.write(f"[!!!!!] 16announce_stat_block: <{'PASS' if Endcase else 'FAIL'}>\n")
 
     print("\n-------------")
-    print(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>")
+    print(f"[!!!!!] 16announce_stat_block: <{'PASS' if Endcase else 'FAIL'}>")
+    return Endcase
 
 
 #----------------------------------------------
@@ -760,10 +778,11 @@ def driver_temp(folder):
     #----------------------------------------------
     #Endcase
     file.write("\n-------------\n")
-    file.write(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>\n")
+    file.write(f"[!!!!!] 17driver_temp: <{'PASS' if Endcase else 'FAIL'}>\n")
 
     print("\n-------------")
-    print(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>")
+    print(f"[!!!!!] 17driver_temp: <{'PASS' if Endcase else 'FAIL'}>")
+    return Endcase
 
 
 
@@ -804,6 +823,7 @@ def pass_break_enable(folder):
 
     print("\n-------------")
     print(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>")
+    return Endcase
 
 
 
@@ -842,6 +862,7 @@ def pass_break_enable(folder):
 
     print("\n-------------")
     print(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>")
+    return Endcase
 
 
 
@@ -880,6 +901,7 @@ def pass_break_enable(folder):
 
     print("\n-------------")
     print(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>")
+    return Endcase
 
 
 
@@ -918,6 +940,7 @@ def pass_break_enable(folder):
 
     print("\n-------------")
     print(f"[!!!!!] 00pass_ebreak_enable: <{'PASS' if Endcase else 'FAIL'}>")
+    return Endcase
 
 '''
 
@@ -934,47 +957,55 @@ def pass_break_enable(folder):
 if __name__ == "__main__":
     #folder: test_dir
     test_dir = get_testing_folder()
-    
+    Endcase = True#total endcase that all tests work
     
     #Passenger Break enables eBrake
     pass_ebreak_enable(test_dir)
     #Driver can disable Passenger Brake's effect in any mode
-    '''driver_disable_pass(test_dir)
+    '''
+    Endcase *= driver_disable_pass(test_dir)
     #Driver can enable ebrake in any mode
-    driver_ebreak_enable(test_dir)
+    Endcase *= driver_ebreak_enable(test_dir)
     #Driver can enable service brake in manual mode only
-    driver_sbreak_enable(test_dir)
+    Endcase *= driver_sbreak_enable(test_dir)
     #Driver can change door state when train is stopped in manual mode
-    driver_door(test_dir)
+    Endcase *= driver_door(test_dir)
     #Train opens stationside door when train is stopped in auto mode
-    train_door(test_dir)
+    Endcase *= train_door(test_dir)
     #Driver can enable interior lights in manual when it is otherwise off
-    driver_int_lights(test_dir)
+    Endcase *= driver_int_lights(test_dir)
     #Driver can enable exterior lights in manual mode when it is otherwise off.
-    driver_ext_lights(test_dir)
+    Endcase *= driver_ext_lights(test_dir)
     #Power is zero without authority
-    zero_pow_auth(test_dir)
+    Endcase *= zero_pow_auth(test_dir)
     #Power is zero without commanded speed
-    zero_pow_cmdspd(test_dir)
+    Endcase *= zero_pow_cmdspd(test_dir)
     #Enable of Emergency brake turns off service brake
-    brake_overturn(test_dir)
+    Endcase *= brake_overturn(test_dir)
     #Turn on both lights when given lack of ambient light in both modes
-    amb_light_on(test_dir)
+    Endcase *= amb_light_on(test_dir)
     #turn off both lights when given ambient light in both mode, unless enabled by driver in manual
-    amb_light_off(test_dir)
+    Endcase *= amb_light_off(test_dir)
     #Train calculates correct stopping distance with current speed
-    stop_dist(test_dir)
+    Endcase *= stop_dist(test_dir)
     #Train enables service brake within correct stopping distance
-    sbrake_dist(test_dir)
+    Endcase *= sbrake_dist(test_dir)
     #Train enables emergency brake if it cant stop in time
-    ebrake_dist(test_dir)
+    Endcase *= ebrake_dist(test_dir)
     #Train gives station when in the block
-    announce_stat_block(test_dir)
+    Endcase *= announce_stat_block(test_dir)
     #Driver can adjust Temperature in any mode within limit
-    driver_temp(test_dir)'''
+    Endcase *= driver_temp(test_dir)
+    '''
     
     #NOTE: [!!!!!!!!!!] Must be done manually
     #HW: correct buttons correspond to correct changes in driver array
     #HW: display corresponds to store information
     #HW: displayes "APP" when within authority of a station
     #HW: displayers "NOW:" when in a station
+
+
+    #----------------------------------------------
+    #Endcase
+    print("\n=============-------------=============-------------=============")
+    print(f"[!!!ATTENTION!!!]\nTOTAL TESTING OF TRAIN CONTROLLER HW:\n<{'PASS' if Endcase else 'FAIL'}>")
