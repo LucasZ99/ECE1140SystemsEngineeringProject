@@ -169,7 +169,7 @@ def driver_disable_pass(folder):
     Endcase *= PTSD_test(file, "A: PASSENGER EBRAKE: CHANGE0", trainCtrl.TrainModel_arr[3], False)
     Endcase *= PTSD_test(file, "A: DISABLE PASSENGER: CHANGE0", trainCtrl.Driver_arr[10], False)
     trainCtrl.updateCalc()
-    Endcase *= PTSD_test(file, "A: DISABLE PASSENGER: INIT", trainCtrl.output_arr[3], False, Controller=trainCtrl)
+    Endcase *= PTSD_test(file, "A: DISABLE PASSENGER: false,false", trainCtrl.output_arr[3], False, Controller=trainCtrl)
     
     #-----
     #true,false:true
@@ -177,7 +177,7 @@ def driver_disable_pass(folder):
     Endcase *= PTSD_test(file, "A: PASSENGER EBRAKE: CHANGE1", trainCtrl.TrainModel_arr[3], True)
     Endcase *= PTSD_test(file, "A: DISABLE PASSENGER: CHANGE0", trainCtrl.Driver_arr[10], False)
     trainCtrl.updateCalc()
-    Endcase *= PTSD_test(file, "A: DISABLE PASSENGER: ENACT", trainCtrl.output_arr[3], True, Controller=trainCtrl)
+    Endcase *= PTSD_test(file, "A: DISABLE PASSENGER: true,false", trainCtrl.output_arr[3], True, Controller=trainCtrl)
     
     #-----
     #true,true:false
@@ -185,7 +185,7 @@ def driver_disable_pass(folder):
     Endcase *= PTSD_test(file, "A: PASSENGER EBRAKE: CHANGE1", trainCtrl.TrainModel_arr[3], True)
     Endcase *= PTSD_test(file, "A: DISABLE PASSENGER: CHANGE1", trainCtrl.Driver_arr[10], True)
     trainCtrl.updateCalc()
-    Endcase *= PTSD_test(file, "A: DISABLE PASSENGER: DISABLE", trainCtrl.output_arr[3], False, Controller=trainCtrl)
+    Endcase *= PTSD_test(file, "A: DISABLE PASSENGER: true,true", trainCtrl.output_arr[3], False, Controller=trainCtrl)
     
     #-----
     #false,true:false
@@ -193,7 +193,7 @@ def driver_disable_pass(folder):
     Endcase *= PTSD_test(file, "A: PASSENGER EBRAKE: CHANGE2", trainCtrl.TrainModel_arr[3], False)
     Endcase *= PTSD_test(file, "A: DISABLE PASSENGER: CHANGE1", trainCtrl.Driver_arr[10], True)
     trainCtrl.updateCalc()
-    Endcase *= PTSD_test(file, "A: DISABLE PASSENGER: NONE", trainCtrl.output_arr[3], False, Controller=trainCtrl)
+    Endcase *= PTSD_test(file, "A: DISABLE PASSENGER: false,true", trainCtrl.output_arr[3], False, Controller=trainCtrl)
     
     
     #=====================
@@ -208,7 +208,7 @@ def driver_disable_pass(folder):
     Endcase *= PTSD_test(file, "M: PASSENGER EBRAKE: CHANGE0", trainCtrl.TrainModel_arr[3], False)
     Endcase *= PTSD_test(file, "M: DISABLE PASSENGER: CHANGE0", trainCtrl.Driver_arr[10], False)
     trainCtrl.updateCalc()
-    Endcase *= PTSD_test(file, "M: DISABLE PASSENGER: AUTO", trainCtrl.output_arr[3], False, Controller=trainCtrl)
+    Endcase *= PTSD_test(file, "M: DISABLE PASSENGER: false,false", trainCtrl.output_arr[3], False, Controller=trainCtrl)
     
     #-----
     #true,false:true
@@ -216,7 +216,7 @@ def driver_disable_pass(folder):
     Endcase *= PTSD_test(file, "M: PASSENGER EBRAKE: CHANGE1", trainCtrl.TrainModel_arr[3], True)
     Endcase *= PTSD_test(file, "M: DISABLE PASSENGER: CHANGE0", trainCtrl.Driver_arr[10], False)
     trainCtrl.updateCalc()
-    Endcase *= PTSD_test(file, "M: PASSENGER EBRAKE: MANUAL", trainCtrl.output_arr[3], True, Controller=trainCtrl)
+    Endcase *= PTSD_test(file, "M: PASSENGER EBRAKE: true,false", trainCtrl.output_arr[3], True, Controller=trainCtrl)
     
     #-----
     #true,true:false
@@ -224,7 +224,7 @@ def driver_disable_pass(folder):
     Endcase *= PTSD_test(file, "M: PASSENGER EBRAKE: CHANGE1", trainCtrl.TrainModel_arr[3], True)
     Endcase *= PTSD_test(file, "M: DISABLE PASSENGER: CHANGE1", trainCtrl.Driver_arr[10], True)
     trainCtrl.updateCalc()
-    Endcase *= PTSD_test(file, "M: DISABLE PASSENGER: AUTO", trainCtrl.output_arr[3], False, Controller=trainCtrl)
+    Endcase *= PTSD_test(file, "M: DISABLE PASSENGER: true,true", trainCtrl.output_arr[3], False, Controller=trainCtrl)
     
     #-----
     #false,true:false
@@ -232,7 +232,7 @@ def driver_disable_pass(folder):
     Endcase *= PTSD_test(file, "M: PASSENGER EBRAKE: CHANGE2", trainCtrl.TrainModel_arr[3], False)
     Endcase *= PTSD_test(file, "M: DISABLE PASSENGER: CHANGE1", trainCtrl.Driver_arr[10], True)
     trainCtrl.updateCalc()
-    Endcase *= PTSD_test(file, "M: PASSENGER EBRAKE: REMOVED", trainCtrl.output_arr[3], False, Controller=trainCtrl)
+    Endcase *= PTSD_test(file, "M: PASSENGER EBRAKE: false,true", trainCtrl.output_arr[3], False, Controller=trainCtrl)
     
     
     
@@ -260,7 +260,7 @@ def driver_ebreak_enable(folder):
     
     #----------------------------------------------
     #making controller
-    main_TrainModel_arr = [0,0,0,False,False,False,"0"*128]
+    main_TrainModel_arr = [1,1,1,False,False,False,"0"*128]#need moving
     main_output_arr = []
     main_Driver_arr = []
     
@@ -301,7 +301,7 @@ def driver_ebreak_enable(folder):
     Endcase *= PTSD_test(file, "A: DRIVER EBRAKE: CHANGE3", trainCtrl.Driver_arr[8], True)
     trainCtrl.Mode = True
     trainCtrl.updateCalc()
-    Endcase *= PTSD_test(file, "M: DRIVER EBRAKE: MANUAL", trainCtrl.output_arr[3], True, Controller=trainCtrl)
+    Endcase *= PTSD_test(file, "M: DRIVER EBRAKE: ENABLE", trainCtrl.output_arr[3], True, Controller=trainCtrl)
     
     
     
@@ -329,7 +329,7 @@ def driver_sbreak_enable(folder):
     
     #----------------------------------------------
     #making controller
-    main_TrainModel_arr = [0,0,0,False,False,False,"0"*128]
+    main_TrainModel_arr = [1,1,1,False,False,False,"0"*128]#need moving
     main_output_arr = []
     main_Driver_arr = []
     
@@ -341,6 +341,36 @@ def driver_sbreak_enable(folder):
     #----------------------------------------------
     #Testing
     Endcase = True
+    
+    #-----
+    #auto
+    #init
+    Endcase *= PTSD_test(file, "A: DRIVER SBRAKE: CHANGE0", trainCtrl.Driver_arr[9], False)
+    trainCtrl.updateCalc()
+    Endcase *= PTSD_test(file, "A: DRIVER SBRAKE: INIT", trainCtrl.output_arr[2], False, Controller=trainCtrl)
+    
+    #-----
+    #on
+    trainCtrl.Driver_arr[9] = True #sbrake
+    Endcase *= PTSD_test(file, "A: DRIVER SBRAKE: CHANGE1", trainCtrl.Driver_arr[9], True)
+    trainCtrl.updateCalc()
+    Endcase *= PTSD_test(file, "A: DRIVER SBRAKE: ENABLE IN AUTO", trainCtrl.output_arr[2], False, Controller=trainCtrl)
+    
+    #-----
+    #manual
+    #off
+    trainCtrl.Driver_arr[9] = False #sbrake
+    trainCtrl.Mode = True #mode
+    Endcase *= PTSD_test(file, "A: DRIVER SBRAKE: CHANGE2", trainCtrl.Driver_arr[9], False)
+    trainCtrl.updateCalc()
+    Endcase *= PTSD_test(file, "A: DRIVER SBRAKE: REMOVED", trainCtrl.output_arr[2], False, Controller=trainCtrl)
+    
+    #-----
+    #on, manual
+    trainCtrl.Driver_arr[9] = True #sbrake
+    Endcase *= PTSD_test(file, "A: DRIVER SBRAKE: CHANGE3", trainCtrl.Driver_arr[9], True)
+    trainCtrl.updateCalc()
+    Endcase *= PTSD_test(file, "M: DRIVER SBRAKE: ENABLE", trainCtrl.output_arr[2], True, Controller=trainCtrl)
     
     
     
@@ -380,6 +410,125 @@ def driver_door(folder):
     #----------------------------------------------
     #Testing
     Endcase = True
+    
+    #-----
+    #auto
+    #off
+    trainCtrl.Driver_arr[6] = False
+    trainCtrl.Driver_arr[7] = False
+    Endcase *= PTSD_test(file, "A: DRIVER L DOOR: INIT", trainCtrl.Driver_arr[6], False)
+    Endcase *= PTSD_test(file, "A: DRIVER R DOOR: INIT", trainCtrl.Driver_arr[7], False)
+    trainCtrl.updateCalc()
+    Endcase *= PTSD_test(file, "A: DOOR OUTPUT: INIT", trainCtrl.output_arr[4], 0)
+    
+    #-----
+    #left on
+    trainCtrl.Driver_arr[6] = True
+    trainCtrl.Driver_arr[7] = False
+    Endcase *= PTSD_test(file, "A: DRIVER L DOOR: LEFT", trainCtrl.Driver_arr[6], True)
+    Endcase *= PTSD_test(file, "A: DRIVER R DOOR: LEFT", trainCtrl.Driver_arr[7], False)
+    trainCtrl.updateCalc()
+    Endcase *= PTSD_test(file, "A: DOOR OUTPUT: LEFT", trainCtrl.output_arr[4], 0)
+    
+    #-----
+    #right on
+    trainCtrl.Driver_arr[6] = False
+    trainCtrl.Driver_arr[7] = True
+    Endcase *= PTSD_test(file, "A: DRIVER L DOOR: RIGHT", trainCtrl.Driver_arr[6], False)
+    Endcase *= PTSD_test(file, "A: DRIVER R DOOR: RIGHT", trainCtrl.Driver_arr[7], True)
+    trainCtrl.updateCalc()
+    Endcase *= PTSD_test(file, "A: DOOR OUTPUT: RIGHT", trainCtrl.output_arr[4], 0)
+    
+    #-----
+    #both True
+    trainCtrl.Driver_arr[6] = True
+    trainCtrl.Driver_arr[7] = True
+    Endcase *= PTSD_test(file, "A: DRIVER L DOOR: BOTH", trainCtrl.Driver_arr[6], True)
+    Endcase *= PTSD_test(file, "A: DRIVER R DOOR: BOTH", trainCtrl.Driver_arr[7], True)
+    trainCtrl.updateCalc()
+    Endcase *= PTSD_test(file, "A: DOOR OUTPUT: BOTH", trainCtrl.output_arr[4], 0)
+    
+    
+    
+    
+    #-----------------
+    #manual
+    trainCtrl.Mode = True #mode
+    #off
+    trainCtrl.Driver_arr[6] = False
+    trainCtrl.Driver_arr[7] = False
+    Endcase *= PTSD_test(file, "M: DRIVER L DOOR: INIT", trainCtrl.Driver_arr[6], False)
+    Endcase *= PTSD_test(file, "M: DRIVER R DOOR: INIT", trainCtrl.Driver_arr[7], False)
+    trainCtrl.updateCalc()
+    Endcase *= PTSD_test(file, "M: DOOR OUTPUT: INIT", trainCtrl.output_arr[4], 0)
+    
+    #-----
+    #left on
+    trainCtrl.Driver_arr[6] = True
+    trainCtrl.Driver_arr[7] = False
+    Endcase *= PTSD_test(file, "M: DRIVER L DOOR: LEFT", trainCtrl.Driver_arr[6], True)
+    Endcase *= PTSD_test(file, "M: DRIVER R DOOR: LEFT", trainCtrl.Driver_arr[7], False)
+    trainCtrl.updateCalc()
+    Endcase *= PTSD_test(file, "M: DOOR OUTPUT: LEFT", trainCtrl.output_arr[4], 1)
+    
+    #-----
+    #right on
+    trainCtrl.Driver_arr[6] = False
+    trainCtrl.Driver_arr[7] = True
+    Endcase *= PTSD_test(file, "M: DRIVER L DOOR: RIGHT", trainCtrl.Driver_arr[6], False)
+    Endcase *= PTSD_test(file, "M: DRIVER R DOOR: RIGHT", trainCtrl.Driver_arr[7], True)
+    trainCtrl.updateCalc()
+    Endcase *= PTSD_test(file, "M: DOOR OUTPUT: RIGHT", trainCtrl.output_arr[4], 2)
+    
+    #-----
+    #both on
+    trainCtrl.Driver_arr[6] = True
+    trainCtrl.Driver_arr[7] = True
+    Endcase *= PTSD_test(file, "M: DRIVER L DOOR: BOTH", trainCtrl.Driver_arr[6], True)
+    Endcase *= PTSD_test(file, "M: DRIVER R DOOR: BOTH", trainCtrl.Driver_arr[7], True)
+    trainCtrl.updateCalc()
+    Endcase *= PTSD_test(file, "M: DOOR OUTPUT: BOTH", trainCtrl.output_arr[4], 3)
+    
+    
+    
+    
+    #-----------------
+    #moving
+    trainCtrl.TrainModel_arr[0] = 1 #moving
+    #off
+    trainCtrl.Driver_arr[6] = False
+    trainCtrl.Driver_arr[7] = False
+    Endcase *= PTSD_test(file, "MOVING: DRIVER L DOOR: INIT", trainCtrl.Driver_arr[6], False)
+    Endcase *= PTSD_test(file, "MOVING: DRIVER R DOOR: INIT", trainCtrl.Driver_arr[7], False)
+    trainCtrl.updateCalc()
+    Endcase *= PTSD_test(file, "MOVING: DOOR OUTPUT: INIT", trainCtrl.output_arr[4], 0)
+    
+    #-----
+    #left on
+    trainCtrl.Driver_arr[6] = True
+    trainCtrl.Driver_arr[7] = False
+    Endcase *= PTSD_test(file, "MOVING: DRIVER L DOOR: LEFT", trainCtrl.Driver_arr[6], True)
+    Endcase *= PTSD_test(file, "MOVING: DRIVER R DOOR: LEFT", trainCtrl.Driver_arr[7], False)
+    trainCtrl.updateCalc()
+    Endcase *= PTSD_test(file, "MOVING: DOOR OUTPUT: LEFT", trainCtrl.output_arr[4], 0)
+    
+    #-----
+    #right on
+    trainCtrl.Driver_arr[6] = False
+    trainCtrl.Driver_arr[7] = True
+    Endcase *= PTSD_test(file, "MOVING: DRIVER L DOOR: RIGHT", trainCtrl.Driver_arr[6], False)
+    Endcase *= PTSD_test(file, "MOVING: DRIVER R DOOR: RIGHT", trainCtrl.Driver_arr[7], True)
+    trainCtrl.updateCalc()
+    Endcase *= PTSD_test(file, "MOVING: DOOR OUTPUT: RIGHT", trainCtrl.output_arr[4], 0)
+    
+    #-----
+    #both on
+    trainCtrl.Driver_arr[6] = True
+    trainCtrl.Driver_arr[7] = True
+    Endcase *= PTSD_test(file, "MOVING: DRIVER L DOOR: BOTH", trainCtrl.Driver_arr[6], True)
+    Endcase *= PTSD_test(file, "MOVING: DRIVER R DOOR: BOTH", trainCtrl.Driver_arr[7], True)
+    trainCtrl.updateCalc()
+    Endcase *= PTSD_test(file, "MOVING: DOOR OUTPUT: BOTH", trainCtrl.output_arr[4], 0)
     
     
     
