@@ -343,7 +343,16 @@ class TrackModel(QObject):
         return self.remove_train
 
     def update_delta_x_dict(self, delta_x_dict):
-        print(f'train dict relative size = {len(self.train_dict_relative)}')
+        print('train dict relative:')
+        for key, val in self.train_dict_relative.items():
+            print(f'key = {key}')
+            print(f'val = {val}')
+            print()
+        print('train dict relative:')
+        for key, val in self.train_dict_relative.items():
+            print(f'key = {key}')
+            print(f'val = {val}')
+            print()
         self.remove_train = -1
         # meters
         for key, value in delta_x_dict.items():
