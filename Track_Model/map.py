@@ -39,10 +39,13 @@ class Map(QWidget):
         dirname = os.path.dirname(__file__)
         map_file = os.path.join(dirname, 'map_3.png')
         yellow_box_file = os.path.join(dirname, 'yellow_box.png')
-        green_light_file = os.path.join(dirname, 'green_light.png')
-        red_light_file = os.path.join(dirname, 'red_light.png')
+        green_light_file = os.path.join(dirname, 'greenlight.png')
+        red_light_file = os.path.join(dirname, 'redlight.png')
         rxr_unactivated_file = os.path.join(dirname, 'rxr_unactivated.png')
         rxr_activated_file = os.path.join(dirname, 'rxr_activated.png')
+        power_fail_file = os.path.join(dirname, 'power_failure.png')
+        track_circuit_fail_file = os.path.join(dirname, 'track_circuit_failure.png')
+        broken_rail_fail_file = os.path.join(dirname, 'broken_rail_failure.png')
 
         background = QLabel(self)
         pixmap = QPixmap(map_file)
@@ -53,8 +56,10 @@ class Map(QWidget):
         self.train_pixmap = self.train_pixmap.scaled(10, 10, Qt.AspectRatioMode.KeepAspectRatio)
 
         self.green_light_pixmap = QPixmap(green_light_file)
+        # self.green_light_pixmap = self.green_light_pixmap.scaled(25, 25, Qt.AspectRatioMode.KeepAspectRatio)
 
         self.red_light_pixmap = QPixmap(red_light_file)
+        # self.red_light_pixmap = self.red_light_pixmap.scaled(25, 25, Qt.AspectRatioMode.KeepAspectRatio)
 
         self.rxr_unactivated_pixmap = QPixmap(rxr_unactivated_file)
         self.rxr_unactivated_pixmap = self.rxr_unactivated_pixmap.scaled(30, 30, Qt.AspectRatioMode.KeepAspectRatio)
@@ -62,9 +67,17 @@ class Map(QWidget):
         self.rxr_activated_pixmap = QPixmap(rxr_activated_file)
         self.rxr_activated_pixmap = self.rxr_activated_pixmap.scaled(30, 30, Qt.AspectRatioMode.KeepAspectRatio)
 
+        self.power_fail_pixmap = QPixmap(power_fail_file)
+        self.power_fail_pixmap = self.power_fail_pixmap.scaled(15, 15, Qt.AspectRatioMode.KeepAspectRatio)
+        self.track_circuit_fail_pixmap = QPixmap(track_circuit_fail_file)
+        self.track_circuit_fail_pixmap = self.track_circuit_fail_pixmap.scaled(15, 15, Qt.AspectRatioMode.KeepAspectRatio)
+        self.broken_rail_fail_pixmap = QPixmap(broken_rail_fail_file)
+        self.broken_rail_fail_pixmap = self.broken_rail_fail_pixmap.scaled(15, 15, Qt.AspectRatioMode.KeepAspectRatio)
 
         self.train_dict = {}
         self.train_id_counter = 0
+
+        self.failure_dict = {}  # block, failure type
 
         self.rxr_19 = QLabel(self)
         self.rxr_19.setPixmap(self.rxr_unactivated_pixmap)
@@ -76,32 +89,31 @@ class Map(QWidget):
 
         self.signal_1 = QLabel(self)
         self.signal_1.setPixmap(self.red_light_pixmap)
-        self.signal_1.move(170, 16)
-
+        self.signal_1.move(138, 12)
         self.signal_12 = QLabel(self)
         self.signal_12.setPixmap(self.green_light_pixmap)
+        self.signal_12.move(154, 20)
 
         self.signal_29 = QLabel(self)
         self.signal_29.setPixmap(self.green_light_pixmap)
+        self.signal_29.move(55, 145)
+        self.signal_150 = QLabel(self)
+        self.signal_150.setPixmap(self.red_light_pixmap)
+        self.signal_150.move(20, 130)
 
         self.signal_77 = QLabel(self)
         self.signal_77.setPixmap(self.green_light_pixmap)
-
-        self.signal_86 = QLabel(self)
-        self.signal_86.setPixmap(self.green_light_pixmap)
+        self.signal_77.move(170, 525)
+        self.signal_101 = QLabel(self)
+        self.signal_101.setPixmap(self.red_light_pixmap)
+        self.signal_101.move(170, 490)
 
         self.signal_100 = QLabel(self)
         self.signal_100.setPixmap(self.red_light_pixmap)
-
-        self.signal_101 = QLabel(self)
-        self.signal_101.setPixmap(self.red_light_pixmap)
-
-        self.signal_150 = QLabel(self)
-        self.signal_150.setPixmap(self.red_light_pixmap)
-
-        # self.train = QLabel(self)
-        # self.train.setPixmap(self.train_pixmap)
-        # self.train.move(10, 10)
+        self.signal_100.move(80, 490)
+        self.signal_86 = QLabel(self)
+        self.signal_86.setPixmap(self.green_light_pixmap)
+        self.signal_86.move(50, 528)
 
         self.pixel_dict = {
             # a
@@ -218,12 +230,88 @@ class Map(QWidget):
         else:
             print(f"No train with ID {train_id} found")
 
+    def set_rxr(self, rxr_index, value):
+        print(f'map: set_rxr called w/ {rxr_index}, {value}')
+        if rxr_index == 19:
+            if value:
+                self.rxr_19.setPixmap(self.rxr_activated_pixmap)
+            else:
+                self.rxr_19.setPixmap(self.rxr_unactivated_pixmap)
+        elif rxr_index == 108:
+            if value:
+                self.rxr_108.setPixmap(self.rxr_activated_pixmap)
+            else:
+                self.rxr_108.setPixmap(self.rxr_unactivated_pixmap)
+        else:
+            print('map: invalid toggle_rxr index called')
+
+    def set_signal(self, signal_index, value):  # 1, 12, 29, 150, 77, 101, 100, 86
+        print(f'map: set_signal called w/ {signal_index}, {value}')
+        if signal_index == 1:
+            if value:
+                self.signal_1.setPixmap(self.green_light_pixmap)
+            else:
+                self.signal_1.setPixmap(self.red_light_pixmap)
+        elif signal_index == 12:
+            if value:
+                self.signal_12.setPixmap(self.green_light_pixmap)
+            else:
+                self.signal_12.setPixmap(self.red_light_pixmap)
+        elif signal_index == 29:
+            if value:
+                self.signal_29.setPixmap(self.green_light_pixmap)
+            else:
+                self.signal_29.setPixmap(self.red_light_pixmap)
+        elif signal_index == 150:
+            if value:
+                self.signal_150.setPixmap(self.green_light_pixmap)
+            else:
+                self.signal_150.setPixmap(self.red_light_pixmap)
+        elif signal_index == 77:
+            if value:
+                self.signal_77.setPixmap(self.green_light_pixmap)
+            else:
+                self.signal_77.setPixmap(self.red_light_pixmap)
+        elif signal_index == 101:
+            if value:
+                self.signal_101.setPixmap(self.green_light_pixmap)
+            else:
+                self.signal_101.setPixmap(self.red_light_pixmap)
+        elif signal_index == 100:
+            if value:
+                self.signal_100.setPixmap(self.green_light_pixmap)
+            else:
+                self.signal_100.setPixmap(self.red_light_pixmap)
+        elif signal_index == 86:
+            if value:
+                self.signal_86.setPixmap(self.green_light_pixmap)
+            else:
+                self.signal_86.setPixmap(self.red_light_pixmap)
+        else:
+            print('map: invalid toggle_signal index called')
+
+    def add_failure(self, failure_type_int, block):
+        [x, y] = self.pixel_dict[block]
+        failure = QLabel(self)
+        if failure_type_int == 0:
+            failure.setPixmap(self.power_fail_pixmap)
+        elif failure_type_int == 1:
+            failure.setPixmap(self.track_circuit_fail_pixmap)
+        else:
+            failure.setPixmap(self.broken_rail_fail_pixmap)
+
+        failure.move(x, y)
+        failure.show()
+
+    def remove_failure(self, block):
+        pass  # TODO
 
 # app = QApplication(sys.argv)
 # w = Map()
 # w.add_train()
 # w.add_train()
-# w.move_train(1, 1)
-# w.move_train(2, 12)
+# w.move_train(1, 100)
+# w.move_train(2, 86)
+# w.add_failure(2, 100)
 # w.show()
 # sys.exit(app.exec())
