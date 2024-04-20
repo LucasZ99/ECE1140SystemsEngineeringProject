@@ -207,11 +207,13 @@ class HW_UI_JEB382_PyFirmat:
             self.line=True
             print("TRAINC HW INIT: SPAWNED ON REDLINE: PROPER")
             self.speedlimit=40
+            self.lastbeacon=0 #IT4: Redline start is block 0, will be overwritten
+            #may need edge case of stopping
         else: raise Exception(f"TRAINC HW INIT: SPAWN BLOCK IS NONSENSE:\n<{self.TrainModel_arr[-1]}>")
         
         self.polarity = bool(self.TrainModel_arr[4])
         self.blockNum = 1
-        self.direction = False #False:Downlist, True:Uplist
+        self.direction = 0 #IT4: 0:Downlist, 1:Uplist
         
         #distance traveled
         self.passover=False
@@ -284,7 +286,8 @@ class HW_UI_JEB382_PyFirmat:
         if self.polarity != self.TrainModel_arr[4]:
             print("TRAINC HW: NEW BLOCK")
             #greenline
-            if not self.line: self.blockNum+=1
+            if not self.line:
+                self.blockNum+=1
             
             #redline
             else:
@@ -295,9 +298,12 @@ class HW_UI_JEB382_PyFirmat:
                 if self.TrainModel_arr[-1] != "0"*128 and not self.passover:
                     #new beacon,read: curr_override
                     block = int(self.TrainModel_arr[-1][-3:])
+                    #self.lastbeacon
                 else:
                     #in new block but unbeaconed
                     #calc block number from traveled since beacon
+                    
+                    self.blockNum+= (self.direction*-2) + 1 #-1 if up(1), +1 if down(0)
                     pass
             
             
