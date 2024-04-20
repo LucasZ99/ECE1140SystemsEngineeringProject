@@ -40,8 +40,8 @@ class TrackModel(QObject):
             if self.data[i, 16] == 0:
                 self.data[i, 16] = random.randint(1, 100)
                 self.data[i, 17] = random.randint(1, int(self.data[i, 16]))
-        self.authority = [0] * self.num_blocks
-        self.speed = [0.0] * self.num_blocks
+        self.authority_dict = {}
+        self.speed_dict = {}
 
         self.train_dict_relative = {}
         self.train_dict = {}
@@ -462,8 +462,14 @@ class TrackModel(QObject):
             block_id = authority_safe_speed_update[i][0]
             authority = authority_safe_speed_update[i][1]
             safe_speed = authority_safe_speed_update[i][2]
-            self.authority[block_id] = authority
-            self.speed[block_id] = safe_speed
+            self.authority_dict[block_id] = authority
+            self.speed_dict[block_id] = safe_speed
+
+    def get_authority_dict(self):
+        return self.authority_dict
+
+    def get_speed_dict(self):
+        return self.speed_dict
 
 # Section J will not exist, replace it with yard
 # refresh tables from UI in container every time setters are called
