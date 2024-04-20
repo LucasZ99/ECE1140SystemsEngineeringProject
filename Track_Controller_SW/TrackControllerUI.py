@@ -14,14 +14,15 @@ from Track_Controller_SW.TrackControllerSignals import TrackControllerSignals
 
 class ManualMode(QWidget):
 
-    def __init__(self, section: str):
+    def __init__(self, section: str, signals: TrackControllerSignals):
         super().__init__()
         self.section = section
         self.setWindowTitle(f"Maintenance Mode {self.section}")
         self.setMinimumSize(200, 200)
         self.layout = QVBoxLayout(self)
         self.switches_list = []
-        self.signals = TrackControllerSignals()
+        self.signals = signals
+        self.switch_button_group = QButtonGroup()
 
         # Connect internal signals
         self.switch_button_group.buttonClicked.connect(self.switch_button_pressed)
@@ -38,7 +39,6 @@ class ManualMode(QWidget):
     def get_switches_list(self, switches: list):
         self.switches_list = switches
 
-        self.switch_button_group = QButtonGroup()
         button_id = 0
         for switch in self.switches_list:
             button = self.switch_button_ret(
@@ -70,7 +70,7 @@ class ManualMode(QWidget):
 
 
 class UI(QMainWindow):
-    def __init__(self, section: str):
+    def __init__(self, section: str, signals: TrackControllerSignals):
 
         super(UI, self).__init__()
         self.section = section
@@ -79,7 +79,7 @@ class UI(QMainWindow):
         self.block_number = None
         self.manual_mode_window = None
         self.lights_list = None
-        self.signals = TrackControllerSignals()
+        self.signals = signals
 
         # load ui
         current_dir = os.path.dirname(__file__)  # setting up to work in any dir
@@ -112,7 +112,7 @@ class UI(QMainWindow):
         self.block_number = self.findChild(QListWidget, 'block_number')
 
         # Connect outside signals
-        if self.section == 'A':
+        if self.section == "A":
 
             # Initialize / update switch list
             self.signals.send_switches_list_A_signal.connect(self.update_switches)
@@ -165,6 +165,8 @@ class UI(QMainWindow):
         self.browse_button.clicked.connect(self.browse_files)
         self.manual_mode.clicked.connect(self.manual_mode_dialogue)
 
+        print("signals emitted from tc ui")
+
     @pyqtSlot(str)
     def init_filename(self, filename: str):
         self.filename.setText(filename)
@@ -172,6 +174,7 @@ class UI(QMainWindow):
     # dynamically updating endpoint called by business logic
     @pyqtSlot(list)
     def update_switches(self, switches_list: list[Switch]) -> None:
+        print("update switches received")
         self.switch_list_widget.clear()
         for switch in switches_list:
             item = QListWidgetItem(str(switch))
@@ -213,7 +216,7 @@ class UI(QMainWindow):
             self.light_2_a.setStyleSheet("background-color: rgb(222, 62, 38)")
 
     def manual_mode_dialogue(self):
-        self.manual_mode_window = ManualMode(self.section)
+        self.manual_mode_window = ManualMode(section=self.section, signals=self.signals)
         self.manual_mode_window.adjustSize()
         self.manual_mode_window.show()
         self.show()
@@ -235,4 +238,6 @@ class UI(QMainWindow):
             self.signals.set_plc_filepath_A_signal.emit(self.fname)
         else:
             self.signals.set_plc_filepath_C_signal.emit(self.fname)
+
+        print("filepath signal sent")
 

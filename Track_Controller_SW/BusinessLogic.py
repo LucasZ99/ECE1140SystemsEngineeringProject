@@ -11,12 +11,12 @@ from Track_Controller_SW.TrackControllerSignals import TrackControllerSignals
 class BusinessLogic(QObject):
 
     def __init__(self, block_occupancy: dict, switches_arr: list[Switch], lights_list: list[Light],
-                 plc_logic: PlcProgram, block_indexes: list, section: str):
+                 plc_logic: PlcProgram, block_indexes: list, section: str, signals: TrackControllerSignals):
         super().__init__()
         self.occupancy_dict = block_occupancy
         self.switches_list = switches_arr
         self.filepath = None
-        self.signals = TrackControllerSignals()
+        self.signals = signals
 
         self.lights_list = lights_list
         self.plc_logic = plc_logic
@@ -36,16 +36,19 @@ class BusinessLogic(QObject):
         self.signals.get_filename_A_signal.connect(self.send_filename_A)
         self.signals.get_filename_C_signal.connect(self.send_filename_C)
 
+        self.signals.set_plc_filepath_A_signal.connect(self.set_plc_filepath_A)
+        self.signals.set_plc_filepath_C_signal.connect(self.set_plc_filepath_C)
+
 
 
     @pyqtSlot()
     def send_switches_switch_ui_A(self):
-        if self.section == 'A':
+        if self.section == "A":
             self.signals.send_switches_list_A_switch_ui_signal.emit(self.switches_list)
 
     @pyqtSlot()
     def send_switches_switch_ui_C(self):
-        if self.section == 'C':
+        if self.section == "C":
             self.signals.send_switches_list_C_switch_ui_signal.emit(self.switches_list)
 
     @pyqtSlot()
@@ -181,6 +184,16 @@ class BusinessLogic(QObject):
                 self.signals.send_switch_changed_C_signal.emit(self.switches_list[index].block)
                 self.signals.send_switches_list_C_signal.emit(self.switches_list)
 
-    def set_plc_filepath(self, plc_filepath: str) -> None:
-        self.plc_logic.set_filepath(plc_filepath)
-        self.filepath = plc_filepath
+    def set_plc_filepath_A(self, plc_filepath: str) -> None:
+        if self.section == "A":
+            self.plc_logic.set_filepath(plc_filepath)
+            self.filepath = plc_filepath
+            print('WAYSIDE: filepath a updated')
+
+    def set_plc_filepath_C(self, plc_filepath: str) -> None:
+        if self.section == "C":
+            self.plc_logic.set_filepath(plc_filepath)
+            self.filepath = plc_filepath
+            print('WAYSIDE: filepath c updated')
+
+

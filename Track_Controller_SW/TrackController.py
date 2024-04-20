@@ -12,11 +12,11 @@ class TrackController(QObject):
     lights_list_A_changed_signal = pyqtSignal(list)
     lights_list_C_changed_signal = pyqtSignal(list)
 
-    def __init__(self, occupancy_dict: dict[int, bool], section: str):
+    def __init__(self, occupancy_dict: dict[int, bool], section: str, signals: TrackControllerSignals):
         super().__init__()
 
         self.block_indexes = list(occupancy_dict.keys())
-        self.signals = TrackControllerSignals()
+        self.signals = signals
 
         if section == "A":
             self.switches_list = \
@@ -64,7 +64,8 @@ class TrackController(QObject):
             self.lights_list,
             self.plc_logic,
             self.block_indexes,
-            self.section
+            self.section,
+            self.signals
         )
 
         self.signals.send_switch_changed_A_signal.connect(self.send_switch_changed_index)

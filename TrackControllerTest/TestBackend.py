@@ -6,9 +6,9 @@ from TrackControllerTest.TrackControllerTestSignals import TrackControllerTestSi
 
 class TestBackend(QObject):
 
-    def __init__(self):
+    def __init__(self, signals: TrackControllerTestSignals):
         super().__init__()
-        self.signals = TrackControllerTestSignals()
+        self.signals = signals
         self.track_signal = TrackSignal(1, 0, 0)
         self.occupancy_dict = {}
         # Add values from 1 to 57

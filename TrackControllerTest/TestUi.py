@@ -7,10 +7,10 @@ from TrackControllerTest.TrackControllerTestSignals import TrackControllerTestSi
 
 
 class TestUi(QMainWindow):
-    def __init__(self):
+    def __init__(self, signals: TrackControllerTestSignals):
         super().__init__()
         self.title = 'Track Controller Test Ui'
-        self.signals = TrackControllerTestSignals()
+        self.signals = signals
 
         self.blocks = []
         self.blocks_occupancy = {}

@@ -13,11 +13,11 @@ class TrackControllerContainer(QObject):
     # Signals
     # Downstream
 
-    def __init__(self):
+    def __init__(self, top_level_signals: TopLevelSignals, signals: TrackControllerSignals):
         super().__init__()
 
-        self.top_level_signals = TopLevelSignals()
-        self.signals = TrackControllerSignals()
+        self.top_level_signals = top_level_signals
+        self.signals = signals
 
         self.occupancy_dict = {}
         self.zero_speed_flag_dict = {}
@@ -72,9 +72,9 @@ class TrackControllerContainer(QObject):
         # overlap: blocks 101, 102, 103, 104
         self.occupancy_dict_C = dict(itertools.islice(self.occupancy_dict.items(), 72, 100))
 
-        self.trackControllerA = TrackController(occupancy_dict=self.occupancy_dict_A, section="A")
+        self.trackControllerA = TrackController(occupancy_dict=self.occupancy_dict_A, section="A", signals=self.signals)
         self.trackControllerB = TrackControllerHardware(occupancy_dict=self.occupancy_dict_B, section="B")
-        self.trackControllerC = TrackController(occupancy_dict=self.occupancy_dict_C, section="C")
+        self.trackControllerC = TrackController(occupancy_dict=self.occupancy_dict_C, section="C", signals=self.signals)
 
         # # Connect Internal Signals:
         self.signals.track_controller_A_switch_changed_signal.connect(self.update_track_switch)
@@ -85,6 +85,22 @@ class TrackControllerContainer(QObject):
 
         self.signals.track_controller_C_switch_changed_signal.connect(self.update_track_switch)
         self.signals.track_controller_C_lights_changed_signal.connect(self.update_lights_C_status)
+
+        # Connect top level signals:
+        # from test bench
+        self.top_level_signals.test_update_wayside_from_ctc.connect(self.update_wayside_from_ctc)
+        self.top_level_signals.test_update_wayside_from_track_model.connect(self.update_wayside_from_track_model)
+
+        # self.top_level_signals.update_wayside_from_testbench.connect(self.test_continuous_update)
+
+        # from actual modules
+        self.top_level_signals.update_wayside_from_ctc.connect(self.update_wayside_from_ctc)
+        self.top_level_signals.update_wayside_from_track_model.connect(self.update_wayside_from_track_model)
+
+    # @pyqtSlot()
+    # def test_continuous_update(self):
+    #     print("WAYSIDE: continuous update")
+    #     self.top_level_signals.update_testbench_from_wayside.emit()
 
     # CTC Endpoint
     @pyqtSlot(list, bool, list, list)
@@ -109,6 +125,8 @@ class TrackControllerContainer(QObject):
               f"switch list: {[str(item) for item in self.switch_list]}\n"
               f"light list: {[str(item) for item in self.lights_list]}\n"
               f"crossing list: {[str(item) for item in self.rr_crossing_list]}")
+
+        # self.top_level_signals.update_testbench_from_wayside.emit()
 
         # call downstream endpoint after processing of CTC data
         self.top_level_signals.update_track_model_from_wayside.emit(
