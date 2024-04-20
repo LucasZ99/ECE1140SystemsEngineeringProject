@@ -108,7 +108,7 @@ Green	E	20	150	60
 Green	E	19	150	60	RAILWAY CROSSING	
 Green	E	18	150	60		
 Green	E	17	150	60		
-Green	D	16	150	70	STATION	Left/Right
+Green	D	16	150	70	STATION; BLANK	Left/Right
 Green	D	15	150	70		
 Green	D	14	150	70		
 Green	D	13	150	70		
@@ -127,7 +127,7 @@ Green	A	1	100	45
 Green	D	13	150	70		
 Green	D	14	150	70		
 Green	D	15	150	70		
-Green	D	16	150	70	STATION	Left/Right
+Green	D	16	150	70	STATION; BLANK	Left/Right
 Green	E	17	150	60		
 Green	E	18	150	60		
 Green	E	19	150	60	RAILWAY CROSSING	
