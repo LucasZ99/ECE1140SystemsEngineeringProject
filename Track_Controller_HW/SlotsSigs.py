@@ -3,6 +3,7 @@ from PyQt6.QtCore import pyqtSlot
 import os
 import sys
 from Track_Controller_HW.HardwareUI import HWUI
+from Track_Controller_SW.TrackControllerSignals import TrackControllerSignals
 
 current_dir = os.path.dirname(__file__)  # setting up dir to work in any location in a directory
 
@@ -48,9 +49,9 @@ class SlotsSigs(QObject):
         #print("new_rr_crossing: ", self.new_rr_crossing)
 
         if self.rr_crossing != self.new_rr_crossing:  # if the rr_crossing value has changed, emit the signal
-            self.rr_crossing_signal.emit(True)
+            TrackControllerSignals.track_controller_B_rr_crossing_signal.emit(True)
         else:
-            self.rr_crossing_signal.emit(False)
+            TrackControllerSignals.track_controller_B_rr_crossing_signal.emit(False)
         self.rr_crossing = self.new_rr_crossing
         self.hw_ui.show_hw_data(self.blocks, self.mode, self.rr_crossing, self.stops)
         return self.stops
@@ -68,7 +69,7 @@ class SlotsSigs(QObject):
         print("WS HW: rr cross toggled")
         self.rr_crossing = new_rr_crossing
         self.hw_ui.show_hw_data(self.blocks, self)
-        self.rr_crossing_signal.emit(new_rr_crossing)
+        TrackControllerSignals.track_controller_B_rr_crossing_signal.emit(new_rr_crossing)
 
     # Signal to update the suggested speed
     @pyqtSlot(list)
