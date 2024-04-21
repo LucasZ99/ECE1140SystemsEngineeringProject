@@ -12,4 +12,5 @@ from .people import People
 from .signals import Signals
 from .train_construction import TrainConstruction
 from .train_model_container import TrainModelContainer
+from .train_model_signals import train_model_signals
 

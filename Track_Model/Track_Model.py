@@ -40,8 +40,8 @@ class TrackModel(QObject):
             if self.data[i, 16] == 0:
                 self.data[i, 16] = random.randint(1, 100)
                 self.data[i, 17] = random.randint(1, int(self.data[i, 16]))
-        self.authority = [0] * self.num_blocks
-        self.speed = [0.0] * self.num_blocks
+        self.authority_dict = {}
+        self.speed_dict = {}
 
         self.train_dict_relative = {}
         self.train_dict = {}
@@ -343,6 +343,16 @@ class TrackModel(QObject):
         return self.remove_train
 
     def update_delta_x_dict(self, delta_x_dict):
+        print('train dict relative:')
+        for key, val in self.train_dict_relative.items():
+            print(f'key = {key}')
+            print(f'val = {val}')
+            print()
+        print('train dict relative:')
+        for key, val in self.train_dict_relative.items():
+            print(f'key = {key}')
+            print(f'val = {val}')
+            print()
         self.remove_train = -1
         # meters
         for key, value in delta_x_dict.items():
@@ -352,15 +362,19 @@ class TrackModel(QObject):
             if value > self.cumulative_distance[self.train_dict_relative[key]]:
                 self.train_dict_relative[key] += 1
                 self.map_move_train_signal.emit(key, self.full_path[self.train_dict_relative[key]])  # refresh map ui
-            if self.train_dict_relative[key] >= 150:  # check if we should remove trains
-                del self.train_dict_meters[key]
-                del self.train_dict_relative[key]
-                del self.train_dict[key]
+            if self.train_dict_relative[key] > 170:  # check if we should remove trains
                 self.remove_train = key
+            print(f'train_dict_relative[key] = {self.train_dict_relative[key]}')
         # actual block based on relative
         for key, value in self.train_dict_relative.items():
             self.train_dict[key] = self.full_path[value]
         self.set_occupancy_from_train_presence()
+        # remove trains
+        if self.remove_train != -1:
+            del self.train_dict_meters[self.remove_train]
+            del self.train_dict_relative[self.remove_train]
+            del self.train_dict[self.remove_train]
+            self.train_count -= 1
 
     def set_disembarking_passengers(self, station_id: int, disembarking_passengers: int):
         self.data[station_id, 21] = disembarking_passengers
@@ -448,8 +462,14 @@ class TrackModel(QObject):
             block_id = authority_safe_speed_update[i][0]
             authority = authority_safe_speed_update[i][1]
             safe_speed = authority_safe_speed_update[i][2]
-            self.authority[block_id] = authority
-            self.speed[block_id] = safe_speed
+            self.authority_dict[block_id] = authority
+            self.speed_dict[block_id] = safe_speed
+
+    def get_authority_dict(self):
+        return self.authority_dict
+
+    def get_speed_dict(self):
+        return self.speed_dict
 
 # Section J will not exist, replace it with yard
 # refresh tables from UI in container every time setters are called

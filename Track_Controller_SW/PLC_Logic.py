@@ -1,7 +1,6 @@
 import os
-import subprocess
-import json
 import pickle
+import subprocess
 
 
 class PlcProgram(object):

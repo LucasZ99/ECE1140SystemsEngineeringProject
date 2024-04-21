@@ -1,6 +1,3 @@
-import logging
-import sys
-import json
 import pickle
 
 
@@ -16,12 +13,10 @@ def run_plc(occupancy_list):
     for i in range(0, 12):
         if occupancy_list[i]:
             loop_occupied = True
-            # unsafe_close_blocks.append([i, i+1, i+2, i+3, i+4])
     for i in range(12, 27):
         # if there is an occupancy
         if occupancy_list[i] is True:
             two_way_occupied = True
-            # unsafe_close_blocks.append([i, i+1, i+2, i+3, i+4])
             if i in range(17, 20):
                 rr_active = True
     for i in range(28, 32):
