@@ -10,6 +10,9 @@ from PyQt6.QtWidgets import QApplication
 from Track_Model.Track_Model import TrackModel
 from Track_Model.Track_Model_UI import Window
 
+from TopLevelSignals import TopLevelSignals as top_level_signals
+from Track_Model.TrackModelSignals import TrackModelSignals as signals
+
 
 class TrackModelContainer(QObject):
 
@@ -27,14 +30,25 @@ class TrackModelContainer(QObject):
         super().__init__()
         self.track_model = TrackModel("Green Line.xlsx")
         self.track_model_ui = Window(self.track_model)
+        self.top_level_signals = top_level_signals
+        self.signals = signals
 
-        # connect internal signals (from object)
-        self.track_model.map_add_train_signal.connect(self.map_add_train)
-        self.track_model.map_move_train_signal.connect(self.map_move_train)
-        # self.track_model.new_block_occupancy_signal.connect(self.new_block_occupancy)
-        # self.track_model.new_ticket_sales_signal.connect(self.new_ticket_sales)
-        # self.track_model.refresh_ui_signal.connect(self.refresh_ui)
-        # connect external signal
+        # Connect Track Model Signals to UI Slots:
+        self.signals.refresh_ui_signal.connect(self.refresh_ui)
+        self.signals.map_add_train_signal.connect(self.map_add_train)
+        self.signals.map_move_train_signal.connect(self.map_move_train)
+
+        self.signals.get_data_signal.connect(self.get_data_from_track_model)
+        self.signals.get_block_info_signal.connect(self.get_block_info_from_track_model)
+        self.signals.get_train_dict_signal.connect(self.get_train_dict_from_track_model)
+
+        # Connect UI Signals to Track Model Slots:
+        self.signals.set_power_failure_signal.connect(self.set_track_model_power_failure)
+        self.signals.set_track_circuit_failure_signal.connect(self.set_track_model_track_circuit_failure)
+        self.signals.set_broken_rail_failure_signal.connect(self.set_track_model_broken_rail_failure)
+
+        self.signals.set_env_temperature_signal.connect(self.set_track_model_env_temperature)
+        self.signals.set_heaters_signal.connect(self.set_track_model_heaters)
 
     # show ui
     def show_ui(self):
@@ -228,9 +242,39 @@ class TrackModelContainer(QObject):
         # print(f'Track Model: block_occupancy_update = {block_occupancy_update}')
         self.update_wayside_from_track_model.emit(block_occupancy_update)
 
+    #
+    # Connect Signals to Slots:
+    #
+
     def map_add_train(self):
         print('Track Model Container: map_add_train called')
         self.track_model_ui.add_train()
 
     def map_move_train(self, train_id, block):
         self.track_model_ui.move_train(train_id, block)
+
+    def get_data_from_track_model(self):
+        return self.track_model.get_data()
+
+    def get_block_info_from_track_model(self, block_id):
+        return self.track_model.get_block_info(block_id)
+
+    def get_train_dict_from_track_model(self):
+        return self.track_model.get_train_dict()
+
+    def set_track_model_power_failure(self, block_id, val):
+        self.track_model.set_power_failure(block_id, val)
+
+    def set_track_model_track_circuit_failure(self, block_id, val):
+        self.track_model.set_track_circuit_failure(block_id, val)
+
+    def set_track_model_broken_rail_failure(self, block_id, val):
+        self.track_model.set_broken_rail_failure(block_id, val)
+
+    def set_track_model_env_temperature(self, temp):
+        self.track_model.set_env_temperature(temp)
+
+    def set_track_model_heaters(self, val):
+        self.track_model.set_heaters(val)
+
+
