@@ -32,7 +32,6 @@ class TrackController(QObject):
                     RRCrossing(19, False)
                 ]
             self.plc_logic = PlcProgram(section)
-            # self.ui = UI(section)
 
         elif section == "C":
             self.switches_list = \
@@ -48,7 +47,6 @@ class TrackController(QObject):
                     Light(100, False)
                 ]
             self.plc_logic = PlcProgram(section)
-            # self.ui = UI(section)
 
         self.occupancy_dict = occupancy_dict
         self.zero_speed_flag_dict = dict(zip(self.block_indexes, [False]*len(self.block_indexes)))
@@ -66,7 +64,8 @@ class TrackController(QObject):
         self.signals.send_switch_changed_A_signal.connect(self.send_switch_changed_index_A)
         self.signals.send_switch_changed_C_signal.connect(self.send_switch_changed_index_C)
         self.signals.send_rr_crossing_A_signal.connect(self.rr_crossing_updated)
-        self.signals.send_lights_signal.connect(self.lights_list_updated)
+        self.signals.send_lights_A_signal.connect(self.lights_list_A_updated)
+        self.signals.send_lights_C_signal.connect(self.lights_list_C_updated)
 
 
     @pyqtSlot(int)
@@ -85,11 +84,15 @@ class TrackController(QObject):
         self.signals.track_controller_A_rr_crossing_signal.emit(rr_crossing_active)
 
     @pyqtSlot(list)
-    def lights_list_updated(self, lights_list: list):
-        self.lights_list = lights_list
+    def lights_list_A_updated(self, lights_list: list):
         if self.section == "A":
+            self.lights_list = lights_list
             self.signals.track_controller_A_lights_changed_signal.emit(lights_list)
-        elif self.section == "C":
+
+    @pyqtSlot(list)
+    def lights_list_C_updated(self, lights_list: list):
+        if self.section == "C":
+            self.lights_list = lights_list
             self.signals.track_controller_C_lights_changed_signal.emit(lights_list)
 
     def update_occupancy(self, block_occupancy_dict: dict[int, bool]):

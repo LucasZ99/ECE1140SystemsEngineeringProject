@@ -86,6 +86,9 @@ class UI(QMainWindow):
         except Exception as e:
             print("Error with loading UI file: ", e)
 
+        self.setWindowTitle(f"Track Controller {self.section}")
+
+
         # Define widgets
         self.manual_mode = self.findChild(QPushButton, 'manual_mode')
         self.browse_button = self.findChild(QPushButton, 'browse')
@@ -117,7 +120,7 @@ class UI(QMainWindow):
             self.signals.init_lights_A_signal.connect(self.init_lights)
 
             # Update light
-            self.signals.send_light_A_signal.connect(self.update_light)
+            self.signals.send_lights_A_signal.connect(self.update_lights)
 
             # Initialize filename
             self.signals.send_filename_A_signal.connect(self.init_filename)
@@ -141,7 +144,7 @@ class UI(QMainWindow):
             self.signals.init_lights_C_signal.connect(self.init_lights)
 
             # Update light
-            self.signals.send_light_C_signal.connect(self.update_light)
+            self.signals.send_lights_C_signal.connect(self.update_lights)
 
             # Initialize filename
             self.signals.send_filename_C_signal.connect(self.init_filename)
@@ -167,7 +170,7 @@ class UI(QMainWindow):
     # dynamically updating endpoint called by business logic
     @pyqtSlot(list)
     def update_switches(self, switches_list: list[Switch]) -> None:
-        print("update switches received")
+        print(f"WAYSIDE_{self.section}: update switches received")
         self.switch_list_widget.clear()
         for switch in switches_list:
             item = QListWidgetItem(str(switch))
@@ -189,22 +192,24 @@ class UI(QMainWindow):
         self.light_2_b.setText(f"Light @ b{self.lights_list[3].block}")
 
     # only the signal that should be green is sent
-    @pyqtSlot(int)
-    def update_light(self, light_num: int) -> None:
-        if light_num == 0:
-            # set light_1_a green
+    @pyqtSlot(list)
+    def update_lights(self, lights_list: list) -> None:
+        self.lights_list = lights_list
+        print(f"WAYSIDE_{self.section} UI lights list received: {[str(light) for light in self.lights_list]}")
+        if self.lights_list[0].val is True:
+            # light 1a green
             self.light_1_a.setStyleSheet("background-color: rgb(0, 224, 34)")
             self.light_1_b.setStyleSheet("background-color: rgb(222, 62, 38)")
-        elif light_num == 1:
-            # set light_1_b green
+        if self.lights_list[1].val is True:
+            # light 1b green
             self.light_1_b.setStyleSheet("background-color: rgb(0, 224, 34)")
             self.light_1_a.setStyleSheet("background-color: rgb(222, 62, 38)")
-        elif light_num == 2:
-            # set light_2_a green
+        if self.lights_list[2].val is True:
+            # light 2a green
             self.light_2_a.setStyleSheet("background-color: rgb(0, 224, 34)")
             self.light_2_b.setStyleSheet("background-color: rgb(222, 62, 38)")
-        elif light_num == 3:
-            # set light_2_b green
+        if self.lights_list[3].val is True:
+            # light 2b green
             self.light_2_b.setStyleSheet("background-color: rgb(0, 224, 34)")
             self.light_2_a.setStyleSheet("background-color: rgb(222, 62, 38)")
 
