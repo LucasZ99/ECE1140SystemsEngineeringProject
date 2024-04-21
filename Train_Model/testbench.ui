@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>572</width>
-    <height>586</height>
+    <height>674</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -44,7 +44,7 @@
     <property name="geometry">
      <rect>
       <x>140</x>
-      <y>300</y>
+      <y>360</y>
       <width>131</width>
       <height>28</height>
      </rect>
@@ -57,7 +57,7 @@
     <property name="geometry">
      <rect>
       <x>120</x>
-      <y>390</y>
+      <y>450</y>
       <width>171</width>
       <height>28</height>
      </rect>
@@ -70,7 +70,7 @@
     <property name="geometry">
      <rect>
       <x>130</x>
-      <y>480</y>
+      <y>540</y>
       <width>151</width>
       <height>28</height>
      </rect>
@@ -82,8 +82,8 @@
    <widget class="QPushButton" name="physButton">
     <property name="geometry">
      <rect>
-      <x>420</x>
-      <y>160</y>
+      <x>410</x>
+      <y>230</y>
       <width>121</width>
       <height>28</height>
      </rect>
@@ -96,7 +96,7 @@
     <property name="geometry">
      <rect>
       <x>430</x>
-      <y>260</y>
+      <y>310</y>
       <width>93</width>
       <height>28</height>
      </rect>
@@ -108,8 +108,8 @@
    <widget class="QPushButton" name="removeButton">
     <property name="geometry">
      <rect>
-      <x>430</x>
-      <y>380</y>
+      <x>420</x>
+      <y>390</y>
       <width>101</width>
       <height>28</height>
      </rect>
@@ -168,14 +168,14 @@
    <widget class="QLabel" name="label_3">
     <property name="geometry">
      <rect>
-      <x>100</x>
+      <x>120</x>
       <y>240</y>
-      <width>231</width>
+      <width>181</width>
       <height>16</height>
      </rect>
     </property>
     <property name="text">
-     <string>grade, elevation, underground, beacon</string>
+     <string>grade, elevation, underground</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="blockInput">
@@ -192,7 +192,7 @@
     <property name="geometry">
      <rect>
       <x>180</x>
-      <y>340</y>
+      <y>400</y>
       <width>55</width>
       <height>16</height>
      </rect>
@@ -205,7 +205,7 @@
     <property name="geometry">
      <rect>
       <x>150</x>
-      <y>360</y>
+      <y>420</y>
       <width>113</width>
       <height>22</height>
      </rect>
@@ -215,7 +215,7 @@
     <property name="geometry">
      <rect>
       <x>190</x>
-      <y>430</y>
+      <y>490</y>
       <width>31</width>
       <height>16</height>
      </rect>
@@ -228,7 +228,7 @@
     <property name="geometry">
      <rect>
       <x>150</x>
-      <y>450</y>
+      <y>510</y>
       <width>113</width>
       <height>22</height>
      </rect>
@@ -250,14 +250,60 @@
    <widget class="QPushButton" name="trainControllerUpdateButton">
     <property name="geometry">
      <rect>
-      <x>410</x>
-      <y>80</y>
+      <x>400</x>
+      <y>170</y>
       <width>151</width>
       <height>28</height>
      </rect>
     </property>
     <property name="text">
      <string>Train controller update</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="trainSelect">
+    <property name="geometry">
+     <rect>
+      <x>440</x>
+      <y>100</y>
+      <width>73</width>
+      <height>22</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_6">
+    <property name="geometry">
+     <rect>
+      <x>440</x>
+      <y>60</y>
+      <width>71</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Train select</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_7">
+    <property name="geometry">
+     <rect>
+      <x>180</x>
+      <y>300</y>
+      <width>51</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>beacon</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="beaconInput">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>330</y>
+      <width>301</width>
+      <height>22</height>
+     </rect>
     </property>
    </widget>
   </widget>
