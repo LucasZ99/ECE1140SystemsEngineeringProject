@@ -24,4 +24,23 @@ of the data that needs to be input. So as an example with Train 1 selected and "
 Track Model Inputs text box if you press the Track Model Inputs button it will update Train 1's
 incoming commanded speed and authority to Train 1 to 12 and 13 respectively.
 
+There are a few exceptions to the general description of button behavior above.
+
+Train controller update: This tells all the trains to update their respective train controllers 
+and then update themselves in accordance with the controllers return values.
+
+Physics Calculation: Runs the physics calculation of all the train, unfortunate it uses the time
+from when you last pressed the button, so you often get large changes.
+
+Track Update Block: This is controlled by the two text boxes above it.
+
+train ui: Shows the train ui, this is largely needed for any testing and only doesn't show up
+automatically because it would always crash :).
+
+##### Final Notes
+The train model testbench has access to the train controllers and no other module.
+
+As of writing this, pressing Train controller update with more than one train crashes 
+(this may change depending on the state of the Train_Controller_SW directory)
+
 
