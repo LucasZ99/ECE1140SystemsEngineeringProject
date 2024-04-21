@@ -44,7 +44,7 @@ import math
 #authority: number of blocks until I stop, dont stop at every station
 
 
-global board,Pmax,Acc_Lim,DeAcc_Lim,NoHW
+global board,Pmax,Acc_Lim,DeAcc_Lim,NoHW,RL_LAjump_dict,RL_switchdirs_dict
 Pmax=10000
 Acc_Lim=0.5
 DeAcc_Lim=1.2#train spec page (1.20 is service brake)
@@ -54,6 +54,45 @@ try:
 except:
     NoHW=True
     print("No Train Controller HW detected: Arduino COM")
+
+
+#================================================================================
+
+#[last, curr]
+#IT4: 0:Downlist, 1:Uplist, 2:delete
+RL_switchdirs_dict ={
+    #downs
+    "[1, 16]":0,
+    "[16, 1]":0,
+    "[32, 72]":0,
+    "[43, 67]":0,
+    #ups
+    "[0, 9]":1,
+    "[27, 76]":1,
+    "[76, 27]":1,
+    "[38, 71]":1,
+    "[71, 38]":1,
+    "[72, 32]":1,
+    "[67, 43]":1,
+    "[52, 66]":1,
+    "[66, 52]":1,
+    #back to yard, delete
+    "[9, 0]":2
+}
+
+
+#[block, direction] (dir: 0:down, 1:up)
+RL_LAjump_dict ={
+    "[67, 1]":[43,42,41,40],
+    "[1, 1]":[16,17,18,19],
+    "[0, 0]":[9,8,7,6],
+    "[0, 1]":[9,8,7,6],
+    "[76, 0]":[27,26,25,24],
+    "[72, 1]":[32,31,30,29],
+    "[71, 0]":[38,37,36,35],
+    "[66, 0]":[52,51,50,49]
+}
+
 
 
 #================================================================================
@@ -286,6 +325,9 @@ class HW_UI_JEB382_PyFirmat:
         if self.polarity != self.TrainModel_arr[4]:
             print("TRAINC HW: NEW BLOCK")
             #greenline
+            #because of discussion in class where we decided it just goes back to yard
+            #train goes on set path: preset list
+            #possibly change when redline is figured out
             if not self.line:
                 self.blockNum+=1
             
@@ -295,20 +337,41 @@ class HW_UI_JEB382_PyFirmat:
                 
                 #if beacon: curr_override
                 #else: calc block number from traveled since beacon
-                if self.TrainModel_arr[-1] != "0"*128 and not self.passover:
-                    #new beacon,read: curr_override
+                if self.TrainModel_arr[-1] != "0"*128:# and not self.passover: #???? passover
+                    # new beacon,read: curr_override
                     block = int(self.TrainModel_arr[-1][-3:])
-                    #self.lastbeacon
+                    self.blockNum = block
+                    
+                    #TODO?: depending on last beacon, adjust direction
+                    
+                    temp_arr= [self.lastbeacon, block]
+                    #print(f"<{str(temp_arr)}>")
+                    if str(temp_arr) in RL_switchdirs_dict:
+                        # change in direction
+                        #print( switchdirs_dict[ str(temp_arr) ] )
+                        self.direction = RL_switchdirs_dict[ str(temp_arr) ]
+                        
+                        if self.direction == 2:
+                            #going back to yard
+                            #TODO SIGNAL
+                            self.__del__()
+                            
+                        
+                    else:
+                        # unless trackmodel really screwed up:
+                        # this is a case between beacons where direction doesnt change
+                        print(f"TRAINC HW CALC: BEACON DIRECTIONAL SWITCH EDGECASE NOT FOUND: <{str(temp_arr)}>")
+                    
+                    #update last beacon
+                    self.lastbeacon = block
                 else:
                     #in new block but unbeaconed
-                    #calc block number from traveled since beacon
-                    
                     self.blockNum+= (self.direction*-2) + 1 #-1 if up(1), +1 if down(0)
-                    pass
+            
             
             
             self.traveled=0
-            self.passover=True
+            self.passover=True#just changed block
         else:
             self.passover=False
         self.polarity = self.TrainModel_arr[4]
@@ -316,6 +379,9 @@ class HW_UI_JEB382_PyFirmat:
         
         
         #-----------------------------
+        #TODO: REDUCE LOGIC, REDUNDENT LINES
+        
+        
         #distance
         distance_to_station=0
         self.stat_Dside=0
@@ -348,8 +414,45 @@ class HW_UI_JEB382_PyFirmat:
                 self.output_arr[5] = infra[9:]
         else:
             #redline
-            pass
+            #calc distance
             
+            # get 5size array of future blocks
+            curr=self.blockNum
+            temp=[]
+            for i in range(5):
+                temp.append(curr)
+                # if edgecase of block+dir: adjust, add, break
+                if str([curr,self.direction]) in RL_LAjump_dict:
+                        for x in RL_LAjump_dict[ str([curr,self.direction]) ]: temp.append(x)
+                        break
+
+                #else adjust curr by direction
+                curr += (self.direction*-2) + 1
+            
+            #TODO: DEBUG???
+            #cut back to 5 incase#NOTE:dont have to due to next line
+            #add up distance of array according to authority+1
+            for i in range(int(self.TrainModel_arr[2])+1):
+                particular_line = linecache.getline('Resources/IT4_RedLine.txt', temp[i]).split("\t")
+                print(f"#{temp[i]} LINE: <{particular_line}>,")
+                distance_to_station += int(float(particular_line[3]))
+
+                if particular_line[5][:7] == "STATION":
+                    app_stat=particular_line[5][9:]
+                    #print(f"PART: {particular_line[5][9:]}")
+                    if "Left" in particular_line[6]: self.stat_Dside+=1
+                    if "Right" in particular_line[6]: self.stat_Dside+=2
+            
+            infra = linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum).split('\t')[5]
+            #print(f".txt infra: <{infra[:7]}>, app_stat: <{app_stat}>")
+            self.output_arr[5] = ""
+            if linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum).split("\t")[5][:7] != "STATION":
+                self.Announcements = "APP:"+app_stat[:12]
+            elif linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum).split("\t")[5][:7] == "STATION":
+                self.Announcements = "NOW:"+infra[9:]#app_stat[:12]
+                #if app_stat != "": self.output_arr[5] = app_stat
+                #else:  self.output_arr[5] = infra[5][9:]
+                self.output_arr[5] = infra[9:]            
             
             
             
