@@ -27,11 +27,11 @@ class TrainController:
     # t_arr = np.array([[0.5, 0, 0.2, 0], [2, 0.5, 0.4, 0.2], [4.25, 2, 0.5, 0.4], [6.25, 4.25, 0.3, 0.5],
     #                  [6.5, 6.25, -0.2, 0.3], [4.25, 6.5, -0.7, -0.2], [0, 4.25, -1, -0.7]])
 
-    def __init__(self, system_time: SystemTime):
+    def __init__(self):  #, system_time: SystemTime):
         # initial inits
-        self.system_time = system_time
-        self.last_update_time = self.system_time.time()
-        self.update_time = self.system_time.time()
+        # self.system_time = SystemTime.time
+        self.last_update_time = SystemTime.time()
+        self.update_time = SystemTime.time()
 
         # train mode, as input from driver
         self.mode = bool(0)  # automatic or manual mode as bool: 0 automatic, 1 manual (0 default)
@@ -59,7 +59,7 @@ class TrainController:
 
         # train model inputs
         self.actualSpeed = float(0)  # actual speed of the train
-        self.cmdSpeed = float(31.0686)  # commanded vital speed of the train, as passed from wayside controller
+        self.cmdSpeed = float(0)  # commanded vital speed of the train, as passed from wayside controller
         # self.speedLim = float(31.0686)  # speed limit of the current block, 50 kmh in mph, blue line speed lim
         self.vitalAuth = float(0)  # vital authority for the train, as passed from wayside controller
         self.passEBrake = bool(0)  # passenger emergency brake as bool: 0 off, 1 on
@@ -108,7 +108,7 @@ class TrainController:
         self.speedlim = float(self.blockline[4]) / self.KMH2ms
         self.notes = self.blockline[5]
 
-        self.blockline = linecache.getline('Resources/IT3_GreenLine.txt', self.i+1).split("\t")
+        self.nextblockline = linecache.getline('Resources/IT3_GreenLine.txt', self.i+1).split("\t")
         self.nextline = self.blockline[0]
         self.nextsection = self.blockline[1]
         self.nextblock = self.blockline[2]
@@ -228,14 +228,16 @@ class TrainController:
             self.doorR = self.doorState
         return
 
-    def polaritycontrol(self, newpolarity):  # TODO change to check for diff between old polarity and new polarity
+    def polaritycontrol(self, newpolarity):
         if self.polarity != newpolarity:
             print("train controller sw.py: polarity changed, train has entered new block")
+
             self.polarity = newpolarity
             self.blocksTraveled += 1
 
-            print("train controller sw.py: updating distance travelled")
+            print("train controller sw.py: updating distance traveled")
             self.distanceTraveled += self.length
+            print(f'train controller sw.py: distance traveled: {self.distanceTraveled + 25}')
 
             self.i += 1
             self.blockline = linecache.getline('Resources/IT3_GreenLine.txt', self.i).split("\t")
@@ -245,13 +247,37 @@ class TrainController:
             self.length = float(self.blockline[3])
             self.speedlim = float(self.blockline[4])
             self.notes = self.blockline[5]
+            door = self.blockline[6]
 
-        # if self.polarity == 0:  # track is negative
-        #     self.polarity = 1  # switch to positive
-        #     self.blocksTraveled += 1
-        # elif self.polarity == 1:  # track is positive
-        #     self.polarity = 0  # switch to negative
-        #     self.blocksTraveled += 1
+            if self.i == 172:
+                print("train controller sw.py: looped to yard")
+                self.i = 0
+
+            self.nextblockline = linecache.getline('Resources/IT3_GreenLine.txt', self.i+1).split("\t")
+            self.nextline = self.blockline[0]
+            self.nextsection = self.blockline[1]
+            self.nextblock = self.blockline[2]
+            self.nextlength = float(self.blockline[3])
+            self.nextspeedlim = float(self.blockline[4])
+            self.nextnotes = self.blockline[5]
+
+            print(f'train controller sw.py: current block is: {self.block}')
+            if self.notes != "":
+                print(self.notes)
+                print(door)
+                if door == "Right\n" or door == "Right" or str(door) == "Right":
+                    self.doorSide = 2
+                elif door == "Left\n":
+                    self.doorSide = 1
+                elif door == "Left/Right\n":
+                    self.doorSide = 3
+                else:
+                    self.doorSide = 0
+            else:
+                self.doorSide = 0
+
+            print(f'door side is {self.doorSide}')
+
         return
 
     def signalfailcontrol(self):
@@ -289,20 +315,22 @@ class TrainController:
             self.power = 0
 
     def powercontrol(self):
+
+        print("train controller sw.py: entered power control")
         # do power checks and calcs, train doesn't need to stop, brake not on, train can move
-        if not self.stopSoon and not self.eBrake and not self.trainSafeToMove:
+        if not self.stopSoon and not self.eBrake and self.trainSafeToMove:
 
             if self.nextspeedlim < self.speedlim:
                 self.power = 0  # kill power
                 self.servBrake = 1  # enable service brake and slow down
-            elif (self.nextspeedlim == self.speedlim) and (self.currSpeed <= self.speedlim):
+            elif (self.nextspeedlim == self.speedlim) and (self.actualSpeed <= self.nextspeedlim):
                 self.power = 0  # kill power and coast
             else:
                 # calculate ek
                 self.ek = self.cmdSpeed - self.actualSpeed
 
                 # calculate T interval between calls
-                self.update_time = self.system_time.time()
+                self.update_time = SystemTime.time()
                 t = self.update_time - self.last_update_time
 
                 # calculate uk
@@ -315,7 +343,7 @@ class TrainController:
                 if self.power > self.maxPower:
                     self.power = self.maxPower
         else:
-            self.power
+            self.power = 0
 
         print(f'train controller sw.py: power is : {self.power}')
 
@@ -324,17 +352,17 @@ class TrainController:
         self.ek1 = self.ek  # current ek become ek-1 for next call
         self.uk1 = self.uk  # current ek become uk-1`for next call
 
-        self.ui_update.emit(self.setPtSpeed, self.speedlim, self.actualSpeed, self.power, self.kp, self.ki)
-        print("train controller sw.py: signal emitted")
+        # self.ui_update.emit(self.setPtSpeed, self.speedlim, self.actualSpeed, self.power, self.kp, self.ki)
+        # print("train controller sw.py: signal emitted")
 
     def authority(self):
         print("train controller sw.py: in authority func")
-        if self.vitalAuth < 3:
-            print(f'train controller sw.py: train authority less then 4, currently at" {self.vitalAuth}')
+        if self.vitalAuth < 4:
+            print(f'train controller sw.py: train authority less then 4, currently at {self.vitalAuth}')
             self.stopSoon = True
             self.power = 0
             self.servBrake = True
-        elif self.vitalAuth == 4:
+        elif self.vitalAuth >= 4:
             self.stopSoon = False
             self.servBrake = False
             print("train controller sw.py: train authority has been given authority 4, able to move forward")
@@ -351,7 +379,9 @@ class TrainController:
             print("train controller sw.py: train unsafe to move: no commanded speed")
         elif self.vitalAuth != 0 and self.cmdSpeed != 0:
             self.trainSafeToMove = 1
-            print("ttrain controller sw.py: rain safe to move: authority and cmd speed received")
+            print("train controller sw.py: rain safe to move: authority and cmd speed received")
+
+        print()
 
     def speedcheck(self):
         # check if cmd speed and actual speed are within legal speed limits:
@@ -360,6 +390,8 @@ class TrainController:
             self.cmdSpeed = self.speedlim
         elif self.cmdSpeed <= self.speedlim:
             print("train controller sw.py: command speed within speed limits")
+
+        print()
 
     def automode(self):  # deprecated in IT3, used in IT2 for testing. honk mimimi
         for i in range(0, 7):
@@ -400,7 +432,7 @@ class TrainController:
 
         # update all values and call control functions
 
-        self.update_time = self.system_time.time()
+        self.update_time = SystemTime.time()
 
         if num == 1:
             print("train controller sw.py: update type 1 values (authority safe speed): authority and cmd speed")
@@ -410,6 +442,7 @@ class TrainController:
 
             self.cmdSpeed = inputs[1]
             print(self.cmdSpeed)
+            self.speedcheck()
 
             # distance control
             self.vitalitycheck()
@@ -451,7 +484,7 @@ class TrainController:
 
         # update all values and call control functions
 
-        self.update_time = self.system_time.time()
+        self.update_time = SystemTime.time()
 
         # check if in new block and update block values
         self.polaritycontrol(inputs[4])

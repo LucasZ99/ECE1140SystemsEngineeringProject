@@ -7,11 +7,22 @@ from PyQt6.QtWidgets import *
 import sys
 from PyQt6.uic import loadUi
 from PyQt6.QtCore import pyqtSlot, pyqtSignal, QObject
+from PyQt6.QtWidgets import QComboBox
+
+
+# class ComboBox(QComboBox):
+#     clicked = pyqtSignal()
+
+    # def showPopup(self):
+    #     self.clicked.emit()
+    #     super(ComboBox, self).showPopup()
 
 
 class UI(QMainWindow):
 
     closed = pyqtSignal(bool)
+    comboClicked = pyqtSignal()
+    new_ctrl_list = pyqtSignal()
 
     def __init__(self, ctrl_list):
         super(UI, self).__init__()
@@ -31,6 +42,8 @@ class UI(QMainWindow):
             loadUi(ui_path, self)
         except Exception as e:
             print("train controller sw ui.py: Error with loading ui file: ", e)
+
+        # self.trains_list = ComboBox(self)
 
         # open with set dimensions
         self.setFixedWidth(810)
@@ -88,6 +101,7 @@ class UI(QMainWindow):
         self.kp.valueChanged.connect(self.changekp)
         self.ki.valueChanged.connect(self.changeki)
         self.servBrake.clicked.connect(self.useservicebrake)
+        # self.trains_list.clicked.connect(self.addtrain)  # TODO: combobox clicked function WHAT IS IT pls i need this to work
 
         # show the app
         self.show()
@@ -95,7 +109,10 @@ class UI(QMainWindow):
     def closeEvent(self, event):
         print("train controller sw ui.py: hi")
         self.closed.emit(False)
-        print("bye")
+        print("train controller sw ui.py: bye")
+
+    # def showPopup(self):
+    #     self.comboClicked.emit()
 
     def hello(self, value):
         if not value:
@@ -154,19 +171,27 @@ class UI(QMainWindow):
         # TODO make it so change on enter (maybe just to text box)
 
     def changecmdspeed(self):
-        self.trainctrl.cmdSpeed = self.cmdSpeedTB.value()
+        self.trainctrl.cmdSpeed = self.mph_to_ms(self.cmdSpeedTB.value())
 
+        self.trainctrl.speedcheck()
+        self.trainctrl.authority()
+        print("trian controller sw ui.py: authority updated after cmdspeed change in testbench")
         self.trainctrl.powercontrol()
-
-    def changespeedlim(self):
-        self.trainctrl.speedlim = self.speedLimTB.value()
-        self.speedLim.setText(str(self.trainctrl.speedlim))
+        print("trian controller sw ui.py: power updated after cmdspeed change in testbench")
+        print()
 
     def changevitalauth(self):
         self.trainctrl.vitalAuth = self.vitalAuthTB.value()
 
         self.trainctrl.authority()
-        self.trainctrl.powerctrl()
+        print("trian controller sw ui.py: authority updated after authority change in testbench")
+        self.trainctrl.powercontrol()
+        print("trian controller sw ui.py: power updated after authority change in testbench")
+        print()
+
+    def changespeedlim(self):
+        self.trainctrl.speedlim = self.speedLimTB.value()
+        self.speedLim.setText(str(self.trainctrl.speedlim))
 
     # I can probably get rid of accel and decel lim edits since they are static data and never updated.
     def changeaccellim(self):
@@ -357,10 +382,22 @@ class UI(QMainWindow):
     #         print(i)
     #         time.sleep(5)
 
-    def addtrain(self, ctrl_list):
-        self.ctrl_list.clear()
-        self.ctrl_list = ctrl_list  # how does this update when new ctrl is added in container..
+    #def addtrain(self, ctrl_list):
+    def addtrain(self): # , ctrl_list):
+        print("train contrller sw ui.py: clicked train select")
+        self.trains_list.clear()
+
+        print("1 train controller sw ui.py: sending new_ctrl_list signal to sw container")
+        self.update_ctrl_list(self.new_ctrl_list.emit())
+        print("4 train controller sw ui.py all signals received")
+        #print(
+        #self.ctrl_list = ctrl_list  # how does this update when new ctrl is added in container..
         # probably gonna have to use a signal for ^^, looking into it
+        self.trains_list.addItems(self.ctrl_list)
+
+    def update_ctrl_list(self, new_ctrl_list):
+        print("3 train controller sw ui.py: received new_ctrl_list_to_ui signal from container")
+        self.ctrl_list = new_ctrl_list
 
     def mph_to_ms(self, value):
         return value / 2.2237
