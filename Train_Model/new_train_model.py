@@ -54,6 +54,7 @@ class TrainModel:
         self.new_block.update_all_values(input_list)
 
     def physics_calculation(self, time):
+        self.heater.physics_calculation(time)
         if self.position > self.train_const.train_length() / 2:
             net_force = (self.engine.force_from_engine(self.velocity, self.failure.engine_failure)
                          - self.brakes.brake_force(self.failure.brake_failure)
@@ -82,7 +83,6 @@ class TrainModel:
         self.set_velocity(new_vel)
         self.acceleration = new_acc
 
-        self.heater.physics_calculation(time)
         return delta_x
 
     def update_controller(self):

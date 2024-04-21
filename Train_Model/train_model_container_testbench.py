@@ -1,13 +1,10 @@
-from PyQt6.QtGui import QIcon
 import sys
 import os
 from PyQt6 import uic
-from PyQt6.QtWidgets import (QMainWindow, QApplication, QLabel, QPushButton, QGroupBox,
-                             QCheckBox, QComboBox, QProgressBar, QLineEdit)
+from PyQt6.QtWidgets import (QMainWindow, QApplication, QPushButton,  QComboBox, QLineEdit)
 
-from Train_Model import TrainModelContainer
+from Train_Model import TrainModelContainer, TrainBusinessLogic, UITrain
 from trainControllerTot_Container import TrainController_Tot_Container
-from SystemTime import SystemTimeContainer
 
 
 class ContainerTB(QMainWindow):
@@ -15,6 +12,8 @@ class ContainerTB(QMainWindow):
     def __init__(self, container: TrainModelContainer):
         super(ContainerTB, self).__init__()
         self.container = container
+        self.business_logic = TrainBusinessLogic()
+        self.train_ui = UITrain()
         self.train_name_list = list()
         self.index = int()
 
@@ -54,7 +53,7 @@ class ContainerTB(QMainWindow):
         self.removeButton.clicked.connect(self.remove_trn)
 
         self.trainControllerUpdateButton = self.findChild(QPushButton, "trainControllerUpdateButton")
-        self.trainControllerUpdateButton.clicked.connect(self.container.business_logic.train_update_controller)
+        self.trainControllerUpdateButton.clicked.connect(self.business_logic.train_update_controller)
 
         self.trainSelect = self.findChild(QComboBox, "trainSelect")
         self.trainSelect.clear()
@@ -78,7 +77,7 @@ class ContainerTB(QMainWindow):
         self.show()
 
     def container_ui(self):
-        self.container.show_ui()
+        self.train_ui.show()
 
     def track_pressed(self):
         index = self.get_current_index()
@@ -147,7 +146,7 @@ class ContainerTB(QMainWindow):
 
     def add_trn(self):
         self.container.add_train()
-        index = max(self.container.business_logic.train_dict.keys())
+        index = max(self.business_logic.train_dict.keys())
         self.train_name_list.append(f'Train {index}')
         self.trainSelect.addItem(f'Train {index}')
 
@@ -178,8 +177,7 @@ class ContainerTB(QMainWindow):
         return int(string[6:])
 
 
-contain = TrainModelContainer(TrainController_Tot_Container())
+contain = TrainModelContainer()
 app = QApplication(sys.argv)
 ui = ContainerTB(contain)
 app.exec()
-
