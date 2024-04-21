@@ -1,16 +1,15 @@
-from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
-from PyQt6.QtWidgets import QApplication
+from PyQt6.QtCore import QObject, pyqtSlot
 
-from TrackControllerTest import TestBackend, TestUi
-from TrackControllerTest.TrackControllerTestSignals import TrackControllerTestSignals
-from TopLevelSignals import TopLevelSignals
+from TopLevelSignals import TopLevelSignals as top_level_signals
+from TrackControllerTest.TrackControllerTestSignals import TrackControllerTestSignals as signals
+from TrackControllerTest import TestBackend
 
 
 class TrackControllerTestBenchContainer(QObject):
 
-    def __init__(self, top_level_signals: TopLevelSignals, signals: TrackControllerTestSignals):
+    def __init__(self):
         super().__init__()
-        self.test_backend = TestBackend(signals)
+        self.test_backend = TestBackend()
         # self.ui = TestUi()
         self.top_level_signals = top_level_signals
         self.signals = signals

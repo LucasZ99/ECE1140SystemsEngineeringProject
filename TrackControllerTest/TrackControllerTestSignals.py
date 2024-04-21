@@ -1,7 +1,7 @@
 from PyQt6.QtCore import QObject, pyqtSignal
 
 
-class TrackControllerTestSignals(QObject):
+class TrackControllerTestSignalsCls(QObject):
 
     # Get from Business Logic to UI
     get_blocks_signal = pyqtSignal()
@@ -24,8 +24,8 @@ class TrackControllerTestSignals(QObject):
     track_inputs_from_testbench_signal = pyqtSignal(dict)
 
     def __init__(self, parent=None):
-        super(TrackControllerTestSignals, self).__init__(parent)
+        super(TrackControllerTestSignalsCls, self).__init__(parent)
 
 
-
+TrackControllerTestSignals = TrackControllerTestSignalsCls()
 

@@ -1,13 +1,13 @@
 import os
 
 from PyQt6.QtCore import pyqtSlot
-from PyQt6.QtWidgets import QMainWindow, QComboBox, QCheckBox, QPushButton, QLineEdit
+from PyQt6.QtWidgets import QMainWindow, QComboBox, QPushButton, QLineEdit
 from PyQt6.uic import loadUi
-from TrackControllerTest.TrackControllerTestSignals import TrackControllerTestSignals
+from TrackControllerTest.TrackControllerTestSignals import TrackControllerTestSignals as signals
 
 
 class TestUi(QMainWindow):
-    def __init__(self, signals: TrackControllerTestSignals):
+    def __init__(self):
         super().__init__()
         self.title = 'Track Controller Test Ui'
         self.signals = signals
@@ -92,7 +92,6 @@ class TestUi(QMainWindow):
 
         for block, occupancy in self.blocks_occupancy.items():
             self.occupancy_block_select.addItem(str(block) + " " + str(occupancy))
-            self.occupancy_block_select.adjustSize()
 
         # self.show()
 

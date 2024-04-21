@@ -1,7 +1,8 @@
 from PyQt6.QtCore import pyqtSignal, QObject
 
 
-class TrackControllerSignals(QObject):
+class TrackControllerSignalsCls(QObject):
+
     # UI get from Business logic
     get_switches_list_A_switch_ui_signal = pyqtSignal()
     get_switches_list_C_switch_ui_signal = pyqtSignal()
@@ -58,8 +59,10 @@ class TrackControllerSignals(QObject):
     track_controller_C_lights_changed_signal = pyqtSignal(list)
 
     track_controller_A_rr_crossing_signal = pyqtSignal(bool)
+    track_controller_B_rr_crossing_signal = pyqtSignal(bool)
 
     def __init__(self, parent=None):
-        super(TrackControllerSignals, self).__init__(parent)
+        super(TrackControllerSignalsCls, self).__init__(parent)
 
 
+TrackControllerSignals = TrackControllerSignalsCls()

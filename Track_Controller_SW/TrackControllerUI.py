@@ -1,20 +1,17 @@
-from copy import copy
-
 import os
-from PyQt6 import QtCore
-from PyQt6.QtCore import pyqtSignal, pyqtSlot
+
+from PyQt6.QtCore import pyqtSlot
 from PyQt6.QtWidgets import QFileDialog, QMainWindow, QWidget, QVBoxLayout, QPushButton, QLabel, \
     QListWidgetItem, QButtonGroup, QListWidget
 from PyQt6.uic import loadUi
 
 from Common import Switch
-
-from Track_Controller_SW.TrackControllerSignals import TrackControllerSignals
+from Track_Controller_SW.TrackControllerSignals import TrackControllerSignals as signals
 
 
 class ManualMode(QWidget):
 
-    def __init__(self, section: str, signals: TrackControllerSignals):
+    def __init__(self, section: str):
         super().__init__()
         self.section = section
         self.setWindowTitle(f"Maintenance Mode {self.section}")
@@ -70,7 +67,7 @@ class ManualMode(QWidget):
 
 
 class UI(QMainWindow):
-    def __init__(self, section: str, signals: TrackControllerSignals):
+    def __init__(self, section: str):
 
         super(UI, self).__init__()
         self.section = section
@@ -88,10 +85,6 @@ class UI(QMainWindow):
             loadUi(ui_path, self)
         except Exception as e:
             print("Error with loading UI file: ", e)
-
-        # Fix the size
-        self.setFixedWidth(757)
-        self.setFixedHeight(649)
 
         # Define widgets
         self.manual_mode = self.findChild(QPushButton, 'manual_mode')
@@ -216,7 +209,7 @@ class UI(QMainWindow):
             self.light_2_a.setStyleSheet("background-color: rgb(222, 62, 38)")
 
     def manual_mode_dialogue(self):
-        self.manual_mode_window = ManualMode(section=self.section, signals=self.signals)
+        self.manual_mode_window = ManualMode(section=self.section)
         self.manual_mode_window.adjustSize()
         self.manual_mode_window.show()
         self.show()
@@ -232,7 +225,7 @@ class UI(QMainWindow):
 
     def browse_files(self):
         self.fname, _ = QFileDialog.getOpenFileName(self, 'Open PLC File', 'C:/Users/lucas')
-        self.filename.setText(self.fname)
+        self.filename.setText(self.fname[-21:])
         self.filename.adjustSize()
         if self.section == 'A':
             self.signals.set_plc_filepath_A_signal.emit(self.fname)

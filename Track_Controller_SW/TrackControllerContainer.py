@@ -5,15 +5,13 @@ from PyQt6.QtCore import pyqtSlot, QObject, pyqtSignal
 from Track_Controller_HW import TrackControllerHardware
 from Track_Controller_SW import TrackController
 from Common import Switch, Light, TrackSignal, RRCrossing
-from TopLevelSignals import TopLevelSignals
-from Track_Controller_SW.TrackControllerSignals import TrackControllerSignals
+from TopLevelSignals import TopLevelSignals as top_level_signals
+from Track_Controller_SW.TrackControllerSignals import TrackControllerSignals as signals
 
 
 class TrackControllerContainer(QObject):
-    # Signals
-    # Downstream
 
-    def __init__(self, top_level_signals: TopLevelSignals, signals: TrackControllerSignals):
+    def __init__(self):
         super().__init__()
 
         self.top_level_signals = top_level_signals
@@ -72,16 +70,16 @@ class TrackControllerContainer(QObject):
         # overlap: blocks 101, 102, 103, 104
         self.occupancy_dict_C = dict(itertools.islice(self.occupancy_dict.items(), 72, 100))
 
-        self.trackControllerA = TrackController(occupancy_dict=self.occupancy_dict_A, section="A", signals=self.signals)
+        self.trackControllerA = TrackController(occupancy_dict=self.occupancy_dict_A, section="A")
         self.trackControllerB = TrackControllerHardware(occupancy_dict=self.occupancy_dict_B, section="B")
-        self.trackControllerC = TrackController(occupancy_dict=self.occupancy_dict_C, section="C", signals=self.signals)
+        self.trackControllerC = TrackController(occupancy_dict=self.occupancy_dict_C, section="C")
 
         # # Connect Internal Signals:
         self.signals.track_controller_A_switch_changed_signal.connect(self.update_track_switch)
         self.signals.track_controller_A_rr_crossing_signal.connect(self.update_rr_crossing_status_A)
         self.signals.track_controller_A_lights_changed_signal.connect(self.update_lights_A_status)
 
-        self.trackControllerB.rr_crossing_signal.connect(self.update_rr_crossing_status_B)
+        self.signals.track_controller_B_rr_crossing_signal.connect(self.update_rr_crossing_status_B)
 
         self.signals.track_controller_C_switch_changed_signal.connect(self.update_track_switch)
         self.signals.track_controller_C_lights_changed_signal.connect(self.update_lights_C_status)
@@ -176,10 +174,19 @@ class TrackControllerContainer(QObject):
 
     def toggle_switch_if_safe(self, switches_to_toggle: list[Switch]):
         # check if each switch is safe to be toggled
-        for index in range(len(self.safe_toggle_switch)):
-            # if it's safe to toggle that switch, just reassign the switch value to the new one, even if it's the same
-            if self.safe_toggle_switch[index]:
-                self.switch_list[index] = switches_to_toggle[index]
+        for switch in switches_to_toggle:
+            if switch.block == 13:
+                if self.safe_toggle_switch[0] is True:
+                    self.signals.maintenance_switch_changed_A_signal.emit(0)
+            elif switch.block == 28:
+                if self.safe_toggle_switch[1] is True:
+                    self.signals.maintenance_switch_changed_A_signal.emit(1)
+            elif switch.block == 77:
+                if self.safe_toggle_switch[2] is True:
+                    self.signals.maintenance_switch_changed_C_signal.emit(0)
+            elif switch.block == 85:
+                if self.safe_toggle_switch[3] is True:
+                    self.signals.maintenance_switch_changed_C_signal.emit(1)
 
     def update_occupancy(self, block_occupancy_dict: dict[int, bool]):
         print("WAYSIDE: TrackControllerContainer.update_occupancy called")
@@ -250,14 +257,6 @@ class TrackControllerContainer(QObject):
     @pyqtSlot(list)
     def update_lights_C_status(self, lights_list: list[Light]) -> None:
         self.lights_list[4:7] = lights_list[0:4]
-
-    def show_ui(self, section: str):
-        if section == "A":
-            print("Section A UI called")
-            self.trackControllerA.show_ui()
-        if section == "C":
-            print("Section C UI called")
-            self.trackControllerC.show_ui()
 
 
 def main():

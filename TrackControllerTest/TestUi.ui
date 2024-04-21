@@ -204,7 +204,7 @@
     <property name="geometry">
      <rect>
       <x>140</x>
-      <y>303</y>
+      <y>280</y>
       <width>41</width>
       <height>21</height>
      </rect>
@@ -217,16 +217,21 @@
     <property name="geometry">
      <rect>
       <x>120</x>
-      <y>323</y>
-      <width>81</width>
-      <height>22</height>
+      <y>310</y>
+      <width>121</width>
+      <height>41</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+     </font>
     </property>
    </widget>
    <widget class="QPushButton" name="occupancy_toggle_button">
     <property name="geometry">
      <rect>
-      <x>230</x>
+      <x>260</x>
       <y>310</y>
       <width>121</width>
       <height>41</height>

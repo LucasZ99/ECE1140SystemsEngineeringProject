@@ -3,16 +3,12 @@ from PyQt6.QtCore import pyqtSignal, QObject, pyqtSlot
 from Common import Light, RRCrossing, Switch
 from Track_Controller_SW.BusinessLogic import BusinessLogic
 from Track_Controller_SW.PLC_Logic import PlcProgram
-from Track_Controller_SW.TrackControllerSignals import TrackControllerSignals
+from Track_Controller_SW.TrackControllerSignals import TrackControllerSignals as signals
 
 
 class TrackController(QObject):
-    switch_changed_index_signal = pyqtSignal(int)
-    rr_crossing_signal = pyqtSignal(bool)
-    lights_list_A_changed_signal = pyqtSignal(list)
-    lights_list_C_changed_signal = pyqtSignal(list)
 
-    def __init__(self, occupancy_dict: dict[int, bool], section: str, signals: TrackControllerSignals):
+    def __init__(self, occupancy_dict: dict[int, bool], section: str):
         super().__init__()
 
         self.block_indexes = list(occupancy_dict.keys())
@@ -64,21 +60,23 @@ class TrackController(QObject):
             self.lights_list,
             self.plc_logic,
             self.block_indexes,
-            self.section,
-            self.signals
+            self.section
         )
 
-        self.signals.send_switch_changed_A_signal.connect(self.send_switch_changed_index)
-        self.signals.send_switch_changed_C_signal.connect(self.send_switch_changed_index)
+        self.signals.send_switch_changed_A_signal.connect(self.send_switch_changed_index_A)
+        self.signals.send_switch_changed_C_signal.connect(self.send_switch_changed_index_C)
         self.signals.send_rr_crossing_A_signal.connect(self.rr_crossing_updated)
         self.signals.send_lights_signal.connect(self.lights_list_updated)
 
 
     @pyqtSlot(int)
-    def send_switch_changed_index(self, switch_block: int):
+    def send_switch_changed_index_A(self, switch_block: int):
         if self.section == "A":
             self.signals.track_controller_A_switch_changed_signal.emit(switch_block)
-        else:
+
+    @pyqtSlot(int)
+    def send_switch_changed_index_C(self, switch_block: int):
+        if self.section == "C":
             self.signals.track_controller_C_switch_changed_signal.emit(switch_block)
 
 

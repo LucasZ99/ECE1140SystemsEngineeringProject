@@ -1,7 +1,7 @@
 from PyQt6.QtCore import pyqtSignal, QObject
 
 
-class TopLevelSignals(QObject):
+class TopLevelSignalsCls(QObject):
 
     # Track Controller test signals
     test_update_wayside_from_ctc = pyqtSignal(list, bool, list, list)
@@ -16,12 +16,16 @@ class TopLevelSignals(QObject):
 
     # Track Model Signals
     update_wayside_from_track_model = pyqtSignal(dict)
+    update_train_model_from_track_model = pyqtSignal(object, object, bool, int, object)
+    update_ctc_from_track_model = pyqtSignal(int)
 
     # for testing purposes
     update_testbench_from_wayside = pyqtSignal()
     update_wayside_from_testbench = pyqtSignal()
 
-
     def __init__(self, parent=None):
-        super(TopLevelSignals, self).__init__(parent)
+        super(TopLevelSignalsCls, self).__init__(parent)
+
+
+TopLevelSignals = TopLevelSignalsCls()
 

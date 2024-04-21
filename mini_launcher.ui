@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>242</width>
-    <height>366</height>
+    <width>236</width>
+    <height>478</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -66,13 +66,26 @@
      <string>CTC</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="track_model_button">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>330</y>
+      <width>171</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Track Model</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>242</width>
+     <width>236</width>
      <height>26</height>
     </rect>
    </property>

@@ -1,12 +1,12 @@
 from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
 
 from Common.TrackSignal import TrackSignal
-from TrackControllerTest.TrackControllerTestSignals import TrackControllerTestSignals
+from TrackControllerTest.TrackControllerTestSignals import TrackControllerTestSignals as signals
 
 
 class TestBackend(QObject):
 
-    def __init__(self, signals: TrackControllerTestSignals):
+    def __init__(self):
         super().__init__()
         self.signals = signals
         self.track_signal = TrackSignal(1, 0, 0)

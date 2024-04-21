@@ -4,35 +4,34 @@ from PyQt6.QtCore import QThread
 from PyQt6.QtWidgets import QPushButton, QMainWindow, QApplication
 from PyQt6.uic import loadUi
 
-from TopLevelSignals import TopLevelSignals
-from TrackControllerTest import TrackControllerTestBenchContainer, TrackControllerTestSignals
+from TrackControllerTest import TrackControllerTestBenchContainer
 from TrackControllerTest.TestUi import TestUi
-from Track_Controller_SW import TrackControllerSignals
 from Track_Controller_SW.TrackControllerContainer import TrackControllerContainer
 from Track_Controller_SW.TrackControllerUI import UI
+from Track_Model.Track_Model_Container import TrackModelContainer
 
 
 class Ui_MainWindow(QMainWindow):
-    def __init__(self,
-                 # ctc_signals = CTCSignals,
-                 track_controller_test_signals: TrackControllerTestSignals,
-                 track_controller_signals: TrackControllerSignals):
+    def __init__(self):
         super().__init__()
         loadUi('mini_launcher.ui', self)
-        self.test_ui = TestUi(track_controller_test_signals)
-        self.track_controller_a_ui = UI("A", track_controller_signals)
-        self.track_controller_c_ui = UI("C", track_controller_signals)
-        # self.ctc_ui = CTCUi(ctc_signals)
+        self.test_ui = TestUi()
+        self.track_controller_a_ui = UI("A")
+        self.track_controller_c_ui = UI("C")
+        # self.ctc_ui = CTCUi()
+        # self.track_model_ui = TrackModelUI()
 
         self.track_controller_test_button = self.findChild(QPushButton, "track_controller_test_button")
         self.track_controller_a_button = self.findChild(QPushButton, "track_controller_a_button")
         self.track_controller_c_button = self.findChild(QPushButton, "track_controller_c_button")
         self.ctc_button = self.findChild(QPushButton, "ctc_button")
+        self.track_model_button = self.findChild(QPushButton, "track_model_button")
 
         self.track_controller_test_button.clicked.connect(self.open_test_ui)
         self.track_controller_a_button.clicked.connect(self.open_track_controller_a_ui)
         self.track_controller_c_button.clicked.connect(self.open_track_controller_c_ui)
         self.ctc_button.clicked.connect(self.open_ctc_ui)
+        self.track_model_button.clicked.connect(self.open_track_model)
 
         self.show()
 
@@ -49,14 +48,15 @@ class Ui_MainWindow(QMainWindow):
     def open_track_controller_c_ui(self):
         self.track_controller_c_ui.show()
 
+    def open_track_model(self):
+        # self.track_model_ui.show()
+        pass
+
 
 def main():
 
     app = QApplication(sys.argv)
 
-    top_level_signals = TopLevelSignals()
-    track_controller_signals = TrackControllerSignals()
-    track_controller_test_signals = TrackControllerTestSignals()
     # ctc_signals = CTCSignals()
 
     # ctc_thread = QThread()
@@ -64,24 +64,25 @@ def main():
     #                              signals=ctc_signals)
     # ctc_container.moveToThread(ctc_thread)
 
+
     test_thread = QThread()
-    test_container = TrackControllerTestBenchContainer(top_level_signals=top_level_signals,
-                                                       signals=track_controller_test_signals)
+    test_container = TrackControllerTestBenchContainer()
     test_container.moveToThread(test_thread)
 
     track_controller_thread = QThread()
-    track_controller_container = TrackControllerContainer(top_level_signals=top_level_signals,
-                                                          signals=track_controller_signals)
+    track_controller_container = TrackControllerContainer()
     track_controller_container.moveToThread(track_controller_thread)
+
+    # track_model_thread = QThread()
+    # track_model_container = TrackModelContainer()
+    # track_model_container.moveToThread(track_model_thread)
 
     # ctc_thread.start()
     test_thread.start()
     track_controller_thread.start()
+    # track_model_thread.start()
 
-    window = Ui_MainWindow(
-        # ctc_signals=ctc_signals,
-        track_controller_test_signals=track_controller_test_signals,
-        track_controller_signals=track_controller_signals)
+    window = Ui_MainWindow()
 
     window.show()
     sys.exit(app.exec())
