@@ -8,11 +8,11 @@ from PyQt6 import uic
 from PyQt6.QtWidgets import (QMainWindow, QApplication, QLabel, QPushButton, QGroupBox,
                              QCheckBox, QComboBox, QProgressBar, QLineEdit)
 from PyQt6.QtGui import QPixmap
+from PyQt6.QtCore import pyqtSlot
 
 import random
 
-from Train_Model import TrainBusinessLogic
-from SystemTime import SystemTimeContainer
+from Train_Model.train_model_signals import train_model_signals
 
 
 class UITrain(QMainWindow):
@@ -20,7 +20,7 @@ class UITrain(QMainWindow):
     tons_per_kilogram = 0.00110231
     feet_per_meter = 3.28084
 
-    def __init__(self, bus=TrainBusinessLogic()):
+    def __init__(self):
         super(UITrain, self).__init__()
 
         # load the ui file
@@ -32,8 +32,14 @@ class UITrain(QMainWindow):
             print("Train Model UI: Error with loading UI file: ", e)
 
         # declare the train object
-        self.business_logic = bus
-        self.train_dict = self.business_logic.train_dict
+        self.train_dict = dict()
+        self.signals = train_model_signals
+        self.signals.pass_dict_to_ui.connect(self.dict_initialization)
+        self.signals.ui_remove_train.connect(self.train_removed)
+        self.signals.ui_add_train.connect(self.train_added)
+        self.signals.index_update.connect(self.index_update)
+        self.signals.total_update.connect(self.values_updated)
+        self.signals.ui_initialization.emit()
         self.index: int
         if len(self.train_dict.keys()) == 0:
             self.index = 0
@@ -159,13 +165,6 @@ class UITrain(QMainWindow):
         self.switching_trains = False
         self.vals_update = False
 
-        self.business_logic.values_updated.connect(self.values_updated)
-        self.business_logic.temp_updated.connect(self.index_update)
-        self.business_logic.passengers_updated.connect(self.index_update)
-        self.business_logic.block_updated.connect(self.index_update)
-        self.business_logic.train_added.connect(self.train_added)
-        self.business_logic.train_removed.connect(self.train_removed)
-
         self.trainSelect.currentIndexChanged.connect(self.combo_selection)
         self.physicsButton.pressed.connect(self.physics_test)
         self.passengerButton.pressed.connect(self.passenger_test)
@@ -195,21 +194,29 @@ class UITrain(QMainWindow):
         self.leftDoorValue_tb.stateChanged.connect(self.left_door_change)
         self.rightDoorValue_tb.stateChanged.connect(self.right_door_change)
 
-    def values_updated(self):
+    @pyqtSlot(dict)
+    def values_updated(self, train_dict: dict):
+        self.train_dict = train_dict
         self.vals_update = True
         self.populate_values()
         self.vals_update = False
 
-    def index_update(self, index):
+    @pyqtSlot(dict, int)
+    def index_update(self, train_dict: dict, index: int):
+        self.train_dict = train_dict
         string = str(self.trainSelect.currentText())
         if int(string[6:]) == index:
             self.populate_values()
 
-    def train_added(self, index):
+    @pyqtSlot(dict, int)
+    def train_added(self, train_dict: dict, index: int):
+        self.train_dict = train_dict
         self.train_name_list.append(f'Train {index}')
         self.trainSelect.addItem(f'Train {index}')
 
-    def train_removed(self, index):
+    @pyqtSlot(dict, int)
+    def train_removed(self, train_dict: dict, index: int):
+        self.train_dict = train_dict
         if f'Train {index}' in self.train_name_list:
             self.trainSelect.clear()
             self.train_name_list.remove(f'Train {index}')
@@ -266,20 +273,24 @@ class UITrain(QMainWindow):
         self.ebp = True
         self.populate_values()
         self.ebp = False
+        self.signals.ui_update.emit(self.train_dict)
 
     def power_change(self):
         if not self.switching_trains:
             self.train_dict[self.index].engine.set_power(float(self.powerValue_tb.text()))
             self.populate_values()
+            self.signals.ui_update.emit(self.train_dict)
 
     def acc_change(self):
         if not self.switching_trains:
             self.train_dict[self.index].acceleration = float(self.accValue_tb.text()) / self.feet_per_meter
             self.populate_values()
+            self.signals.ui_update.emit(self.train_dict)
 
     def speed_change(self):
         self.train_dict[self.index].set_velocity(float(self.speedValue_tb.text()) * 5280 / self.feet_per_meter / 3600)
         self.populate_values()
+        self.signals.ui_update.emit(self.train_dict)
 
     def grade_change(self):
         if self.train_dict[self.index].position > self.train_dict[self.index].train_const.train_length() / 2:
@@ -287,6 +298,7 @@ class UITrain(QMainWindow):
         else:
             self.train_dict[self.index].old_block.grade = float(self.gradeValue_tb.text())
         self.populate_values()
+        self.signals.ui_update.emit(self.train_dict)
 
     def elev_change(self):
         if self.train_dict[self.index].position > self.train_dict[self.index].train_const.train_length() / 2:
@@ -294,6 +306,7 @@ class UITrain(QMainWindow):
         else:
             self.train_dict[self.index].old_block.elevation = float(self.elevValue_tb.text()) / self.feet_per_meter
         self.populate_values()
+        self.signals.ui_update.emit(self.train_dict)
 
     def pbrake_change(self):
         if not self.switching_trains:
@@ -301,82 +314,102 @@ class UITrain(QMainWindow):
                 self.train_dict[self.index].brakes.toggle_passenger_ebrake()
                 self.populate_values()
         self.ebp = False
+        self.signals.ui_update.emit(self.train_dict)
 
     def sbrake_change(self):
         if not (self.switching_trains or self.vals_update):
             self.train_dict[self.index].brakes.toggle_service_brake()
             self.populate_values()
+            self.signals.ui_update.emit(self.train_dict)
 
     def dbrake_change(self):
         if not (self.switching_trains or self.vals_update):
             self.train_dict[self.index].brakes.toggle_driver_ebrake()
             self.populate_values()
+            self.signals.ui_update.emit(self.train_dict)
 
     def cars_change(self):
         self.train_dict[self.index].train_const.set_cars(int(self.carsValue_tb.text()))
         self.populate_values()
+        self.signals.ui_update.emit(self.train_dict)
 
     def crew_change(self):
         self.train_dict[self.index].crew.set_people(int(self.crewValue_tb.text()))
         self.populate_values()
+        self.signals.ui_update.emit(self.train_dict)
 
     def pass_change(self):
         self.train_dict[self.index].passengers.set_people(int(self.passValue_tb.text()), self.train_dict[self.index].train_const.max_passengers())
         self.populate_values()
+        self.signals.ui_update.emit(self.train_dict)
 
     def engine_change(self):
         if not self.switching_trains:
             self.train_dict[self.index].failure.toggle_engine()
             self.populate_values()
+            self.signals.ui_update.emit(self.train_dict)
 
     def signal_change(self):
         if not self.switching_trains:
             self.train_dict[self.index].failure.toggle_signal_pickup()
             self.populate_values()
+            self.signals.ui_update.emit(self.train_dict)
 
     def brake_change(self):
         if not self.switching_trains:
             self.train_dict[self.index].failure.toggle_brakes()
             self.populate_values()
+            self.signals.ui_update.emit(self.train_dict)
 
     def rec_speed_changed(self):
         self.train_dict[self.index].signals.set_commanded_speed(float(self.recSpeedValue_tb.text()), self.train_dict[self.index].failure.signal_pickup_failure)
         self.populate_values()
+        self.signals.ui_update.emit(self.train_dict)
 
     def auth_changed(self):
         self.train_dict[self.index].signals.set_authority(int(self.authValue_tb.text(), 16), self.train_dict[self.index].failure.signal_pickup_failure)
         self.populate_values()
+        self.signals.ui_update.emit(self.train_dict)
 
     def beacon_changed(self):
         self.train_dict[self.index].signals.beacon = self.beaconValue_tb.text()
         self.populate_values()
+        self.signals.ui_update.emit(self.train_dict)
 
     def temp_change(self):
         self.train_dict[self.index].heater.update_target(float(self.tempValue_tb.text()))
         self.populate_values()
+        self.signals.ui_update.emit(self.train_dict)
 
     def ext_light_change(self):
         if not (self.switching_trains or self.vals_update):
             self.train_dict[self.index].interior_functions.toggle_exterior_lights()
             self.populate_values()
+            self.signals.ui_update.emit(self.train_dict)
 
     def int_light_change(self):
         if not (self.switching_trains or self.vals_update):
             self.train_dict[self.index].interior_functions.toggle_interior_lights()
             self.populate_values()
+            self.signals.ui_update.emit(self.train_dict)
 
     def left_door_change(self):
         if not (self.switching_trains or self.vals_update):
             self.train_dict[self.index].interior_functions.toggle_left_doors()
             self.populate_values()
+            self.signals.ui_update.emit(self.train_dict)
 
     def right_door_change(self):
         if not (self.switching_trains or self.vals_update):
             self.train_dict[self.index].interior_functions.toggle_right_doors()
             self.populate_values()
+            self.signals.ui_update.emit(self.train_dict)
+
+    @pyqtSlot(dict)
+    def dict_initialization(self, train_dict: dict):
+        self.train_dict = train_dict
 
     def populate_values(self):
-        self.train_dict = self.business_logic.train_dict
         if self.index not in self.train_dict.keys():
             return
 
