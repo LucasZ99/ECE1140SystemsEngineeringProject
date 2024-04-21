@@ -1,11 +1,11 @@
 import itertools
 
-from PyQt6.QtCore import pyqtSlot, QObject, pyqtSignal
+from PyQt6.QtCore import pyqtSlot, QObject
 
-from Track_Controller_HW import TrackControllerHardware
-from Track_Controller_SW import TrackController
 from Common import Switch, Light, TrackSignal, RRCrossing
 from TopLevelSignals import TopLevelSignals as top_level_signals
+from Track_Controller_HW import TrackControllerHardware
+from Track_Controller_SW import TrackController
 from Track_Controller_SW.TrackControllerSignals import TrackControllerSignals as signals
 
 
