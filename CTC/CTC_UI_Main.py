@@ -8,7 +8,7 @@ from PyQt6.QtWidgets import QMainWindow, QApplication, QWidget, QPushButton, QLa
     QGridLayout, QComboBox, QHBoxLayout, QTimeEdit, QTableWidget, QTableWidgetItem, QTabWidget, QAbstractScrollArea, \
     QHeaderView
 
-from CTC import CTC
+from CTC.CTCSignals import CTCSignals
 from CTC.Train import Train
 
 import CTC.Route as Route
@@ -29,14 +29,12 @@ class CTCMainWindowViewModel:
         self.selected_destination_id = 0
 
 
-"""
-Returns the block id for the block at position route_block_index in the route
-where route_block_index = 0 is the yard spawn, and route_block_index len(route) - 1 is the yard delete
-"""
-
-
 def get_block_id(line_id: int, route_block_index: int) -> int:
-    return abs(GREEN_LINE[ROUTE][route_block_index])
+    """
+    Returns the block id for the block at position route_block_index in the route
+    where route_block_index = 0 is the yard spawn, and route_block_index len(route) - 1 is the yard delete
+    """
+    return abs(get_line_route()[route_block_index])
 
 
 def calculate_times_through_route(line_id: int, departure_time: float, arrival_time: float, route: list[int]) \
@@ -80,22 +78,24 @@ def convert_qtime_to_secs_since_epoch(qtime: QTime) -> float:
     time_0.time().setHMS(qtime.hour(), qtime.minute(), 0, 0)
     return time_0.toSecsSinceEpoch()
 
+# TODO move running trains to its own class
+# TODO move scheduled trains to its own class
+
 
 class CTCMainWindow(QMainWindow):
-    def __init__(self, ctc: CTC):
+    def __init__(self):
         super(CTCMainWindow, self).__init__()
 
+        self.next_train_number = 0
+        self.mode: int = 0
         self.stops = []
 
-        self.ctc = ctc
 
-        self.scheduled_trains: list[Train] = self.ctc.get_scheduled_trains()
-        self.running_trains: list[Train] = self.ctc.get_running_trains()
 
         self.setWindowTitle("CTC Office")
 
         # Dispatch Train Tab
-        self.dispatch_train_layout = DispatchTrainLayout(LINES, self.ctc.scheduled_trains.get_next_train_number())
+        self.dispatch_train_layout = DispatchTrainLayout(LINES)
 
         # Connect Signals from dispatch train layout
 
@@ -103,9 +103,9 @@ class CTCMainWindow(QMainWindow):
         self.dispatch_train_layout.dispatch_button_pressed.connect(self.schedule_train)
 
         # Time in center of window
-        ctc_main_right_side = QVBoxLayout()
-        ctc_main_right_side.setSpacing(10)
-        ctc_main_layout_right_top_section = QHBoxLayout()
+        self.ctc_main_right_side = QVBoxLayout()
+        self.ctc_main_right_side.setSpacing(10)
+        self.ctc_main_layout_right_top_section = QHBoxLayout()
         self.train_system_time = QLabel(strftime("%H:%M:%S", localtime(SystemTime.time())))
         train_system_time_font = self.train_system_time.font()
         train_system_time_font.setPointSize(30)
@@ -113,121 +113,131 @@ class CTCMainWindow(QMainWindow):
 
         self.ctc_mode_select = QComboBox()
         self.ctc_mode_select.addItems(["Automatic Mode", "Manual Mode", "Maintenance Mode"])
-        ctc_main_layout_right_top_section.addWidget(self.train_system_time)
-        ctc_main_layout_right_top_section.addWidget(self.ctc_mode_select)
+        self.ctc_main_layout_right_top_section.addWidget(self.train_system_time)
+        self.ctc_main_layout_right_top_section.addWidget(self.ctc_mode_select)
         self.ctc_mode_select.currentIndexChanged.connect(self.mode_switch_handler)
         self.ctc_mode_select.setFixedSize(self.ctc_mode_select.sizeHint())
 
-        self.ctc_mode_select.setCurrentIndex(self.ctc.mode)
+        self.ctc_mode_select.setCurrentIndex(self.mode)
 
-        if self.ctc.mode == MANUAL_MODE or self.ctc.mode == MAINTENANCE_MODE:
+        if self.mode == MANUAL_MODE or self.mode == MAINTENANCE_MODE:
             self.ctc_mode_select.model().item(0).setEnabled(False)
 
-        ctc_main_right_side.addItem(ctc_main_layout_right_top_section)
+        self.ctc_main_right_side.addItem(self.ctc_main_layout_right_top_section)
 
         # Currently Running Trains
-        currently_running_trains_layout = QVBoxLayout()
-
-        currently_running_trains_label = QLabel("Currently Running Trains")
-        currently_running_trains_layout.addWidget(currently_running_trains_label)
-
-        self.running_trains_table = QTableWidget()
-        self.running_trains_table.verticalHeader().setHidden(True)
-        # self.running_trains_table.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.SizeAdjustPolicy.AdjustToContents)
-        # self.running_trains_table.resizeColumnsToContents()
-
-        self.running_trains_table.setColumnCount(8)
-        self.running_trains_table.setHorizontalHeaderLabels(
-            ["Train Number", "Line", "Destination", "Arrival Time", "Next Stop", "Time to Next Stop (min)",
-             "Current Block", "Authority (blocks)"])
-        currently_running_trains_layout.addWidget(self.running_trains_table)
-        ctc_main_right_side.addLayout(currently_running_trains_layout)
+        self.running_trains = RunningTrainsTableLayout()
+        self.ctc_main_right_side.addItem(self.running_trains)
 
         # Scheduled Trains
-        scheduled_trains_layout = QVBoxLayout()
-        scheduled_trains_header_layout = QHBoxLayout()
-        scheduled_trains_label = QLabel("Scheduled Trains")
-        import_schedule_button = QPushButton("Import Schedule")
-        import_schedule_button.setFixedSize(import_schedule_button.sizeHint())
+        self.scheduled_trains = ScheduledTrainsTableLayout()
+        self.ctc_main_right_side.addItem(self.scheduled_trains)
 
-        scheduled_trains_header_layout.addWidget(scheduled_trains_label)
-        scheduled_trains_header_layout.addWidget(import_schedule_button)
-        scheduled_trains_layout.addLayout(scheduled_trains_header_layout)
+        # currently_running_trains_layout = QVBoxLayout()
+        #
+        # currently_running_trains_label = QLabel("Currently Running Trains")
+        # currently_running_trains_layout.addWidget(currently_running_trains_label)
+        #
+        # self.running_trains_table = QTableWidget()
+        # self.running_trains_table.verticalHeader().setHidden(True)
+        # # self.running_trains_table.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.SizeAdjustPolicy.AdjustToContents)
+        # # self.running_trains_table.resizeColumnsToContents()
+        #
+        # self.running_trains_table.setColumnCount(8)
+        # self.running_trains_table.setHorizontalHeaderLabels(
+        #     ["Train Number", "Line", "Destination", "Arrival Time", "Next Stop", "Time to Next Stop (min)",
+        #      "Current Block", "Authority (blocks)"])
+        # currently_running_trains_layout.addWidget(self.running_trains_table)
+        # ctc_main_right_side.addLayout(currently_running_trains_layout)
+        # Scheduled Trains
+        # scheduled_trains_layout = QVBoxLayout()
+        # scheduled_trains_header_layout = QHBoxLayout()
+        # scheduled_trains_label = QLabel("Scheduled Trains")
+        # import_schedule_button = QPushButton("Import Schedule")
+        # import_schedule_button.setFixedSize(import_schedule_button.sizeHint())
+        #
+        # scheduled_trains_header_layout.addWidget(scheduled_trains_label)
+        # scheduled_trains_header_layout.addWidget(import_schedule_button)
+        # scheduled_trains_layout.addLayout(scheduled_trains_header_layout)
+        #
+        # self.scheduled_trains_table = QTableWidget()
+        # self.scheduled_trains_table.setColumnCount(6)
+        # self.scheduled_trains_table.setHorizontalHeaderLabels(
+        #     ["Train Number", "Line", "Destination", "Arrival Time", "First Stop", "Time to Departure (min)"])
+        # scheduled_trains_layout.addWidget(self.scheduled_trains_table)
+        # # self.scheduled_trains_table.verticalHeader().setHidden(True)
+        # # self.scheduled_trains_table.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.SizeAdjustPolicy.AdjustToContents)
+        # # self.scheduled_trains_table.resizeColumnsToContents()
 
-        self.scheduled_trains_table = QTableWidget()
-        self.scheduled_trains_table.setColumnCount(6)
-        self.scheduled_trains_table.setHorizontalHeaderLabels(
-            ["Train Number", "Line", "Destination", "Arrival Time", "First Stop", "Time to Departure (min)"])
-        scheduled_trains_layout.addWidget(self.scheduled_trains_table)
-        # self.scheduled_trains_table.verticalHeader().setHidden(True)
-        # self.scheduled_trains_table.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.SizeAdjustPolicy.AdjustToContents)
-        # self.scheduled_trains_table.resizeColumnsToContents()
+        # ctc_main_right_side.addLayout(scheduled_trains_layout)
 
-        ctc_main_right_side.addLayout(scheduled_trains_layout)
-
-        ctc_main_right_side_bottom = QHBoxLayout()
-        ctc_main_right_side_bottom.setSpacing(10)
+        self.ctc_main_right_side_bottom = QHBoxLayout()
+        self.ctc_main_right_side_bottom.setSpacing(10)
 
         # Block table
         # Search bar: https://www.pythonguis.com/faq/how-to-create-a-filter-search-bar-for-a-qtablewidget/
-        block_table_layout = QVBoxLayout()
-        block_table_label = QLabel("Block Table")
-        block_table_search_bar = QLineEdit()
-        block_table_search_bar.setPlaceholderText("Search for Block")
-        block_table_search_bar.setFixedSize(block_table_search_bar.sizeHint())
+        # block_table_layout = QVBoxLayout()
+        # block_table_label = QLabel("Block Table")
+        # block_table_search_bar = QLineEdit()
+        # block_table_search_bar.setPlaceholderText("Search for Block")
+        # block_table_search_bar.setFixedSize(block_table_search_bar.sizeHint())
+        #
+        # block_table_line_select = QComboBox()
+        # block_table_line_select.addItems([line_name for line_name in LINES])
+        #
+        # block_table_header_layout = QHBoxLayout()
+        # block_table_header_layout.addWidget(block_table_label)
+        # block_table_header_layout.addWidget(block_table_line_select)
+        # block_table_header_layout.addWidget(block_table_search_bar)
+        #
+        # block_table_layout.addItem(block_table_header_layout)
+        #
+        # self.block_table = BlockTable()
+        # self.block_table.fill_table_for_line(0)
+        #
+        # block_table_line_select.currentIndexChanged.connect(self.block_table.fill_table_for_line)
+        # block_table_search_bar.textChanged.connect(self.block_table.search)
+        #
+        # block_table_layout.addWidget(self.block_table)
 
-        block_table_line_select = QComboBox()
-        block_table_line_select.addItems([line_name for line_name in LINES])
+        # Block Table
+        self.block_table = BlockTableLayout()
+        self.ctc_main_right_side_bottom.addItem(self.block_table)
 
-        block_table_header_layout = QHBoxLayout()
-        block_table_header_layout.addWidget(block_table_label)
-        block_table_header_layout.addWidget(block_table_line_select)
-        block_table_header_layout.addWidget(block_table_search_bar)
+        self.ctc_throughput_layout = QVBoxLayout()
+        self.ctc_throughput_label = QLabel("System Throughput")
+        self.ctc_throughput_label.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+        self.ctc_throughput_layout.addWidget(self.ctc_throughput_label)
 
-        block_table_layout.addItem(block_table_header_layout)
-
-        self.block_table = BlockTable(self.ctc)
-        self.block_table.fill_table_for_line(0)
-
-        block_table_line_select.currentIndexChanged.connect(self.block_table.fill_table_for_line)
-        block_table_search_bar.textChanged.connect(self.block_table.search)
-
-        block_table_layout.addWidget(self.block_table)
-
-        ctc_main_right_side_bottom.addItem(block_table_layout)
-
-        ctc_throughput_layout = QVBoxLayout()
-        ctc_throughput_label = QLabel("System Throughput")
-        ctc_throughput_label.setAlignment(Qt.AlignmentFlag.AlignHCenter)
-        ctc_throughput_layout.addWidget(ctc_throughput_label)
-
-        ctc_main_layout_throughput = QGridLayout()
-        ctc_main_layout_throughput.addWidget(QLabel("Trains Per Hour"), 0, 1)
-        ctc_main_layout_throughput.addWidget(QLabel("# Ticket Sales Per Hour"), 0, 2)
+        self.ctc_main_layout_throughput = QGridLayout()
+        self.ctc_main_layout_throughput.addWidget(QLabel("Trains Per Hour"), 0, 1)
+        self.ctc_main_layout_throughput.addWidget(QLabel("# Ticket Sales Per Hour"), 0, 2)
 
         for id, line in enumerate(LINES):
-            ctc_main_layout_throughput.addWidget(QLabel(line), id + 1, 0)
+            self.ctc_main_layout_throughput.addWidget(QLabel(line), id + 1, 0)
 
-        ctc_throughput_layout.addItem(ctc_main_layout_throughput)
-        ctc_main_right_side_bottom.addItem(ctc_throughput_layout)
+        self.ctc_throughput_layout.addItem(self.ctc_main_layout_throughput)
+        self.ctc_main_right_side_bottom.addItem(self.ctc_throughput_layout)
 
-        ctc_main_right_side.addItem(ctc_main_right_side_bottom)
+        self.ctc_main_right_side.addItem(self.ctc_main_right_side_bottom)
 
-        ctc_main_layout = QHBoxLayout()
-        ctc_main_layout.addLayout(self.dispatch_train_layout)
+        self.ctc_main_layout = QHBoxLayout()
+        self.ctc_main_layout.addLayout(self.dispatch_train_layout)
 
-        ctc_main_layout.addItem(ctc_main_right_side)
+        self.ctc_main_layout.addItem(self.ctc_main_right_side)
 
         main_layout_widget = QWidget()
-        main_layout_widget.setLayout(ctc_main_layout)
+        main_layout_widget.setLayout(self.ctc_main_layout)
 
         self.setCentralWidget(main_layout_widget)
 
         self.route: list[int] = []
 
-        ########### SLOTS for CTC SIGNALS ###############
-        self.ctc.update_ui_running_trains_table_signal.connect(self.refresh_ctc_schedule_data)
-        self.ctc.update_ui_block_table.connect(self.block_table.update_table)
+        # Connect signals from CTC
+        self.connect_backend_signals()
+
+        # Initialize data from CTC
+        self.initialize_ui_data_from_backend()
 
         self.time_update_timer = QTimer()
         self.time_update_timer.timeout.connect(self.update_ctc)
@@ -237,7 +247,6 @@ class CTCMainWindow(QMainWindow):
 
     @pyqtSlot()
     def refresh_ctc_schedule_data(self):
-        self.update_schedule()
         self.update_running_trains_list()
 
         # self.block_table.update(GREEN_LINE)
@@ -245,48 +254,43 @@ class CTCMainWindow(QMainWindow):
     def get_selected_line(self):
         return self.dispatch_train_layout.line_tab_widget.currentIndex()
 
-    def train_number(self):
-        return self.ctc.scheduled_trains.get_next_train_number()
-
     def schedule_train(self, route: list[Stop]):
         # route
         # line
-        train = Train(self.train_number(), self.get_selected_line(), route)
-        print(f"CTCUI: Train {self.train_number()} Scheduled.")
+        train = Train(self.next_train_number, self.get_selected_line(), route)
+        print(f"CTCUI: Train {self.next_train_number} Scheduled.")
         print("\tt = %s", strftime("%H:%m", localtime(SystemTime.time())))
         print(f"\t{train}\n")
 
-        self.ctc.scheduled_trains.schedule_train(train)
-        self.dispatch_train_layout.update_train_number(self.train_number())
-        self.update_schedule()
-
-    def clear_schedule(self):
-        self.scheduled_trains_table.setRowCount(0)
-
-    def update_schedule(self):
-        self.clear_schedule()
-        for row, train in enumerate(self.ctc.scheduled_trains.get_schedule()):
-            self.scheduled_trains_table.insertRow(row)
-            number = QTableWidgetItem(str(train.id))
-            line = QTableWidgetItem(LINES[train.line_id])
-
-            dest_block = train.get_destination().block
-            dest_name = stop_name(train.line_id, dest_block)
-
-            dest = QTableWidgetItem(dest_name)
-            first_stop_name = stop_name(train.line_id, train.get_next_stop())
-            first_stop = QTableWidgetItem(first_stop_name)
-
-            min_to_departure = (train.departure_time() - SystemTime.time()) / 60
-
-            time_to_departure = QTableWidgetItem(str(round(min_to_departure, 0)))
-
-            self.scheduled_trains_table.setItem(row, 0, number)
-            self.scheduled_trains_table.setItem(row, 1, line)
-            self.scheduled_trains_table.setItem(row, 2, dest)
-            # self.scheduled_trains_table.setItem(row, 3, QTableWidgetItem)
-            self.scheduled_trains_table.setItem(row, 4, first_stop)
-            self.scheduled_trains_table.setItem(row, 5, time_to_departure)
+        CTCSignals.ctc_schedule_train_signal.emit(train)
+        self.dispatch_train_layout.update_train_number(self.next_train_number)
+    # def clear_schedule(self):
+    #     self.scheduled_trains_table.setRowCount(0)
+    #
+    # def update_schedule(self):
+    #     self.clear_schedule()
+    #     for row, train in enumerate(self.ctc.scheduled_trains.get_schedule()):
+    #         self.scheduled_trains_table.insertRow(row)
+    #         number = QTableWidgetItem(str(train.id))
+    #         line = QTableWidgetItem(LINES[train.line_id])
+    #
+    #         dest_block = train.get_destination().block
+    #         dest_name = stop_name(train.line_id, dest_block)
+    #
+    #         dest = QTableWidgetItem(dest_name)
+    #         first_stop_name = stop_name(train.line_id, train.get_next_stop())
+    #         first_stop = QTableWidgetItem(first_stop_name)
+    #
+    #         min_to_departure = (train.departure_time() - SystemTime.time()) / 60
+    #
+    #         time_to_departure = QTableWidgetItem(str(round(min_to_departure, 0)))
+    #
+    #         self.scheduled_trains_table.setItem(row, 0, number)
+    #         self.scheduled_trains_table.setItem(row, 1, line)
+    #         self.scheduled_trains_table.setItem(row, 2, dest)
+    #         # self.scheduled_trains_table.setItem(row, 3, QTableWidgetItem)
+    #         self.scheduled_trains_table.setItem(row, 4, first_stop)
+    #         self.scheduled_trains_table.setItem(row, 5, time_to_departure)
 
     # def get_stops_to_destination(self, id):
     #     stops_to_dest = Route.find_route(self.get_selected_line(), GREEN_LINE_YARD_SPAWN, id)
@@ -294,64 +298,222 @@ class CTCMainWindow(QMainWindow):
 
     def mode_switch_handler(self, mode):
         modes = ["Automatic Mode", "Manual Mode", "Maintenance Mode"]
-        self.ctc.mode = mode
+        self.mode = mode
         # disable automatic mode on switch from auto mode.
         if mode == MANUAL_MODE or mode == MAINTENANCE_MODE:
             self.ctc_mode_select.model().item(0).setEnabled(False)
 
         print("CTC: Switched to %s." % modes[mode])
 
-    def update_running_trains_list(self):
-        table = self.running_trains_table
+    def connect_backend_signals(self):
+        # Return signals for data requested from backend
+        CTCSignals.ui_scheduled_trains_signal.connect(self.get_scheduled_trains_signal_handler)
+        CTCSignals.ui_next_train_number_signal.connect(self.get_next_train_number_signal_handler)
+        CTCSignals.ui_running_trains_signal.connect(self.get_running_trains_signal_handler)
+        CTCSignals.ui_mode_signal.connect(self.get_mode_signal_handler)
+        CTCSignals.ui_blocks_signal.connect(self.get_blocks_signal_handler)
+        # self.ctc_signals.ui_track_signals_signal.connect(self.get_track_signals_signal_handler)
+        CTCSignals.ui_authorities_signal.connect(self.get_authorities_signal_handler)
+        CTCSignals.ui_suggested_speeds_signal.connect(self.get_suggested_speeds_signal_handler)
+        CTCSignals.ui_switch_positions_signal.connect(self.get_switch_positions_signal_handler)
+        CTCSignals.ui_lights_signal.connect(self.get_lights_signal_handler)
 
-        # Clear table
-        table.setRowCount(0)
+    def initialize_ui_data_from_backend(self):
+        # Fill running trains list
+        CTCSignals.ctc_get_running_trains_signal.emit()
 
-        for row, train in enumerate(self.ctc.get_running_trains()):
-            table.insertRow(row)
-            train_number = str(train.id)
-            # TODO train_line = sorted(LINES[train.line_id].items())
-            destination = stop_name(train.line_id, Route.get_block(train.get_destination().block))
+        # Fill Scheduled trains list
+        CTCSignals.ctc_get_scheduled_trains_signal.emit()
 
-            table.setItem(row, 0, QTableWidgetItem(train_number))
-            table.setItem(row, 1, QTableWidgetItem(LINES[train.line_id]))
-            table.setItem(row, 2, QTableWidgetItem(destination))
-            table.setItem(row, 3, QTableWidgetItem(time_to_str(train.get_destination().arrival_time)))
-            table.setItem(row, 4, QTableWidgetItem(stop_name(train.line_id, train.route[train.next_stop].block)))
-            table.setItem(row, 6, QTableWidgetItem(str(train.current_block)))
-            table.setItem(row, 7, QTableWidgetItem(str(train.blocks_to_next_stop() - 1)))
+        # Set mode
+        CTCSignals.ctc_get_mode_signal.emit()
+
+        # Set next train number
+        CTCSignals.ctc_get_next_train_number_signal.emit()
+
+        # fill block table (occupancies, speed, authority)
+        CTCSignals.ctc_get_authority_signal.emit()
+        CTCSignals.ctc_get_blocks_signal.emit()
+        CTCSignals.ctc_get_suggested_speeds_signal.emit()
+
+    # def update_running_trains_list(self):
+    #     table = self.running_trains_table
+    #
+    #     # Clear table
+    #     table.setRowCount(0)
+    #
+    #     for row, train in enumerate(self.ctc.get_running_trains()):
+    #         table.insertRow(row)
+    #         train_number = str(train.id)
+    #         # TODO train_line = sorted(LINES[train.line_id].items())
+    #         destination = stop_name(train.line_id, Route.get_block(train.get_destination().block))
+    #
+    #         table.setItem(row, 0, QTableWidgetItem(train_number))
+    #         table.setItem(row, 1, QTableWidgetItem(LINES[train.line_id]))
+    #         table.setItem(row, 2, QTableWidgetItem(destination))
+    #         table.setItem(row, 3, QTableWidgetItem(time_to_str(train.get_destination().arrival_time)))
+    #         table.setItem(row, 4, QTableWidgetItem(stop_name(train.line_id, train.route[train.next_stop].block)))
+    #         table.setItem(row, 6, QTableWidgetItem(str(train.current_block)))
+    #         table.setItem(row, 7, QTableWidgetItem(str(train.blocks_to_next_stop() - 1)))
 
     def update_ctc(self):
-        self.ctc.update_ctc_queues()
         self.update_time()
+        CTCSignals.ctc_update_queues_signal.emit()
 
     def update_time(self):
         current_time = strftime("%H:%M:%S", localtime(SystemTime.time()))
         # [label.setTime(get_current_time_qtime()) for label in self.departure_time_list]
         self.train_system_time.setText(current_time)
 
-    def format_time_hhmm(self, time: struct_time) -> str:
-        h = str(time.tm_hour)
-        m = str(time.tm_min)
+    @pyqtSlot(list)
+    def get_scheduled_trains_signal_handler(self, scheduled_trains: list[Train]):
+        pass
 
-        if (len(h) == 1):
-            hh = "0" + h
-        else:
-            hh = h
+    @pyqtSlot(int)
+    def get_next_train_number_signal_handler(self, next_train_number: int):
+        self.next_train_number = next_train_number
+        self.dispatch_train_layout.update_train_number(next_train_number)
 
-        if (len(m) == 1):
-            mm = "0" + m
-        else:
-            mm = m
+    @pyqtSlot(dict)
+    def get_suggested_speeds_signal_handler(self, suggested_speeds: dict[int, float]):
+        self.block_table.update_suggested_speeds(suggested_speeds)
 
-        return hh + ":" + mm
+    @pyqtSlot(list)
+    def get_running_trains_signal_handler(self, running_trains: list[Train]):
+        # TODO update running trains table
+        pass
+
+    @pyqtSlot(list)
+    def get_lights_signal_handler(self, lights: list[Light]):
+        self.block_table.update_lights(lights)
+
+    @pyqtSlot(int)
+    def get_mode_signal_handler(self, mode: int):
+        self.mode_switch_handler(mode)
+
+    @pyqtSlot(dict)
+    def get_blocks_signal_handler(self, block_occupancies: dict[int, bool]):
+        self.block_table.update_block_occupancies(block_occupancies)
+
+    @pyqtSlot(dict)
+    def get_authorities_signal_handler(self, authorities: dict[int, int]):
+        self.block_table.update_authorities(authorities)
+
+    @pyqtSlot(list)
+    def get_switch_positions_signal_handler(self, switch_positions: list[Switch]):
+        self.block_table.update_switch_positions(switch_positions)
+
+    def update_running_trains_list(self):
+        CTCSignals.ctc_get_running_trains_signal.emit()
+
+    def update_scheduled_trains_list(self):
+        CTCSignals.ctc_get_scheduled_trains_signal.emit()
+
+
+class RunningTrainsTableLayout(QVBoxLayout):
+    def __init__(self):
+        super().__init__()
+
+        self.table = QTableWidget()
+        self.label = QLabel("Currently Running Trains")
+        self.addWidget(self.label)
+        self.table.verticalHeader().setHidden(True)
+
+        self.table.setColumnCount(8)
+        self.table.setHorizontalHeaderLabels(
+            ["Train Number", "Line", "Destination", "Arrival Time", "Next Stop", "Time to Next Stop (min)",
+             "Current Block", "Authority (blocks)"])
+        self.addWidget(self.table)
+
+    def clear_table(self):
+        self.table.setRowCount(0)
+
+    def update_running_trains(self, running_trains: list[Train]):
+        pass
+
+
+class ScheduledTrainsTableLayout(QVBoxLayout):
+    def __init__(self):
+        super().__init__()
+
+        self.header_layout = QHBoxLayout()
+        self.label = QLabel("Scheduled Trains")
+        self.import_schedule_button = QPushButton("Import Schedule")
+        self.import_schedule_button.setFixedSize(self.import_schedule_button.sizeHint())
+
+        self.header_layout.addWidget(self.import_schedule_button)
+        self.addLayout(self.header_layout)
+
+        self.table = QTableWidget()
+        self.table.setColumnCount(6)
+        self.table.setHorizontalHeaderLabels(
+            ["Train Number", "Line", "Destination", "Arrival Time", "First Stop", "Time to Departure (min)"])
+        self.addWidget(self.table)
+        # self.scheduled_trains_table.verticalHeader().setHidden(True)
+        # self.scheduled_trains_table.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.SizeAdjustPolicy.AdjustToContents)
+        # self.scheduled_trains_table.resizeColumnsToContents()
+
+    def enable_import_button(self):
+        self.import_schedule_button.setEnabled(True)
+
+    def disable_import_button(self):
+        self.import_schedule_button.setEnabled(False)
+
+    def clear_table(self):
+        self.table.setRowCount(0)
+
+
+class BlockTableLayout(QVBoxLayout):
+    def __init__(self):
+        super().__init__()
+        self.label = QLabel("Block Table")
+        self.search_bar = QLineEdit()
+        self.search_bar.setPlaceholderText("Search for Block")
+        self.search_bar.setFixedSize(self.search_bar.sizeHint())
+
+        self.line_select = QComboBox()
+        self.line_select.addItems([line_name for line_name in LINES])
+
+        self.header_layout = QHBoxLayout()
+        self.header_layout.addWidget(self.label)
+        self.header_layout.addWidget(self.line_select)
+        self.header_layout.addWidget(self.search_bar)
+
+        self.addItem(self.header_layout)
+
+        self.block_table = BlockTable()
+        self.block_table.init_table_for_line(0)
+
+        self.line_select.currentIndexChanged.connect(self.block_table.init_table_for_line)
+        self.search_bar.textChanged.connect(self.block_table.search)
+
+        self.addWidget(self.block_table)
+
+    def update_block_occupancies(self, block_occupancies: dict[int, bool]):
+        self.block_table.update_block_occupancies(block_occupancies)
+
+    def update_authorities(self, authorities: dict[int, int]):
+        self.block_table.update_authorities(authorities)
+
+    def update_switch_positions(self, switch_positions: list[Switch]):
+        self.block_table.update_switches(switch_positions)
+
+    def update_suggested_speeds(self, suggested_speeds: dict[int, float]):
+        self.block_table.update_suggested_speeds(suggested_speeds)
+
+    def update_lights(self, lights: list[Light]):
+        self.block_table.update_lights(lights)
+
+    def update_railroad_crossings(self, railroad_crossings: list[RRCrossing]):
+        self.block_table.update_railroad_crossings(railroad_crossings)
+
 
 class DispatchTrainLayout(QVBoxLayout):
     line_changed = pyqtSignal(int)
     dispatch_button_pressed = pyqtSignal(list)
     selected_stop_changed = pyqtSignal(int)
 
-    def __init__(self, lines: list[str], next_train_id: int):
+    def __init__(self, lines: list[str]):
         super().__init__()
 
         # truth values of each stop in whole_route. True is stop, False is no stop.
@@ -395,7 +557,7 @@ class DispatchTrainLayout(QVBoxLayout):
         self.dispatch_train_information_grid.addWidget(self.arrival_time, 0, 1)
         self.dispatch_train_information_grid.addWidget(self.departure_time, 1, 1)
 
-        self.next_train_id = next_train_id
+        self.next_train_id = 0
 
         # train number
         self.dispatch_train_number_label = QLabel()
@@ -445,6 +607,9 @@ class DispatchTrainLayout(QVBoxLayout):
 
         self.load_destinations_to_selector_list(self.line_id)
         self.destination_selector_list.currentIndexChanged.connect(self.stop_selected)
+
+    def set_next_train_id(self, id: int):
+        self.next_train_id = id
 
     def arrival_time_changed(self):
         print("CTCUI: Arrival Time Changed handler")
@@ -507,7 +672,7 @@ class DispatchTrainLayout(QVBoxLayout):
 
     # on press
     def dispatch_button_handler(self):
-        print(f"CTCUI: Train {0} Dispatch Button Pressed")
+        print(f"CTCUI: Train {self.next_train_id} Dispatch Button Pressed")
         self.dispatch_button_pressed.emit(self.route)
 
     def enable_dispatch_button(self):
@@ -617,10 +782,19 @@ class DispatchTrainLayout(QVBoxLayout):
 
 
 class BlockTable(QTableWidget):
-    def __init__(self, ctc: CTC):
-        super().__init__()
+    block_id_column_index = 0
+    block_occupancy_column_index = 1
+    block_open_column_index = 2
+    signal_status_column_index = 3
+    switch_destination_column_index = 4
+    railroad_crossing_column_index = 5
+    length_column_index = 6
+    speed_limit_column_index = 7
+    suggested_speed_column_index = 8
+    authority_column_index = 9
 
-        self.ctc = ctc
+    def __init__(self):
+        super().__init__()
 
         self.setColumnCount(10)
         self.verticalHeader().setVisible(False)
@@ -629,53 +803,50 @@ class BlockTable(QTableWidget):
             ["Block ID", "Occupied", "Block Open", "Signal Status", "Switch Destination",
              "Railroad Crossing Activated", "Length (ft)", "Speed Limit (mph)", "Suggested Speed", "Authority"])
 
-    @pyqtSlot()
-    def update_table(self):
-        for row, block in enumerate(GREEN_LINE[BLOCKS]):
-            block_length_ft = float(GREEN_LINE[BLOCKS][block].length) * 3.28084
-            block_speed_limit_mph = GREEN_LINE[BLOCKS][block].speed_limit / 1.609
+        self.row_block_mapping = list(get_line_blocks().keys())
 
-            occupied = "Yes" if self.ctc.blocks[block] is True else "No"
-
-            self.setItem(row, 1, QTableWidgetItem(occupied))
-            self.setItem(row, 6, QTableWidgetItem(str(block_length_ft)))
-            self.setItem(row, 7, QTableWidgetItem(str(block_speed_limit_mph)))
-            self.setItem(row, 8, QTableWidgetItem(str(self.ctc.suggested_speeds[block])))
-            self.setItem(row, 9, QTableWidgetItem(str(self.ctc.authorities[block])))
-
-    def fill_table_for_line(self, line_id: int):
+    def init_table_for_line(self, line_id: int):
         # clear rows
         self.setRowCount(0)
 
         # TODO fix block data
-        for block in GREEN_LINE[BLOCKS]:
-            row = self.rowCount()
+        for row, block in enumerate(self.row_block_mapping):
             self.insertRow(row)
             block_id = block
-            block_length_ft = float(GREEN_LINE[BLOCKS][block].length) * 3.28084
-            block_speed_limit_mph = GREEN_LINE[BLOCKS][block].speed_limit / 1.609
+            block_length_ft = float(get_line_blocks()[block].length) * 3.28084
+            block_speed_limit_mph = get_line_blocks()[block].speed_limit / 1.609
 
-            occupied = "Yes" if self.ctc.blocks[block] is True else "No"
+            # occupied = "Yes" if self.ctc.blocks[block] is True else "No"
 
             block_id_widget = QTableWidgetItem(str(block_id))
-            occupied_widget = QTableWidgetItem(occupied)
             block_length_widget = QTableWidgetItem(str(block_length_ft))
             speed_widget = QTableWidgetItem(str(block_speed_limit_mph))
-            suggested_speed_widget = QTableWidgetItem(str(self.ctc.suggested_speeds[block]))
-            authority_widget = QTableWidgetItem(str(self.ctc.authorities[block]))
 
             self.setItem(row, 0, block_id_widget)
-            self.setItem(row, 1, occupied_widget)
             self.setItem(row, 6, block_length_widget)
             self.setItem(row, 7, speed_widget)
-            self.setItem(row, 8, suggested_speed_widget)
-            self.setItem(row, 9, authority_widget)
 
-            # set switch combobox if there is a switch
-            # if block.switch_dest.__len__() > 0:
-            #     switch_combo_box = QComboBox()
-            #     switch_combo_box.addItems(block.switch_dest)
-            #     self.setCellWidget(id, 4, switch_combo_box)
+            # initialize switch
+            if block in [switch.block for switch in get_line_switches()]:
+                switch = get_line_switches()[[switch.block for switch in get_line_switches()].index(block)]
+                switch_dest_combo_box = QComboBox()
+                switch_dest_combo_box.addItem(str(switch.pos_a))
+                switch_dest_combo_box.addItem(str(switch.pos_b))
+                switch_dest_combo_box.setCurrentIndex([switch.pos_a, switch.pos_b].index(switch.current_pos))
+
+                # TODO connect to maintenance mode handler
+                # TODO connect to switch changed list to set index
+                # switch_table_widget = QTableWidgetItem(switch_dest_combo_box)
+                self.setCellWidget(row, self.switch_destination_column_index, switch_dest_combo_box)
+
+        # Call CTCSignals to populate rest of table
+        CTCSignals.ctc_get_blocks_signal.emit()
+        CTCSignals.ctc_get_authority_signal.emit()
+        CTCSignals.ctc_get_switch_positions_signal.emit()
+        CTCSignals.ctc_get_suggested_speeds_signal.emit()
+        CTCSignals.ctc_get_lights_signal.emit()
+        CTCSignals.ctc_get_switch_positions_signal.emit()
+        CTCSignals.ctc_get_railroad_crossings_signal.emit()
 
     def search(self, search_term: str):
         self.setCurrentItem(None)
@@ -688,9 +859,46 @@ class BlockTable(QTableWidget):
             for search_result in search_results:
                 search_result.setSelected(True)
 
+    def update_block_occupancies(self, block_occupancies):
+        for block in block_occupancies:
+            occupied = "Yes" if block_occupancies[block] is True else "No"
+            self.setItem(self.row_block_mapping.index(block), self.block_occupancy_column_index,
+                         QTableWidgetItem(occupied))
+
+    def update_authorities(self, authorities: dict[int, int]):
+        for block in authorities:
+            self.setItem(self.row_block_mapping.index(block), self.authority_column_index,
+                        QTableWidgetItem(str(authorities[block])))
+
+    def update_suggested_speeds(self, suggested_speeds: dict[int, float]):
+        for block in suggested_speeds:
+            self.setItem(self.row_block_mapping.index(block), self.suggested_speed_column_index,
+                         QTableWidgetItem(str(suggested_speeds[block])))
+
+    def update_lights(self, lights: list[Light]):
+        for light in lights:
+            light_status = "Green" if light.val is True else "Red"
+            self.setItem(self.row_block_mapping.index(light.block), self.signal_status_column_index,
+                         QTableWidgetItem(light_status))
+
+    def update_switches(self, switches: list[Switch]):
+        for switch in switches:
+            switch_dest = switch.current_pos
+            switch_combo_box = self.cellWidget(self.row_block_mapping.index(switch.block),
+                                               self.switch_destination_column_index)
+            switch_combo_box.setCurrentIndex([switch.pos_a, switch.pos_b].index(switch_dest))
+
+    def update_railroad_crossings(self, railroad_crossings: list[RRCrossing]):
+        for crossing in railroad_crossings:
+            crossing_state = "Activated" if crossing.val is True else "Not Activated"
+
+            self.setItem(self.row_block_mapping.index(crossing.block), self.railroad_crossing_column_index,
+                         QTableWidgetItem(crossing_state))
+
 
 class DispatchArrivalTime(QWidget):
     timeChanged = pyqtSignal()
+
     def __init__(self):
         super().__init__()
 
@@ -732,6 +940,7 @@ class DispatchArrivalTime(QWidget):
 
 class DispatchDepartureTime(QWidget):
     timeChanged = pyqtSignal()
+
     def __init__(self):
         super().__init__()
 
@@ -803,7 +1012,7 @@ if __name__ == "__main__":
     # track_layout_files = ["CTC/Green Line Track Data.csv", "CTC/Red Line Track Data.csv"]
     # track_layout_files = ["CTC/Blue Line Track Data.csv"]
 
-    window = CTCMainWindow(CTC())
+    window = CTCMainWindow()
     window.show()
 
     ctc_ui_app.exec()
