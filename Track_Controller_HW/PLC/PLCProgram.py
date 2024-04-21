@@ -9,7 +9,7 @@
 # ability to switch the state of a switch, rrCrossing, and toggle traffic lights
 # update main when any change is performed
 
-class PLC:  # watchdog behavior for the PLC data
+class PLC:
     rrCrossing = False
     switches = []
     blocks = {}
@@ -20,7 +20,7 @@ class PLC:  # watchdog behavior for the PLC data
         self.rrCrossing = rrCrossing  # False = off
         self.switches = []  # False = 'L'
         self.blocks = blocks  # False = unoccupied
-        self.mode = False  # False = auto mode,so the PLC can move everything. In False, PLC can only adjust rrCrossing and trafficLts
+        self.mode = mode  # False = auto mode,so the PLC can move everything. In False, PLC can only adjust rrCrossing and trafficLts
         self.stops = {key: False for key, value in self.blocks.items() if isinstance(value, bool)}
 
     def run_plc_logic(self):  # very simple operations done to show changes
@@ -32,12 +32,12 @@ class PLC:  # watchdog behavior for the PLC data
             self.rrCrossing = False
 
         # stops logic (padding any occupancies with 4 zero speed flags)
-        for i in range(29, 76):  # blocks 29 - 57
+        for i in range(29, 77):  # blocks 29 - 57
             #print(self.blocks[i])
             if 58 <= i < 62:
                 skipped = True
             elif self.blocks.get(i, False):
-                self.stops[i] = True
+                #self.stops[i] = True
                 if i > 29:
                     self.stops[i - 1] = True
                 if i > 30:
@@ -59,9 +59,9 @@ class PLC:  # watchdog behavior for the PLC data
         #         if i > 65:
         #             self.stops[i - 4] = True
 
-        for i in range(101, 150):  # blocks 101 - 150
+        for i in range(101, 151):  # blocks 101 - 150
             if self.blocks.get(i, False):
-                self.stops[i] = True
+                #self.stops[i] = True
                 if i > 101:
                     self.stops[i - 1] = True
                 if i > 102:
