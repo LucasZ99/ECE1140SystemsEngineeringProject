@@ -8,7 +8,6 @@ from TrackControllerTest import TrackControllerTestBenchContainer
 from TrackControllerTest.TestUi import TestUi
 from Track_Controller_SW.TrackControllerContainer import TrackControllerContainer
 from Track_Controller_SW.TrackControllerUI import UI
-from Track_Model.Track_Model_Container import TrackModelContainer
 
 
 class Ui_MainWindow(QMainWindow):

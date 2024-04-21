@@ -1,12 +1,16 @@
 import itertools
+import sys
 
-from PyQt6.QtCore import pyqtSlot, QObject, pyqtSignal
+from PyQt6.QtCore import pyqtSlot, QObject, QThread
+from PyQt6.QtWidgets import QApplication
 
-from Track_Controller_HW import TrackControllerHardware
-from Track_Controller_SW import TrackController
 from Common import Switch, Light, TrackSignal, RRCrossing
 from TopLevelSignals import TopLevelSignals as top_level_signals
+from Track_Controller_HW import TrackControllerHardware
+from Track_Controller_SW import TrackController
 from Track_Controller_SW.TrackControllerSignals import TrackControllerSignals as signals
+from Track_Controller_SW.TrackControllerUI import UI
+import TrackControllerTest
 
 
 class TrackControllerContainer(QObject):
@@ -260,9 +264,32 @@ class TrackControllerContainer(QObject):
 
 
 def main():
-    trackControllerContainer = TrackControllerContainer()
-    trackControllerContainer.show_ui("C")
 
+    app = QApplication(sys.argv)
+
+    # Instantiate the module and move it to its own thread
+    track_controller_container = TrackControllerContainer()
+    track_controller_thread = QThread()
+    track_controller_container.moveToThread(track_controller_thread)
+
+    # Instantiate the testbench to simulate inputs from other modules (use this to verify wayside operation)
+    track_controller_test_container = TrackControllerTest.TrackControllerTestBenchContainer()
+    track_controller_test_thread = QThread()
+    track_controller_test_container.moveToThread(track_controller_test_thread)
+
+    track_controller_A_ui = UI("A")
+    track_controller_C_ui = UI("C")
+    track_controller_test_ui = TrackControllerTest.TestUi()
+
+    # start the threads
+    track_controller_thread.start()
+    track_controller_test_thread.start()
+
+    track_controller_A_ui.show()
+    track_controller_C_ui.show()
+    track_controller_test_ui.show()
+
+    sys.exit(app.exec())
 
 if __name__ == "__main__":
     main()

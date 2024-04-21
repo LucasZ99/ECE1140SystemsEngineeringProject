@@ -1,6 +1,4 @@
-import sys
-
-from PyQt6.QtCore import QObject, pyqtSignal
+from PyQt6.QtCore import QObject
 from PyQt6.QtCore import pyqtSlot
 
 from Common import Light, Switch
