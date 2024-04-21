@@ -15,7 +15,7 @@
 In the Train_Model directory launch the file train_model_container_testbench.py.
 you will be faced with this UI:
 
-![UI for container test bench](/test_bench_ui.png)
+![UI for container test bench](test_bench_ui.png)
 
 Using this UI is largely strait forward. first by pressing Add train you can add a train 
 to the container, all trains in the container can be selected using the Train select combo 
