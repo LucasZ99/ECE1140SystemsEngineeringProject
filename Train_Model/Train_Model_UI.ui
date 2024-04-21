@@ -1982,32 +1982,6 @@
      </property>
     </widget>
    </widget>
-   <widget class="QPushButton" name="physicsButton">
-    <property name="geometry">
-     <rect>
-      <x>60</x>
-      <y>440</y>
-      <width>75</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Physics</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="passengerButton">
-    <property name="geometry">
-     <rect>
-      <x>170</x>
-      <y>440</y>
-      <width>75</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Passengers</string>
-    </property>
-   </widget>
    <widget class="QLabel" name="adLabel">
     <property name="geometry">
      <rect>
@@ -2035,7 +2009,7 @@
      <x>0</x>
      <y>0</y>
      <width>907</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>
