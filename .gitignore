@@ -340,3 +340,4 @@ Train_Controller_HW/Testlogs/2024-04-19/02driver_ebreak_enable.txt
 Train_Controller_HW/Testlogs/2024-04-19/01driver_disable_pass.txt
 Train_Controller_HW/Testlogs/2024-04-19/00pass_ebreak_enable.txt
 /Train_Controller_HW/Testlogs
+Train_Controller_HW/test.py
