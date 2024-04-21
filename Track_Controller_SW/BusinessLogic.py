@@ -24,7 +24,7 @@ class BusinessLogic(QObject):
         self.num_blocks = len(block_occupancy)
         self.block_indexes = block_indexes
         self.section = section
-        self.unsafe_toggle_switches = []
+        self.unsafe_toggle_switches = [False, False]
 
         self.signals.get_switches_list_A_switch_ui_signal.connect(self.send_switches_switch_ui_A)
         self.signals.get_switches_list_C_switch_ui_signal.connect(self.send_switches_switch_ui_C)
@@ -44,8 +44,6 @@ class BusinessLogic(QObject):
         self.signals.set_plc_filepath_C_signal.connect(self.set_plc_filepath_C)
 
 
-
-
     @pyqtSlot()
     def send_switches_switch_ui_A(self):
         if self.section == "A":
@@ -58,42 +56,42 @@ class BusinessLogic(QObject):
 
     @pyqtSlot()
     def send_switches_A(self):
-        if self.section == 'A':
+        if self.section == "A":
             self.signals.send_switches_list_A_signal.emit(self.switches_list)
 
     @pyqtSlot()
     def send_switches_C(self):
-        if self.section == 'C':
+        if self.section == "C":
             self.signals.send_switches_list_C_signal.emit(self.switches_list)
 
     @pyqtSlot()
     def send_occupancy_A(self):
-        if self.section == 'A':
+        if self.section == "A":
             self.signals.send_occupancy_A_signal.emit(self.occupancy_dict)
 
     @pyqtSlot()
     def send_occupancy_C(self):
-        if self.section == 'C':
+        if self.section == "C":
             self.signals.send_occupancy_C_signal.emit(self.occupancy_dict)
 
     @pyqtSlot()
     def send_lights_A(self):
-        if self.section == 'A':
+        if self.section == "A":
             self.signals.init_lights_A_signal.emit(self.lights_list)
 
     @pyqtSlot()
     def send_lights_C(self):
-        if self.section == 'C':
+        if self.section == "C":
             self.signals.init_lights_C_signal.emit(self.lights_list)
 
     @pyqtSlot()
     def send_filename_A(self):
-        if self.section == 'A':
+        if self.section == "A":
             self.signals.send_filename_A_signal.emit(self.filepath[-21:])
 
     @pyqtSlot()
     def send_filename_C(self):
-        if self.section == 'C':
+        if self.section == "C":
             self.signals.send_filename_C_signal.emit(self.filepath[-21:])
 
     @pyqtSlot(list)
@@ -134,36 +132,13 @@ class BusinessLogic(QObject):
                 self.switches_changed_A(0)
             else:
                 self.switches_changed_C(0)
-            self.lights_list[0].toggle()
-            self.lights_list[1].toggle()
-            if self.lights_list[0].val is True:
-                if self.section == 'A':
-                    self.signals.send_light_A_signal.emit(0)
-                else:
-                    self.signals.send_light_C_signal.emit(0)
-            else:
-                if self.section == 'A':
-                    self.signals.send_light_A_signal.emit(1)
-                else:
-                    self.signals.send_light_C_signal.emit(1)
+
 
         if switch_2_result != switch_2:
             if self.section == 'A':
                 self.switches_changed_A(1)
             else:
                 self.switches_changed_C(1)
-            self.lights_list[2].toggle()
-            self.lights_list[3].toggle()
-            if self.lights_list[2].val is True:
-                if self.section == 'A':
-                    self.signals.send_light_A_signal.emit(2)
-                else:
-                    self.signals.send_light_C_signal.emit(2)
-            else:
-                if self.section == 'A':
-                    self.signals.send_light_A_signal.emit(3)
-                else:
-                    self.signals.send_light_C_signal.emit(3)
 
         # rr crossing logic
         if self.section == 'A':
@@ -172,12 +147,12 @@ class BusinessLogic(QObject):
             else:
                 self.signals.send_rr_crossing_A_signal.emit(False)
 
-        if self.section == 'A':
-            self.signals.init_lights_A_signal.emit(self.lights_list)
-        else:
-            self.signals.init_lights_C_signal.emit(self.lights_list)
+        # update lights
+        # if self.section == 'A':
+        #     self.signals.send_lights_A_signal.emit(self.lights_list)
+        # else:
+        #     self.signals.send_lights_C_signal.emit(self.lights_list)
 
-        self.signals.send_lights_signal.emit(self.lights_list)
 
         # return the zero speed flag update
         return [zero_speed_flags, unsafe_close_blocks, self.unsafe_toggle_switches]
@@ -185,22 +160,58 @@ class BusinessLogic(QObject):
     @pyqtSlot(int)
     def switches_changed_A(self, index: int) -> None:
         if self.section == "A":
-            if index not in self.unsafe_toggle_switches:
+            if self.unsafe_toggle_switches[index] is False:
                 print(f"WAYSIDE_{self.section}: Switch at b{self.switches_list[index].block} changed")
 
                 self.switches_list[index].toggle()
+
+                if self.switches_list[index].current_pos == self.switches_list[index].pos_a:
+                    if index == 0:
+                        self.lights_list[0].val = True
+                        self.lights_list[1].val = False
+                    else:
+                        self.lights_list[2].val = True
+                        self.lights_list[3].val = False
+
+                else:
+                    if index == 0:
+                        self.lights_list[0].val = False
+                        self.lights_list[1].val = True
+                    else:
+                        self.lights_list[2].val = False
+                        self.lights_list[3].val = True
+
                 self.signals.send_switch_changed_A_signal.emit(self.switches_list[index].block)
                 self.signals.send_switches_list_A_signal.emit(self.switches_list)
+                self.signals.send_lights_A_signal.emit(self.lights_list)
 
     @pyqtSlot(int)
     def switches_changed_C(self, index: int) -> None:
         if self.section == "C":
-            if index not in self.unsafe_toggle_switches:
+            if self.unsafe_toggle_switches[index] is False:
                 print(f"WAYSIDE_{self.section}: Switch at b{self.switches_list[index].block} changed")
 
                 self.switches_list[index].toggle()
+
+                if self.switches_list[index].current_pos == self.switches_list[index].pos_a:
+                    if index == 0:
+                        self.lights_list[0].val = True
+                        self.lights_list[1].val = False
+                    else:
+                        self.lights_list[2].val = True
+                        self.lights_list[3].val = False
+
+                else:
+                    if index == 0:
+                        self.lights_list[0].val = False
+                        self.lights_list[1].val = True
+                    else:
+                        self.lights_list[2].val = False
+                        self.lights_list[3].val = True
+
                 self.signals.send_switch_changed_C_signal.emit(self.switches_list[index].block)
                 self.signals.send_switches_list_C_signal.emit(self.switches_list)
+                self.signals.send_lights_C_signal.emit(self.lights_list)
 
     def set_plc_filepath_A(self, plc_filepath: str) -> None:
         if self.section == "A":
