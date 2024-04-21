@@ -47,7 +47,8 @@ class TrackControllerSignalsCls(QObject):
     send_light_A_signal = pyqtSignal(int)
     send_light_C_signal = pyqtSignal(int)
 
-    send_lights_signal = pyqtSignal(list)
+    send_lights_A_signal = pyqtSignal(list)
+    send_lights_C_signal = pyqtSignal(list)
 
     send_switch_changed_A_signal = pyqtSignal(int)
     send_switch_changed_C_signal = pyqtSignal(int)
