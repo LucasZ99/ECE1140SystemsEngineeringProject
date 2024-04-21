@@ -306,7 +306,7 @@ class Map(QWidget):
     def remove_failure(self, block):
         pass  # TODO
 
-# app = QApplication(sys.argv)
+# app = QApplication(sys.argv)/
 # w = Map()
 # w.add_train()
 # w.add_train()
