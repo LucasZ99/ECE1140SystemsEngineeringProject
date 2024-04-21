@@ -7,9 +7,6 @@ from PyQt6.QtWidgets import QApplication
 import time
 import openpyxl
 
-# maybe: for loop -> list comprehension
-# TODO: Update beacons in
-
 
 class TrackModel(QObject):
     # external signals
@@ -199,29 +196,6 @@ class TrackModel(QObject):
             print('***\nExiting, Data input is empty\n***')
             exit()
 
-    # is working for initialization but not for setting data
-
-    # def get_block_table(self, section_id):
-    #     n = len(self.get_section(section_id))
-    #     block_table = np.empty(shape=(n + 1, 7), dtype=object)
-    #     # everything comes from data except occupancy (from train model) and temp (from temp controls)
-    #     # but even those values will be stored in our data
-    #     block_table[0, :] = ['Block', 'Length', 'Grade', 'Speed Limit', 'Elevation', 'Occupancy', 'Temperature']
-    #     block_table[1:n + 1, 0:7] = self.get_section(section_id)[:, 2:9]
-    #     return block_table
-
-    # def get_station_table(self, section_id):
-    #     relevant_section_data = self.get_section(section_id)[:, [9, 2, 10, 12, 16, 17]]
-    #     arr = relevant_section_data.copy()
-    #     filtered_arr = arr[np.array(['station' in str(x).lower() for x in arr[:, 0]])]
-    #     return filtered_arr
-
-    # def get_infrastructure_table(self, section_id):
-    #     arr = self.get_section(section_id)[:, [9, 2, 11]]
-    #     filtered_arr = arr[~np.isnan(np.array([len(str(x)) if isinstance(x, str) else x for x in arr[:, 0]])) & (
-    #             np.char.find(arr[:, 0].astype(str), "Station") == -1)]
-    #     return filtered_arr
-
     def set_env_temperature(self, temperature):
         self.environmental_temperature = temperature
         self.data[1:, 8] = temperature
@@ -386,49 +360,6 @@ class TrackModel(QObject):
     def get_occupancy_list(self):
         return self.data[1:, 7].tolist()
 
-    # def emit_tc_block_occupancy(self) -> list[bool]:  # giving everything now
-    #     self.new_block_occupancy_signal.emit(self.data[1:, 7].tolist())
-    #     return self.data[1:, 7].tolist()
-
-    # train model
-
-    # def get_tm_authority(self, train_id: int) -> int:
-    #     block_id = self.train_dict[train_id]
-    #     return int(self.authority[block_id])
-    #
-    # def get_tm_speed(self, train_id: int) -> float:
-    #     block_id = self.train_dict[train_id]
-    #     return float(self.speed[block_id])
-    #
-    # def get_tm_beacon(self, train_id: int) -> str:
-    #     block_id = self.train_dict[train_id]
-    #     return str(self.data[block_id, 11])
-    #
-    # def get_tm_grade(self, train_id: int) -> int:
-    #     block_id = self.train_dict[train_id]
-    #     return int(self.data[block_id, 4])
-    #
-    # def get_tm_elevation(self, train_id: int) -> float:
-    #     block_id = self.train_dict[train_id]
-    #     return float(self.data[block_id, 6])
-    #
-    # def get_tm_underground_status(self, train_id: int) -> bool:
-    #     block_id = self.train_dict[train_id]
-    #     return bool(self.data[block_id, 20])
-    #
-    # def get_tm_embarking_passengers(self, train_id: int) -> int:
-    #     block_id = self.train_dict[train_id]
-    #     return int(self.data[block_id, 17])
-    #
-    # def get_tm_block_length(self, train_id: int):
-    #     block_id = self.train_dict[train_id]
-    #     return int(self.data[block_id, 3])
-
-    # ctc (technically still track controller)
-    # def emit_ctc_ticket_sales(self) -> int:
-    #     self.new_ticket_sales_signal.emit(self.ticket_sales)
-    #     return int(self.ticket_sales)
-
     def update_infrastructure(self, switch_changed_indexes, signal_changed_indexes, rr_crossing_indexes, toggle_block_indexes):
         for index, val in switch_changed_indexes:
             self.data[index, 19] = val
@@ -470,10 +401,6 @@ class TrackModel(QObject):
 
     def get_speed_dict(self):
         return self.speed_dict
-
-# Section J will not exist, replace it with yard
-# refresh tables from UI in container every time setters are called
-# for getters, emit a signal in track model to track model container for track controller container to catch
 
 # temp main
 # t = TrackModel('Blue Line.xlsx')

@@ -187,40 +187,6 @@ class Window(QMainWindow):  # TODO: FAILURE MODE FROM NEW COMBOBOX
         # return our new file name
         return self.file_name
 
-    def combo1_new_item_selected(self):
-        # sets the value of the toggle based on the value from our data
-        block = int(self.combo1.currentText()[1:])
-        print(self.track_model.get_data()[block, 13])
-        self.toggle1.setChecked(self.track_model.get_data()[block, 13])
-
-    def toggle1_clicked(self):
-        block = int(self.combo1.currentText()[1:])
-        val = bool(self.toggle1.isChecked())
-        self.track_model.set_power_failure(block, val)
-        self.refresh()
-
-    def combo2_new_item_selected(self):
-        # sets the value of the toggle based on the value from our data
-        block = int(self.combo2.currentText()[1:])
-        self.toggle2.setChecked(self.track_model.get_data()[block, 14])
-
-    def toggle2_clicked(self):
-        block = int(self.combo2.currentText()[1:])
-        val = bool(self.toggle2.isChecked())
-        self.track_model.set_track_circuit_failure(block, val)
-        self.refresh()
-
-    def combo3_new_item_selected(self):
-        # sets the value of the toggle based on the value from our data
-        block = int(self.combo3.currentText()[1:])
-        self.toggle3.setChecked(self.track_model.get_data()[block, 15])
-
-    def toggle3_clicked(self):
-        block = int(self.combo3.currentText()[1:])
-        val = bool(self.toggle3.isChecked())
-        self.track_model.set_broken_rail_failure(block, val)
-        self.refresh()
-
     def failure_combo_updated(self):
         block = int(self.block_info_combo.currentText()[1:])
         failure_mode = str(self.failure_combo.currentText())
