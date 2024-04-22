@@ -1,6 +1,6 @@
 from PyQt6.QtCore import QObject, pyqtSlot, pyqtSignal
 from PyQt6.QtWidgets import QApplication
-from CTC import CTC
+from CTC import CTC, CTCSignals
 from CTC.CTC_UI_Main import CTCMainWindow
 from Common import Switch, Light, RRCrossing
 
@@ -20,7 +20,7 @@ class CTCContainer(QObject):
         print("CTC wired to CTC container")
 
         # self.ctc.send_initial_message()
-        self.ui = CTCMainWindow(self.ctc)
+        self.ui = CTCMainWindow()
 
         init_end_time = python_time.time()
         print("Initializing CTCContainer Done. t={0}".format(init_end_time))
@@ -41,39 +41,8 @@ class CTCContainer(QObject):
         # print("CTCContainer: update_wayside_from_ctc")
         # TODO: Update authority_speed_update to be a TrackSignal before emitting the signal
         # TODO: Define the types for this signal at the top of this file
-        # print(f"\t{self.ctc.authority_speed_update.__len__()}")
-        self.update_wayside_from_ctc_signal.emit(self.ctc.authority_speed_update,
-                                                 self.ctc.maintenance_mode_override_flag,
-                                                 self.ctc.blocks_to_close_open,
-                                                self.ctc.updated_switches)
-        # track_controller_ref.update_test_container_from_ctc_slot(self.ctc.authority_speed_update, False, [], [])
-        # switch_positions = track_controller_ref.track_controller.switches
-        # light_states = track_controller_ref.track_controller.signals
-        # rr_crossing_states = track_controller_ref.track_controller.rr_crossings
 
-        # track_controller_ref.update_test_container_from_ctc_slot(self.ctc.authority_speed_update, False, [], [])
-        # block_occupancy_update = track_controller_ref.track_controller.block_occupancies
-        # switch_positions = []
-        # rr_crossing_states = []
-        # light_states = []
-        #
-        # self.ctc.authority_speed_update.clear()
-        # self.ui.update_time()
-        # self.ctc.update_ctc_queues()
-        # #print("update running trains")
-        # self.ctc.update_block_occupancies(block_occupancy_update)
-        # running_trains_updated = self.ctc.update_running_trains()
-        # print("update switch positions")
-        #self.ctc.update_switch_positions(switch_positions)
-        # print("update signals")
-        #self.ctc.update_signal_statuses(light_states)
-        # print("update rr crossings")
-        #self.ctc.update_railroad_crossing_statuses(rr_crossing_states)
-        # print("update block occupancies")
-        #print("set track signals")
-        #if update_track_signals:
-        # if running_trains_updated:
-        #     self.ctc.set_track_signals()
+
 
     @pyqtSlot(dict, list, list, list)
     def update_ctc_from_wayside(self,
@@ -81,12 +50,8 @@ class CTCContainer(QObject):
                                 switch_positions: list[Switch],
                                 light_states: list[Light],
                                 rr_crossing_states: list[RRCrossing]):
-        self.ctc.authority_speed_update.clear()
-        self.ui.update_time()
-        self.ctc.update_ctc_queues()
-        # print("update running trains")
         self.ctc.update_block_occupancies(block_occupancy_update)
-        self.ctc.update_running_trains()
+
         # self.ui.update_time()
         # #print("update ctc queues")
         #queues_updated = self.ctc.update_ctc_queues()

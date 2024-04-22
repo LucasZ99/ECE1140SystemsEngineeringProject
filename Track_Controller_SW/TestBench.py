@@ -130,7 +130,7 @@ class TbMainWindow(QMainWindow):
             # Outside events
             self.business_logic.switches_signal.connect(self.update_switches)
 
-            self.show()
+            # self.show()
         except Exception as e:
             print(e)
 

@@ -58,7 +58,8 @@ class CTCSchedule:
     Returns a list of trains that are to be dispatched at the time called
     """
     def dispatch_trains(self) -> list[Train]:
-        dispatch_list = self.get_trains_to_dispatch()[:]
+        dispatch_list = self.get_trains_to_dispatch()
+        print(dispatch_list)
         for train in dispatch_list:
             self.train_list.remove(train)
         return dispatch_list
