@@ -73,15 +73,12 @@ class TrainBusinessLogic(QObject):
     @pyqtSlot(tuple, int)
     def track_update_block(self, block_vals, index):
         if len(self.train_dict) == 0:
-            print("Train Model: Train not removed: no trains")
             return
         if not (index in self.train_dict.keys()):
-            print("Train Model: Train not removed: passed index is: ", index)
             return
         self.train_dict[index].update_blocks(block_vals[:3])
         self.train_dict[index].signals.beacon = block_vals[3]
         self.signals.index_update.emit(self.train_dict, index)
-        print("Train Model: Train Removed Successfully")
 
     @pyqtSlot(int, int)
     def track_update_passengers(self, num, index):
@@ -129,12 +126,15 @@ class TrainBusinessLogic(QObject):
     @pyqtSlot(int)
     def remove_train(self, index):
         if len(self.train_dict) == 0:
+            print("Train Model: Train not removed: no trains")
             return
         if not (index in self.train_dict.keys()):
+            print("Train Model: Train not removed: passed index is: ", index)
             return
         else:
             self.train_dict.pop(index)
             self.signals.ui_remove_train.emit(self.train_dict, index)
+            print("Train Model: Train Removed Successfully")
 
     @pyqtSlot()
     def train_update_controller(self):
