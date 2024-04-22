@@ -11,7 +11,7 @@ from Common.Lines import get_line_blocks
 
 
 class CTC(QObject):
-    update_wayside_from_ctc = pyqtSignal(list, list, list)
+    update_wayside_from_ctc_signal = pyqtSignal(list, list, list)
 
     def __init__(self):
         self.track_signals_to_clear: set[int] = set()
@@ -141,7 +141,7 @@ class CTC(QObject):
         for train in self.dispatched_trains.train_list:
             trains.append(train)
 
-        print(f"CTC: get_running_trains: {trains}")
+        # print(f"CTC: get_running_trains: {trains}")
 
         trains.sort(key=lambda running_train: running_train.get_destination().arrival_time)
         return trains
@@ -205,12 +205,12 @@ class CTC(QObject):
             # speed = get_line_blocks()[abs(block[0])].speed_limit * train.get_slowdown() / 3.6
             speed = get_line_blocks()[abs(block[0])].speed_limit / 3.6
             self.suggested_speeds[abs(block[0])] = speed
-            self.set_block_track_signal(block[0])
+            self.track_signals_to_set.add(block[0])
 
-    def set_block_track_signal(self, block: int):
-        self.track_signals[block] = TrackSignal(abs(block),
-                                                self.authorities[abs(block)],
-                                                self.suggested_speeds[abs(block)])
+    # def set_block_track_signal(self, block: int):
+    #     self.track_signals[block] = TrackSignal(abs(block),
+    #                                             self.authorities[abs(block)],
+    #                                             self.suggested_speeds[abs(block)])
 
     def set_train_next_block_track_signal(self, train: Train):
         self.set_train_next_block_authority(train)
@@ -337,7 +337,7 @@ class CTC(QObject):
         #
         #     return True
         else:
-            return False
+            return False or self.yard
 
     def update_switch_positions(self, switches: list[Switch]) -> bool:
         update = False
@@ -370,7 +370,7 @@ class CTC(QObject):
 
     def update_signal_status(self, block_id: int, signal_green: bool):
         if self.lights[block_id] != signal_green:
-            self.lights[block_id] = signal_green
+            self.lights[block_id].val = signal_green
             return True
         else:
             return False
@@ -419,7 +419,7 @@ class CTC(QObject):
 
     # returns True when a track signal is to be updated
     def update_running_trains(self) -> bool:
-        print("CTC: Update running trains")
+        # print("CTC: Update running trains")
         update_running_trains = False
 
         # Update train in yard
@@ -431,9 +431,7 @@ class CTC(QObject):
                 # print(f"CTC: Train {train.id} update.")
                 update_running_trains = True
 
-        if update_running_trains:
-            # self.clear_changed_blocks()
-            self.track_signal_update()
+        self.track_signal_update()
 
         # send data to UI
         if update_running_trains:
@@ -468,7 +466,7 @@ class CTC(QObject):
 
     @pyqtSlot()
     def timer_handler(self):
-        if self.update_ctc_queues():
+        if self.update_ctc_queues() or self.update_running_trains():
             if self.track_signal_update():
                 self.update_wayside()
 
@@ -483,13 +481,13 @@ class CTC(QObject):
         self.update_railroad_crossing_statuses(rr_crossing_states)
 
         if update:
-            if self.update_running_trains() and self.track_signal_update:
+            if self.update_running_trains():
                 self.update_wayside()
 
     def update_wayside(self):
         print("CTC: updating wayside")
-        self.update_wayside_from_ctc.emit(list(self.track_signals.values()), self.closed_blocks,
-                                          list(self.set_switches.values()))
+        self.update_wayside_from_ctc_signal.emit(list(self.track_signals.values()), self.closed_blocks,
+                                                 list(self.set_switches.values()))
 
     # TODO update queues, and if queues are updated, update wayside
     @pyqtSlot(object)
