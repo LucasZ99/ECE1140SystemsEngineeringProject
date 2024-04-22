@@ -18,6 +18,7 @@ class TestBackend(QObject):
             self.occupancy_dict[i] = False
 
         self.blocks = list(self.occupancy_dict.keys())
+        self.block_to_toggle = [[0, True]]
 
         # connect external signals
         self.signals.get_blocks_signal.connect(self.send_blocks)
@@ -28,6 +29,15 @@ class TestBackend(QObject):
         self.signals.track_signal_speed_update_signal.connect(self.track_signal_speed_update)
         self.signals.send_ctc_inputs_signal.connect(self.send_ctc_inputs)
         self.signals.send_track_inputs_signal.connect(self.send_track_inputs)
+        self.signals.block_to_toggle.connect(self.toggle_block_update)
+
+    @pyqtSlot(int)
+    def toggle_block_update(self, block_index: int):
+
+        if self.block_to_toggle[0][0] == block_index:
+            self.block_to_toggle[0] = [block_index, True]
+        else:
+            self.block_to_toggle[0] = [block_index, False]
 
     @pyqtSlot()
     def send_blocks_occupancy(self):
@@ -59,7 +69,10 @@ class TestBackend(QObject):
     @pyqtSlot()
     def send_ctc_inputs(self):
         print(f"sending track signal: {self.track_signal}")
-        self.signals.ctc_inputs_from_testbench_signal.emit([self.track_signal])
+        if self.block_to_toggle[0][0] == 0:
+            self.signals.ctc_inputs_from_testbench_signal.emit([self.track_signal], [])
+        else:
+            self.signals.ctc_inputs_from_testbench_signal.emit([self.track_signal], self.block_to_toggle)
 
     @pyqtSlot()
     def send_track_inputs(self):

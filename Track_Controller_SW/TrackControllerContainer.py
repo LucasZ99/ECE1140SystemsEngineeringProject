@@ -118,6 +118,7 @@ class TrackControllerContainer(QObject):
         safe_toggle_blocks = []
         if len(blocks_to_close_open) > 0:
             safe_toggle_blocks = self.check_safe_toggle_block(blocks_to_close_open)
+            print(f"safe_toggle_blocks: {safe_toggle_blocks}")
         if len(updated_switches) > 0:
             self.toggle_switch_if_safe(updated_switches)
 

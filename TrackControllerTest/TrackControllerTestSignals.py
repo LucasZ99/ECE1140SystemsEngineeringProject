@@ -6,6 +6,7 @@ class TrackControllerTestSignalsCls(QObject):
     # Get from Business Logic to UI
     get_blocks_signal = pyqtSignal()
     get_blocks_occupancy_signal = pyqtSignal()
+    block_to_toggle = pyqtSignal(int)
 
     # send from Business Logic to UI
     send_blocks_signal = pyqtSignal(list)
@@ -20,7 +21,7 @@ class TrackControllerTestSignalsCls(QObject):
     send_track_inputs_signal = pyqtSignal()
 
     # send from business logic to launcher
-    ctc_inputs_from_testbench_signal = pyqtSignal(list)
+    ctc_inputs_from_testbench_signal = pyqtSignal(list, list)
     track_inputs_from_testbench_signal = pyqtSignal(dict)
 
     def __init__(self, parent=None):
