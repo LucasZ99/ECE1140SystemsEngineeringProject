@@ -25,7 +25,7 @@ class TrackModel(QObject):
         # self.check_data()
         start = time.time()
         self.data = self.set_data(file_name)
-        # self.output_data_as_excel()
+        self.output_data_as_excel()
         end = time.time()
         print(f'set_data time = {end - start}')
         # self.output_data_as_excel()
@@ -183,6 +183,11 @@ class TrackModel(QObject):
         new_data[0, 20] = 'Underground Status'
         new_data[0, 21] = 'Signal Values'
         new_data[0, 22] = 'RxR Values'
+
+        # set empty beacon column
+        for i in range(1, new_data.shape[0]):
+            if str(new_data[i, 11]) == 'nan':
+                new_data[i, 11] = '0' * 128
         return new_data
 
     def output_data_as_excel(self):
