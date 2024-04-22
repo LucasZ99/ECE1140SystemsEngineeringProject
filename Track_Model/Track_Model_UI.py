@@ -102,20 +102,31 @@ class Window(QMainWindow):
         bv_layout.addWidget(self.block_info_combo)
         # block info labels
         info = self.block_info
-        self.length_label = QLabel('length = ' + str(info[0]))
-        self.grade_label = QLabel('grade = ' + str(info[1]))
-        self.speed_lim_label = QLabel('speed lim = ' + str(info[2]))
-        self.elevation_label = QLabel('elevation = ' + str(info[3]))
-        self.occupied_label = QLabel('occupied = ' + str(info[4]))
-        self.beacon_label = QLabel('beacon = ' + str(info[5]))
-        self.track_heated_label = QLabel('track heated = ' + str(info[6]))
-        self.underground_label = QLabel('underground = ' + str(info[7]))
-        self.power_fail_label = QLabel('power failure = ' + str(info[8]))
-        self.track_circ_fail_label = QLabel('track circuit failure = ' + str(info[9]))
-        self.broken_rail_label = QLabel('broken rail failure = ' + str(info[10]))
-        self.switch_label = QLabel('switch = ' + str(info[11]))
-        self.signal_label = QLabel('signal = ' + str(info[12]))
-        self.rxr_label = QLabel('rxr = ' + str(info[13]))
+        self.length_label = QLabel('Length: ' + str(info[0]))
+        self.grade_label = QLabel('Grade: ' + str(info[1]))
+        self.speed_lim_label = QLabel('Speed Limit: ' + str(info[2]))
+        self.elevation_label = QLabel('Elevation: ' + str(info[3]))
+        beacon_str = 'N/A'
+        if str(info[5]) != '0' * 128:
+            beacon_str = str(info[5])
+        self.beacon_label = QLabel('Beacon: ' + beacon_str)
+
+        # bools
+        self.occupied_label = QLabel('Occupied: ' + str(info[4]))
+        self.track_heated_label = QLabel('Track Heated: ' + str(info[6]))
+        self.underground_label = QLabel('Underground: ' + str(info[7]))
+
+        # failures
+        self.power_fail_label = QLabel('Power Failure: ' + str(info[8]))
+        self.track_circ_fail_label = QLabel('Track Circuit Failure: ' + str(info[9]))
+        self.broken_rail_label = QLabel('Broken Rail Failure: ' + str(info[10]))
+
+        # infrastructure
+        self.switch_label = QLabel('Switch: ' + str(info[11]))
+        self.signal_label = QLabel('Signal: ' + str(info[12]))
+        self.rxr_label = QLabel('RxR: ' + str(info[13]))
+
+        # add these in a layout
         bv_layout.addWidget(self.length_label, 1, 0)
         bv_layout.addWidget(self.grade_label, 2, 0)
         bv_layout.addWidget(self.speed_lim_label, 3, 0)
@@ -157,8 +168,8 @@ class Window(QMainWindow):
         # add layouts to parent layout
         layout.addWidget(self.block_view_layout_group, 0, 0, 2, 1)
         layout.addWidget(self.map_layout_group, 0, 1, 2, 2)
-        layout.addWidget(self.upload_layout_group, 2, 2, 1, 1)
-        layout.addWidget(self.temperature_controls_group, 2, 1, 1, 1)
+        layout.addWidget(self.upload_layout_group, 2, 1, 1, 1)
+        layout.addWidget(self.temperature_controls_group, 2, 0, 1, 1)
         # layout.addWidget(self.failure_modes_group, 2, 0, 1, 1)
 
         # center widget
@@ -242,7 +253,10 @@ class Window(QMainWindow):
         self.speed_lim_label.setText('speed lim = ' + str(info[2]))
         self.elevation_label.setText('elevation = ' + str(info[3]))
         self.occupied_label.setText('occupied = ' + str(info[4]))
-        self.beacon_label.setText('beacon = ' + str(info[5]))
+        beacon_str = 'N/A'
+        if str(info[5]) != ('0' * 128):
+            beacon_str = str(info[5])
+        self.beacon_label.setText('Beacon: ' + beacon_str)
         self.track_heated_label.setText('track heated = ' + str(info[6]))
         self.underground_label.setText('underground = ' + str(info[7]))
 
