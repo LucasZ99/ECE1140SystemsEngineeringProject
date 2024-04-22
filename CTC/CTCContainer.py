@@ -24,16 +24,16 @@ class CTCContainer(QObject):
         print("CTC wired to CTC container")
 
         # self.ctc.send_initial_message()
-        self.ui = CTCMainWindow()
+        # self.ui = CTCMainWindow()
 
         init_end_time = python_time.time()
         print("Initializing CTCContainer Done. t={0}".format(init_end_time))
         print("CTCContainer Initialization time t={0}".format(init_end_time - init_start_time))
 
-    def show_ui(self):
-        print("before ui show")
-        self.ui.show()
-        print("CTCContainer.show_ui: After ui show")
+    # def show_ui(self):
+    #     print("before ui show")
+    #     self.ui.show()
+    #     print("CTCContainer.show_ui: After ui show")
 
     @pyqtSlot(list, list, list)
     def update_wayside_from_ctc_slot(self, track_signals: list[TrackSignal],

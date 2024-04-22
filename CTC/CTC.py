@@ -141,7 +141,7 @@ class CTC(QObject):
         for train in self.dispatched_trains.train_list:
             trains.append(train)
 
-        print(f"CTC: get_running_trains: {trains}")
+        # print(f"CTC: get_running_trains: {trains}")
 
         trains.sort(key=lambda running_train: running_train.get_destination().arrival_time)
         return trains
@@ -370,7 +370,7 @@ class CTC(QObject):
 
     def update_signal_status(self, block_id: int, signal_green: bool):
         if self.lights[block_id] != signal_green:
-            self.lights[block_id] = signal_green
+            self.lights[block_id].val = signal_green
             return True
         else:
             return False
@@ -419,7 +419,7 @@ class CTC(QObject):
 
     # returns True when a track signal is to be updated
     def update_running_trains(self) -> bool:
-        print("CTC: Update running trains")
+        # print("CTC: Update running trains")
         update_running_trains = False
 
         # Update train in yard
@@ -466,7 +466,7 @@ class CTC(QObject):
 
     @pyqtSlot()
     def timer_handler(self):
-        if self.update_ctc_queues():
+        if self.update_ctc_queues() or self.update_running_trains():
             if self.track_signal_update():
                 self.update_wayside()
 

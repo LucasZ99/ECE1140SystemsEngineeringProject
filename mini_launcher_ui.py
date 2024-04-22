@@ -103,7 +103,7 @@ def main():
     train_model_container.moveToThread(train_model_thread)
 
     system_time_thread.start()
-    # ctc_thread.start()
+    ctc_thread.start()
     test_thread.start()
     track_controller_thread.start()
     track_model_thread.start()

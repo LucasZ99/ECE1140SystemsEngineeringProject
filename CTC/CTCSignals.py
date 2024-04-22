@@ -36,6 +36,7 @@ class CTCSignalsCls(QObject):
 
     def __init__(self):
         super().__init__()
+        print("CTCSignals.py init")
 
 
 CTCSignals = CTCSignalsCls()
