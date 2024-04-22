@@ -385,8 +385,11 @@ class TrackModel(QObject):
             for index, val in rr_crossing_indexes:
                 self.data[index, 19] = val
         if toggle_block_indexes:
-            for index, val in toggle_block_indexes:
-                pass  # TODO
+            for block_id in toggle_block_indexes:  # FOR RN Just toggles occupancy
+                if self.data[block_id, 7]:
+                    self.data[block_id, 7] = True
+                else:
+                    self.data[block_id, 7] = False
 
     # new UI getters
     def get_block_info(self, block_id):
