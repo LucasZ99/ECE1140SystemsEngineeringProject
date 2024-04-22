@@ -3,18 +3,6 @@ from Train_Model import TrainModel
 from business_logic import TrainBusinessLogic
 from trainControllerTot_Container import TrainController_Tot_Container
 import SystemTime
-import sys
-import os
-
-
-# Disable
-def blockPrint():
-    sys.stdout = open(os.devnull, 'w')
-
-
-# Restore
-def enablePrint():
-    sys.stdout = sys.__stdout__
 
 
 class MyTestCase(unittest.TestCase):
@@ -106,14 +94,13 @@ class MyTestCase(unittest.TestCase):
         train.update_blocks((-15, 5, False))  # train enters block with grade
         # train will not react to new grade until its midpoint enters the new block
         train.velocity = 50
-        blockPrint()
         while train.position <= train.train_const.train_length()/2:
             new_time = SystemTime.time()
             train.physics_calculation(new_time - time)
             time = new_time
-        enablePrint()
 
         # now train should start to speed up
+        print("in new block")
         for _ in range(20):
             velocity = train.velocity
             new_time = SystemTime.time()
