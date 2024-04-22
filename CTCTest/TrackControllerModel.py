@@ -1,5 +1,6 @@
 from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
 
+from CTCTest.CTCTestSignals import CTCTestSignals
 from Common import TrackSignal
 from Common.GreenLine import *
 
@@ -8,9 +9,6 @@ OCCUPIED = True
 
 
 class TrackControllerModel(QObject):
-    update_ctc_from_wayside_signal = pyqtSignal(dict, list, list, list)
-    update_test_ui_speeds_authorities = pyqtSignal(list)
-
     def __init__(self):
         print("Track Controller Model init")
         super().__init__()
@@ -37,24 +35,40 @@ class TrackControllerModel(QObject):
         for rr_crossing in GREEN_LINE[CROSSINGS]:
             self.rr_crossings[rr_crossing.block] = rr_crossing
 
+        CTCTestSignals.wayside_update_block_occupancy.connect(self.update_block_occupancy)
+        # self.connect_to_frontend_signals()
+
     def get_occupancy_updates(self) -> dict[int: bool]:
         return self.block_occupancies
 
-    @pyqtSlot(list, bool, list, list)
+    @pyqtSlot(list, list, list)
     def update_wayside_from_ctc(self, track_signals: list[TrackSignal],
-                                maintenance_mode_override: bool,
                                 blocks_to_set_mode: list[tuple[int, bool]],
                                 switches: list[Switch]):
         if track_signals.__len__() > 0:
             # print("wayside: updating track signals")
             for track_signal in track_signals:
                 self.track_signals[track_signal.block_id] = track_signal
-            self.update_test_ui_speeds_authorities.emit(track_signals)
+                CTCTestSignals.ui_update_track_signal.emit(track_signal)
             track_signals.clear()
 
         # self.update_ctc_from_wayside_signal.emit(self.block_occupancies, [], [], [])
 
+    @pyqtSlot(int, bool)
     def update_block_occupancy(self, block_id: int, status: bool):
+        print("block occupancy received")
         self.block_occupancies[block_id] = status
         print(GREEN_LINE[BLOCKS][block_id].name, status)
-        # self.updated_occupancies[block_id] = status
+        self.update_ctc_from_wayside()
+
+    def update_ctc_from_wayside(self):
+        CTCTestSignals.update_ctc_from_wayside.emit(self.block_occupancies, list(self.switches.values()), list(self.signals.values()), list(self.rr_crossings.values()))
+
+    def connect_to_frontend_signals(self):
+        CTCTestSignals.wayside_update_block_occupancy.connect(self.update_block_occupancy)
+
+    def init_frontend(self):
+        for block in GREEN_LINE[BLOCKS]:
+            print("track signal for block {0} sent".format(GREEN_LINE[BLOCKS][block].id()))
+            CTCTestSignals.ui_update_track_signal.emit(TrackSignal(GREEN_LINE[BLOCKS][block].id(), 0, 0))
+

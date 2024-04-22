@@ -13,7 +13,7 @@ class TopLevelSignalsCls(QObject):
     maintenance_mode_update = pyqtSignal(list, list)
 
     # CTC Signals:
-    update_wayside_from_ctc = pyqtSignal(list, bool, list, list)
+    update_wayside_from_ctc = pyqtSignal(list, list, list)
 
     # Track Model Signals
     update_wayside_from_track_model = pyqtSignal(dict)
