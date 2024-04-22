@@ -25,7 +25,7 @@ class TrackModel(QObject):
         # self.check_data()
         start = time.time()
         self.data = self.set_data(file_name)
-        self.output_data_as_excel()
+        # self.output_data_as_excel()
         end = time.time()
         print(f'set_data time = {end - start}')
         # self.output_data_as_excel()
@@ -376,7 +376,7 @@ class TrackModel(QObject):
     def get_occupancy_list(self):
         return self.data[1:, 7].tolist()
 
-    def update_infrastructure(self, switch_changed_indexes, signal_changed_indexes, rr_crossing_indexes=None, toggle_block_indexes=None):
+    def update_infrastructure(self, switch_changed_indexes, signal_changed_indexes, rr_crossing_indexes, toggle_block_indexes):
         for index, val in switch_changed_indexes:
             self.data[index, 19] = val
         for index, val in signal_changed_indexes:

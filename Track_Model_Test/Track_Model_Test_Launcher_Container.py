@@ -7,6 +7,9 @@ from PyQt6.QtWidgets import QApplication
 from Track_Model.Track_Model_Container import TrackModelContainer
 from Track_Model_Test.Track_Model_Test_Container import TrackModelTestContainer
 from Track_Model_Test__Launcher_UI import TrackModelTestLauncherUI
+from Track_Model.Track_Model_UI import Window
+
+from TopLevelSignals import TopLevelSignals
 
 
 class TrackModelTestLauncherContainer(QObject):
@@ -15,13 +18,14 @@ class TrackModelTestLauncherContainer(QObject):
 
         self.track_model_container = TrackModelContainer()
         self.track_model_test_container = TrackModelTestContainer()
+        self.track_model_ui = Window()
 
-        # From Wayside to Track Model
-        self.track_model_test_container.update_track_model_from_wayside.connect(
-            self.track_model_container.update_track_model_from_wayside)
-        # From Train Model to Track Model
-        self.track_model_test_container.update_track_model_from_train_model.connect(
-            self.track_model_container.update_track_model_from_train_model)
+        # # From Wayside to Track Model
+        # self.track_model_test_container.update_track_model_from_wayside.connect(
+        #     self.track_model_container.update_track_model_from_wayside)
+        # # From Train Model to Track Model
+        # self.track_model_test_container.update_track_model_from_train_model.connect(
+        #     self.track_model_container.update_track_model_from_train_model)
 
     def init_launcher_ui(self):
         app = QApplication.instance()
@@ -48,5 +52,5 @@ class TrackModelTestLauncherContainer(QObject):
 
     def open_track_model_ui(self):
         print("Open Track Model UI Signal received")
-        self.track_model_container.show_ui()
+        self.track_model_ui.show()
 
