@@ -139,6 +139,7 @@ class TrainBusinessLogic(QObject):
     @pyqtSlot()
     def train_update_controller(self):
         for i in self.train_dict.keys():
+            print(f"INDEX {i}")
             self.train_dict[i].update_controller()
         self.signals.total_update.emit(self.train_dict)
 
