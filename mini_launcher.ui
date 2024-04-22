@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>236</width>
-    <height>478</height>
+    <height>550</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -77,6 +77,19 @@
     </property>
     <property name="text">
      <string>Track Model</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="train_model_button">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>410</y>
+      <width>171</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Train Model</string>
     </property>
    </widget>
   </widget>

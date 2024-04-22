@@ -150,3 +150,6 @@ class TrainBusinessLogic(QObject):
     @pyqtSlot(dict)
     def ui_update(self, train_dict: dict):
         self.train_dict = train_dict
+
+
+train_business_logic = TrainBusinessLogic()

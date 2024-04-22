@@ -8,6 +8,7 @@ from TrackControllerTest import TrackControllerTestBenchContainer
 from TrackControllerTest.TestUi import TestUi
 from Track_Controller_SW.TrackControllerContainer import TrackControllerContainer
 from Track_Controller_SW.TrackControllerUI import UI
+from Train_Model import UITrain, TrainModelContainer
 
 
 class Ui_MainWindow(QMainWindow):
@@ -19,18 +20,21 @@ class Ui_MainWindow(QMainWindow):
         self.track_controller_c_ui = UI("C")
         # self.ctc_ui = CTCUi()
         # self.track_model_ui = TrackModelUI()
+        self.train_model_ui = UITrain()
 
         self.track_controller_test_button = self.findChild(QPushButton, "track_controller_test_button")
         self.track_controller_a_button = self.findChild(QPushButton, "track_controller_a_button")
         self.track_controller_c_button = self.findChild(QPushButton, "track_controller_c_button")
         self.ctc_button = self.findChild(QPushButton, "ctc_button")
         self.track_model_button = self.findChild(QPushButton, "track_model_button")
+        self.train_model_button = self.findChild(QPushButton, "train_model_button")
 
         self.track_controller_test_button.clicked.connect(self.open_test_ui)
         self.track_controller_a_button.clicked.connect(self.open_track_controller_a_ui)
         self.track_controller_c_button.clicked.connect(self.open_track_controller_c_ui)
         self.ctc_button.clicked.connect(self.open_ctc_ui)
         self.track_model_button.clicked.connect(self.open_track_model)
+        self.train_model_button.clicked.connect(self.open_train_model)
 
         self.show()
 
@@ -50,6 +54,9 @@ class Ui_MainWindow(QMainWindow):
     def open_track_model(self):
         # self.track_model_ui.show()
         pass
+
+    def open_train_model(self):
+        self.train_model_ui.show()
 
 
 def main():
@@ -76,10 +83,15 @@ def main():
     # track_model_container = TrackModelContainer()
     # track_model_container.moveToThread(track_model_thread)
 
+    train_model_thread = QThread()
+    train_model_container = TrainModelContainer()
+    train_model_container.moveToThread(train_model_thread)
+
     # ctc_thread.start()
     test_thread.start()
     track_controller_thread.start()
     # track_model_thread.start()
+    train_model_thread.start()
 
     window = Ui_MainWindow()
 
