@@ -171,7 +171,7 @@ class Window(QMainWindow):
     def display_slider_value(self):
         self.slider_label.setText(str(self.sender().value()) + "°F")
         # self.slider_label.adjustSize()  # Expands label size as numbers get larger
-        self.signals.set_env_temperature_signals(self.sender().value())
+        self.signals.set_env_temperature_signal.emit(self.sender().value())
         if self.sender().value() <= 32:  # could check current heater value, but no need
             signals.set_heaters_signal.emit(1)  # we do not use bool b/c we need NaN value for non-heater blocks
         else:

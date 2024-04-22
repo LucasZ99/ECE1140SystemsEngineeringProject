@@ -241,7 +241,8 @@ class TrackControllerContainer(QObject):
             if switch.block == switch_block:
                 switch.toggle()
 
-        self.top_level_signals.maintenance_mode_update.emit(self.switch_list, self.lights_list)
+        self.top_level_signals.maintenance_mode_update.emit([switch.to_tuple() for switch in self.switch_list],
+                                                            [light.to_tuple() for light in self.lights_list])
 
 
     @pyqtSlot(bool)
