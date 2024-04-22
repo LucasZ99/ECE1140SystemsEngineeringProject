@@ -413,8 +413,8 @@ class UITrain(QMainWindow):
         self.speedValue_tb.setText(f'{self.train_dict[self.index].velocity * self.feet_per_meter * 3600 / 5280: .2f}')
 
         self.totMassValue.setText(f'{self.train_dict[self.index].get_total_mass() * self.tons_per_kilogram: .2f} Tons')
-        self.totMassValue_tb.setText(f'{self.train_dict[self.index].get_total_mass() * 
-                                        self.tons_per_kilogram: .2f} Tons')
+        self.totMassValue_tb.setText(
+            f'{self.train_dict[self.index].get_total_mass() * self.tons_per_kilogram: .2f} Tons')
 
         if self.train_dict[self.index].position > self.train_dict[self.index].train_const.train_length() / 2:
             self.gradeValue.setText(f'{self.train_dict[self.index].new_block.grade: .2f} %')
@@ -448,10 +448,10 @@ class UITrain(QMainWindow):
             self.dBrakeValue.setValue(0)
         self.dBrakeValue_tb.setChecked(self.train_dict[self.index].brakes.driver_ebrake)
 
-        self.lengthValue.setText(f'{self.train_dict[self.index].train_const.train_length() * 
-                                    self.feet_per_meter: .2f} ft')
-        self.lengthValue_tb.setText(f'{self.train_dict[self.index].train_const.train_length() * 
-                                       self.feet_per_meter: .2f} ft')
+        self.lengthValue.setText(
+            f'{self.train_dict[self.index].train_const.train_length() * self.feet_per_meter: .2f} ft')
+        self.lengthValue_tb.setText(
+            f'{self.train_dict[self.index].train_const.train_length() * self.feet_per_meter: .2f} ft')
 
         self.heightValue.setText(f'{self.train_dict[self.index].train_const.height * self.feet_per_meter: .2f} ft')
         self.heightValue_tb.setText(f'{self.train_dict[self.index].train_const.height * self.feet_per_meter: .2f} ft')
@@ -462,10 +462,10 @@ class UITrain(QMainWindow):
         self.carsValue.setText(f'{self.train_dict[self.index].train_const.car_number}')
         self.carsValue_tb.setText(f'{self.train_dict[self.index].train_const.car_number}')
 
-        self.trainMassValue.setText(f'{self.train_dict[self.index].train_const.train_mass() * 
-                                       self.tons_per_kilogram: .2f} Tons')
-        self.trainMassValue_tb.setText(f'{self.train_dict[self.index].train_const.train_mass() *
-                                          self.tons_per_kilogram: .2f} Tons')
+        self.trainMassValue.setText(
+            f'{self.train_dict[self.index].train_const.train_mass() * self.tons_per_kilogram: .2f} Tons')
+        self.trainMassValue_tb.setText(
+            f'{self.train_dict[self.index].train_const.train_mass() * self.tons_per_kilogram: .2f} Tons')
 
         self.crewValue.setText(f'{self.train_dict[self.index].crew.people_number}')
         self.crewValue_tb.setText(f'{self.train_dict[self.index].crew.people_number}')

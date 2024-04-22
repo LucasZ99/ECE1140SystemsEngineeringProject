@@ -105,10 +105,9 @@ class TrackControllerContainer(QObject):
     #     self.top_level_signals.update_testbench_from_wayside.emit()
 
     # CTC Endpoint
-    @pyqtSlot(list, bool, list, list)
+    @pyqtSlot(list, list, list)
     def update_wayside_from_ctc(self,
                                 authority_speed_update: list[TrackSignal],
-                                maintenance_mode_override_flag: bool,
                                 blocks_to_close_open: list[tuple[int, bool]],
                                 updated_switches: list[Switch]):
 
@@ -119,14 +118,15 @@ class TrackControllerContainer(QObject):
         safe_toggle_blocks = []
         if len(blocks_to_close_open) > 0:
             safe_toggle_blocks = self.check_safe_toggle_block(blocks_to_close_open)
+            print(f"safe_toggle_blocks: {safe_toggle_blocks}")
         if len(updated_switches) > 0:
             self.toggle_switch_if_safe(updated_switches)
 
-        print(f"WAYSIDE: update_track_model_from_wayside:\n"
-              f"track signal: {[str(item) for item in authority_speed_update]}\n"
-              f"switch list: {[str(item) for item in self.switch_list]}\n"
-              f"light list: {[str(item) for item in self.lights_list]}\n"
-              f"crossing list: {[str(item) for item in self.rr_crossing_list]}")
+        print(f"WAYSIDE: update_track_model_from_wayside:\n")
+              # f"track signal: {[str(item) for item in authority_speed_update]}\n"
+              # f"switch list: {[str(item) for item in self.switch_list]}\n"
+              # f"light list: {[str(item) for item in self.lights_list]}\n"
+              # f"crossing list: {[str(item) for item in self.rr_crossing_list]}")
 
         # self.top_level_signals.update_testbench_from_wayside.emit()
 
@@ -142,17 +142,17 @@ class TrackControllerContainer(QObject):
     # Track Model Endpoint
     @pyqtSlot(dict)
     def update_wayside_from_track_model(self, block_occupancy_update: dict[int, bool]):
-        print(f"WAYSIDE: update_wayside_from_track_model received:\n"
-              f"block 62 status: {block_occupancy_update[62]}")
+        print(f"WAYSIDE: update_wayside_from_track_model received:\n")
+              # f"block 62 status: {block_occupancy_update[62]}")
 
         if self.occupancy_dict != block_occupancy_update:
             self.update_occupancy(block_occupancy_update)
 
-        print(f"WAYSIDE: update_ctc_from_wayside:\n"
-              f"block occupancy: {block_occupancy_update}\n"
-              f"switch list: {[str(item) for item in self.switch_list]}\n"
-              f"lights_list: {[str(item) for item in self.lights_list]}\n"
-              f"rr_crossing_list: {[str(item) for item in self.rr_crossing_list]}")
+        print(f"WAYSIDE: update_ctc_from_wayside sent:\n")
+              # f"block occupancy: {block_occupancy_update}\n"
+              # f"switch list: {[str(item) for item in self.switch_list]}\n"
+              # f"lights_list: {[str(item) for item in self.lights_list]}\n"
+              # f"rr_crossing_list: {[str(item) for item in self.rr_crossing_list]}")
 
         self.top_level_signals.update_ctc_from_wayside.emit(
             block_occupancy_update,
@@ -240,6 +240,10 @@ class TrackControllerContainer(QObject):
         for switch in self.switch_list:
             if switch.block == switch_block:
                 switch.toggle()
+
+        self.top_level_signals.maintenance_mode_update.emit([switch.to_tuple() for switch in self.switch_list],
+                                                            [light.to_tuple() for light in self.lights_list])
+
 
     @pyqtSlot(bool)
     def update_rr_crossing_status_A(self, rr_crossing_status: bool) -> None:

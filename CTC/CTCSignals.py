@@ -2,11 +2,7 @@ from PyQt6.QtCore import QObject, pyqtSignal
 
 
 class CTCSignalsCls(QObject):
-    # CTC Backend to UI Signals
-    # update_ui_signal = pyqtSignal()
     update_wayside_from_ctc_signal = pyqtSignal(list, list, list)
-    # update_ui_running_trains_table_signal = pyqtSignal()
-    # update_ui_block_table = pyqtSignal()
 
     ui_scheduled_trains_signal = pyqtSignal(list)
     ui_next_train_number_signal = pyqtSignal(int)
@@ -40,6 +36,7 @@ class CTCSignalsCls(QObject):
 
     def __init__(self):
         super().__init__()
+        print("CTCSignals.py init")
 
 
 CTCSignals = CTCSignalsCls()

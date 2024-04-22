@@ -7,7 +7,7 @@ class TrainModelSignalsCls(QObject):
     business_update = pyqtSignal(object, object)
 
     # container to business signals
-    send_back_track_returns = pyqtSignal(object, object)
+    send_back_track_returns = pyqtSignal()
     physics_calculation = pyqtSignal()
     train_update_controller = pyqtSignal()
     track_update_passenger = pyqtSignal(int, int)
@@ -29,6 +29,16 @@ class TrainModelSignalsCls(QObject):
     # ui to business signals
     ui_update = pyqtSignal(object)
     ui_initialization = pyqtSignal()
+
+    # testbench to container signals
+    tb_track_model_inputs = pyqtSignal(tuple, int)
+    tb_train_controller_inputs = pyqtSignal(tuple, int)
+    tb_track_update_block = pyqtSignal(tuple, int)
+    tb_track_update_passenger = pyqtSignal(int, int)
+    tb_controller_update_temp = pyqtSignal(float, int)
+    tb_physics_calculation = pyqtSignal()
+    tb_add_train = pyqtSignal()
+    tb_remove_train = pyqtSignal(int)
 
     def __init__(self):
         super().__init__()

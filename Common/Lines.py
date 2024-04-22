@@ -18,6 +18,10 @@ def get_line_route() -> list[int]:
     return GREEN_LINE[ROUTE]
 
 
+def get_line_switches() -> list[Switch]:
+    return GREEN_LINE[SWITCHES]
+
+
 def get_line_blocks_in_route_order() -> dict[int, Block]:
     blocks_in_route_order = {}
     for block in get_line_route():

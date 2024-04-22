@@ -32,7 +32,7 @@ class TestUi(QMainWindow):
         self.speed_input = self.findChild(QLineEdit, 'speed_input')
         self.track_signal_block_select = self.findChild(QComboBox, 'track_signal_block_select')
         self.toggle_switch_select = self.findChild(QComboBox, 'toggle_switch_select')
-        self.close_block_select = self.findChild(QComboBox, 'close_block_select')
+        self.toggle_block_select = self.findChild(QComboBox, 'close_block_select')
 
         self.authority_select.currentIndexChanged.connect(self.authority_update)
         self.occupancy_toggle_button.clicked.connect(self.occupancy_update)
@@ -41,7 +41,7 @@ class TestUi(QMainWindow):
         self.send_ctc_inputs_button.clicked.connect(self.send_ctc_inputs)
         self.send_track_inputs_button.clicked.connect(self.send_track_inputs)
         self.toggle_switch_select.currentIndexChanged.connect(self.toggle_switch_selected)
-        self.close_block_select.currentIndexChanged.connect(self.close_block_selected)
+        self.toggle_block_select.currentIndexChanged.connect(self.toggle_block_selected)
 
         # Connect external signals
         self.signals.send_blocks_signal.connect(self.set_blocks)
@@ -67,15 +67,21 @@ class TestUi(QMainWindow):
         self.blocks = blocks
 
     def init_close_block_select(self):
-
-        self.close_block_select.clear()
-        self.occupancy_block_select.addItem("None")
+        self.toggle_block_select.clear()
+        self.toggle_block_select.addItem("None")
+        for block in self.blocks:
+            self.toggle_block_select.addItem(str(block))
 
     def init_toggle_switch_select(self):
         pass
 
-    def close_block_selected(self):
-        pass
+    @pyqtSlot()
+    def toggle_block_selected(self):
+        if self.toggle_block_select.currentIndex() != 0:
+            if (self.toggle_block_select.currentIndex()) < 58:
+                self.signals.block_to_toggle.emit(self.toggle_block_select.currentIndex())
+            else:
+                self.signals.block_to_toggle.emit(self.toggle_block_select.currentIndex() + 4)
 
     def toggle_switch_selected(self):
         pass
