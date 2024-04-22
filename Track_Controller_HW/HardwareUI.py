@@ -4,10 +4,6 @@
 # Author: Devin James
 # 2/17/2024
 
-# Functions:
-# map arduino pins to outputs for displaying current system status (switches, block occupancy, traffic lights, rrCross)
-# allow for the switch to maintenance mode, which will then push the changes in switch state to the main
-# there are 2 buttons, one to switch to maintenance mode, the other to toggle switch pos. can only toggle in maintenance
 
 import os
 import socket

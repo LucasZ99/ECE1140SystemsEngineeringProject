@@ -77,5 +77,5 @@ if __name__ == '__main__':
         new_occupancy_list[i] = True  # set the occupancy of block 56 to True (a rr_crossing block)
         track_controller_hw.rr_cross_test(new_occupancy_list, True)  # test the PLC's rr_crossing logic
         if i == 150:
-            i = 26
+            i = 25
         time.sleep(.5)
