@@ -10,6 +10,7 @@ class TopLevelSignalsCls(QObject):
     # Track Controller Signals
     update_track_model_from_wayside = pyqtSignal(list, list, list, list, list)
     update_ctc_from_wayside = pyqtSignal(dict, list, list, list)
+    maintenance_mode_update = pyqtSignal(list, list)
 
     # CTC Signals:
     update_wayside_from_ctc = pyqtSignal(list, bool, list, list)
