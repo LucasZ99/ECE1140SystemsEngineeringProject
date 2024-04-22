@@ -2,6 +2,7 @@ from PyQt6.QtCore import pyqtSignal, QObject
 from PyQt6.QtWidgets import QApplication
 
 from Track_Model_Test_UI import TrackModelTestUI
+from TopLevelSignals import TopLevelSignals
 
 
 class TrackModelTestContainer(QObject):
@@ -17,11 +18,16 @@ class TrackModelTestContainer(QObject):
         self.test_ui.update_track_model_from_wayside.connect(self.update_track_model_from_wayside_emit)
         self.test_ui.update_track_model_from_train_model.connect(self.update_track_model_from_train_model_emit)
 
+        # signals to emit
+        self.top_level_signals = TopLevelSignals
+
     def update_track_model_from_wayside_emit(self, a, b, c, d, e):
-        self.update_track_model_from_wayside.emit(a, b, c, d, e)
+        self.top_level_signals.update_track_model_from_wayside.emit(a, b, c, d, e)
+        # self.update_track_model_from_wayside.emit(a, b, c, d, e)
 
     def update_track_model_from_train_model_emit(self, a, b):
-        self.update_track_model_from_train_model.emit(a, b)
+        self.top_level_signals.update_track_model_from_train_model.emit(a, b)
+        # self.update_track_model_from_train_model.emit(a, b)
 
     def show_ui(self):
         app = QApplication.instance()  # Get the QApplication instance

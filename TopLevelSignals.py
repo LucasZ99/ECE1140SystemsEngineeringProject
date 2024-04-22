@@ -4,15 +4,16 @@ from PyQt6.QtCore import pyqtSignal, QObject
 class TopLevelSignalsCls(QObject):
 
     # Track Controller test signals
-    test_update_wayside_from_ctc = pyqtSignal(list, bool, list, list)
+    test_update_wayside_from_ctc = pyqtSignal(list, list, list)
     test_update_wayside_from_track_model = pyqtSignal(dict)
 
     # Track Controller Signals
     update_track_model_from_wayside = pyqtSignal(list, list, list, list, list)
     update_ctc_from_wayside = pyqtSignal(dict, list, list, list)
+    maintenance_mode_update = pyqtSignal(list, list)
 
     # CTC Signals:
-    update_wayside_from_ctc = pyqtSignal(list, bool, list, list)
+    update_wayside_from_ctc = pyqtSignal(list, list, list)
 
     # Track Model Signals
     update_wayside_from_track_model = pyqtSignal(dict)
@@ -20,7 +21,7 @@ class TopLevelSignalsCls(QObject):
     update_ctc_from_track_model = pyqtSignal(int)
 
     # Train Model Signals
-    update_track_model_from_train_model = pyqtSignal()
+    update_track_model_from_train_model = pyqtSignal(dict, dict)
 
     # for testing purposes
     update_testbench_from_wayside = pyqtSignal()

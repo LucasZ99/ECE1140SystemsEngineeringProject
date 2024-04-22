@@ -47,6 +47,9 @@ class TrackModel(QObject):
         self.train_count = 0
         self.remove_train = -1
 
+        self.closed_blocks = {i: False for i in range(1, 151)}
+
+
         # hardcoded
         # Step 1: 12 to 1
         path_12_to_1 = list(range(12, 0, -1))
@@ -183,6 +186,11 @@ class TrackModel(QObject):
         new_data[0, 20] = 'Underground Status'
         new_data[0, 21] = 'Signal Values'
         new_data[0, 22] = 'RxR Values'
+
+        # set empty beacon column
+        for i in range(1, new_data.shape[0]):
+            if str(new_data[i, 11]) == 'nan':
+                new_data[i, 11] = '0' * 128
         return new_data
 
     def output_data_as_excel(self):
@@ -257,7 +265,11 @@ class TrackModel(QObject):
         # key = train id, value = block id
         for key in self.train_dict:
             self.set_block_occupancy(self.train_dict[key], True)
-        # self.refresh_ui()  # we will refresh in container
+
+        # Closed Blocks
+        for key, value in self.closed_blocks.items():
+            if value:
+                self.set_block_occupancy(key, True)
 
     # communication to ui
 
@@ -289,7 +301,7 @@ class TrackModel(QObject):
         self.data[block_id, 21] = not self.data[block_id, 21]
 
     def toggle_crossing(self, block_id: int):
-        self.data[block_id, 19] = not self.data[block_id, 19]
+        self.data[block_id, 22] = not self.data[block_id, 22]
 
     def open_block(self, block_id: int):
         self.set_block_occupancy(block_id)
@@ -372,14 +384,22 @@ class TrackModel(QObject):
         return self.data[1:, 7].tolist()
 
     def update_infrastructure(self, switch_changed_indexes, signal_changed_indexes, rr_crossing_indexes, toggle_block_indexes):
+        print('TRACK MODEL: update_infrastructure called')
+        print(f'TRACK MODEL: toggle_block_indexes = {toggle_block_indexes}')
         for index, val in switch_changed_indexes:
             self.data[index, 19] = val
         for index, val in signal_changed_indexes:
             self.data[index, 21] = val
         for index, val in rr_crossing_indexes:
-            self.data[index, 19] = val
-        for index, val in toggle_block_indexes:
-            pass  # TODO
+            self.data[index, 22] = val
+        for block_id in toggle_block_indexes:  # FOR RN Just toggles occupancy
+            if self.closed_blocks[block_id]:
+                self.closed_blocks[block_id] = False
+                print(f'TRACK MODEL: setting data at: {block_id} to true')
+            else:
+                self.closed_blocks[block_id] = True
+                print(f'TRACK MODEL: setting data at: {block_id} to false')
+
 
     # new UI getters
     def get_block_info(self, block_id):

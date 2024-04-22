@@ -244,6 +244,10 @@ class TestBench_JEB382(QWidget):
         elif len(self.textbox.text())>128:
             self.TrainModel_arr[-1] = self.textbox.text()[len(self.textbox.text())-128:]
         else: self.TrainModel_arr[-1] = self.textbox.text()
+    
+    def __del__(self):
+        super().__del__()
+        raise Exception("TestBench_JEB382: Destructor called")
             
  #--------#--------#--------#--------#--------
 def better_button_ret(sizeW=True,sizeH=24,checkable=True,text="Off",style="background-color: rgb(156, 156, 156); border: 2px solid rgb(100, 100, 100); border-radius: 6px"):
@@ -271,6 +275,8 @@ def gen_but_tog(but, text1=None,text2=None, style_on=None,style_off=None):
         but.setStyleSheet(f"{style_off if style_off else 'background-color: rgb(156, 156, 156); border: 2px solid rgb(100, 100, 100); border-radius: 6px'}")
         if text1: but.setText(text1)
         else: but.setText("Off")
+
+        
 
 
 #=============================

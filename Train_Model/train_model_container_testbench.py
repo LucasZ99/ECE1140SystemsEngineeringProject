@@ -3,19 +3,24 @@ import os
 from PyQt6 import uic
 from PyQt6.QtWidgets import (QMainWindow, QApplication, QPushButton,  QComboBox, QLineEdit)
 
-from Train_Model import TrainModelContainer, TrainBusinessLogic, UITrain
-from trainControllerTot_Container import TrainController_Tot_Container
+from Train_Model import TrainModelContainer, UITrain
+from Train_Model.train_model_signals import train_model_signals
+from TopLevelSignals import TopLevelSignals
+from Train_Model.business_logic import train_business_logic
 
 
 class ContainerTB(QMainWindow):
 
-    def __init__(self, container: TrainModelContainer):
+    def __init__(self):
         super(ContainerTB, self).__init__()
-        self.container = container
-        self.business_logic = TrainBusinessLogic()
         self.train_ui = UITrain()
         self.train_name_list = list()
         self.index = int()
+        self.auth_speed_dict = dict()
+        self.block_dict = dict()
+        self.passenger_dict = dict()
+        self.signals = train_model_signals
+        self.top_signals = TopLevelSignals
 
         # load the ui file
         current_dir = os.path.dirname(__file__)  # setting up to work in any dir
@@ -53,7 +58,10 @@ class ContainerTB(QMainWindow):
         self.removeButton.clicked.connect(self.remove_trn)
 
         self.trainControllerUpdateButton = self.findChild(QPushButton, "trainControllerUpdateButton")
-        self.trainControllerUpdateButton.clicked.connect(self.business_logic.train_update_controller)
+        self.trainControllerUpdateButton.clicked.connect(train_business_logic.train_update_controller)
+
+        self.bigUpdateButton = self.findChild(QPushButton, "bigUpdateButton")
+        self.bigUpdateButton.clicked.connect(self.big_update_pressed)
 
         self.trainSelect = self.findChild(QComboBox, "trainSelect")
         self.trainSelect.clear()
@@ -90,7 +98,9 @@ class ContainerTB(QMainWindow):
         input_lst = list()
         input_lst.append(float(lst[0]))
         input_lst.append(int(lst[1]))
-        self.container.track_model_inputs(input_lst, index)
+        input_lst = tuple(input_lst)
+        self.auth_speed_dict[index] = input_lst
+        self.signals.tb_track_model_inputs.emit(input_lst, index)
 
     def controller_pressed(self):
         index = self.get_current_index()
@@ -111,7 +121,8 @@ class ContainerTB(QMainWindow):
         input_list.append(lst[5])
         input_list.append(lst[6] == "True")
         input_list.append(lst[7] == "True")
-        self.container.train_controller_inputs(input_list, index)
+        input_list = tuple(input_list)
+        self.signals.tb_train_controller_inputs.emit(input_list, index)
 
     def block_pressed(self):
         index = self.get_current_index()
@@ -127,28 +138,37 @@ class ContainerTB(QMainWindow):
         input_list.append(float(lst[1]))
         input_list.append(lst[2] == "True")
         input_list.append(str(self.beaconInput.text()))
-        self.container.track_update_block(input_list, index)
+        input_list = tuple(input_list)
+        self.block_dict[index] = input_list
+        self.signals.tb_track_update_block.emit(input_list, index)
 
     def pass_pressed(self):
         index = self.get_current_index()
         if index <= 0:
             return
-        self.container.track_update_passengers(int(self.passInput.text()), index)
+
+        passengers = int(self.passInput.text())
+        self.passenger_dict[index] = passengers
+        self.signals.tb_track_update_passenger.emit(passengers, index)
 
     def temp_pressed(self):
         index = self.get_current_index()
         if index <= 0:
             return
-        self.container.controller_update_temp(float(self.tempInput.text()), index)
+        self.signals.tb_controller_update_temp.emit(float(self.tempInput.text()), index)
 
     def phys_pressed(self):
-        self.container.physics_calculation()
+        self.signals.tb_physics_calculation.emit()
 
     def add_trn(self):
-        self.container.add_train()
-        index = max(self.business_logic.train_dict.keys())
+        self.signals.tb_add_train.emit()
+        if len(self.train_name_list) == 0:
+            index = 1
+        else:
+            index = int(self.train_name_list[-1][6:]) + 1
         self.train_name_list.append(f'Train {index}')
         self.trainSelect.addItem(f'Train {index}')
+        self.auth_speed_dict[index] = (0, 0)
 
     def remove_trn(self):
         index = self.get_current_index()
@@ -160,7 +180,7 @@ class ContainerTB(QMainWindow):
             self.trainSelect.addItem(name)
         if len(self.train_name_list) != 0:
             self.combo_selection()
-        self.container.remove_train(index)
+        self.signals.tb_remove_train.emit(index)
 
     def combo_selection(self):
         if len(self.train_name_list) == 0:
@@ -176,8 +196,12 @@ class ContainerTB(QMainWindow):
             return -1
         return int(string[6:])
 
+    def big_update_pressed(self):
+        self.top_signals.update_train_model_from_track_model.emit(self.auth_speed_dict, self.block_dict, False, -1,
+                                                                  self.passenger_dict)
+
 
 contain = TrainModelContainer()
 app = QApplication(sys.argv)
-ui = ContainerTB(contain)
+ui = ContainerTB()
 app.exec()

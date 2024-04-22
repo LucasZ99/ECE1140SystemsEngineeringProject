@@ -101,9 +101,9 @@ class Map(QWidget):
         self.signal_150.setPixmap(self.red_light_pixmap)
         self.signal_150.move(20, 130)
 
-        self.signal_77 = QLabel(self)
-        self.signal_77.setPixmap(self.green_light_pixmap)
-        self.signal_77.move(170, 525)
+        self.signal_76 = QLabel(self)
+        self.signal_76.setPixmap(self.green_light_pixmap)
+        self.signal_76.move(170, 525)
         self.signal_101 = QLabel(self)
         self.signal_101.setPixmap(self.red_light_pixmap)
         self.signal_101.move(170, 490)
@@ -267,11 +267,11 @@ class Map(QWidget):
                 self.signal_150.setPixmap(self.green_light_pixmap)
             else:
                 self.signal_150.setPixmap(self.red_light_pixmap)
-        elif signal_index == 77:
+        elif signal_index == 76:
             if value:
-                self.signal_77.setPixmap(self.green_light_pixmap)
+                self.signal_76.setPixmap(self.green_light_pixmap)
             else:
-                self.signal_77.setPixmap(self.red_light_pixmap)
+                self.signal_76.setPixmap(self.red_light_pixmap)
         elif signal_index == 101:
             if value:
                 self.signal_101.setPixmap(self.green_light_pixmap)
@@ -288,7 +288,7 @@ class Map(QWidget):
             else:
                 self.signal_86.setPixmap(self.red_light_pixmap)
         else:
-            print('map: invalid toggle_signal index called')
+            print(f'map: invalid toggle_signal index called: {signal_index}')
 
     def add_failure(self, failure_type_int, block):
         [x, y] = self.pixel_dict[block]

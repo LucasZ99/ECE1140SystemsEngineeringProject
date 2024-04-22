@@ -77,7 +77,10 @@ def get_block_pair_travel_time(line_id: int, block1: int, block2: int) -> float:
 
 
 def route_arrival_time(route: list[Stop]):
-    return route[-1].arrival_time
+    if route[-1].block == GREEN_LINE_YARD_DELETE:
+        return route[-2].arrival_time
+    else:
+        return route[-1].arrival_time
 
 
 def route_departure_time(route: list[Stop]):
