@@ -170,6 +170,8 @@ class Window(QMainWindow):
         self.signals.refresh_ui_signal.connect(self.refresh)
         self.signals.map_add_train_signal.connect(self.map.add_train)
         self.signals.map_move_train_signal.connect(self.map.move_train)
+        self.signals.map_update_signal_signal.connect(self.map_update_signal)
+        self.signals.map_update_rxr_signal.connect(self.map_update_rxr)
 
 
 
