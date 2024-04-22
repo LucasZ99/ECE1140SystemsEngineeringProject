@@ -425,6 +425,7 @@ class TrainController:
 
     def updater(self, inputs, num):
         print("train controller sw.py: train controller values being updated in back")
+        print(inputs)
         self.servBrake = 0  # turn off service brake, will be turned on if needed again
         #print("serve brake turned off")
         # called from train controller container when train sends new values
@@ -532,7 +533,7 @@ class TrainController:
         # call update function to inject new values to train model
         # 8 el list + cabin temp
 
-        outputs = [self.power, self.servBrake, self.eBrake, self.doorSide, self.makeAnnouncement,
+        outputs = [self.cmdSpeed, self.power, self.servBrake, self.eBrake, self.doorSide, self.makeAnnouncement,
                    self.intLights, self.extLights, self.cabinTemp]
         return outputs
 

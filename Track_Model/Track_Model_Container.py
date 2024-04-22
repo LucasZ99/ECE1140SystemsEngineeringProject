@@ -1,22 +1,23 @@
 import os
 import sys
 
-# TODO: one signal in and out, connected at head level
-# TODO: As is rn, trains can only travel one block per call
-
 from PyQt6.QtCore import QObject, pyqtSignal
 from PyQt6.QtWidgets import QApplication
+from pandas.io.formats import console
 
 from Track_Model.Track_Model import TrackModel
 from Track_Model.Track_Model_UI import Window
+
+from TopLevelSignals import TopLevelSignals as top_level_signals
+from Track_Model.TrackModelSignals import TrackModelSignals as signals
 
 
 class TrackModelContainer(QObject):
 
     # Signals to launcher
-    update_train_model_from_track_model = pyqtSignal(object, object, bool, int, object)
-    update_ctc_from_track_model = pyqtSignal(int)
-    update_wayside_from_track_model = pyqtSignal(object)
+    # update_train_model_from_track_model = pyqtSignal(object, object, bool, int, object)
+    # update_ctc_from_track_model = pyqtSignal(int)
+    # update_wayside_from_track_model = pyqtSignal(object)
 
     # Signals from track_model
     # new_block_occupancy_signal = pyqtSignal(list)
@@ -26,15 +27,31 @@ class TrackModelContainer(QObject):
     def __init__(self):
         super().__init__()
         self.track_model = TrackModel("Green Line.xlsx")
-        self.track_model_ui = Window(self.track_model)
+        self.track_model_ui = Window()
+        self.top_level_signals = top_level_signals
+        self.signals = signals
 
-        # connect internal signals (from object)
-        self.track_model.map_add_train_signal.connect(self.map_add_train)
-        self.track_model.map_move_train_signal.connect(self.map_move_train)
-        # self.track_model.new_block_occupancy_signal.connect(self.new_block_occupancy)
-        # self.track_model.new_ticket_sales_signal.connect(self.new_ticket_sales)
-        # self.track_model.refresh_ui_signal.connect(self.refresh_ui)
-        # connect external signal
+        # Connect Track Model Signals to UI Slots:
+        self.signals.refresh_ui_signal.connect(self.refresh_ui)
+        self.signals.map_add_train_signal.connect(self.map_add_train)
+        self.signals.map_move_train_signal.connect(self.map_move_train)
+
+        self.signals.get_data_signal.connect(self.get_data_from_track_model)
+        self.signals.get_block_info_signal.connect(self.get_block_info_from_track_model)
+        self.signals.get_train_dict_signal.connect(self.get_train_dict_from_track_model)
+
+        # Connect UI Signals to Track Model Slots:
+        self.signals.set_power_failure_signal.connect(self.set_track_model_power_failure)
+        self.signals.set_track_circuit_failure_signal.connect(self.set_track_model_track_circuit_failure)
+        self.signals.set_broken_rail_failure_signal.connect(self.set_track_model_broken_rail_failure)
+
+        self.signals.set_env_temperature_signal.connect(self.set_track_model_env_temperature)
+        self.signals.set_heaters_signal.connect(self.set_track_model_heaters)
+
+        # Connect Top Level Signals
+        self.top_level_signals.update_track_model_from_wayside.connect(self.update_track_model_from_wayside)
+        self.top_level_signals.update_track_model_from_train_model.connect(self.update_track_model_from_train_model)
+        self.top_level_signals.maintenance_mode_update.connect(self.set_infrastructure)
 
     # show ui
     def show_ui(self):
@@ -145,11 +162,6 @@ class TrackModelContainer(QObject):
     def refresh_ui(self):
         self.track_model_ui.refresh()
 
-    # TODO: Add functionality for ...
-    #       switches: list[switch_index: int, value: bool]
-    # 		signals: list[signal_index: int, value: bool]
-    # 		rr_crossings: list[crossing_index: int, value: bool]
-    # 		toggle_blocks: list[block_index: int, value: bool]
     def update_track_model_from_wayside(self, authority_safe_speed_update, switch_changed_indexes,
                                         signal_changed_indexes, rr_crossing_indexes, toggle_block_indexes):
         print('Track Model: update_track_model_from_wayside called')
@@ -204,8 +216,9 @@ class TrackModelContainer(QObject):
         # emit
         self.track_model_ui.refresh()  # pre-emit ui refresh
         print('Track Model: emitting update_train_model_from_track_model')
-        self.update_train_model_from_track_model.emit(authority_safe_speed_dict, block_info_dict, add_train,
-                                                      remove_train, embarking_passengers_update)
+        self.top_level_signals.update_train_model_from_track_model.emit(authority_safe_speed_dict, block_info_dict,
+                                                                        add_train,
+                                                                        remove_train, embarking_passengers_update)
 
     def update_track_model_from_train_model(self, delta_x_dict, disembarking_passengers_dict):
         print('Track Model: update_track_model_from_train_model called')
@@ -223,10 +236,14 @@ class TrackModelContainer(QObject):
         # emit
         self.track_model_ui.refresh()  # pre-emit ui refresh
         print('Track Model: emitting update_ctc_from_track_model')
-        self.update_ctc_from_track_model.emit(ticket_sales)
+        self.top_level_signals.update_ctc_from_track_model.emit(ticket_sales)
         print('Track Model: emitting update_wayside_from_track_model')
         # print(f'Track Model: block_occupancy_update = {block_occupancy_update}')
-        self.update_wayside_from_track_model.emit(block_occupancy_update)
+        self.top_level_signals.update_wayside_from_track_model.emit(block_occupancy_update)
+
+    #
+    # Connect Signals to Slots:
+    #
 
     def map_add_train(self):
         print('Track Model Container: map_add_train called')
@@ -234,3 +251,35 @@ class TrackModelContainer(QObject):
 
     def map_move_train(self, train_id, block):
         self.track_model_ui.move_train(train_id, block)
+
+    def get_data_from_track_model(self):
+        return self.track_model.get_data()
+
+    def get_block_info_from_track_model(self, block_id):
+        return self.track_model.get_block_info(block_id)
+
+    def get_train_dict_from_track_model(self):
+        return self.track_model.get_train_dict()
+
+    def set_track_model_power_failure(self, block_id, val):
+        self.track_model.set_power_failure(block_id, val)
+
+    def set_track_model_track_circuit_failure(self, block_id, val):
+        self.track_model.set_track_circuit_failure(block_id, val)
+
+    def set_track_model_broken_rail_failure(self, block_id, val):
+        self.track_model.set_broken_rail_failure(block_id, val)
+
+    def set_track_model_env_temperature(self, temp):
+        self.track_model.set_env_temperature(temp)
+
+    def set_track_model_heaters(self, val):
+        self.track_model.set_heaters(val)
+
+    def set_infrastructure(self, switch_list, signal_list):
+        print('Track Model Container: update_infrastructure called')
+        print(f'Track Model Container: signal_list: {signal_list}')
+        self.track_model.update_infrastructure(switch_list, signal_list)
+        self.track_model_ui.refresh()
+
+

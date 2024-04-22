@@ -4,15 +4,15 @@ import sys
 from PyQt6.QtCore import Qt, pyqtSlot, pyqtSignal
 from PyQt6.QtWidgets import QMainWindow, QLCDNumber, QLineEdit, QLabel, QApplication, QPushButton
 from PyQt6.uic import loadUi
+from SystemTime.SystemTimeSignals import SystemTimeSignals
 
 
 class SystemTimeUi(QMainWindow):
-    multiplier_value_updated_signal = pyqtSignal(float)
-    toggle_play_pause_signal = pyqtSignal(bool)
 
     def __init__(self):
         super().__init__()
         self.setWindowTitle('SystemTime')
+        self.signals = SystemTimeSignals
 
         current_dir = os.path.dirname(__file__)  # setting up to work in any dir
         ui_path = os.path.join(current_dir, 'timeUi.ui')
@@ -41,33 +41,31 @@ class SystemTimeUi(QMainWindow):
     def toggle_play_pause_button(self):
         if self.pause_play_button.text() == 'pause':
             self.pause_play_button.setText('play')
-            self.toggle_play_pause_signal.emit(False)
+            self.signals.toggle_play_pause_signal.emit(False)
 
         else:
             self.pause_play_button.setText('pause')
-            self.toggle_play_pause_signal.emit(True)
+            self.signals.toggle_play_pause_signal.emit(True)
 
     def update_multiplier_one(self):
-        self.multiplier_value_updated_signal.emit(1)
+        self.signals.multiplier_value_updated_signal.emit(1)
         self.multiplier_label.setText(f"Multiplier: 1x")
 
     def update_multiplier_five(self):
-        self.multiplier_value_updated_signal.emit(5)
+        self.signals.multiplier_value_updated_signal.emit(5)
         self.multiplier_label.setText(f"Multiplier: 5x")
 
     def update_multiplier_ten(self):
-        self.multiplier_value_updated_signal.emit(10)
+        self.signals.multiplier_value_updated_signal.emit(10)
         self.multiplier_label.setText(f"Multiplier: 10x")
 
     def update_multiplier_twenty_five(self):
-        self.multiplier_value_updated_signal.emit(25)
+        self.signals.multiplier_value_updated_signal.emit(25)
         self.multiplier_label.setText(f"Multiplier: 25x")
 
     def update_multiplier_fifty(self):
-        self.multiplier_value_updated_signal.emit(50)
+        self.signals.multiplier_value_updated_signal.emit(50)
         self.multiplier_label.setText(f"Multiplier: 50x")
-
-
 
 
 if __name__ == '__main__':
