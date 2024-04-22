@@ -274,4 +274,7 @@ class TrackModelContainer(QObject):
     def set_track_model_heaters(self, val):
         self.track_model.set_heaters(val)
 
+    def set_infrastructure(self, switch_list, signal_list):
+        self.track_model.update_infrastructure(switch_list, signal_list)
+
 

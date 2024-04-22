@@ -371,15 +371,17 @@ class TrackModel(QObject):
     def get_occupancy_list(self):
         return self.data[1:, 7].tolist()
 
-    def update_infrastructure(self, switch_changed_indexes, signal_changed_indexes, rr_crossing_indexes, toggle_block_indexes):
+    def update_infrastructure(self, switch_changed_indexes, signal_changed_indexes, rr_crossing_indexes=None, toggle_block_indexes=None):
         for index, val in switch_changed_indexes:
             self.data[index, 19] = val
         for index, val in signal_changed_indexes:
             self.data[index, 21] = val
-        for index, val in rr_crossing_indexes:
-            self.data[index, 19] = val
-        for index, val in toggle_block_indexes:
-            pass  # TODO
+        if rr_crossing_indexes:
+            for index, val in rr_crossing_indexes:
+                self.data[index, 19] = val
+        if toggle_block_indexes:
+            for index, val in toggle_block_indexes:
+                pass  # TODO
 
     # new UI getters
     def get_block_info(self, block_id):
