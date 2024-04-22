@@ -41,6 +41,12 @@ class TrackControllerModel(QObject):
     def get_occupancy_updates(self) -> dict[int: bool]:
         return self.block_occupancies
 
+    def update_track_signals(self, track_signals: list[TrackSignal]) -> None:
+        for track_signal in track_signals:
+            if self.track_signals[track_signal.block_id] != track_signal:
+                self.track_signals[track_signal.block_id] = track_signal
+                CTCTestSignals.ui_update_track_signal.emit(track_signal)
+
     @pyqtSlot(list, list, list)
     def update_wayside_from_ctc(self, track_signals: list[TrackSignal],
                                 blocks_to_set_mode: list[tuple[int, bool]],

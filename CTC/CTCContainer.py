@@ -27,6 +27,7 @@ class CTCContainer(QObject):
         print("Initializing CTCContainer Done. t={0}".format(init_end_time))
         print("CTCContainer Initialization time t={0}".format(init_end_time - init_start_time))
 
+        CTCSignals.update_wayside_from_ctc_signal.connect(self.update_wayside_from_ctc)
         TopLevelSignals.update_ctc_from_wayside.connect(self.update_ctc_from_wayside)
 
     def show_ui(self):
@@ -49,6 +50,7 @@ class CTCContainer(QObject):
                                 switch_positions: list[Switch],
                                 light_states: list[Light],
                                 rr_crossing_states: list[RRCrossing]):
+        print("CTCContainer: Block occupancy update received from Wayside")
         self.ctc.wayside_event_handler(block_occupancy_update, switch_positions, light_states, rr_crossing_states)
 
     @pyqtSlot(int)
