@@ -376,6 +376,7 @@ class CTC(QObject):
 
     def update_block_occupancies(self, blocks: dict[int, bool]):
         # self.blocks_set_to_vacant.clear()
+        print("CTC wayside block event handler hit")
         update = False
         for block in blocks:
             # Only update occupancy when block is changed
@@ -469,6 +470,7 @@ class CTC(QObject):
     def schedule_train_signal_handler(self, train: Train):
         self.scheduled_trains.schedule_train(train)
         if self.update_ctc_queues() and self.update_running_trains():
+            print("CTC: schedule_train_signal_handler")
             self.update_wayside()
 
     @pyqtSlot(int)
