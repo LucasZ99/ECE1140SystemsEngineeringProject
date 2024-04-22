@@ -22,10 +22,10 @@ class TrainModelContainer(QObject):
         self.signals.tb_train_controller_inputs.connect(self.train_controller_inputs)
         self.signals.tb_track_update_passenger.connect(self.track_update_passengers)
         self.top_signal = TopLevelSignals
-        self.top_signal.update_train_model_from_track_model.connect(self.update_train_model_from_track_model)
+        self.top_signal.update_train_model_from_track_model.connect(self.train_model_from_track_model)
 
     @pyqtSlot(dict, dict, bool, int, dict)
-    def update_train_model_from_track_model(self, auth_speed_dict: dict, block_dict: dict, new_train: bool,
+    def train_model_from_track_model(self, auth_speed_dict: dict, block_dict: dict, new_train: bool,
                                             remove_train: int, passenger_dict: dict):
         
         print("Train Model: reached update_train_model_from_track_model\n")
