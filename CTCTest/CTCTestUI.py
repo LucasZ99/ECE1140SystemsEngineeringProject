@@ -105,7 +105,7 @@ class CTCTestUI(QMainWindow):
         block_index = occupied_checkbox.row()
         block = self.route_blocks[list(self.route_blocks.keys())[block_index]]
         print(f"{block.id()} checkbox pressed")
-        breakpoint()
+        # breakpoint()
         if occupied_checkbox.checkState() == Qt.CheckState.Checked:
             print("Occupied checkbox")
             CTCTestSignals.wayside_update_block_occupancy.emit(block.id(), False)

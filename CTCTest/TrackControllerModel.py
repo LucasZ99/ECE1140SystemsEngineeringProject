@@ -35,7 +35,8 @@ class TrackControllerModel(QObject):
         for rr_crossing in GREEN_LINE[CROSSINGS]:
             self.rr_crossings[rr_crossing.block] = rr_crossing
 
-        self.connect_to_frontend_signals()
+        CTCTestSignals.wayside_update_block_occupancy.connect(self.update_block_occupancy)
+        # self.connect_to_frontend_signals()
 
     def get_occupancy_updates(self) -> dict[int: bool]:
         return self.block_occupancies
