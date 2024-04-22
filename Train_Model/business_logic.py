@@ -141,7 +141,7 @@ class TrainBusinessLogic(QObject):
 
     @pyqtSlot()
     def return_to_container(self):
-        self.signals.business_update(self.delta_x_return, self.passenger_return)
+        self.signals.business_update.emit(self.delta_x_return, self.passenger_return)
 
     @pyqtSlot()
     def pass_dict_to_ui(self):
