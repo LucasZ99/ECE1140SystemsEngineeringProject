@@ -4,7 +4,7 @@ from PyQt6.QtCore import pyqtSignal, QObject
 class TopLevelSignalsCls(QObject):
 
     # Track Controller test signals
-    test_update_wayside_from_ctc = pyqtSignal(list, bool, list, list)
+    test_update_wayside_from_ctc = pyqtSignal(list, list, list)
     test_update_wayside_from_track_model = pyqtSignal(dict)
 
     # Track Controller Signals
