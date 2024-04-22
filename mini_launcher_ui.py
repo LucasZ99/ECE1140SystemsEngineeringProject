@@ -9,6 +9,7 @@ from TrackControllerTest.TestUi import TestUi
 from Track_Controller_SW.TrackControllerContainer import TrackControllerContainer
 from Track_Controller_SW.TrackControllerUI import UI
 from Track_Model.Track_Model_Container import TrackModelContainer
+from Track_Model.Track_Model_UI import Window
 
 
 class Ui_MainWindow(QMainWindow):
@@ -18,6 +19,7 @@ class Ui_MainWindow(QMainWindow):
         self.test_ui = TestUi()
         self.track_controller_a_ui = UI("A")
         self.track_controller_c_ui = UI("C")
+        self.track_model_ui = Window()
         # self.ctc_ui = CTCUi()
         # self.track_model_ui = TrackModelUI()
 
@@ -49,8 +51,7 @@ class Ui_MainWindow(QMainWindow):
         self.track_controller_c_ui.show()
 
     def open_track_model(self):
-        # self.track_model_ui.show()
-        pass
+        self.track_model_ui.show()
 
 
 def main():
@@ -73,9 +74,9 @@ def main():
     track_controller_container = TrackControllerContainer()
     track_controller_container.moveToThread(track_controller_thread)
 
-    # track_model_thread = QThread()
-    # track_model_container = TrackModelContainer()
-    # track_model_container.moveToThread(track_model_thread)
+    track_model_thread = QThread()
+    track_model_container = TrackModelContainer()
+    track_model_container.moveToThread(track_model_thread)
 
     # ctc_thread.start()
     test_thread.start()
