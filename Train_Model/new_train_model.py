@@ -59,10 +59,12 @@ class TrainModel:
             net_force = (self.engine.force_from_engine(self.velocity, self.failure.engine_failure)
                          - self.brakes.brake_force(self.failure.brake_failure)
                          + self.new_block.grav_force(self.train_const.train_mass()))
+            print("> condition, grav force is ", self.new_block.grav_force(self.train_const.train_mass()))
         else:
             net_force = (self.engine.force_from_engine(self.velocity, self.failure.engine_failure)
                          - self.brakes.brake_force(self.failure.brake_failure)
                          + self.old_block.grav_force(self.train_const.train_mass()))
+            print("<= condition, grav force is ", self.old_block.grav_force(self.train_const.train_mass()))
 
         if net_force >= self.max_force:
             net_force = self.max_force
