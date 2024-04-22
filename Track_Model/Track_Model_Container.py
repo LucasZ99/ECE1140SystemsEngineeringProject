@@ -50,6 +50,7 @@ class TrackModelContainer(QObject):
         # Connect Top Level Signals
         self.top_level_signals.update_track_model_from_wayside.connect(self.update_track_model_from_wayside)
         self.top_level_signals.update_track_model_from_train_model.connect(self.update_track_model_from_train_model)
+        self.top_level_signals.maintenance_mode_update.connect(self.set_infrastructure)
 
     # show ui
     def show_ui(self):
