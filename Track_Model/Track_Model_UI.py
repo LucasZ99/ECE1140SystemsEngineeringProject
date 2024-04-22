@@ -261,6 +261,8 @@ class Window(QMainWindow):
         self.map.set_rxr(index, val)
 
     def refresh(self):
+        self.signals.get_data_signal.emit()
+        self.signals.get_train_dict_signal.emit()
         self.refresh_block_info()
         print('refresh ui called')
         
