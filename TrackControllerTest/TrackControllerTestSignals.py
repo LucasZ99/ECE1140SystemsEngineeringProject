@@ -25,7 +25,7 @@ class TrackControllerTestSignalsCls(QObject):
 
 
     # send from business logic to launcher
-    ctc_inputs_from_testbench_signal = pyqtSignal(list, list)
+    ctc_inputs_from_testbench_signal = pyqtSignal(list, list, list)
     track_inputs_from_testbench_signal = pyqtSignal(dict)
 
     def __init__(self, parent=None):
