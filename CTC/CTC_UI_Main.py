@@ -53,7 +53,7 @@ def calculate_times_through_route(line_id: int, departure_time: float, arrival_t
 
     # force schedulable route
     if minimum_travel_time > suggested_travel_time:
-        print("CTCUI: proposed time too short. ")
+        # print("CTCUI: proposed time too short. ")
         arrival_time = departure_time + minimum_travel_time
 
     scheduled_route = Route.schedule_route(line_id, route_stops, departure_time, arrival_time)
@@ -395,6 +395,7 @@ class CTCMainWindow(QMainWindow):
 
     @pyqtSlot(dict)
     def get_authorities_signal_handler(self, authorities: dict[int, int]):
+        print("CTCUI: Authorities received from backend")
         self.block_table.update_authorities(authorities)
 
     @pyqtSlot(list)
@@ -427,6 +428,7 @@ class RunningTrainsTableLayout(QVBoxLayout):
         self.table.setRowCount(0)
 
     def update_running_trains(self, running_trains: list[Train]):
+        # print(f"CTCUI: updating running trains. {len(running_trains)}")
         self.clear_table()
 
         for row, train in enumerate(running_trains):
@@ -455,6 +457,7 @@ class ScheduledTrainsTableLayout(QVBoxLayout):
         self.import_schedule_button = QPushButton("Import Schedule")
         self.import_schedule_button.setFixedSize(self.import_schedule_button.sizeHint())
 
+        self.header_layout.addWidget(self.label)
         self.header_layout.addWidget(self.import_schedule_button)
         self.addLayout(self.header_layout)
 

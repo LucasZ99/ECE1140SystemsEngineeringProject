@@ -4,9 +4,9 @@ import PyQt6
 from PyQt6 import QtWidgets
 from PyQt6.QtCore import pyqtSignal, pyqtSlot, QObject, Qt
 from PyQt6.QtWidgets import QMainWindow, QWidget, QApplication, QPushButton, QTableWidget, QTableWidgetItem, \
-    QVBoxLayout, QHeaderView
+    QVBoxLayout, QHeaderView, QCheckBox
 
-from CTCTestSignals import CTCTestSignals
+from CTCTest.CTCTestSignals import CTCTestSignals
 
 from Common.GreenLine import *
 from Common import TrackSignal, Light, RRCrossing, Switch
@@ -16,15 +16,16 @@ from CTCTest.TrackControllerModel import TrackControllerModel
 
 
 class CTCTestUIContainer(QObject):
+    update_ctc_from_wayside_signal = pyqtSignal(dict, list, list, list)
+
     def __init__(self):
         super().__init__()
         self.track_controller = TrackControllerModel()
         self.ui = CTCTestUI()
         self.track_controller.init_frontend()
 
-        CTCTestSignals.update_ctc_from_wayside.connect(self.update_ctc_from_wayside)
-
         # connect to top level signal
+        CTCTestSignals.update_ctc_from_wayside.connect(self.update_ctc_from_wayside)
         TopLevelSignals.update_wayside_from_ctc.connect(self.update_wayside_from_ctc)
 
     def show_ui(self):
@@ -38,7 +39,7 @@ class CTCTestUIContainer(QObject):
     @pyqtSlot(list, list, list)
     def update_wayside_from_ctc(self, track_signals: list[TrackSignal], blocks_to_open_close: list[tuple[int, bool]],
                                 switch_positions: list[Switch]):
-        CTCTestSignals.wayside_update_track_signals.emit(track_signals)
+        self.track_controller.update_track_signals(track_signals)
 
 
 class CTCTestUI(QMainWindow):
@@ -73,6 +74,8 @@ class CTCTestUI(QMainWindow):
                 PyQt6.QtCore.Qt.ItemFlag.ItemIsEnabled)
             occupied.setCheckState(PyQt6.QtCore.Qt.CheckState.Unchecked)
 
+            # connect button handler
+
             maintenance_mode_set = QTableWidgetItem()
             maintenance_mode_set.setFlags(
                 PyQt6.QtCore.Qt.ItemFlag.ItemIsUserCheckable | PyQt6.QtCore.Qt.ItemFlag.ItemIsEnabled &
@@ -81,6 +84,7 @@ class CTCTestUI(QMainWindow):
             self.block_list.setItem(row, 0, block_name)
             self.block_list.setItem(row, 1, occupied)
             self.block_list.setItem(row, 4, maintenance_mode_set)
+
 
         # connect check box handler
         self.block_list.itemChanged.connect(self.set_block_occupancy_state)
@@ -101,16 +105,19 @@ class CTCTestUI(QMainWindow):
         self.connect_signals_from_backend()
         self.init_test_ui()
 
-    def set_block_occupancy_state(self, occupied_checkbox):
-        block_index = occupied_checkbox.row()
-        block = self.route_blocks[list(self.route_blocks.keys())[block_index]]
-        print(f"{block.id()} checkbox pressed")
-        # breakpoint()
-        if occupied_checkbox.checkState() == Qt.CheckState.Checked:
-            print("Occupied checkbox")
-            CTCTestSignals.wayside_update_block_occupancy.emit(block.id(), False)
-        else:
-            CTCTestSignals.wayside_update_block_occupancy.emit(block.id(), True)
+    @pyqtSlot(QTableWidgetItem)
+    def set_block_occupancy_state(self, occupied_checkbox: QTableWidgetItem):
+        if occupied_checkbox.column() == 1:
+            block_index = occupied_checkbox.row()
+            block = self.route_blocks[list(self.route_blocks.keys())[block_index]]
+            print(f"{block.id()} checkbox pressed")
+            # breakpoint()
+
+            if occupied_checkbox.checkState() == Qt.CheckState.Checked:
+                print("Occupied checkbox")
+                CTCTestSignals.wayside_update_block_occupancy.emit(block.id(), True)
+            else:
+                CTCTestSignals.wayside_update_block_occupancy.emit(block.id(), False)
 
     @pyqtSlot(object)
     def track_signal_received_handler(self, track_signal: TrackSignal):
