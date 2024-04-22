@@ -57,8 +57,8 @@ class CTC(QObject):
         self.blocks: dict[int, bool] = {}
         self.suggested_speeds: dict[int, float] = {}
         self.switches: dict[int: Switch] = {}
-        self.lights: dict[int: bool] = {}
-        self.rr_crossings: dict[int, bool] = {}
+        self.lights: dict[int: Light] = {}
+        self.rr_crossings: dict[int, RRCrossing] = {}
 
         for block in GREEN_LINE[BLOCKS]:
             self.authorities[block] = 0
@@ -69,10 +69,10 @@ class CTC(QObject):
             self.switches[switch.block] = switch
 
         for light in GREEN_LINE[LIGHTS]:
-            self.lights[light.block] = light.val
+            self.lights[light.block] = light
 
         for crossing in GREEN_LINE[CROSSINGS]:
-            self.rr_crossings[crossing] = False
+            self.rr_crossings[crossing] = crossing
 
         self.ctc_update_timer = QTimer()
         self.ctc_update_timer.timeout.connect(self.timer_handler)
