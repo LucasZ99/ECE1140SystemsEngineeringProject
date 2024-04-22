@@ -3,6 +3,7 @@ import sys
 
 from PyQt6.QtCore import QObject, pyqtSignal
 from PyQt6.QtWidgets import QApplication
+from pandas.io.formats import console
 
 from Track_Model.Track_Model import TrackModel
 from Track_Model.Track_Model_UI import Window
@@ -276,6 +277,9 @@ class TrackModelContainer(QObject):
         self.track_model.set_heaters(val)
 
     def set_infrastructure(self, switch_list, signal_list):
+        print('Track Model Container: update_infrastructure called')
+        print(f'Track Model Container: signal_list: {signal_list}')
         self.track_model.update_infrastructure(switch_list, signal_list)
+        self.track_model_ui.refresh()
 
 
