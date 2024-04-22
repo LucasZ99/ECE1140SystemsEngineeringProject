@@ -479,10 +479,10 @@ class CTC(QObject):
         self.update_switch_positions(switch_positions)
         self.update_signal_statuses(light_states)
         self.update_railroad_crossing_statuses(rr_crossing_states)
+        self.update_running_trains()
 
-        if update:
-            if self.update_running_trains():
-                self.update_wayside()
+        if len(self.track_signals) > 0:
+            self.update_wayside()
 
     def update_wayside(self):
         print("CTC: updating wayside")
