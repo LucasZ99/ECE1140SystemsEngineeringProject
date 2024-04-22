@@ -76,7 +76,10 @@ class TrainModelContainer(QObject):
         # the list provided should have the entries in this order: [commanded speed, power, service brake,
         # emergency brake, left/right doors, announce station, cabin lights, headlights]
         input_list = tuple(input_list)
-        self.signals.train_controller_inputs.emit(input_list, index)
+        try:
+            self.signals.train_controller_inputs.emit(input_list, index)
+        except Exception as error:
+            print(error)
 
     @pyqtSlot(tuple, int)
     def track_update_block(self, block_vals, index):
@@ -95,7 +98,10 @@ class TrainModelContainer(QObject):
 
     @pyqtSlot()
     def physics_calculation(self):
-        self.signals.physics_calculation.emit()
+        try:
+            self.signals.physics_calculation.emit()
+        except Exception as error:
+            print(error)
 
     @pyqtSlot()
     def add_train(self):
@@ -105,6 +111,5 @@ class TrainModelContainer(QObject):
 
     @pyqtSlot(int)
     def remove_train(self, index):
-        print("Train Model Container: train remove hit\n")
+        print("Train Model Container: train remove hit")
         self.signals.business_remove_train.emit(index)
-        print("Train Model Container: train removed from container")
