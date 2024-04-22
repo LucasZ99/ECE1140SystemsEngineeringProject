@@ -1435,6 +1435,44 @@ def driver_temp(folder):
     return Endcase
 
 
+#----------------------------------------------
+#test beacon reading from redline
+def redline_rundown(folder):
+    #prints, prep log
+    print("================================================================================")
+    print("\n[!!!!!!!] TESTING:\t 18redline_rundown")
+    print(f"file:\t\t{folder}/18redline_rundown.txt")
+    file = open(f"{folder}/18redline_rundown.txt", 'w')
+    file.write("Hi\n")
+    
+    #----------------------------------------------
+    #making controller
+    main_TrainModel_arr = [0,0,0,False,False,False,"0"*128]
+    main_output_arr = []
+    main_Driver_arr = []
+    
+    try: it = util.Iterator(board); it.start()
+    except: print("No Train Controller HW detected: util.Iterator")
+    
+    trainCtrl = HW_UI_JEB382_PyFirmat(main_Driver_arr, main_TrainModel_arr, main_output_arr)
+    
+    #----------------------------------------------
+    #Testing
+    Endcase = True
+    
+    
+    
+    
+    
+    #----------------------------------------------
+    #Endcase
+    file.write("\n-------------\n")
+    file.write(f"[!!!!!] 16announce_stat_block: <{'PASS' if Endcase else 'FAIL'}>\n")
+
+    print("\n-------------")
+    print(f"[!!!!!] 16announce_stat_block: <{'PASS' if Endcase else 'FAIL'}>")
+    return Endcase
+
 
 #----------------------------------------------
 #must be done by a person manually

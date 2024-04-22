@@ -385,33 +385,35 @@ class HW_UI_JEB382_PyFirmat:
         #distance
         distance_to_station=0
         self.stat_Dside=0
-        app_stat=""
-        if not self.line:
+        app_stat=None
+        '''if not self.line:
             #!!!!!!! distance left in authority [Greenline]
             #add up all block's length allowed by authority (num of blocks)
             #Line0, Section1, Block Num2, Block Len3, SpeedLimit4, Infrastructure5, Station Side6
             
             for i in range(int(self.TrainModel_arr[2])+1):
+                infra = linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum).split('\t')[5]
                 particular_line = linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum+i).split("\t")
                 #print(f"LINE: {particular_line}")
                 distance_to_station += int(float(particular_line[3]))
 
-                if particular_line[5][:7] == "STATION":
+                if i<2 and (particular_line[5][:7] == "STATION" or infra[:7] == "STATION"):
                     app_stat=particular_line[5][9:]
                     #print(f"PART: {particular_line[5][9:]}")
                     if "Left" in particular_line[6]: self.stat_Dside+=1
                     if "Right" in particular_line[6]: self.stat_Dside+=2
+                else:
+                    app_stat=None
             
-            infra = linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum).split('\t')[5]
-            #print(f".txt infra: <{infra[:7]}>, app_stat: <{app_stat}>")
+            self.Announcements= ""
             self.output_arr[5] = ""
-            if linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum).split("\t")[5][:7] != "STATION":
-                self.Announcements = "APP:"+app_stat[:12]
-            elif linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum).split("\t")[5][:7] == "STATION":
-                self.Announcements = "NOW:"+infra[9:]#app_stat[:12]
-                #if app_stat != "": self.output_arr[5] = app_stat
-                #else:  self.output_arr[5] = infra[5][9:]
-                self.output_arr[5] = infra[9:]
+            if app_stat:
+                infra = linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum).split('\t')[5]
+                self.output_arr[5] = app_stat[:12]
+                self.Announcements = f"{'NOW' if infra[:7] == 'STATION' else 'APP'}:{app_stat[:12]}"
+                
+                
+                
         else:
             #redline
             #calc distance
@@ -432,34 +434,85 @@ class HW_UI_JEB382_PyFirmat:
             #TODO: DEBUG???
             #cut back to 5 incase#NOTE:dont have to due to next line
             #add up distance of array according to authority+1
-            for i in range(int(self.TrainModel_arr[2])+1):
-                particular_line = linecache.getline('Resources/IT4_RedLine.txt', temp[i]).split("\t")
-                print(f"#{temp[i]} LINE: <{particular_line}>,")
+            for i in temp:
+                infra = linecache.getline('Resources/IT4_RedLine.txt', i).split('\t')[5]
+                particular_line = linecache.getline('Resources/IT4_RedLine.txt', i+1).split("\t")
+                #print(f"LINE: {particular_line}")
                 distance_to_station += int(float(particular_line[3]))
 
-                if particular_line[5][:7] == "STATION":
+                if i<2 and (particular_line[5][:7] == "STATION" or infra[:7] == "STATION"):
                     app_stat=particular_line[5][9:]
                     #print(f"PART: {particular_line[5][9:]}")
                     if "Left" in particular_line[6]: self.stat_Dside+=1
                     if "Right" in particular_line[6]: self.stat_Dside+=2
+                else:
+                    app_stat=None
             
-            infra = linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum).split('\t')[5]
-            #print(f".txt infra: <{infra[:7]}>, app_stat: <{app_stat}>")
+            self.Announcements= ""
             self.output_arr[5] = ""
-            if linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum).split("\t")[5][:7] != "STATION":
-                self.Announcements = "APP:"+app_stat[:12]
-            elif linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum).split("\t")[5][:7] == "STATION":
-                self.Announcements = "NOW:"+infra[9:]#app_stat[:12]
-                #if app_stat != "": self.output_arr[5] = app_stat
-                #else:  self.output_arr[5] = infra[5][9:]
-                self.output_arr[5] = infra[9:]            
+            if app_stat:
+                infra = linecache.getline('Resources/IT4_RedLine.txt', self.blockNum).split('\t')[5]
+                self.output_arr[5] = app_stat[:12]
+                self.Announcements = f"{'NOW' if infra[:7] == 'STATION' else 'APP'}:{app_stat[:12]}"'''
+                
+                
+        #================================================
+        
+        if not self.line:
+            temp=range(int(self.TrainModel_arr[2])+1)
+        else:
+            # get 5size array of future blocks
+            curr=self.blockNum
+            temp=[]
+            for i in range(6):
+                temp.append(curr)
+                # if edgecase of block+dir: adjust, add, break
+                if str([curr,self.direction]) in RL_LAjump_dict:
+                        for x in RL_LAjump_dict[ str([curr,self.direction]) ]: temp.append(x)
+                        break
+
+                #else adjust curr by direction
+                curr += (self.direction*-2) + 1
+        
+        #TODO: DEBUG???
+        #cut back to 5 incase#NOTE:dont have to due to next line
+        #add up distance of array according to authority+1
+        for i in range(int(self.TrainModel_arr[2])+1):
+            if not self.line:
+                infra = linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum).split('\t')[5]
+                particular_line = linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum+i).split("\t")
+            else:
+                print(f"<{i}>: {temp}")
+                infra = linecache.getline('Resources/IT4_RedLine.txt', temp[i]+1).split('\t')[5]
+                particular_line = linecache.getline('Resources/IT4_RedLine.txt', temp[i+1]+1).split("\t")
+            #print(f"LINE: {particular_line}")
+            distance_to_station += int(float(particular_line[3]))
+
+            if particular_line[5][:7] == "STATION" or infra[:7] == "STATION":
+                if "Left" in particular_line[6]: self.stat_Dside+=1
+                if "Right" in particular_line[6]: self.stat_Dside+=2
+                if i<2: app_stat=particular_line[5][9:]
+            else:
+                app_stat=None
+        
+        self.Announcements= ""
+        self.output_arr[5] = ""
+        if app_stat:
+            if not self.line:
+                infra = linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum  ).split('\t')[5]
+            else:
+                infra = linecache.getline('Resources/IT4_RedLine.txt',   self.blockNum+1).split('\t')[5]
+            self.output_arr[5] = app_stat[:12]
+            self.Announcements = f"{'NOW' if infra[:7] == 'STATION' else 'APP'}:{app_stat[:12]}"
+        #================================================  
             
             
             
             
         
         #print(f"BlockNum: {self.blockNum}")
-        #print(f"ANNOUNCE: <{self.Announcements}>")
+        #print(f"ANNOUNCE: <{self.blockNum}>,\t<{i}>,\t<{app_stat}>,\t<{self.Announcements}>,\t<{self.output_arr[5]}>")
+        print(f"ANNOUNCE: <{self.blockNum}>,\t<{self.stat_Dside}>,\t<{self.Announcements}>,\t<{self.output_arr[5]}>")
         #print(f"DIST: {distance_to_station},\tANNOUNCE: <{self.Announcements}>")
         
         
@@ -494,34 +547,38 @@ class HW_UI_JEB382_PyFirmat:
         
         
         
-        print(f"DIST: {distance_to_station},\tANNOUNCE: <{self.Announcements}>,\t{self.traveled}")
+        #print(f"DIST: {distance_to_station},\tANNOUNCE: <{self.Announcements}>,\t{self.traveled}")
         
             
         
         #if authority<4 and distance to station <= s1 + buffer: serivce brake, power=0, commanded speed=0
         if distance_to_station <= s1+displace_buffer or distance_to_station == s1:
-            print("TrainC HW: service brake")
+            #print("TrainC HW: service brake")
             self.output_arr[0] = 0
             self.output_arr[1] = 0
             self.output_arr[2] = True
             #while True: print("SBRAKE")
         #elif authority<4 and distance to station <= s1: emergency brake, power=0, commanded speed=0
         elif distance_to_station < s1:
-            print("TrainC HW: emergency brake")
+            #print("TrainC HW: emergency brake")
             self.output_arr[0] = 0
             self.output_arr[1] = 0
             self.output_arr[3] = True
             #while True: print("EBRAKE")
         else:
-            print("TrainC HW: moving")
+            #print("TrainC HW: moving")
             #fill out self.output_arr and self.Announcements
             #0   Commanded Speed	                m/s	        How fast the driver has commanded the train to go
             if self.Mode: #Manual
                 self.output_arr[0] = self.Driver_arr[2]
             else:
                 self.output_arr[0] = self.TrainModel_arr[1]
-            
-            self.speedlimit = int(linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum).split("\t")[4])
+            #-----
+            if not self.line:
+                self.speedlimit = int(linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum).split("\t")[4])
+            else:
+                self.speedlimit = int(linecache.getline('Resources/IT4_RedLine.txt', self.blockNum+1).split("\t")[4])
+            #-----
             if self.output_arr[0] > (self.speedlimit/3.6):
                 self.output_arr[0] = float((self.speedlimit/3.6))#TODO: SPDLMT is KM/HR, CONVERT
                 #print("TrainC HW: over speed limit")
@@ -530,13 +587,13 @@ class HW_UI_JEB382_PyFirmat:
             #-----------------------------------------------------------------------------------------------------------------------
             #1   Power                           Watts	    Engine power (Lec2 Slide61-65 pdf54-58)
             if self.output_arr[2] or self.output_arr[3]: #Brake overrides
-                print("TrainC HW: moving: cancel: brake")
+                #print("TrainC HW: moving: cancel: brake")
                 self.output_arr[1] = 0
             elif (not self.Mode and self.TrainModel_arr[1] == 0) or (self.Mode and self.Driver_arr[2] == 0) or self.TrainModel_arr[2] == 0:
-                print("TrainC HW: moving: cancel: no auth and/or cmd spd")
+                #print("TrainC HW: moving: cancel: no auth and/or cmd spd")
                 self.output_arr[1] = 0
             else:                    
-                print("TrainC HW: moving: moving confirm")
+                #print("TrainC HW: moving: moving confirm")
                 
                 V_err = self.output_arr[0] - self.TrainModel_arr[0] #Verr=Vcmd-Vactual ; m/s-m/s
                 #T = currtime-self.timeL #sec-sec
@@ -630,6 +687,7 @@ class HW_UI_JEB382_PyFirmat:
 
         
     def __del__(self):
+        super().__del__()
         print('HW_UI_JEB382_PyFirmat: Destructor called')
 
 
@@ -648,8 +706,7 @@ class HW_UI_JEB382_PyFirmat:
         #global printout
         global NoHW
         prin=True
-        while False:
-            
+        while True:
             with open('TrainC_HW_bugfix.txt', 'w') as f: f.write('Hi')
             
             if not NoHW: self.updateRead()
@@ -722,8 +779,8 @@ def def_main(line=4):
 
 #================================================================================
 if __name__ == "__main__":
-    def_main(0)
-    #def_main(1)
-    #def_main(2)
-    #def_main()
+    #def_main(0)     #nonspec
+    #def_main(1)    #green
+    def_main(2)    #red
+    #def_main( )     #nonsense
         
