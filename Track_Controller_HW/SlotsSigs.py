@@ -7,6 +7,8 @@ from Track_Controller_SW.TrackControllerSignals import TrackControllerSignals
 
 current_dir = os.path.dirname(__file__)  # setting up dir to work in any location in a directory
 
+#slots sigs class
+
 class SlotsSigs(QObject):
     plc_path = ''  # updated at import time
     # Define Signals
@@ -26,7 +28,7 @@ class SlotsSigs(QObject):
         self.plc = PLCProgram.PLC()
 
         super().__init__()
-        self.mode = mode
+        self.mode = False
         self.authority = authority
         self.switches = switches
         self.blocks = blocks
@@ -53,7 +55,7 @@ class SlotsSigs(QObject):
         else:
             TrackControllerSignals.track_controller_B_rr_crossing_signal.emit(False)
         self.rr_crossing = self.new_rr_crossing
-        self.hw_ui.show_hw_data(self.blocks, self.mode, self.rr_crossing, self.switches)
+        self.hw_ui.show_hw_data(self.blocks, self.mode, self.rr_crossing, self.stops)
         return self.stops
 
     # Signal to update the switches
@@ -61,7 +63,7 @@ class SlotsSigs(QObject):
     def new_switches(self, new_switches: list):
         print("WS HW: switch moved")
         self.switches = new_switches
-        self.hw_ui.show_hw_data(self.blocks, self.mode, self.rr_crossing, self.switches)
+        self.hw_ui.show_hw_data(self.blocks, self.mode, self.rr_crossing, self.stops)
         self.switches_signal.emit(new_switches)
 
     @pyqtSlot(bool)
@@ -103,4 +105,4 @@ class SlotsSigs(QObject):
 
     def send_to_hw(self):
         print("WS HW: Sending data to HW")
-        self.hw_ui.show_hw_data(self.blocks, self.mode, self.rr_crossing, self.switches)
+        self.hw_ui.show_hw_data(self.blocks, True, self.rr_crossing, self.stops)
