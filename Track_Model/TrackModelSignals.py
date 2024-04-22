@@ -8,10 +8,17 @@ class TrackModelSignalsCls(QObject):
     map_add_train_signal = pyqtSignal()
     map_move_train_signal = pyqtSignal(int, int)
 
+    # Track Model data <- UI
+    get_data_signal = pyqtSignal()
+    get_block_info_signal = pyqtSignal(int)
+    get_train_dict_signal = pyqtSignal()
+    get_full_path_signal = pyqtSignal()
+
     # Track Model data -> UI
-    get_data_signal = pyqtSignal(object)
-    get_block_info_signal = pyqtSignal(object)
-    get_train_dict_signal = pyqtSignal(dict)
+    send_data_signal = pyqtSignal(object)
+    send_block_info_signal = pyqtSignal(object)
+    send_train_dict_signal = pyqtSignal(dict)
+    send_full_path_signal = pyqtSignal(object)
 
     # UI -> Track Model
     set_power_failure_signal = pyqtSignal(int, bool)

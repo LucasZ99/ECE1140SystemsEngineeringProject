@@ -6,6 +6,7 @@ from PyQt6.QtCore import pyqtSignal, QObject
 from PyQt6.QtWidgets import QApplication
 import time
 import openpyxl
+from Track_Model.TrackModelSignals import TrackModelSignals as signals
 
 
 class TrackModel(QObject):
@@ -72,13 +73,23 @@ class TrackModel(QObject):
             self.cumulative_distance[i] = cumulative_distance
         # print(self.cumulative_distance)
 
+        # Connect Signals to Slots:
+        self.signals = signals
+        self.signals.get_data_signal.connect(self.get_data)
+        self.signals.get_block_info_signal.connect(self.get_block_info)
+        self.signals.get_train_dict_signal.connect(self.get_train_dict)
+        self.signals.get_full_path_signal.connect(self.get_full_path)
+
     def get_train_dict(self):
+        self.signals.send_train_dict_signal.emit(self.train_dict)
         return self.train_dict
 
     def get_full_path(self):
+        self.signals.send_full_path_signal.emit(self.full_path)
         return self.full_path
 
     def get_data(self):
+        self.signals.send_data_signal.emit(self.data)
         return self.data
 
     def get_line_name(self):
@@ -295,7 +306,7 @@ class TrackModel(QObject):
         self.train_dict[self.train_count] = self.full_path[0]
         self.train_dict_meters[self.train_count] = 0
         print(f'new train spawned, train_count = {self.train_count}')
-        self.map_add_train_signal.emit()  # refresh map ui
+        self.signals.map_add_train_signal.emit()  # refresh map ui
 
     # def train_presence_changed(self, train_id: int):
     #     if self.train_dict_relative[train_id] >= 170:
@@ -335,7 +346,7 @@ class TrackModel(QObject):
         for key, value in self.train_dict_meters.items():
             if value > self.cumulative_distance[self.train_dict_relative[key]]:
                 self.train_dict_relative[key] += 1
-                self.map_move_train_signal.emit(key, self.full_path[self.train_dict_relative[key]])  # refresh map ui
+                self.signals.map_move_train_signal.emit(key, self.full_path[self.train_dict_relative[key]])  # refresh map ui
             if self.train_dict_relative[key] > 170:  # check if we should remove trains
                 self.remove_train = key
             print(f'train_dict_relative[key] = {self.train_dict_relative[key]}')
@@ -381,7 +392,7 @@ class TrackModel(QObject):
         # TODO: add station info
         # self.data[block_id, ]
         # print(self.data[block_id, (3, 4, 5, 6, 7, 11, 12, 20, 13, 14, 15)])
-        return self.data[block_id, (3, 4, 5, 6, 7, 11, 12, 20, 13, 14, 15, 19, 21, 22)]
+        self.signals.send_block_info_signal.emit(self.data[block_id, (3, 4, 5, 6, 7, 11, 12, 20, 13, 14, 15, 19, 21, 22)])
 
     def get_block_info_for_train(self, train_id):
         block = self.train_dict[train_id]

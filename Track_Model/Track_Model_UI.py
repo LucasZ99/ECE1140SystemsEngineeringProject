@@ -1,5 +1,6 @@
 import os
 
+import numpy as np
 from PyQt6.QtWidgets import (
     QApplication, QWidget, QPushButton, QLineEdit, QGridLayout, QTableWidget, QGroupBox, QVBoxLayout,
     QTableWidget, QLabel, QSlider, QComboBox, QFileDialog, QTableView, QTableWidgetItem, QMainWindow,
@@ -14,19 +15,15 @@ from Track_Model.dynamic_map import DynamicMap
 from Track_Model.oldTB_UI import TestBenchWindow
 from Track_Model.map import Map
 import time
+from Track_Model.TrackModelSignals import TrackModelSignals as signals
 
 
-##############################
-# Main Window
-##############################
-class Window(QMainWindow):  # TODO: FAILURE MODE FROM NEW COMBOBOX
-    def __init__(self, track_model):
+class Window(QMainWindow):
+    def __init__(self):
         super().__init__()
         # Backend
         # self.file_name = self.getFileName()
         self.file_name = 'Green Line.xlsx'
-        self.track_model = track_model
-        self.full_path = track_model.get_full_path()
         # self.test_bench_window = TestBenchWindow()
         self.counter = 0
         # Window Layout
@@ -36,12 +33,28 @@ class Window(QMainWindow):  # TODO: FAILURE MODE FROM NEW COMBOBOX
         self.resize(1920 // 2, 1080 // 2)
         layout = QGridLayout()
         # signals
-        self.track_model.refresh_ui_signal.connect(self.refresh)
+        self.signals = signals
+        # self.signals.refresh_ui_signal.connect(self.refresh)
+        self.signals.send_full_path_signal.connect(self.receive_full_path)
+        self.signals.send_train_dict_signal.connect(self.receive_train_dict)
+        self.signals.send_data_signal.connect(self.receive_data)
+        self.signals.send_block_info_signal.connect(self.receive_block_info)
+
+        # initialize track model data
+        self.full_path = []
+        self.train_dict = {}
+        self.data = np.array([])
+        self.block_info = np.array([])
+
+        self.signals.get_full_path_signal.emit()
+        self.signals.get_train_dict_signal.emit()
+        self.signals.get_data_signal.emit()
+        self.signals.get_block_info_signal.emit(1)
 
         # str_list_blocks
-        self.str_list_blocks = list(self.track_model.get_data()[1:, 2].astype(str))
+        self.str_list_blocks = list(self.data[1:, 2].astype(str))
         for i in range(1, len(self.str_list_blocks) + 1):
-            self.str_list_blocks[i-1] = self.track_model.get_data()[i, 1] + self.str_list_blocks[i-1]
+            self.str_list_blocks[i-1] = self.data[i, 1] + self.str_list_blocks[i-1]
 
         # Temperature Controls
         self.temperature_controls_group = QGroupBox("Temperature Controls")
@@ -87,7 +100,7 @@ class Window(QMainWindow):  # TODO: FAILURE MODE FROM NEW COMBOBOX
         self.block_info_combo.setFixedSize(60, 25)
         bv_layout.addWidget(self.block_info_combo)
         # block info labels
-        info = track_model.get_block_info(1)
+        info = self.block_info
         self.length_label = QLabel('length = ' + str(info[0]))
         self.grade_label = QLabel('grade = ' + str(info[1]))
         self.speed_lim_label = QLabel('speed lim = ' + str(info[2]))
@@ -119,7 +132,7 @@ class Window(QMainWindow):  # TODO: FAILURE MODE FROM NEW COMBOBOX
         bv_layout.addWidget(self.signal_label, 5, 1)
         bv_layout.addWidget(self.rxr_label, 6, 1)
         # train dictionary display
-        self.train_dict_label = QLabel('Trains: ' + str(self.track_model.get_train_dict()))
+        self.train_dict_label = QLabel('Trains: ' + str(self.train_dict))
         bv_layout.addWidget(self.train_dict_label, 9, 0)
         # failure combo/toggle
         self.failure_combo = QComboBox()
@@ -158,11 +171,11 @@ class Window(QMainWindow):  # TODO: FAILURE MODE FROM NEW COMBOBOX
     def display_slider_value(self):
         self.slider_label.setText(str(self.sender().value()) + "°F")
         # self.slider_label.adjustSize()  # Expands label size as numbers get larger
-        self.track_model.set_env_temperature(self.sender().value())
+        self.signals.set_env_temperature_signals(self.sender().value())
         if self.sender().value() <= 32:  # could check current heater value, but no need
-            self.track_model.set_heaters(1)  # we do not use bool b/c we need NaN value for non-heater blocks
+            signals.set_heaters_signal.emit(1)  # we do not use bool b/c we need NaN value for non-heater blocks
         else:
-            self.track_model.set_heaters(0)
+            signals.set_heaters_signal.emit(0)
         self.refresh()  # we could write a new function for only refreshing tables 1&3, but no need
 
     def getFileName(self):
@@ -180,10 +193,8 @@ class Window(QMainWindow):  # TODO: FAILURE MODE FROM NEW COMBOBOX
         if hasattr(self, 'current_file_label'):
             self.current_file_label.setText('Reading from\n"' + self.file_name.split('/')[-1] + '"')
 
-        # Update track_model
-        self.track_model = TrackModel(self.file_name)
+        # TODO: UPDATE TRACK MODEL FROM UI inputted file
 
-        # TODO: Make a refresh everything (or reset everything) function and put it here
         # return our new file name
         return self.file_name
 
@@ -197,23 +208,25 @@ class Window(QMainWindow):  # TODO: FAILURE MODE FROM NEW COMBOBOX
             failure_mode_int = 14
         else:  # broken rail failure
             failure_mode_int = 15
-        self.failure_toggle.setChecked(self.track_model.get_data()[block, failure_mode_int])
+        self.signals.get_data_signal.emit()
+        self.failure_toggle.setChecked(bool(self.data[block, failure_mode_int]))
 
     def failure_toggle_clicked(self):
         block = int(self.block_info_combo.currentText()[1:])
         val = bool(self.failure_toggle.isChecked())
         failure_mode = str(self.failure_combo.currentText())
         if failure_mode == 'Power Failure':
-            self.track_model.set_power_failure(block, val)
+            self.signals.set_power_failure_signal.emit(block, val)
         elif failure_mode == 'Track Circuit Failure':
-            self.track_model.set_track_circuit_failure(block, val)
+            self.signals.set_track_circuit_failure_signal.emit(block, val)
         else:  # broken rail failure
-            self.track_model.set_broken_rail_failure(block, val)
+            self.signals.set_broken_rail_failure.emit(block, val)
         self.refresh()
 
     def refresh_block_info(self):
         block = int(self.block_info_combo.currentText()[1:])
-        info = self.track_model.get_block_info(block)
+        self.signals.get_block_info_signal.emit(block)
+        info = self.block_info
         self.length_label.setText('length = ' + str(info[0]))
         self.grade_label.setText('grade = ' + str(info[1]))
         self.speed_lim_label.setText('speed lim = ' + str(info[2]))
@@ -231,7 +244,8 @@ class Window(QMainWindow):  # TODO: FAILURE MODE FROM NEW COMBOBOX
         self.signal_label.setText('signal = ' + str(info[12]))
         self.rxr_label.setText('rxr = ' + str(info[13]))
 
-        self.train_dict_label.setText('Trains: ' + str(self.track_model.get_train_dict()))
+        self.signals.get_train_dict_signal.emit()
+        self.train_dict_label.setText('Trains: ' + str(self.train_dict))
 
     def add_train(self):
         self.map.add_train()
@@ -248,6 +262,18 @@ class Window(QMainWindow):  # TODO: FAILURE MODE FROM NEW COMBOBOX
     def refresh(self):
         self.refresh_block_info()
         print('refresh ui called')
+        
+    def receive_data(self, data):
+        self.data = data
+    
+    def receive_block_info(self, block_info):
+        self.block_info = block_info
+    
+    def receive_full_path(self, full_path):
+        self.full_path = full_path
+    
+    def receive_train_dict(self, train_dict):
+        self.train_dict = train_dict
 
 
 ##############################
