@@ -8,11 +8,14 @@ from TrackControllerTest import TrackControllerTestBenchContainer
 from TrackControllerTest.TestUi import TestUi
 from Track_Controller_SW.TrackControllerContainer import TrackControllerContainer
 from Track_Controller_SW.TrackControllerUI import UI
+from Track_Model.Track_Model_Container import TrackModelContainer
+from Track_Model.Track_Model_UI import Window
 from Train_Model import UITrain, TrainModelContainer
 from SystemTime import SystemTimeUi, SystemTimeContainer
 
 
 class Ui_MainWindow(QMainWindow):
+
     def __init__(self):
         super().__init__()
         loadUi('mini_launcher.ui', self)
@@ -20,6 +23,7 @@ class Ui_MainWindow(QMainWindow):
         self.test_ui = TestUi()
         self.track_controller_a_ui = UI("A")
         self.track_controller_c_ui = UI("C")
+        self.track_model_ui = Window()
         # self.ctc_ui = CTCUi()
         # self.track_model_ui = TrackModelUI()
         self.train_model_ui = UITrain()
@@ -59,8 +63,7 @@ class Ui_MainWindow(QMainWindow):
         self.track_controller_c_ui.show()
 
     def open_track_model(self):
-        # self.track_model_ui.show()
-        pass
+        self.track_model_ui.show()
 
     def open_train_model(self):
         self.train_model_ui.show()
@@ -89,9 +92,9 @@ def main():
     track_controller_container = TrackControllerContainer()
     track_controller_container.moveToThread(track_controller_thread)
 
-    # track_model_thread = QThread()
-    # track_model_container = TrackModelContainer()
-    # track_model_container.moveToThread(track_model_thread)
+    track_model_thread = QThread()
+    track_model_container = TrackModelContainer()
+    track_model_container.moveToThread(track_model_thread)
 
     train_model_thread = QThread()
     train_model_container = TrainModelContainer()
@@ -101,7 +104,7 @@ def main():
     # ctc_thread.start()
     test_thread.start()
     track_controller_thread.start()
-    # track_model_thread.start()
+    track_model_thread.start()
     train_model_thread.start()
 
     window = Ui_MainWindow()
