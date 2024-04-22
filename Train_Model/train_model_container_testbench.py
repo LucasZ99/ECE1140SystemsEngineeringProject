@@ -11,10 +11,8 @@ from Train_Model.business_logic import train_business_logic
 
 class ContainerTB(QMainWindow):
 
-    def __init__(self, container: TrainModelContainer):
+    def __init__(self):
         super(ContainerTB, self).__init__()
-        self.container = container
-        self.business_logic = train_business_logic
         self.train_ui = UITrain()
         self.train_name_list = list()
         self.index = int()
@@ -60,7 +58,7 @@ class ContainerTB(QMainWindow):
         self.removeButton.clicked.connect(self.remove_trn)
 
         self.trainControllerUpdateButton = self.findChild(QPushButton, "trainControllerUpdateButton")
-        self.trainControllerUpdateButton.clicked.connect(self.business_logic.train_update_controller)
+        self.trainControllerUpdateButton.clicked.connect(train_business_logic.train_update_controller)
 
         self.bigUpdateButton = self.findChild(QPushButton, "bigUpdateButton")
         self.bigUpdateButton.clicked.connect(self.big_update_pressed)
@@ -164,7 +162,10 @@ class ContainerTB(QMainWindow):
 
     def add_trn(self):
         self.signals.tb_add_train.emit()
-        index = max(self.business_logic.train_dict.keys())
+        if len(self.train_name_list) == 0:
+            index = 1
+        else:
+            index = int(self.train_name_list[-1][6:]) + 1
         self.train_name_list.append(f'Train {index}')
         self.trainSelect.addItem(f'Train {index}')
         self.auth_speed_dict[index] = (0, 0)
@@ -202,5 +203,5 @@ class ContainerTB(QMainWindow):
 
 contain = TrainModelContainer()
 app = QApplication(sys.argv)
-ui = ContainerTB(contain)
+ui = ContainerTB()
 app.exec()
