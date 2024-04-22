@@ -1,4 +1,4 @@
-ECE 1140 Track Controller Hardware Module Help Documentation
+ECE 1140 Track Controller Hardware Module Help Documentation:
 Devin James
 
 Compatibility:

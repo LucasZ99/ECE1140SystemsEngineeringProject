@@ -57,7 +57,7 @@ class TrackControllerHardware(QObject):
         elif self.rr_crossing != expected_rr_cross_val:
             print("Test Failed")
         #print(blocks, blocks)
-        #print("stops", self.stops)
+        #prin("stops", self.stops)
 
 if __name__ == '__main__':
     occupancy_dict = {}
