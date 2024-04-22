@@ -1,6 +1,7 @@
 from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
 
 from Train_Model.train_model_signals import train_model_signals
+from TopLevelSignals import TopLevelSignals
 
 
 class TrainModelContainer(QObject):
@@ -10,6 +11,8 @@ class TrainModelContainer(QObject):
         super().__init__()
         self.signals = train_model_signals
         self.signals.business_update.connect(self.return_to_track_model)
+        self.top_signal = TopLevelSignals
+        self.top_signal.update_train_model_from_track_model.connect(self.update_train_model_from_track_model)
 
     @pyqtSlot(dict, dict, bool, int, dict)
     def update_train_model_from_track_model(self, auth_speed_dict: dict, block_dict: dict, new_train: bool,
@@ -45,7 +48,7 @@ class TrainModelContainer(QObject):
 
     @pyqtSlot(dict, dict)
     def return_to_track_model(self, delta_x_return: dict, passenger_return: dict):
-        self.update_track_model_from_train_model.emit(delta_x_return, passenger_return)
+        self.top_signals.update_track_model_from_train_model.emit(delta_x_return, passenger_return)
 
     def track_model_inputs(self, input_list, index):
         print("Train Model Container: train's track model inputs hit \n")
