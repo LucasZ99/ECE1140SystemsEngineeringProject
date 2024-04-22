@@ -16,7 +16,7 @@ class TrainControllerSWContainer:
 
     def __init__(self):
         self.system_time = SystemTime.time()
-        self.trainCtrl = trainControllerSW.TrainController()  #self.system_time)
+        self.trainCtrl = trainControllerSW.TrainController()  # self.system_time)
         self.train_model_update = []
         self.cabin_temp = 68
 
@@ -46,7 +46,9 @@ class TrainControllerSWContainer:
         app = QApplication([])
 
         self.swUI = UI(self.trainCtrl)
-        self.swUI.closed.connect(self.sw_ui_state)  # comment this out for full integration (signal should go to tot cntnr)
+
+        # comment this out for full integration (signal should go to tot cntnr)
+        self.swUI.closed.connect(self.sw_ui_state)
 
         # ui = UI(self.trainCtrl)
         # ui.new_ctrl_list.connect(self.send_new_ctrl_list)

@@ -1,5 +1,3 @@
-# import numpy as np
-import time
 import linecache
 from SystemTime import SystemTime
 from PyQt6.QtCore import pyqtSignal
@@ -9,6 +7,24 @@ class TrainController:
     # send: setpt speed, speedlim, actspeed, power, kp, ki to ui
     ui_update = pyqtSignal(float, float, float, float, float, float)
 
+    # signals for ui communication
+    mode_to_ui = pyqtSignal()
+    extlights_to_ui = pyqtSignal()
+    intlights_to_ui = pyqtSignal()
+    cabintemp_to_ui = pyqtSignal()
+    doorsopen_to_ui = pyqtSignal()
+    station_to_ui = pyqtSignal()
+    doorside_to_ui = pyqtSignal()
+    kp_to_ui = pyqtSignal()
+    ki_to_ui = pyqtSignal()
+    speedlim_to_ui = pyqtSignal()
+    actspeed_to_ui = pyqtSignal()
+    setspeed_to_ui = pyqtSignal()
+    power_to_ui = pyqtSignal()
+    servicebrake_to_ui = pyqtSignal()
+    ebrake_to_ui = pyqtSignal()
+
+    # constants
     maxSpeed = 19.44  # 70 kmh in m/s
     maxPower = 120000  # in watts
     accelLim = float(0.5)  # acceleration limit of the train based on 2/3 load
@@ -17,17 +33,8 @@ class TrainController:
     KMH2ms = 3.6  # divide by this to go from KMH to m/s or multiply to go from m/s to KMH
     mph2ms = 2.237  # divide by this to go from mph to m/s or multiply to go from m/s to mph
     kW2HP = 1.34102  # multiply by this to go from kW to HP or divide to go from HP to kW
-    # TODO uk, uk-1 values and ek ek-1 values e is m/s and u is m
 
-    # testing arrays IT2
-    # formatted as [uk, uk-1, ek, ek-1], "sampled" every 5 seconds from train model
-    # arr = np.array([[1.25, 0, 0.5, 0], [6.25, 1.25, 1.5, 0.5], [15.625, 6.25, 2.25, 1.5], [26.25, 15.625, 2, 2.25],
-    #                 [31.875, 26.25, 0.25, 2], [26.875, 31.875, -2.25, 0.25], [10.625, 26.875, -4.25, -2.25]])
-
-    # t_arr = np.array([[0.5, 0, 0.2, 0], [2, 0.5, 0.4, 0.2], [4.25, 2, 0.5, 0.4], [6.25, 4.25, 0.3, 0.5],
-    #                  [6.5, 6.25, -0.2, 0.3], [4.25, 6.5, -0.7, -0.2], [0, 4.25, -1, -0.7]])
-
-    def __init__(self):  #, system_time: SystemTime):
+    def __init__(self):  # , system_time: SystemTime):
         # initial inits
         # self.system_time = SystemTime.time
         self.last_update_time = SystemTime.time()
@@ -116,16 +123,20 @@ class TrainController:
         self.nextspeedlim = float(self.blockline[4]) / self.KMH2ms
         self.nextnotes = self.blockline[5]
 
+        # TODO: connect signals from ui (from top level signals)
+
+        # TODO: emit init value signals to ui (to top level signals)
+
     def settestbenchstate(self, newtestbenchstate):
         self.testBenchState = newtestbenchstate
         return
 
-    def setspeedlim(self, newspeedlim):
-        self.speedLim = newspeedlim
-        # TODO if curr speed greater than speed lim need to drop down speeds and power
-        if self.currSpeed > self.speedLim:
-            self.currSpeed = self.speedLim
-        return
+    # def setspeedlim(self, newspeedlim):
+    #     self.speedLim = newspeedlim
+    #     # if curr speed greater than speed lim need to drop down speeds and power
+    #     if self.currSpeed > self.speedLim:
+    #         self.currSpeed = self.speedLim
+    #     return
 
     def setvitalauth(self, newvitalauth):
         self.vitalAuth = newvitalauth
@@ -317,13 +328,19 @@ class TrainController:
     def powercontrol(self):
 
         print("train controller sw.py: entered power control")
+        self.vitalitycheck()
+
+        print(f'stopSoon: {self.stopSoon}')
+        print(f'ebrake: {self.eBrake}')
+        print(f'train safe to move: {self.trainSafeToMove}')
         # do power checks and calcs, train doesn't need to stop, brake not on, train can move
+        # stopSoon: false, eBrake: false, trainSafeToMove: true
         if not self.stopSoon and not self.eBrake and self.trainSafeToMove:
 
             if self.nextspeedlim < self.speedlim:
                 self.power = 0  # kill power
                 self.servBrake = 1  # enable service brake and slow down
-            elif (self.nextspeedlim == self.speedlim) and (self.actualSpeed <= self.nextspeedlim):
+            elif (self.nextspeedlim == self.speedlim) and (self.actualSpeed >= self.nextspeedlim):
                 self.power = 0  # kill power and coast
             else:
                 # calculate ek
@@ -370,15 +387,18 @@ class TrainController:
         print("train controller sw.py: authority updated")
 
     def vitalitycheck(self):
+
+        self.authority()
+        self.speedcheck()
         # perform vitality checks to determine if train has right parameters to move
         if self.vitalAuth == 0:
-            self.trainSafeToMove = 0
+            self.trainSafeToMove = False
             print("train controller sw.py: train unsafe to move: no authority")
         elif self.vitalAuth != 0 and self.cmdSpeed == 0:
-            self.trainSafeToMove = 0
+            self.trainSafeToMove = False
             print("train controller sw.py: train unsafe to move: no commanded speed")
         elif self.vitalAuth != 0 and self.cmdSpeed != 0:
-            self.trainSafeToMove = 1
+            self.trainSafeToMove = True
             print("train controller sw.py: rain safe to move: authority and cmd speed received")
 
         print()
@@ -392,26 +412,6 @@ class TrainController:
             print("train controller sw.py: command speed within speed limits")
 
         print()
-
-    def automode(self):  # deprecated in IT3, used in IT2 for testing. honk mimimi
-        for i in range(0, 7):
-            # power cmd = ek * kp + uk * ki, converted to mph rounded to 3 decimal places
-            self.power = round(((self.arr[i, 2]*self.kp + self.arr[i, 0]*self.ki)/745.7), 3)
-
-            if self.power < 0:
-                self.servBrake = 1
-                print("train controller sw.py: service brake enabled")
-            elif self.power > 0:
-                self.servBrake = 0
-                print("train controller sw.py: service brake disabled")
-
-            self.currSpeed = self.t_arr[i, 0]  # speed received from train model
-            if self.ms2mph(self.currSpeed) > self.speedLim:
-                self.currSpeed = self.speedLim/self.mph2ms
-
-            print(f'train controller sw.py: power = {self.power} HP')
-            print(f'train controller sw.py: current speed = {self.ms2mph(self.currSpeed)} mph')
-            time.sleep(2)
 
     def modeswitch(self):
         if self.mode == 0:  # train in auto
@@ -536,4 +536,3 @@ class TrainController:
         outputs = [self.cmdSpeed, self.power, self.servBrake, self.eBrake, self.doorSide, self.makeAnnouncement,
                    self.intLights, self.extLights, self.cabinTemp]
         return outputs
-
