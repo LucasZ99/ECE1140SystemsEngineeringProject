@@ -27,7 +27,6 @@ class TrackModelContainer(QObject):
     def __init__(self):
         super().__init__()
         self.track_model = TrackModel("Green Line.xlsx")
-        self.track_model_ui = Window()
         self.top_level_signals = top_level_signals
         self.signals = signals
 
@@ -54,18 +53,18 @@ class TrackModelContainer(QObject):
         self.top_level_signals.maintenance_mode_update.connect(self.set_infrastructure)
 
     # show ui
-    def show_ui(self):
-        # app = QApplication.instance()  # Get the QApplication instance
-        #
-        # # app_flag = False
-        # if app is None:
-        #     app = QApplication([])  # If QApplication instance doesn't exist, create a new one
-        #    # app_flag = True
-
-        self.track_model_ui.show()
-
-        # # if app_flag is True:
-        # app.exec()
+    # def show_ui(self):
+    #     # app = QApplication.instance()  # Get the QApplication instance
+    #     #
+    #     # # app_flag = False
+    #     # if app is None:
+    #     #     app = QApplication([])  # If QApplication instance doesn't exist, create a new one
+    #     #    # app_flag = True
+    #
+    #     self.track_model_ui.show()
+    #
+    #     # # if app_flag is True:
+    #     # app.exec()
 
     # endpoints
 
@@ -160,7 +159,8 @@ class TrackModelContainer(QObject):
 
 
     def refresh_ui(self):
-        self.track_model_ui.refresh()
+        self.signals.refresh_ui_signal.emit()
+
 
     def update_track_model_from_wayside(self, authority_safe_speed_update, switch_changed_indexes,
                                         signal_changed_indexes, rr_crossing_indexes, toggle_block_indexes):
@@ -174,9 +174,9 @@ class TrackModelContainer(QObject):
         # update infrastructure on map
         for index, value in signal_changed_indexes:
             print(f'track model container: {index}, {value}')
-            self.track_model_ui.map_update_signal(index, value)
+            self.signals.map_update_signal_signal.emit(index, value)
         for index, value in rr_crossing_indexes:
-            self.track_model_ui.map_update_rxr(index, value)
+            self.signals.map_update_rxr_signal.emit(index, value)
         # update track_model
         print('Track Model: updating self.track_model authority and speed')
         self.track_model.update_authority_and_safe_speed(authority_safe_speed_update)
@@ -214,7 +214,7 @@ class TrackModelContainer(QObject):
         for key in train_dict:
             block_info_dict[key] = self.track_model.get_block_info_for_train(key)
         # emit
-        self.track_model_ui.refresh()  # pre-emit ui refresh
+        self.signals.refresh_ui_signal.emit()  # pre-emit ui refresh
         print('Track Model: emitting update_train_model_from_track_model')
         self.top_level_signals.update_train_model_from_track_model.emit(authority_safe_speed_dict, block_info_dict,
                                                                         add_train,
@@ -234,7 +234,7 @@ class TrackModelContainer(QObject):
                                   i <= 57 or i >= 62}
 
         # emit
-        self.track_model_ui.refresh()  # pre-emit ui refresh
+        self.signals.refresh_ui_signal.emit()  # pre-emit ui refresh
         print('Track Model: emitting update_ctc_from_track_model')
         self.top_level_signals.update_ctc_from_track_model.emit(ticket_sales)
         print('Track Model: emitting update_wayside_from_track_model')
@@ -247,10 +247,10 @@ class TrackModelContainer(QObject):
 
     def map_add_train(self):
         print('Track Model Container: map_add_train called')
-        self.track_model_ui.add_train()
+        self.signals.map_add_train_signal.emit()
 
     def map_move_train(self, train_id, block):
-        self.track_model_ui.move_train(train_id, block)
+        self.signals.map_move_train_signal.emit(train_id, block)
 
     def get_data_from_track_model(self):
         return self.track_model.get_data()
@@ -283,13 +283,12 @@ class TrackModelContainer(QObject):
         # self.track_model_ui.refresh()
         self.track_model.update_infrastructure(switch_list, signal_list, [],
                                                [])
-        self.track_model_ui.refresh()
-
+        # maybe refresh here
         # update infrastructure on map TODO: Update map straight from track model
         for index, value in signal_list:
-            self.track_model_ui.map_update_signal(index, value)
+            self.signals.map_update_signal_signal(index, value)
 
-        # refresh needs to happen from track model ui
+        self.signals.refresh_ui_signal.emit()
 
 
 

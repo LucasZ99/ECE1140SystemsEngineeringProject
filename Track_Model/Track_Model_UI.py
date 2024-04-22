@@ -33,7 +33,7 @@ class Window(QMainWindow):
         self.resize(1920 // 2, 1080 // 2)
         layout = QGridLayout()
 
-        # signals
+        # SIGNALS
         self.signals = signals
         # self.signals.refresh_ui_signal.connect(self.refresh)
         self.signals.send_full_path_signal.connect(self.receive_full_path)
@@ -165,6 +165,13 @@ class Window(QMainWindow):
         center_widget = QWidget()
         center_widget.setLayout(layout)
         self.setCentralWidget(center_widget)
+
+        # MORE SIGNALS
+        self.signals.refresh_ui_signal.connect(self.refresh)
+        self.signals.map_add_train_signal.connect(self.map.add_train)
+        self.signals.map_move_train_signal.connect(self.map.move_train)
+
+
 
     ##############################
     # Event Handlers
