@@ -284,7 +284,7 @@ class TrackModelContainer(QObject):
         # maybe refresh here
         # update infrastructure on map TODO: Update map straight from track model
         for index, value in signal_list:
-            self.signals.map_update_signal_signal(index, value)
+            self.signals.map_update_signal_signal.emit(index, value)
 
         self.signals.refresh_ui_signal.emit()
 
