@@ -6,7 +6,7 @@ from PyQt6.QtWidgets import (
     QTableWidget, QLabel, QSlider, QComboBox, QFileDialog, QTableView, QTableWidgetItem, QMainWindow,
     QFrame, QHeaderView, QAbstractScrollArea
 )
-from PyQt6.QtGui import QIcon
+from PyQt6.QtGui import QIcon, QPixmap
 from PyQt6.QtCore import Qt, pyqtSignal
 from Track_Model.animated_toggle import AnimatedToggle
 import sys
@@ -32,6 +32,16 @@ class Window(QMainWindow):
         self.setContentsMargins(20, 20, 20, 20)
         self.resize(1920 // 2, 1080 // 2)
         layout = QGridLayout()
+
+        # PICTURES
+        dirname = os.path.dirname(__file__)
+        white_file = os.path.join(dirname, 'white_circle.png')
+        green_file = os.path.join(dirname, 'green_circle.png')
+        red_file = os.path.join(dirname, 'red_circle.png')
+
+        self.white_pixmap = QPixmap(white_file)
+        self.green_pixmap = QPixmap(green_file)
+        self.red_pixmap = QPixmap(red_file)
 
         # SIGNALS
         self.signals = signals
