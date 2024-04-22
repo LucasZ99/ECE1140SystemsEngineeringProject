@@ -105,10 +105,9 @@ class TrackControllerContainer(QObject):
     #     self.top_level_signals.update_testbench_from_wayside.emit()
 
     # CTC Endpoint
-    @pyqtSlot(list, bool, list, list)
+    @pyqtSlot(list, list, list)
     def update_wayside_from_ctc(self,
                                 authority_speed_update: list[TrackSignal],
-                                maintenance_mode_override_flag: bool,
                                 blocks_to_close_open: list[tuple[int, bool]],
                                 updated_switches: list[Switch]):
 
