@@ -42,6 +42,7 @@ class TrainModelContainer(QObject):
             self.track_model_inputs([speed, auth], i)
 
         for i in block_dict.keys():
+            print(f'Hi Lucas: {block_dict[i]}')
             self.track_update_block(block_dict[i], i)
 
         for key, value in passenger_dict.items():

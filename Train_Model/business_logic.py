@@ -102,6 +102,7 @@ class TrainBusinessLogic(QObject):
     @pyqtSlot()
     def physics_calculation(self):
         interval = SystemTime.time() - self.time
+        print(f'Train Model Business Logic: physics time interval is {interval}s')
         self.time = SystemTime.time()
         for i in self.train_dict:
             self.delta_x_return[i] = self.train_dict[i].physics_calculation(interval)
