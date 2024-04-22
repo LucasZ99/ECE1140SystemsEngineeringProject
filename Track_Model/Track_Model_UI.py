@@ -32,6 +32,7 @@ class Window(QMainWindow):
         self.setContentsMargins(20, 20, 20, 20)
         self.resize(1920 // 2, 1080 // 2)
         layout = QGridLayout()
+
         # signals
         self.signals = signals
         # self.signals.refresh_ui_signal.connect(self.refresh)
