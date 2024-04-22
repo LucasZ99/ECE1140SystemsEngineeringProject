@@ -11,13 +11,11 @@ from Common.Lines import get_line_blocks
 
 
 class CTC(QObject):
-    # Signal to wayside container
-    update_wayside_from_ctc_signal = pyqtSignal(list, bool, list, list)
+    update_wayside_from_ctc = pyqtSignal(list, list, list)
 
     def __init__(self):
         self.track_signals_to_clear: set[int] = set()
         self.track_signals_to_set: set[int] = set()
-        self.track_signal_update = False
         self.set_switches: dict[int, Switch] = {}
         self.closed_blocks: list[int] = []
         self.throughput = 0
@@ -76,6 +74,7 @@ class CTC(QObject):
 
         self.ctc_update_timer = QTimer()
         self.ctc_update_timer.timeout.connect(self.timer_handler)
+        self.ctc_update_timer.start()
 
         init_end_time = python_time.time()
         print("CTC Init finished. t={0}".format(init_end_time))
@@ -115,7 +114,7 @@ class CTC(QObject):
             self.yard = True
             print(f"CTC: Train {self.yard_train.id} set to yard")
             self.set_train_dispatch_track_signals(self.yard_train)
-            print(f"Track signal set: {self.track_signals.__len__()}")
+            print(f"CTC: Track signal set: {self.track_signals.__len__()}")
 
         if update_running_trains:
             self.get_running_trains_signal_handler()
@@ -173,7 +172,6 @@ class CTC(QObject):
         # self.clear_changed_blocks()
         self.get_authorities_signal_handler()
         self.get_suggested_speeds_signal_handler()
-        self.track_signal_update = True
 
     # Sets the next block in the train's range
     def set_train_next_block_authority(self, train: Train):
@@ -208,7 +206,6 @@ class CTC(QObject):
             speed = get_line_blocks()[abs(block[0])].speed_limit / 3.6
             self.suggested_speeds[abs(block[0])] = speed
             self.set_block_track_signal(block[0])
-            self.track_signal_update = True
 
     def set_block_track_signal(self, block: int):
         self.track_signals[block] = TrackSignal(abs(block),
@@ -221,7 +218,6 @@ class CTC(QObject):
 
         next_block_to_set = abs(train.get_next_blocks()[-1])
         self.track_signals_to_set.add(next_block_to_set)
-        self.track_signal_update = True
 
     # def set_block_authority(self, train) -> bool:
     #     update = False
@@ -401,7 +397,6 @@ class CTC(QObject):
             self.authorities[abs(block)] = 0
 
             self.track_signals_to_clear.add(abs(block))
-            self.track_signal_update = True
 
     def clear_track_signals(self):
         for block in self.track_signals_to_clear:
@@ -438,8 +433,7 @@ class CTC(QObject):
 
         if update_running_trains:
             # self.clear_changed_blocks()
-            self.clear_track_signals()
-            self.set_track_signals()
+            self.track_signal_update()
 
         # send data to UI
         if update_running_trains:
@@ -461,9 +455,22 @@ class CTC(QObject):
     def update_ticket_sales(self, ticket_sales: int):
         pass
 
+    def track_signal_update(self) -> bool:
+        update = False
+        if self.track_signals_to_clear.__len__() > 0:
+            self.clear_track_signals()
+            update = True
+        if self.track_signals_to_set.__len__() > 0:
+            self.set_track_signals()
+            update = True
+
+        return update
+
     @pyqtSlot()
     def timer_handler(self):
-        self.update_ctc_queues()
+        if self.update_ctc_queues():
+            if self.track_signal_update():
+                self.update_wayside()
 
     # Whole list sent for each
     @pyqtSlot(dict, list, list, list)
@@ -480,8 +487,9 @@ class CTC(QObject):
                 self.update_wayside()
 
     def update_wayside(self):
-        CTCSignals.update_wayside_from_ctc_signal.emit(list(self.track_signals.values()), self.closed_blocks,
-                                                       list(self.set_switches.values()))
+        print("CTC: updating wayside")
+        self.update_wayside_from_ctc.emit(list(self.track_signals.values()), self.closed_blocks,
+                                          list(self.set_switches.values()))
 
     # TODO update queues, and if queues are updated, update wayside
     @pyqtSlot(object)
