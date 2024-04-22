@@ -13,6 +13,7 @@ from Track_Model.Track_Model_UI import Window
 
 
 class Ui_MainWindow(QMainWindow):
+
     def __init__(self):
         super().__init__()
         loadUi('mini_launcher.ui', self)
