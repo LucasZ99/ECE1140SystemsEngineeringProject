@@ -485,7 +485,7 @@ class HW_UI_JEB382_PyFirmat:
                 print(f"<{i}>: {temp}")
                 infra = linecache.getline('Resources/IT4_RedLine.txt', temp[i]+1).split('\t')[5]
                 particular_line = linecache.getline('Resources/IT4_RedLine.txt', temp[i+1]+1).split("\t")
-            #print(f"LINE: {particular_line}")
+            print(f"LINE: <{self.blockNum}<,\t{particular_line}")
             distance_to_station += int(float(particular_line[3]))
 
             if particular_line[5][:7] == "STATION" or infra[:7] == "STATION":
@@ -779,8 +779,8 @@ def def_main(line=4):
 
 #================================================================================
 if __name__ == "__main__":
-    #def_main(0)     #nonspec
+    def_main(0)     #nonspec
     #def_main(1)    #green
-    def_main(2)    #red
+    #def_main(2)    #red
     #def_main( )     #nonsense
         
