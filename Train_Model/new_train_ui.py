@@ -1,11 +1,8 @@
-import sys
-import random
-
 from PyQt6.QtGui import QIcon
 
 import os
 from PyQt6 import uic
-from PyQt6.QtWidgets import (QMainWindow, QApplication, QLabel, QPushButton, QGroupBox,
+from PyQt6.QtWidgets import (QMainWindow, QLabel, QPushButton, QGroupBox,
                              QCheckBox, QComboBox, QProgressBar, QLineEdit)
 from PyQt6.QtGui import QPixmap
 from PyQt6.QtCore import pyqtSlot
@@ -47,10 +44,8 @@ class UITrain(QMainWindow):
             self.index = min(self.train_dict.keys())
 
         # define widgets
-        self.physicsButton = self.findChild(QPushButton, "physicsButton")
-        self.passengerButton = self.findChild(QPushButton, "passengerButton")
         self.adLabel = self.findChild(QLabel, "adLabel")
-        ad = random.randint(0,2)
+        ad = random.randint(0, 2)
         if ad == 0:
             current_dir = os.path.dirname(__file__)  # setting up to work in any dir
             ad_path = os.path.join(current_dir, 'Aerotek.png')
@@ -166,8 +161,6 @@ class UITrain(QMainWindow):
         self.vals_update = False
 
         self.trainSelect.currentIndexChanged.connect(self.combo_selection)
-        self.physicsButton.pressed.connect(self.physics_test)
-        self.passengerButton.pressed.connect(self.passenger_test)
 
         self.emerButton.pressed.connect(self.set_pbrake)
         self.tbCheck.stateChanged.connect(self.tb_toggle)
@@ -260,14 +253,6 @@ class UITrain(QMainWindow):
             self.opGroup_tb.show()
             self.tb = True
 
-    def physics_test(self):
-        self.train_dict[self.index].physics_calculation(1)
-        self.populate_values()
-
-    def passenger_test(self):
-        self.train_dict[self.index].passengers.update_at_station(random.randint(0, 50), self.train_dict[self.index].train_const.max_passengers())
-        self.populate_values()
-
     def set_pbrake(self):
         self.train_dict[self.index].brakes.passenger_ebrake = True
         self.ebp = True
@@ -339,7 +324,8 @@ class UITrain(QMainWindow):
         self.signals.ui_update.emit(self.train_dict)
 
     def pass_change(self):
-        self.train_dict[self.index].passengers.set_people(int(self.passValue_tb.text()), self.train_dict[self.index].train_const.max_passengers())
+        self.train_dict[self.index].passengers.set_people(int(self.passValue_tb.text()),
+                                                          self.train_dict[self.index].train_const.max_passengers())
         self.populate_values()
         self.signals.ui_update.emit(self.train_dict)
 
@@ -362,12 +348,15 @@ class UITrain(QMainWindow):
             self.signals.ui_update.emit(self.train_dict)
 
     def rec_speed_changed(self):
-        self.train_dict[self.index].signals.set_commanded_speed(float(self.recSpeedValue_tb.text()), self.train_dict[self.index].failure.signal_pickup_failure)
+        self.train_dict[self.index].signals.set_commanded_speed(float(self.recSpeedValue_tb.text()),
+                                                                self.train_dict[self.index].failure.
+                                                                signal_pickup_failure)
         self.populate_values()
         self.signals.ui_update.emit(self.train_dict)
 
     def auth_changed(self):
-        self.train_dict[self.index].signals.set_authority(int(self.authValue_tb.text(), 16), self.train_dict[self.index].failure.signal_pickup_failure)
+        self.train_dict[self.index].signals.set_authority(int(self.authValue_tb.text(), 16),
+                                                          self.train_dict[self.index].failure.signal_pickup_failure)
         self.populate_values()
         self.signals.ui_update.emit(self.train_dict)
 
@@ -424,7 +413,8 @@ class UITrain(QMainWindow):
         self.speedValue_tb.setText(f'{self.train_dict[self.index].velocity * self.feet_per_meter * 3600 / 5280: .2f}')
 
         self.totMassValue.setText(f'{self.train_dict[self.index].get_total_mass() * self.tons_per_kilogram: .2f} Tons')
-        self.totMassValue_tb.setText(f'{self.train_dict[self.index].get_total_mass() * self.tons_per_kilogram: .2f} Tons')
+        self.totMassValue_tb.setText(
+            f'{self.train_dict[self.index].get_total_mass() * self.tons_per_kilogram: .2f} Tons')
 
         if self.train_dict[self.index].position > self.train_dict[self.index].train_const.train_length() / 2:
             self.gradeValue.setText(f'{self.train_dict[self.index].new_block.grade: .2f} %')
@@ -458,8 +448,10 @@ class UITrain(QMainWindow):
             self.dBrakeValue.setValue(0)
         self.dBrakeValue_tb.setChecked(self.train_dict[self.index].brakes.driver_ebrake)
 
-        self.lengthValue.setText(f'{self.train_dict[self.index].train_const.train_length() * self.feet_per_meter: .2f} ft')
-        self.lengthValue_tb.setText(f'{self.train_dict[self.index].train_const.train_length() * self.feet_per_meter: .2f} ft')
+        self.lengthValue.setText(
+            f'{self.train_dict[self.index].train_const.train_length() * self.feet_per_meter: .2f} ft')
+        self.lengthValue_tb.setText(
+            f'{self.train_dict[self.index].train_const.train_length() * self.feet_per_meter: .2f} ft')
 
         self.heightValue.setText(f'{self.train_dict[self.index].train_const.height * self.feet_per_meter: .2f} ft')
         self.heightValue_tb.setText(f'{self.train_dict[self.index].train_const.height * self.feet_per_meter: .2f} ft')
@@ -470,8 +462,10 @@ class UITrain(QMainWindow):
         self.carsValue.setText(f'{self.train_dict[self.index].train_const.car_number}')
         self.carsValue_tb.setText(f'{self.train_dict[self.index].train_const.car_number}')
 
-        self.trainMassValue.setText(f'{self.train_dict[self.index].train_const.train_mass() * self.tons_per_kilogram: .2f} Tons')
-        self.trainMassValue_tb.setText(f'{self.train_dict[self.index].train_const.train_mass() * self.tons_per_kilogram: .2f} Tons')
+        self.trainMassValue.setText(
+            f'{self.train_dict[self.index].train_const.train_mass() * self.tons_per_kilogram: .2f} Tons')
+        self.trainMassValue_tb.setText(
+            f'{self.train_dict[self.index].train_const.train_mass() * self.tons_per_kilogram: .2f} Tons')
 
         self.crewValue.setText(f'{self.train_dict[self.index].crew.people_number}')
         self.crewValue_tb.setText(f'{self.train_dict[self.index].crew.people_number}')
@@ -486,8 +480,8 @@ class UITrain(QMainWindow):
         self.recSpeedValue.setText(f'{self.train_dict[self.index].signals.commanded_speed: .2f}')
         self.recSpeedValue_tb.setText(f'{self.train_dict[self.index].signals.commanded_speed: .2f}')
 
-        self.authValue.setText(f'0x{self.train_dict[self.index].signals.authority:02x}')
-        self.authValue_tb.setText(f'{self.train_dict[self.index].signals.authority:02x}')
+        self.authValue.setText(f'{self.train_dict[self.index].signals.authority}')
+        self.authValue_tb.setText(f'{self.train_dict[self.index].signals.authority}')
         self.beaconValue.setText(self.train_dict[self.index].signals.beacon)
         self.beaconValue_tb.setText(self.train_dict[self.index].signals.beacon)
 

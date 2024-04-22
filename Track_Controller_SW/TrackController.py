@@ -1,4 +1,4 @@
-from PyQt6.QtCore import pyqtSignal, QObject, pyqtSlot
+from PyQt6.QtCore import QObject, pyqtSlot
 
 from Common import Light, RRCrossing, Switch
 from Track_Controller_SW.BusinessLogic import BusinessLogic

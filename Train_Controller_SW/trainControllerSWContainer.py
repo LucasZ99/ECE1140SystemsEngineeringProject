@@ -17,7 +17,7 @@ class TrainControllerSWContainer:
     def __init__(self):
         self.system_time = SystemTime.time()
         self.trainCtrl = trainControllerSW.TrainController()  #self.system_time)
-        self.train_model_update = list()
+        self.train_model_update = []
         self.cabin_temp = 68
 
         # ******** SELF MODULE TESTING ********
@@ -57,9 +57,9 @@ class TrainControllerSWContainer:
 
         app.exec()
 
-    def send_new_ctrl_list(self):
-        print("2 train controller sw container.py: new_ctrl_list signal recieved from ui")
-        return self.control_list
+    # def send_new_ctrl_list(self):
+    #     print("2 train controller sw container.py: new_ctrl_list signal recieved from ui")
+    #     return self.control_list
 
     def sw_ui_state(self, value):
         print("train controller sw container.py: made it!")
@@ -96,7 +96,10 @@ class TrainControllerSWContainer:
         self.train_model_update = self.trainCtrl.update_train_model_from_train_controller()
         print("train controller sw container.py: updated train model update list!")
 
+        print(self.train_model_update)
+
         print("train controller sw container.py: sending values from train controller to train model")
+        print()
         return self.train_model_update
 
 

@@ -20,7 +20,7 @@ class TopLevelSignalsCls(QObject):
     update_ctc_from_track_model = pyqtSignal(int)
 
     # Train Model Signals
-    update_track_model_from_train_model = pyqtSignal()
+    update_track_model_from_train_model = pyqtSignal(dict, dict)
 
     # for testing purposes
     update_testbench_from_wayside = pyqtSignal()

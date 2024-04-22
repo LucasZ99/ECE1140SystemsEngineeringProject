@@ -7,6 +7,8 @@ from Track_Controller_SW.TrackControllerSignals import TrackControllerSignals
 
 current_dir = os.path.dirname(__file__)  # setting up dir to work in any location in a directory
 
+#slots sigs class
+
 class SlotsSigs(QObject):
     plc_path = ''  # updated at import time
     # Define Signals

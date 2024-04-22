@@ -4,11 +4,6 @@
 # Author: Devin James
 # 2/17/2024
 
-# Functions:
-# Loaded externally (USB)
-# ability to switch the state of a switch, rrCrossing, and toggle traffic lights
-# update main when any change is performed
-
 class PLC:
     rrCrossing = False
     switches = []
