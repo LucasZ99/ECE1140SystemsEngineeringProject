@@ -1,60 +1,35 @@
-Frontend
--
+# Track Model, Daniel Richardson
 
+## Description
 
-Backend
--
+## Installation
 
-Define excel input format:
--
-Right now, Blue Line.xlsx is our ideal input file, 
-we may want to add a direction of travel column
-once our layouts are multi-directional
+### Windows 10
+1. Download and Install Python 3.11.0 here: https://www.python.org/downloads/release/python-3110/
+   
+2. Download and Install git here: https://git-scm.com/download/win
 
-Inputs:
--
-Commanded Speed (no action)
+3. Open Git Bash
 
-Vital authority (no action)
+4. Change the current working directory to the location where you want the cloned directory
 
-Switch positions (change value in tables and map)
+5. Copy https from Git Hub
+![image](https://github.com/fletch2001/ece1140-tovarish/assets/105997622/78006012-11b2-4af3-a7ff-81b2f829c98d)
 
-Signal activation (change value in tables and map)
+6. Type git clone, and then paste the URL you copied earlier.
+```bash
+git clone https://github.com/fletch2001/ece1140-tovarish.git
+```
 
-RR crossing activation (change value in tables and map)
+7. Press Enter to create your local clone
 
-Track presence (change block occupancy in tables and map, and send to track controller)
+## Test Bench Usage
 
-Disembarking passengers (to keep track of train occupancy so we can generate embarking passengers)
+1. Right click the directory of your local clone and open command prompt (insert picture)
+    
+2. Type python Track_Model_Test/Test_Main.py and press enter
+```
+python Track_Model_Test/Test_Main.py
+```
 
-Broken rail failure (block occupancy)
-
-Track circuit failure (block occupancy)
-
-Power failure (block occupancy)
-
-Track layout (to partially send to track controllers and for viewing table/map info)
-
-Outputs:
--
-Commanded Speed (unchanged)
-
-Vital authority (unchanged)
-
-Beacon (from excel input)
-
-Ticket sales (randomly generated based off time)
-
-Block occupancy (from track presence from train model)
-
-{Embarking passengers}
-
-{Track information}
-
-Use cases:
--
-1. Loading Track Layouts
-2. Viewing Track Information (dynamic table)
-3. Testing Failure Modes
-4. Changing Track Temperature
-5. Viewing Track Information (dynamic map)
+3. Advanced options are available, but for general test press the third button (insert picture)
