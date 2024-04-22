@@ -106,7 +106,10 @@ class Window(QMainWindow):
         self.grade_label = QLabel('Grade: ' + str(info[1]))
         self.speed_lim_label = QLabel('Speed Limit: ' + str(info[2]))
         self.elevation_label = QLabel('Elevation: ' + str(info[3]))
-        self.beacon_label = QLabel('Beacon: ' + str(info[5]))
+        beacon_str = 'N/A'
+        if str(info[5]) != '0' * 128:
+            beacon_str = str(info[5])
+        self.beacon_label = QLabel('Beacon: ' + beacon_str)
 
         # bools
         self.occupied_label = QLabel('Occupied: ' + str(info[4]))
@@ -165,7 +168,7 @@ class Window(QMainWindow):
         # add layouts to parent layout
         layout.addWidget(self.block_view_layout_group, 0, 0, 2, 1)
         layout.addWidget(self.map_layout_group, 0, 1, 2, 2)
-        layout.addWidget(self.upload_layout_group, 2, 2, 1, 1)
+        layout.addWidget(self.upload_layout_group, 2, 1, 1, 1)
         layout.addWidget(self.temperature_controls_group, 2, 0, 1, 1)
         # layout.addWidget(self.failure_modes_group, 2, 0, 1, 1)
 
@@ -250,7 +253,10 @@ class Window(QMainWindow):
         self.speed_lim_label.setText('speed lim = ' + str(info[2]))
         self.elevation_label.setText('elevation = ' + str(info[3]))
         self.occupied_label.setText('occupied = ' + str(info[4]))
-        self.beacon_label.setText('beacon = ' + str(info[5]))
+        beacon_str = 'N/A'
+        if str(info[5]) != ('0' * 128):
+            beacon_str = str(info[5])
+        self.beacon_label.setText('Beacon: ' + beacon_str)
         self.track_heated_label.setText('track heated = ' + str(info[6]))
         self.underground_label.setText('underground = ' + str(info[7]))
 
