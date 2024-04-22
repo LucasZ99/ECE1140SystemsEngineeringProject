@@ -8,6 +8,8 @@ from Track_Model.Track_Model_Container import TrackModelContainer
 from Track_Model_Test.Track_Model_Test_Container import TrackModelTestContainer
 from Track_Model_Test__Launcher_UI import TrackModelTestLauncherUI
 
+from TopLevelSignals import TopLevelSignals
+
 
 class TrackModelTestLauncherContainer(QObject):
     def __init__(self):
@@ -16,12 +18,12 @@ class TrackModelTestLauncherContainer(QObject):
         self.track_model_container = TrackModelContainer()
         self.track_model_test_container = TrackModelTestContainer()
 
-        # From Wayside to Track Model
-        self.track_model_test_container.update_track_model_from_wayside.connect(
-            self.track_model_container.update_track_model_from_wayside)
-        # From Train Model to Track Model
-        self.track_model_test_container.update_track_model_from_train_model.connect(
-            self.track_model_container.update_track_model_from_train_model)
+        # # From Wayside to Track Model
+        # self.track_model_test_container.update_track_model_from_wayside.connect(
+        #     self.track_model_container.update_track_model_from_wayside)
+        # # From Train Model to Track Model
+        # self.track_model_test_container.update_track_model_from_train_model.connect(
+        #     self.track_model_container.update_track_model_from_train_model)
 
     def init_launcher_ui(self):
         app = QApplication.instance()

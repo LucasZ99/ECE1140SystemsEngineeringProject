@@ -277,9 +277,19 @@ class TrackModelContainer(QObject):
         self.track_model.set_heaters(val)
 
     def set_infrastructure(self, switch_list, signal_list):
-        print('Track Model Container: update_infrastructure called')
-        print(f'Track Model Container: signal_list: {signal_list}')
-        self.track_model.update_infrastructure(switch_list, signal_list)
+        # print('Track Model Container: update_infrastructure called')
+        # print(f'Track Model Container: signal_list: {signal_list}')
+        # self.track_model.update_infrastructure(switch_list, signal_list)
+        # self.track_model_ui.refresh()
+        self.track_model.update_infrastructure(switch_list, signal_list, [],
+                                               [])
         self.track_model_ui.refresh()
+
+        # update infrastructure on map TODO: Update map straight from track model
+        for index, value in signal_list:
+            self.track_model_ui.map_update_signal(index, value)
+
+        # refresh needs to happen from track model ui
+
 
 
