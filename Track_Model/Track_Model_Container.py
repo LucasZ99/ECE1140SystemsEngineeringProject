@@ -31,13 +31,13 @@ class TrackModelContainer(QObject):
         self.signals = signals
 
         # Connect Track Model Signals to UI Slots:
-        self.signals.refresh_ui_signal.connect(self.refresh_ui)
-        self.signals.map_add_train_signal.connect(self.map_add_train)
-        self.signals.map_move_train_signal.connect(self.map_move_train)
-
-        self.signals.get_data_signal.connect(self.get_data_from_track_model)
-        self.signals.get_block_info_signal.connect(self.get_block_info_from_track_model)
-        self.signals.get_train_dict_signal.connect(self.get_train_dict_from_track_model)
+        # self.signals.refresh_ui_signal.connect(self.refresh_ui)
+        # self.signals.map_add_train_signal.connect(self.map_add_train)
+        # self.signals.map_move_train_signal.connect(self.map_move_train)
+        #
+        # self.signals.get_data_signal.connect(self.get_data_from_track_model)
+        # self.signals.get_block_info_signal.connect(self.get_block_info_from_track_model)
+        # self.signals.get_train_dict_signal.connect(self.get_train_dict_from_track_model)
 
         # Connect UI Signals to Track Model Slots:
         self.signals.set_power_failure_signal.connect(self.set_track_model_power_failure)
@@ -157,10 +157,8 @@ class TrackModelContainer(QObject):
     #     self.train_model_container.track_model_inputs(
     #         [self.track_model.get_tm_speed(1), self.track_model.get_tm_authority(1)], 1)
 
-
-    def refresh_ui(self):
-        self.signals.refresh_ui_signal.emit()
-
+    # def refresh_ui(self):
+    #     self.signals.refresh_ui_signal.emit()
 
     def update_track_model_from_wayside(self, authority_safe_speed_update, switch_changed_indexes,
                                         signal_changed_indexes, rr_crossing_indexes, toggle_block_indexes):
