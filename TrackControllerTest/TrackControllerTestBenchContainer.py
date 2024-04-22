@@ -26,7 +26,7 @@ class TrackControllerTestBenchContainer(QObject):
 
     @pyqtSlot(list)
     def update_wayside_from_ctc(self, track_signal: list):
-        self.top_level_signals.test_update_wayside_from_ctc.emit(track_signal, False, [], [])
+        self.top_level_signals.test_update_wayside_from_ctc.emit(track_signal, [], [])
 
     @pyqtSlot(dict)
     def update_wayside_from_track_model(self, occupancy_dict: dict):
