@@ -244,7 +244,6 @@ class TrackControllerContainer(QObject):
         self.top_level_signals.maintenance_mode_update.emit([switch.to_tuple() for switch in self.switch_list],
                                                             [light.to_tuple() for light in self.lights_list])
 
-
     @pyqtSlot(bool)
     def update_rr_crossing_status_A(self, rr_crossing_status: bool) -> None:
         # if the previous status does not equal updated status, toggle the signal
