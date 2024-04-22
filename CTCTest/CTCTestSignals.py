@@ -16,6 +16,7 @@ class CTCTestSignalsCls(QObject):
 
     def __init__(self):
         super().__init__()
+        print("CTC Test Signals Initialized")
 
 
 CTCTestSignals = CTCTestSignalsCls()

@@ -4,6 +4,8 @@ from PyQt6.QtCore import QThread
 from PyQt6.QtWidgets import QPushButton, QMainWindow, QApplication
 from PyQt6.uic import loadUi
 
+from CTC.CTCContainer import CTCContainer
+from CTC.CTC_UI_Main import CTCMainWindow
 from TrackControllerTest import TrackControllerTestBenchContainer
 from TrackControllerTest.TestUi import TestUi
 from Track_Controller_SW.TrackControllerContainer import TrackControllerContainer
@@ -28,6 +30,8 @@ class Ui_MainWindow(QMainWindow):
         # self.track_model_ui = TrackModelUI()
         self.train_model_ui = UITrain()
 
+        self.ctc_ui = CTCMainWindow()
+
         self.track_controller_test_button = self.findChild(QPushButton, "track_controller_test_button")
         self.track_controller_a_button = self.findChild(QPushButton, "track_controller_a_button")
         self.track_controller_c_button = self.findChild(QPushButton, "track_controller_c_button")
@@ -50,8 +54,7 @@ class Ui_MainWindow(QMainWindow):
         self.system_time_ui.show()
 
     def open_ctc_ui(self):
-        # self.ctc_ui.show()
-        pass
+        self.ctc_ui.show()
 
     def open_test_ui(self):
         self.test_ui.show()
@@ -75,10 +78,9 @@ def main():
 
     # ctc_signals = CTCSignals()
 
-    # ctc_thread = QThread()
-    # ctc_container = CTCContainer(top_level_signals=top_level_signals,
-    #                              signals=ctc_signals)
-    # ctc_container.moveToThread(ctc_thread)
+    ctc_thread = QThread()
+    ctc_container = CTCContainer()
+    ctc_container.moveToThread(ctc_thread)
 
     system_time_thread = QThread()
     system_time_container = SystemTimeContainer()
@@ -101,7 +103,7 @@ def main():
     train_model_container.moveToThread(train_model_thread)
 
     system_time_thread.start()
-    # ctc_thread.start()
+    ctc_thread.start()
     test_thread.start()
     track_controller_thread.start()
     track_model_thread.start()
@@ -115,4 +117,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

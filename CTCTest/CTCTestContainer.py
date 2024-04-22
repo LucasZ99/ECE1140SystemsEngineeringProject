@@ -36,9 +36,10 @@ class CTCTestContainer(QObject):
         # self.train_system_backend = TrainSystem(self.ctc_container, self.ctc_test_ui_container)
 
     def init_test_container(self):
-        self.system_time_container.show_ui()
+        # self.system_time_container.show_ui()
         self.ctc_container.show_ui()
         self.ctc_test_ui_container.show_ui()
+        # self.system_time_container.
         # self.train_system_backend.start()
 
 
@@ -50,7 +51,7 @@ def run_ctc_test_container():
 
 
 if __name__ == '__main__':
-    sys.settrace
+    # sys.settrace
     # ctc_test_thread = threading.Thread(target=run_ctc_test_container)
     # ctc_test_thread.start()
     run_ctc_test_container()
