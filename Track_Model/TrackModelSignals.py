@@ -3,10 +3,12 @@ from PyQt6.QtCore import pyqtSignal, QObject
 
 class TrackModelSignalsCls(QObject):
 
-    # Track Model -> UI
+    # Track Model/Container -> UI
     refresh_ui_signal = pyqtSignal()
     map_add_train_signal = pyqtSignal()
     map_move_train_signal = pyqtSignal(int, int)
+    map_update_signal_signal = pyqtSignal(int, bool)
+    map_update_rxr_signal = pyqtSignal(int, bool)
 
     # Track Model data <- UI
     get_data_signal = pyqtSignal()
