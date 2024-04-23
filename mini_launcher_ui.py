@@ -76,8 +76,6 @@ def main():
 
     app = QApplication(sys.argv)
 
-    # ctc_signals = CTCSignals()
-
     ctc_thread = QThread()
     ctc_container = CTCContainer()
     ctc_container.moveToThread(ctc_thread)

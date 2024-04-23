@@ -11,7 +11,7 @@ from Common.Lines import get_line_blocks
 
 
 class CTC(QObject):
-    update_wayside_from_ctc_signal = pyqtSignal(list, list, list)
+    # update_wayside_from_ctc_signal = pyqtSignal(list, list, list)
 
     def __init__(self):
         self.track_signals_to_clear: set[int] = set()
@@ -118,7 +118,7 @@ class CTC(QObject):
 
         if update_running_trains:
             self.get_running_trains_signal_handler()
-        if update_scheduled_trains:
+        if len(self.scheduled_trains.train_list) > 0:
             self.get_scheduled_trains_signal_handler()
 
         # when this is true, there is a change in CTC state.
@@ -486,7 +486,7 @@ class CTC(QObject):
 
     def update_wayside(self):
         print("CTC: updating wayside")
-        self.update_wayside_from_ctc_signal.emit(list(self.track_signals.values()), self.closed_blocks,
+        CTCSignals.update_wayside_from_ctc_signal.emit(list(self.track_signals.values()), self.closed_blocks,
                                                  list(self.set_switches.values()))
 
     # TODO update queues, and if queues are updated, update wayside
@@ -494,6 +494,7 @@ class CTC(QObject):
     def schedule_train_signal_handler(self, train: Train):
         print("CTC: Schedule train")
         self.scheduled_trains.schedule_train(train)
+        self.get_scheduled_trains_signal_handler()
         if self.update_ctc_queues() or self.update_running_trains():
             print("CTC: schedule_train_signal_handler")
             self.update_wayside()
