@@ -104,34 +104,100 @@ class Window(QMainWindow):
         # block view
         self.block_view_layout_group = QGroupBox("Block Info")
         bv_layout = QGridLayout()
+
+        info = self.block_info
+        # SELECT BLOCK
+        self.select_block_label = QLabel('Select Block')
         # block selection combo
         self.block_info_combo = QComboBox()
         self.block_info_combo.addItems(self.str_list_blocks)
         self.block_info_combo.activated.connect(self.refresh_block_info)
         self.block_info_combo.setFixedSize(60, 25)
         bv_layout.addWidget(self.block_info_combo)
-        # block info labels
-        info = self.block_info
-        self.length_label = QLabel('Length: ' + str(info[0]))
-        self.grade_label = QLabel('Grade: ' + str(info[1]))
-        self.speed_lim_label = QLabel('Speed Limit: ' + str(info[2]))
-        self.elevation_label = QLabel('Elevation: ' + str(info[3]))
+        select_block_layout = QVBoxLayout()
+        select_block_layout.addWidget(self.select_block_label)
+        select_block_layout.addWidget(self.block_info_combo)
+
+        # BLOCK INFO
+        self.block_info_label = QLabel('Block Info')
+        # strs
+        self.length_label = QLabel('Length: ' + str(info[0]) + ' m')
+        self.grade_label = QLabel('Grade: ' + str(info[1]) + ' %')
+        self.speed_lim_label = QLabel('Speed Limit: ' + str(info[2]) + ' km/hr')
+        self.elevation_label = QLabel('Elevation: ' + str(info[3]) + ' m')
         beacon_str = 'N/A'
         if str(info[5]) != '0' * 128:
             beacon_str = str(info[5])
         self.beacon_label = QLabel('Beacon: ' + beacon_str)
-
         # bools
-        self.occupied_label = QLabel('Occupied: ' + str(info[4]))
-        self.track_heated_label = QLabel('Track Heated: ' + str(info[6]))
-        self.underground_label = QLabel('Underground: ' + str(info[7]))
+        self.occupied_label = QLabel('Occupied:')
+        pixmap = self.white_pixmap
+        if str(info[4]) == 'nan':
+            pixmap = self.white_pixmap
+        elif info[4]:
+            pixmap = self.green_pixmap
+        else:
+            pixmap = self.red_pixmap
+        self.occupied_label2 = QLabel(self)
+        self.occupied_label2.setPixmap(pixmap)
+
+        self.track_heated_label = QLabel('Track Heated:')
+        if str(info[6]) == 'nan':
+            pixmap = self.white_pixmap
+        elif info[6]:
+            pixmap = self.green_pixmap
+        else:
+            pixmap = self.red_pixmap
+        self.heated_label2 = QLabel(self)
+        self.heated_label2.setPixmap(pixmap)
+
+        self.underground_label = QLabel('Underground:')
+        if str(info[7]) == 'nan':
+            pixmap = self.white_pixmap
+        elif info[7]:
+            pixmap = self.green_pixmap
+        else:
+            pixmap = self.red_pixmap
+        self.underground_label2 = QLabel(self)
+        self.underground_label2.setPixmap(pixmap)
+
+        block_info_layout = QGridLayout()
+        # FAILURES
+
+        # INFRASTRUCTURE
 
         # failures
-        self.power_fail_label = QLabel('Power Failure: ' + str(info[8]))
-        self.track_circ_fail_label = QLabel('Track Circuit Failure: ' + str(info[9]))
-        self.broken_rail_label = QLabel('Broken Rail Failure: ' + str(info[10]))
+        self.power_fail_label = QLabel('Power Failure: ')
+        if str(info[8]) == 'nan':
+            pixmap = self.white_pixmap
+        elif info[8]:
+            pixmap = self.green_pixmap
+        else:
+            pixmap = self.red_pixmap
+        self.power_fail_label2 = QLabel(self)
+        self.power_fail_label2.setPixmap(pixmap)
 
-        # infrastructure
+        self.track_circ_fail_label = QLabel('Track Circuit Failure: ' + str(info[9]))
+        if str(info[9]) == 'nan':
+            pixmap = self.white_pixmap
+        elif info[9]:
+            pixmap = self.green_pixmap
+        else:
+            pixmap = self.red_pixmap
+        self.track_circ_fail_label2 = QLabel(self)
+        self.track_circ_fail_label2.setPixmap(pixmap)
+
+        self.broken_rail_label = QLabel('Broken Rail Failure: ' + str(info[10]))
+        if str(info[10]) == 'nan':
+            pixmap = self.white_pixmap
+        elif info[10]:
+            pixmap = self.green_pixmap
+        else:
+            pixmap = self.red_pixmap
+        self.broken_rail_label2 = QLabel(self)
+        self.broken_rail_label2.setPixmap(pixmap)
+
+        # infrastructure TODO: Update to circle representation instead of str
         self.switch_label = QLabel('Switch: ' + str(info[11]))
         self.signal_label = QLabel('Signal: ' + str(info[12]))
         self.rxr_label = QLabel('RxR: ' + str(info[13]))
