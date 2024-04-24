@@ -117,6 +117,7 @@ class Window(QMainWindow):
         self.block_info_combo.activated.connect(self.refresh_block_info)
         self.block_info_combo.setFixedSize(60, 25)
         select_block_layout = QVBoxLayout()
+
         select_block_layout.addWidget(self.select_block_label)
         select_block_layout.addWidget(self.block_info_combo)
 
@@ -488,6 +489,9 @@ class Window(QMainWindow):
         else:
             pixmap = self.red_pixmap
         self.broken_rail_fail_label2.setPixmap(pixmap)
+
+        self.signals.get_train_dict_signal.emit()
+        self.train_dict_label.setText('Trains: ' + str(self.train_dict))
 
     def add_train(self):
         self.map.add_train()
