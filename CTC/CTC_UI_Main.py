@@ -257,7 +257,7 @@ class CTCMainWindow(QMainWindow):
         # line
         train = Train(self.next_train_number, self.get_selected_line(), route)
         print(f"CTCUI: Train {self.next_train_number} Scheduled.")
-        print("\tt = %s", strftime("%H:%m", localtime(SystemTime.time())))
+        print("\tt =", strftime("%H:%m", localtime(SystemTime.time())))
         print(f"\t{train}\n")
 
         CTCSignals.ctc_schedule_train_signal.emit(train)
@@ -494,6 +494,7 @@ class ScheduledTrainsTableLayout(QVBoxLayout):
             first_stop = QTableWidgetItem(first_stop_name)
 
             min_to_departure = (train.departure_time() - SystemTime.time()) / 60
+            # print(f"time to departure calculated: {min_to_departure}")
 
             time_to_departure = QTableWidgetItem(str(round(min_to_departure, 0)))
 

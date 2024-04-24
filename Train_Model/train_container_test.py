@@ -92,6 +92,7 @@ class MyTestCase(unittest.TestCase):
         time = SystemTime.time()
         train = TrainModel(TrainController_Tot_Container())
         train.update_blocks((-15, 5, False))  # train enters block with grade
+        print(train.new_block.grade, train.old_block.grade)
         # train will not react to new grade until its midpoint enters the new block
         train.velocity = 50
         while train.position <= train.train_const.train_length()/2:
@@ -100,11 +101,13 @@ class MyTestCase(unittest.TestCase):
             time = new_time
 
         # now train should start to speed up
-        print("in new block")
         for _ in range(20):
             velocity = train.velocity
             new_time = SystemTime.time()
-            train.physics_calculation(new_time - time)
+            if new_time - time == 0:
+                train.physics_calculation(.1)  # otherwise I would often pass a time of 0 into physics and due nothing
+            else:
+                train.physics_calculation(new_time - time)
             time = new_time
             self.assertGreater(train.velocity, velocity, f'iteration {_}')
 
