@@ -6,7 +6,7 @@ from PyQt6.QtWidgets import (
     QTableWidget, QLabel, QSlider, QComboBox, QFileDialog, QTableView, QTableWidgetItem, QMainWindow,
     QFrame, QHeaderView, QAbstractScrollArea
 )
-from PyQt6.QtGui import QIcon, QPixmap
+from PyQt6.QtGui import QIcon, QPixmap, QFont, QPalette
 from PyQt6.QtCore import Qt, pyqtSignal
 from Track_Model.animated_toggle import AnimatedToggle
 import sys
@@ -44,6 +44,11 @@ class Window(QMainWindow):
         self.white_pixmap = QPixmap(white_file)
         self.green_pixmap = QPixmap(green_file)
         self.red_pixmap = QPixmap(red_file)
+
+        # FONTS
+        title_font = QFont()
+        title_font.setBold(True)
+        title_font.setPointSize(20)
 
         # SIGNALS
         self.signals = signals
@@ -104,13 +109,14 @@ class Window(QMainWindow):
         self.upload_layout_group.setLayout(ul_layout)
 
         # block view
-        self.block_view_layout_group = QGroupBox("Block Info")
+        self.block_view_layout_group = QGroupBox('Details')
         bv_layout = QGridLayout()
 
         info = self.block_info
 
         # SELECT BLOCK
         self.select_block_label = QLabel('Select Block')
+        self.select_block_label.setFont(title_font)
         # block selection combo
         self.block_info_combo = QComboBox()
         self.block_info_combo.addItems(self.str_list_blocks)
@@ -123,6 +129,7 @@ class Window(QMainWindow):
 
         # BLOCK INFO
         self.block_info_label = QLabel('Block Info')
+        self.block_info_label.setFont(title_font)
         # strs
         self.length_label = QLabel('Length: ' + str(info[0]) + ' m')
         self.grade_label = QLabel('Grade: ' + str(info[1]) + ' %')
@@ -165,6 +172,7 @@ class Window(QMainWindow):
         self.underground_label2.setPixmap(pixmap)
 
         self.infrastructure_label = QLabel('Infrastructure')
+        self.infrastructure_label.setFont(title_font)
         self.switch_label = QLabel('Switch')
         self.signal_label = QLabel('Signal')
         self.rxr_label = QLabel('RxR')
@@ -225,6 +233,7 @@ class Window(QMainWindow):
 
         # FAILURES
         self.failures_label = QLabel('Failures')
+        self.failures_label.setFont(title_font)
 
         self.power_fail_label = QLabel('Power Failure')
         if str(info[8]) == 'nan':
@@ -236,7 +245,7 @@ class Window(QMainWindow):
         self.power_fail_label2 = QLabel(self)
         self.power_fail_label2.setPixmap(pixmap)
 
-        self.track_circ_fail_label = QLabel('Track Circuit')
+        self.track_circ_fail_label = QLabel('Track Circuit Failure')
         if str(info[9]) == 'nan':
             pixmap = self.white_pixmap
         elif info[9]:
@@ -246,7 +255,7 @@ class Window(QMainWindow):
         self.track_circ_fail_label2 = QLabel(self)
         self.track_circ_fail_label2.setPixmap(pixmap)
 
-        self.broken_rail_fail_label = QLabel('Broken Rail')
+        self.broken_rail_fail_label = QLabel('Broken Rail Failure')
         if str(info[10]) == 'nan':
             pixmap = self.white_pixmap
         elif info[10]:
@@ -257,7 +266,7 @@ class Window(QMainWindow):
         self.broken_rail_fail_label2.setPixmap(pixmap)
 
         self.failure_combo = QComboBox()
-        self.failure_combo.addItems(['Power Failure', 'Track Circuit Failure', 'Broken Rail Failure'])
+        self.failure_combo.addItems(['Power', 'Track Circuit', 'Broken Rail'])
         self.failure_combo.activated.connect(self.failure_combo_updated)
 
         self.failure_toggle = AnimatedToggle()
@@ -312,6 +321,11 @@ class Window(QMainWindow):
         self.signals.map_update_signal_signal.connect(self.map_update_signal)
         self.signals.map_update_rxr_signal.connect(self.map_update_rxr)
 
+        # STYLE
+        style_file = white_file = os.path.join(dirname, 'style.css')
+        with open(style_file, 'r') as file:
+            self.setStyleSheet(file.read())
+
 
 
     ##############################
@@ -351,9 +365,9 @@ class Window(QMainWindow):
         block = int(self.block_info_combo.currentText()[1:])
         failure_mode = str(self.failure_combo.currentText())
         failure_mode_int = 0
-        if failure_mode == 'Power Failure':
+        if failure_mode == 'Power':
             failure_mode_int = 13
-        elif failure_mode == 'Track Circuit Failure':
+        elif failure_mode == 'Track Circuit':
             failure_mode_int = 14
         else:  # broken rail failure
             failure_mode_int = 15

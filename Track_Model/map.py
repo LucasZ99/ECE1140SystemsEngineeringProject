@@ -1,5 +1,5 @@
 import sys
-from PyQt6.QtGui import QPixmap, QPainter
+from PyQt6.QtGui import QPixmap, QPainter, QImage
 from PyQt6.QtWidgets import QMainWindow, QApplication, QLabel, QWidget, QVBoxLayout, QLayout, QGraphicsScene, \
     QGraphicsView, QHBoxLayout, QGraphicsItem
 from PyQt6.QtCore import Qt
@@ -50,14 +50,27 @@ class Map(QWidget):
         pixmap = pixmap.scaled(400, 600, Qt.AspectRatioMode.KeepAspectRatio)
         background.setPixmap(pixmap)
 
+        # StyleSheet for transparent background
+        self.setStyleSheet("""
+        QWidget
+{
+    color: #b1b1b1;
+    background-color: rgba(0, 0, 0, 0);
+    selection-background-color:rgba(0, 0, 0, 0);
+    selection-color: black;
+    background-clip: border;
+    border-image: none;
+    border: 0px transparent black;
+    outline: 0;
+}
+        """)
+
         self.train_pixmap = QPixmap(yellow_box_file)
         self.train_pixmap = self.train_pixmap.scaled(10, 10, Qt.AspectRatioMode.KeepAspectRatio)
 
         self.green_light_pixmap = QPixmap(green_light_file)
-        # self.green_light_pixmap = self.green_light_pixmap.scaled(25, 25, Qt.AspectRatioMode.KeepAspectRatio)
 
         self.red_light_pixmap = QPixmap(red_light_file)
-        # self.red_light_pixmap = self.red_light_pixmap.scaled(25, 25, Qt.AspectRatioMode.KeepAspectRatio)
 
         self.rxr_unactivated_pixmap = QPixmap(rxr_unactivated_file)
         self.rxr_unactivated_pixmap = self.rxr_unactivated_pixmap.scaled(30, 30, Qt.AspectRatioMode.KeepAspectRatio)
