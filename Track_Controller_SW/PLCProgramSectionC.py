@@ -27,9 +27,9 @@ def run_plc(occupancy_list):
 
     # Switching logic
     # check if switches are safe to toggle
-    if occupancy_list[0] or occupancy_list[1]:
+    if occupancy_list[0] or occupancy_list[1] or occupancy_list[2]:
         unsafe_toggle_switches[0] = True
-    if occupancy_list[8] or occupancy_list[9] or occupancy_list[23]:
+    if occupancy_list[6] or occupancy_list[7] or occupancy_list[8] or occupancy_list[22] or occupancy_list[23]:
         unsafe_toggle_switches[1] = True
 
     # if two-way section is not occupied

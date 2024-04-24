@@ -28,6 +28,7 @@ class TrackControllerTestBenchContainer(QObject):
     def update_wayside_from_ctc(self, track_signal: list, block_to_toggle: list, switch_to_toggle: list):
         if len(block_to_toggle) > 0:
             print(f"emitting block to toggle: {block_to_toggle[0][0]}")
+        if len(switch_to_toggle) > 0:
             print(f"emitting switch to toggle: {str(switch_to_toggle[0])}")
         self.top_level_signals.test_update_wayside_from_ctc.emit(track_signal, block_to_toggle, switch_to_toggle)
 

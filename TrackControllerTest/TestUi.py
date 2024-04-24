@@ -3,6 +3,8 @@ import os
 from PyQt6.QtCore import pyqtSlot
 from PyQt6.QtWidgets import QMainWindow, QComboBox, QPushButton, QLineEdit
 from PyQt6.uic import loadUi
+
+from Common import Switch
 from TrackControllerTest.TrackControllerTestSignals import TrackControllerTestSignals as signals
 
 
@@ -70,7 +72,7 @@ class TestUi(QMainWindow):
         self.blocks = blocks
 
     @pyqtSlot(list)
-    def set_switches(self, switches: list):
+    def set_switches(self, switches: list[Switch]):
         self.switches = switches
 
     def init_close_block_select(self):
@@ -97,6 +99,8 @@ class TestUi(QMainWindow):
     def toggle_switch_selected(self):
         if self.toggle_switch_select.currentIndex() != 0:
             self.signals.switch_to_toggle.emit([self.switches[self.toggle_switch_select.currentIndex() - 1]])
+        else:
+            self.signals.switch_to_toggle.emit([])
 
     def init_authority_select(self):
         self.authority_select.clear()
