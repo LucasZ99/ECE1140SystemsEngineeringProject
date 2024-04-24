@@ -93,13 +93,12 @@ class TestBackend(QObject):
         if self.block_to_toggle[0][0] == 0 and len(self.switch_to_toggle) == 0:
             self.signals.ctc_inputs_from_testbench_signal.emit([self.track_signal], [], [])
         elif self.block_to_toggle[0][0] == 0:
-            self.signals.ctc_inputs_from_testbench_signal.emit([self.track_signal], [], self.switch_to_toggle)
+            self.signals.ctc_inputs_from_testbench_signal.emit([self.track_signal], [], self.switch_to_toggle[0])
         elif len(self.switch_to_toggle) == 0:
             self.signals.ctc_inputs_from_testbench_signal.emit([self.track_signal], self.block_to_toggle, [])
         else:
-            self.signals.ctc_inputs_from_testbench_signal.emit([self.track_signal], [self.block_to_toggle],
-                                                               self.switch_to_toggle)
-
+            self.signals.ctc_inputs_from_testbench_signal.emit([self.track_signal], self.block_to_toggle,
+                                                               self.switch_to_toggle[0])
 
     @pyqtSlot()
     def send_track_inputs(self):
