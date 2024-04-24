@@ -81,6 +81,10 @@ class Map(QWidget):
         self.warning_pixmap = QPixmap(warning_file)
         self.warning_pixmap = self.warning_pixmap.scaled(15, 15, Qt.AspectRatioMode.KeepAspectRatio)
 
+        # TODO:
+        # self.view_box = QLabel()
+        # self.view_box.move(100, 100)
+
         self.train_dict = {}
         self.train_id_counter = 0
 
@@ -145,7 +149,10 @@ class Map(QWidget):
             42: (160, 218), 43: (170, 218), 44: (180, 218), 45: (190, 218), 46: (200, 218), 47: (210, 218),
             48: (220, 218), 49: (230, 218), 50: (240, 218), 51: (250, 218), 52: (260, 218), 53: (270, 218),
             54: (280, 218), 55: (290, 218), 56: (300, 218), 57: (300, 218),
-            # Skipping '58' to '62'
+
+            # should never reach 58-62
+            58: (300, 218), 59: (300, 218), 60: (300, 218), 61: (300, 218), 62: (300, 218),
+
             # k
             63: (354, 250), 64: (354, 288), 65: (354, 326), 66: (354, 364), 67: (354, 380), 68: (354, 400),
             # l
@@ -297,28 +304,23 @@ class Map(QWidget):
         else:
             print(f'map: invalid toggle_signal index called: {signal_index}')
 
-    def add_failure(self, block):
-        [x, y] = self.pixel_dict[block]
-        failure = QLabel(self)
-        failure.setPixmap(self.warning_pixmap)
+    def update_closure(self, block, val):
+        if val:
+            [x, y] = self.pixel_dict[block]
+            failure = QLabel(self)
+            failure.setPixmap(self.warning_pixmap)
 
-        failure.move(x, y)
-        failure.show()
-        self.failure_dict[block] = failure
-
-    def remove_failure(self, block):
-        failure = self.failure_dict.pop(block, None)
-        if failure:
-            failure.deleteLater()
+            failure.move(x, y)
+            failure.show()
+            self.failure_dict[block] = failure
         else:
-            print(f"No failure with ID {block} found")
+            failure = self.failure_dict.pop(block, None)
+            if failure:
+                failure.deleteLater()
+            else:
+                print(f"No failure with ID {block} found")
 
-# app = QApplication(sys.argv)/
+# app = QApplication(sys.argv)
 # w = Map()
-# w.add_train()
-# w.add_train()
-# w.move_train(1, 100)
-# w.move_train(2, 86)
-# w.add_failure(2, 100)
 # w.show()
 # sys.exit(app.exec())

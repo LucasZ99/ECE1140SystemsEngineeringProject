@@ -9,6 +9,7 @@ class TrackModelSignalsCls(QObject):
     map_move_train_signal = pyqtSignal(int, int)
     map_update_signal_signal = pyqtSignal(int, bool)
     map_update_rxr_signal = pyqtSignal(int, bool)
+    map_update_closure_signal = pyqtSignal(int, bool)
 
     # Track Model data <- UI
     get_data_signal = pyqtSignal()

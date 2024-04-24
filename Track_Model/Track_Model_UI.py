@@ -388,10 +388,13 @@ class Window(QMainWindow):
         failure_mode = str(self.failure_combo.currentText())
         if failure_mode == 'Power':
             self.signals.set_power_failure_signal.emit(block, val)
+            self.map_update_closure(block, val)  # map
         elif failure_mode == 'Track Circuit':
             self.signals.set_track_circuit_failure_signal.emit(block, val)
+            self.map_update_closure(block, val)  # map
         else:  # broken rail failure
             self.signals.set_broken_rail_failure_signal.emit(block, val)
+            self.map_update_closure(block, val)  # map
         self.refresh()
 
     # def refresh_block_info(self):
@@ -512,6 +515,9 @@ class Window(QMainWindow):
             pixmap = self.red_pixmap
         self.broken_rail_fail_label2.setPixmap(pixmap)
 
+        # keep toggle in right place
+        self.failure_combo_updated()
+
         self.signals.get_train_dict_signal.emit()
         self.train_dict_label.setText('Trains: ' + str(self.train_dict))
 
@@ -526,6 +532,9 @@ class Window(QMainWindow):
 
     def map_update_rxr(self, index, val):
         self.map.set_rxr(index, val)
+
+    def map_update_closure(self, index, val):
+        self.map.update_closure(index, val)
 
     def refresh(self):
         self.signals.get_data_signal.emit()
