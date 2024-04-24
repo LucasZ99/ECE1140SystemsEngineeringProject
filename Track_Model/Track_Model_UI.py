@@ -133,10 +133,10 @@ class Window(QMainWindow):
         self.block_info_label = QLabel('Block Info')
         self.block_info_label.setFont(title_font)
         # strs
-        self.length_label = QLabel('Length: ' + str(info[0]) + ' m')
+        self.length_label = QLabel('Length: ' + str(round(info[0]*3.28084, 2)) + ' ft')
         self.grade_label = QLabel('Grade: ' + str(info[1]) + ' %')
-        self.speed_lim_label = QLabel('Speed Limit: ' + str(info[2]) + ' km/hr')
-        self.elevation_label = QLabel('Elevation: ' + str(info[3]) + ' m')
+        self.speed_lim_label = QLabel('Speed Limit: ' + str(round(info[2]*0.621371, 2)) + ' mph')
+        self.elevation_label = QLabel('Elevation: ' + str(round(info[3]*3.28084, 2)) + ' ft')
         beacon_str = 'N/A'
         if str(info[5]) != '0' * 128:
             beacon_str = str(info[5])
@@ -311,8 +311,8 @@ class Window(QMainWindow):
         self.map_layout_group.setLayout(m_layout)
 
         # add layouts to parent layout
-        layout.addWidget(self.block_view_layout_group, 0, 0, 2, 1)
-        layout.addWidget(self.map_layout_group, 0, 1, 2, 2)
+        layout.addWidget(self.block_view_layout_group, 0, 0, 2, 2)
+        layout.addWidget(self.map_layout_group, 0, 2, 3, 2)
         layout.addWidget(self.upload_layout_group, 2, 1, 1, 1)
         layout.addWidget(self.temperature_controls_group, 2, 0, 1, 1)
         # layout.addWidget(self.failure_modes_group, 2, 0, 1, 1)
