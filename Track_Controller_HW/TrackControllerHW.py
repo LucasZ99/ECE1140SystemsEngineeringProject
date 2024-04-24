@@ -49,6 +49,7 @@ class TrackControllerHardware(QObject):
     def rr_cross_test(self, blocks: dict, expected_rr_cross_val: bool):
         self.blocks = blocks  # set the blocks to the new occupancy
         self.stops = self.slots_sigs.new_occupancy(blocks)  # update the occupancy
+        self.rr_crossing = self.slots_sigs.rr_crossing
         # PLC logic will update the rr_crossing value based on the occupancy
         #print("blck occup list blck B: ", self.blocks)
         #print("stops list blck B:      ", self.stops)
@@ -56,6 +57,7 @@ class TrackControllerHardware(QObject):
             print("Test Passed")
         elif self.rr_crossing != expected_rr_cross_val:
             print("Test Failed")
+        #print(self.rr_crossing)
         #print(blocks, blocks)
         #prin("stops", self.stops)
 
@@ -72,10 +74,13 @@ if __name__ == '__main__':
     track_controller_hw = TrackControllerHardware(occupancy_dict_B, section="B")  # init with default vals
     track_controller_hw.slots_sigs.mode = True  # set the mode to True (manual mode)
 
-    for i in occupancy_dict_B.keys():
-        new_occupancy_list = {key: False for key, value in occupancy_dict_B.items() if isinstance(value, bool)}  # create a new list to update the occupancy
-        new_occupancy_list[i] = True  # set the occupancy of block 56 to True (a rr_crossing block)
-        track_controller_hw.rr_cross_test(new_occupancy_list, True)  # test the PLC's rr_crossing logic
-        if i == 150:
-            i = 25
-        time.sleep(.5)
+    while True:
+        for i in occupancy_dict_B.keys():
+            new_occupancy_list = {key: False for key, value in occupancy_dict_B.items() if isinstance(value, bool)}  # create a new list to update the occupancy
+            new_occupancy_list[i] = True  # set the occupancy of block 56 to True (a rr_crossing block)
+            track_controller_hw.rr_cross_test(new_occupancy_list, True)  # test the PLC's rr_crossing logic
+            #print ("occupancies: ", new_occupancy_list)
+            if i == 150:
+                i = 29
+            time.sleep(.5)
+
