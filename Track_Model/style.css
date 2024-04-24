@@ -619,10 +619,10 @@ QPushButton:disabled
     color: #454545;
 }
 
-QPushButton:focus {
-    background-color: #D1DBCB;
-    color: black;
-}
+/*QPushButton:focus {*/
+/*    background-color: #D1DBCB;*/
+/*    color: black;*/
+/*}*/
 
 QPushButton:pressed
 {
@@ -742,7 +742,7 @@ QAbstractSpinBox::down-arrow:hover
 
 QLabel
 {
-    border: 0px solid black;
+    border: 0px transparent black;
     margin-left: 2px;
     margin-right: 2px;
     color: #D1DBCB;

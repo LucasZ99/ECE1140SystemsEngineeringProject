@@ -4,7 +4,7 @@ import numpy as np
 from PyQt6.QtWidgets import (
     QApplication, QWidget, QPushButton, QLineEdit, QGridLayout, QTableWidget, QGroupBox, QVBoxLayout,
     QTableWidget, QLabel, QSlider, QComboBox, QFileDialog, QTableView, QTableWidgetItem, QMainWindow,
-    QFrame, QHeaderView, QAbstractScrollArea
+    QFrame, QHeaderView, QAbstractScrollArea, QHBoxLayout
 )
 from PyQt6.QtGui import QIcon, QPixmap, QFont, QPalette
 from PyQt6.QtCore import Qt, pyqtSignal
@@ -110,22 +110,24 @@ class Window(QMainWindow):
 
         # block view
         self.block_view_layout_group = QGroupBox('Details')
-        bv_layout = QGridLayout()
 
         info = self.block_info
 
         # SELECT BLOCK
-        self.select_block_label = QLabel('Select Block')
+        self.select_block_label = QLabel('Select Block:')
         self.select_block_label.setFont(title_font)
         # block selection combo
         self.block_info_combo = QComboBox()
         self.block_info_combo.addItems(self.str_list_blocks)
         self.block_info_combo.activated.connect(self.refresh_block_info)
         self.block_info_combo.setFixedSize(60, 25)
-        select_block_layout = QVBoxLayout()
+        select_block_layout = QGridLayout()
 
-        select_block_layout.addWidget(self.select_block_label)
-        select_block_layout.addWidget(self.block_info_combo)
+        self.select_block_label.setContentsMargins(0, 0, 0, 0)
+        self.block_info_combo.setContentsMargins(0, 0, 0, 0)
+
+        select_block_layout.addWidget(self.select_block_label, 0, 1, 1, 1)
+        select_block_layout.addWidget(self.block_info_combo, 1, 1, 1, 1)
 
         # BLOCK INFO
         self.block_info_label = QLabel('Block Info')
@@ -272,7 +274,6 @@ class Window(QMainWindow):
         self.failure_toggle = AnimatedToggle()
         self.failure_toggle.setFixedSize(self.failure_toggle.sizeHint())
         self.failure_toggle.clicked.connect(self.failure_toggle_clicked)
-        self.block_view_layout_group.setLayout(bv_layout)
 
         failures_layout = QGridLayout()
         failures_layout.addWidget(self.failures_label, 0, 0, 1, 2)
@@ -289,7 +290,14 @@ class Window(QMainWindow):
         self.train_dict_label = QLabel('Trains: ' + str(self.train_dict))
 
         # Final BV Layout
-        bv_layout.addLayout(select_block_layout, 0, 0, 1, 1)
+        bv_layout = QGridLayout()
+        self.block_view_layout_group.setLayout(bv_layout)
+
+        combo_layout = QHBoxLayout()
+        combo_layout.addWidget(self.select_block_label)
+        combo_layout.addWidget(self.block_info_combo)
+
+        bv_layout.addLayout(combo_layout, 0, 0, 1, 1)
         bv_layout.addLayout(failures_layout, 1, 0, 1, 1)
         bv_layout.addLayout(block_info_layout, 0, 1, 2, 1)
         bv_layout.addWidget(self.train_dict_label, 2, 0, 1, 2)
@@ -378,9 +386,9 @@ class Window(QMainWindow):
         block = int(self.block_info_combo.currentText()[1:])
         val = bool(self.failure_toggle.isChecked())
         failure_mode = str(self.failure_combo.currentText())
-        if failure_mode == 'Power Failure':
+        if failure_mode == 'Power':
             self.signals.set_power_failure_signal.emit(block, val)
-        elif failure_mode == 'Track Circuit Failure':
+        elif failure_mode == 'Track Circuit':
             self.signals.set_track_circuit_failure_signal.emit(block, val)
         else:  # broken rail failure
             self.signals.set_broken_rail_failure_signal.emit(block, val)
