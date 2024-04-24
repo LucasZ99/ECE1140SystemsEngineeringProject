@@ -18,6 +18,8 @@ import time
 from Track_Model.TrackModelSignals import TrackModelSignals as signals
 
 
+# TODO: https://www.gradientmagic.com/collection/popular/gradient/1559907591086
+# TODO: https://www.gradientmagic.com/collection/popular/gradient/1559869192589
 class Window(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -106,6 +108,7 @@ class Window(QMainWindow):
         bv_layout = QGridLayout()
 
         info = self.block_info
+
         # SELECT BLOCK
         self.select_block_label = QLabel('Select Block')
         # block selection combo
@@ -113,7 +116,6 @@ class Window(QMainWindow):
         self.block_info_combo.addItems(self.str_list_blocks)
         self.block_info_combo.activated.connect(self.refresh_block_info)
         self.block_info_combo.setFixedSize(60, 25)
-        bv_layout.addWidget(self.block_info_combo)
         select_block_layout = QVBoxLayout()
         select_block_layout.addWidget(self.select_block_label)
         select_block_layout.addWidget(self.block_info_combo)
@@ -130,7 +132,7 @@ class Window(QMainWindow):
             beacon_str = str(info[5])
         self.beacon_label = QLabel('Beacon: ' + beacon_str)
         # bools
-        self.occupied_label = QLabel('Occupied:')
+        self.occupied_label = QLabel('Occupied')
         pixmap = self.white_pixmap
         if str(info[4]) == 'nan':
             pixmap = self.white_pixmap
@@ -141,7 +143,7 @@ class Window(QMainWindow):
         self.occupied_label2 = QLabel(self)
         self.occupied_label2.setPixmap(pixmap)
 
-        self.track_heated_label = QLabel('Track Heated:')
+        self.heated_label = QLabel('Track Heated')
         if str(info[6]) == 'nan':
             pixmap = self.white_pixmap
         elif info[6]:
@@ -151,7 +153,7 @@ class Window(QMainWindow):
         self.heated_label2 = QLabel(self)
         self.heated_label2.setPixmap(pixmap)
 
-        self.underground_label = QLabel('Underground:')
+        self.underground_label = QLabel('Underground')
         if str(info[7]) == 'nan':
             pixmap = self.white_pixmap
         elif info[7]:
@@ -161,13 +163,69 @@ class Window(QMainWindow):
         self.underground_label2 = QLabel(self)
         self.underground_label2.setPixmap(pixmap)
 
+        self.infrastructure_label = QLabel('Infrastructure')
+        self.switch_label = QLabel('Switch')
+        self.signal_label = QLabel('Signal')
+        self.rxr_label = QLabel('RxR')
+
+        if str(info[11]) == 'nan':
+            pixmap = self.white_pixmap
+        elif info[11]:
+            pixmap = self.green_pixmap
+        else:
+            pixmap = self.red_pixmap
+        self.switch_label2 = QLabel(self)
+        self.switch_label2.setPixmap(pixmap)
+
+        if str(info[12]) == 'nan':
+            pixmap = self.white_pixmap
+        elif info[12]:
+            pixmap = self.green_pixmap
+        else:
+            pixmap = self.red_pixmap
+        self.signal_label2 = QLabel(self)
+        self.signal_label2.setPixmap(pixmap)
+
+        if str(info[13]) == 'nan':
+            pixmap = self.white_pixmap
+        elif info[13]:
+            pixmap = self.green_pixmap
+        else:
+            pixmap = self.red_pixmap
+        self.rxr_label2 = QLabel(self)
+        self.rxr_label2.setPixmap(pixmap)
+
+        # block info layout
+
         block_info_layout = QGridLayout()
+
+        block_info_layout.addWidget(self.block_info_label, 0, 1, 1, 2)
+
+        block_info_layout.addWidget(self.length_label, 1, 0, 1, 2)
+        block_info_layout.addWidget(self.grade_label, 2, 0, 1, 2)
+        block_info_layout.addWidget(self.elevation_label, 3, 0, 1, 2)
+        block_info_layout.addWidget(self.speed_lim_label, 4, 0, 1, 2)
+        block_info_layout.addWidget(self.beacon_label, 5, 0, 1, 2)
+
+        block_info_layout.addWidget(self.occupied_label2, 1, 2, 1, 1)
+        block_info_layout.addWidget(self.occupied_label, 1, 3, 1, 1)
+        block_info_layout.addWidget(self.heated_label2, 2, 2, 1, 1)
+        block_info_layout.addWidget(self.heated_label, 2, 3, 1, 1)
+        block_info_layout.addWidget(self.underground_label2, 3, 2, 1, 1)
+        block_info_layout.addWidget(self.underground_label, 3, 3, 1, 1)
+
+        block_info_layout.addWidget(self.infrastructure_label, 6, 1, 1, 2)
+        block_info_layout.addWidget(self.switch_label2, 7, 1, 1, 1)
+        block_info_layout.addWidget(self.switch_label, 7, 2, 1, 1)
+        block_info_layout.addWidget(self.signal_label2, 8, 1, 1, 1)
+        block_info_layout.addWidget(self.signal_label, 8, 2, 1, 1)
+        block_info_layout.addWidget(self.rxr_label2, 9, 1, 1, 1)
+        block_info_layout.addWidget(self.rxr_label, 9, 2, 1, 1)
+
         # FAILURES
+        self.failures_label = QLabel('Failures')
 
-        # INFRASTRUCTURE
-
-        # failures
-        self.power_fail_label = QLabel('Power Failure: ')
+        self.power_fail_label = QLabel('Power Failure')
         if str(info[8]) == 'nan':
             pixmap = self.white_pixmap
         elif info[8]:
@@ -177,7 +235,7 @@ class Window(QMainWindow):
         self.power_fail_label2 = QLabel(self)
         self.power_fail_label2.setPixmap(pixmap)
 
-        self.track_circ_fail_label = QLabel('Track Circuit Failure: ' + str(info[9]))
+        self.track_circ_fail_label = QLabel('Track Circuit')
         if str(info[9]) == 'nan':
             pixmap = self.white_pixmap
         elif info[9]:
@@ -187,42 +245,16 @@ class Window(QMainWindow):
         self.track_circ_fail_label2 = QLabel(self)
         self.track_circ_fail_label2.setPixmap(pixmap)
 
-        self.broken_rail_label = QLabel('Broken Rail Failure: ' + str(info[10]))
+        self.broken_rail_fail_label = QLabel('Broken Rail')
         if str(info[10]) == 'nan':
             pixmap = self.white_pixmap
         elif info[10]:
             pixmap = self.green_pixmap
         else:
             pixmap = self.red_pixmap
-        self.broken_rail_label2 = QLabel(self)
-        self.broken_rail_label2.setPixmap(pixmap)
+        self.broken_rail_fail_label2 = QLabel(self)
+        self.broken_rail_fail_label2.setPixmap(pixmap)
 
-        # infrastructure TODO: Update to circle representation instead of str
-        self.switch_label = QLabel('Switch: ' + str(info[11]))
-        self.signal_label = QLabel('Signal: ' + str(info[12]))
-        self.rxr_label = QLabel('RxR: ' + str(info[13]))
-
-        # add these in a layout
-        bv_layout.addWidget(self.length_label, 1, 0)
-        bv_layout.addWidget(self.grade_label, 2, 0)
-        bv_layout.addWidget(self.speed_lim_label, 3, 0)
-        bv_layout.addWidget(self.elevation_label, 4, 0)
-        bv_layout.addWidget(self.occupied_label, 5, 0)
-        bv_layout.addWidget(self.beacon_label, 6, 0)
-        bv_layout.addWidget(self.track_heated_label, 7, 0)
-        bv_layout.addWidget(self.underground_label, 8, 0)
-        # failures
-        bv_layout.addWidget(self.power_fail_label, 1, 1)
-        bv_layout.addWidget(self.track_circ_fail_label, 2, 1)
-        bv_layout.addWidget(self.broken_rail_label, 3, 1)
-        # infrastructure
-        bv_layout.addWidget(self.switch_label, 4, 1)
-        bv_layout.addWidget(self.signal_label, 5, 1)
-        bv_layout.addWidget(self.rxr_label, 6, 1)
-        # train dictionary display
-        self.train_dict_label = QLabel('Trains: ' + str(self.train_dict))
-        bv_layout.addWidget(self.train_dict_label, 9, 0)
-        # failure combo/toggle
         self.failure_combo = QComboBox()
         self.failure_combo.addItems(['Power Failure', 'Track Circuit Failure', 'Broken Rail Failure'])
         self.failure_combo.activated.connect(self.failure_combo_updated)
@@ -231,8 +263,27 @@ class Window(QMainWindow):
         self.failure_toggle.setFixedSize(self.failure_toggle.sizeHint())
         self.failure_toggle.clicked.connect(self.failure_toggle_clicked)
         self.block_view_layout_group.setLayout(bv_layout)
-        bv_layout.addWidget(self.failure_combo, 10, 0)
-        bv_layout.addWidget(self.failure_toggle, 10, 1)
+
+        failures_layout = QGridLayout()
+        failures_layout.addWidget(self.failures_label, 0, 0, 1, 2)
+        failures_layout.addWidget(self.power_fail_label2, 1, 0, 1, 1)
+        failures_layout.addWidget(self.power_fail_label, 1, 1, 1, 1)
+        failures_layout.addWidget(self.track_circ_fail_label2, 2, 0, 1, 1)
+        failures_layout.addWidget(self.track_circ_fail_label, 2, 1, 1, 1)
+        failures_layout.addWidget(self.broken_rail_fail_label2, 3, 0, 1, 1)
+        failures_layout.addWidget(self.broken_rail_fail_label, 3, 1, 1, 1)
+        failures_layout.addWidget(self.failure_combo, 4, 0, 1, 1)
+        failures_layout.addWidget(self.failure_toggle, 4, 1, 1, 1)
+
+        # train dictionary display
+        self.train_dict_label = QLabel('Trains: ' + str(self.train_dict))
+
+        # Final BV Layout
+        bv_layout.addLayout(select_block_layout, 0, 0, 1, 1)
+        bv_layout.addLayout(failures_layout, 1, 0, 1, 1)
+        bv_layout.addLayout(block_info_layout, 0, 1, 2, 1)
+        bv_layout.addWidget(self.train_dict_label, 2, 0, 1, 2)
+
         # map
         self.map_layout_group = QGroupBox("Map")
         m_layout = QVBoxLayout()
@@ -317,35 +368,126 @@ class Window(QMainWindow):
         elif failure_mode == 'Track Circuit Failure':
             self.signals.set_track_circuit_failure_signal.emit(block, val)
         else:  # broken rail failure
-            self.signals.set_broken_rail_failure.emit(block, val)
+            self.signals.set_broken_rail_failure_signal.emit(block, val)
         self.refresh()
+
+    # def refresh_block_info(self):
+    #     block = int(self.block_info_combo.currentText()[1:])
+    #     self.signals.get_block_info_signal.emit(block)
+    #     info = self.block_info
+    #     self.length_label.setText('length = ' + str(info[0]))
+    #     self.grade_label.setText('grade = ' + str(info[1]))
+    #     self.speed_lim_label.setText('speed lim = ' + str(info[2]))
+    #     self.elevation_label.setText('elevation = ' + str(info[3]))
+    #     self.occupied_label.setText('occupied = ' + str(info[4]))
+    #     beacon_str = 'N/A'
+    #     if str(info[5]) != ('0' * 128):
+    #         beacon_str = str(info[5])
+    #     self.beacon_label.setText('Beacon: ' + beacon_str)
+    #     self.track_heated_label.setText('track heated = ' + str(info[6]))
+    #     self.underground_label.setText('underground = ' + str(info[7]))
+    #
+    #     self.power_fail_label.setText('power failure = ' + str(info[8]))
+    #     self.track_circ_fail_label.setText('track circuit failure = ' + str(info[9]))
+    #     self.broken_rail_label.setText('broken rail failure = ' + str(info[10]))
+    #
+    #     self.switch_label.setText('switch = ' + str(info[11]))
+    #     self.signal_label.setText('signal = ' + str(info[12]))
+    #     self.rxr_label.setText('rxr = ' + str(info[13]))
+    #
+    #     self.signals.get_train_dict_signal.emit()
+    #     self.train_dict_label.setText('Trains: ' + str(self.train_dict))
 
     def refresh_block_info(self):
         block = int(self.block_info_combo.currentText()[1:])
         self.signals.get_block_info_signal.emit(block)
         info = self.block_info
-        self.length_label.setText('length = ' + str(info[0]))
-        self.grade_label.setText('grade = ' + str(info[1]))
-        self.speed_lim_label.setText('speed lim = ' + str(info[2]))
-        self.elevation_label.setText('elevation = ' + str(info[3]))
-        self.occupied_label.setText('occupied = ' + str(info[4]))
+
+        # BLOCK INFO
+        # strs
+        self.length_label.setText('Length: ' + str(info[0]) + ' m')
+        self.grade_label.setText('Grade: ' + str(info[1]) + ' %')
+        self.speed_lim_label.setText('Speed Limit: ' + str(info[2]) + ' km/hr')
+        self.elevation_label.setText('Elevation: ' + str(info[3]) + ' m')
         beacon_str = 'N/A'
-        if str(info[5]) != ('0' * 128):
+        if str(info[5]) != '0' * 128:
             beacon_str = str(info[5])
         self.beacon_label.setText('Beacon: ' + beacon_str)
-        self.track_heated_label.setText('track heated = ' + str(info[6]))
-        self.underground_label.setText('underground = ' + str(info[7]))
+        # bools
+        pixmap = self.white_pixmap
+        if str(info[4]) == 'nan':
+            pixmap = self.white_pixmap
+        elif info[4]:
+            pixmap = self.green_pixmap
+        else:
+            pixmap = self.red_pixmap
+        self.occupied_label2.setPixmap(pixmap)
 
-        self.power_fail_label.setText('power failure = ' + str(info[8]))
-        self.track_circ_fail_label.setText('track circuit failure = ' + str(info[9]))
-        self.broken_rail_label.setText('broken rail failure = ' + str(info[10]))
+        if str(info[6]) == 'nan':
+            pixmap = self.white_pixmap
+        elif info[6]:
+            pixmap = self.green_pixmap
+        else:
+            pixmap = self.red_pixmap
+        self.heated_label2.setPixmap(pixmap)
 
-        self.switch_label.setText('switch = ' + str(info[11]))
-        self.signal_label.setText('signal = ' + str(info[12]))
-        self.rxr_label.setText('rxr = ' + str(info[13]))
+        if str(info[7]) == 'nan':
+            pixmap = self.white_pixmap
+        elif info[7]:
+            pixmap = self.green_pixmap
+        else:
+            pixmap = self.red_pixmap
+        self.underground_label2.setPixmap(pixmap)
 
-        self.signals.get_train_dict_signal.emit()
-        self.train_dict_label.setText('Trains: ' + str(self.train_dict))
+        if str(info[11]) == 'nan':
+            pixmap = self.white_pixmap
+        elif info[11]:
+            pixmap = self.green_pixmap
+        else:
+            pixmap = self.red_pixmap
+        self.switch_label2.setPixmap(pixmap)
+
+        if str(info[12]) == 'nan':
+            pixmap = self.white_pixmap
+        elif info[12]:
+            pixmap = self.green_pixmap
+        else:
+            pixmap = self.red_pixmap
+        self.signal_label2.setPixmap(pixmap)
+
+        if str(info[13]) == 'nan':
+            pixmap = self.white_pixmap
+        elif info[13]:
+            pixmap = self.green_pixmap
+        else:
+            pixmap = self.red_pixmap
+        self.rxr_label2.setPixmap(pixmap)
+
+        # FAILURES
+
+        if str(info[8]) == 'nan':
+            pixmap = self.white_pixmap
+        elif info[8]:
+            pixmap = self.green_pixmap
+        else:
+            pixmap = self.red_pixmap
+        self.power_fail_label2.setPixmap(pixmap)
+
+        if str(info[9]) == 'nan':
+            pixmap = self.white_pixmap
+        elif info[9]:
+            pixmap = self.green_pixmap
+        else:
+            pixmap = self.red_pixmap
+        self.track_circ_fail_label2.setPixmap(pixmap)
+
+        if str(info[10]) == 'nan':
+            pixmap = self.white_pixmap
+        elif info[10]:
+            pixmap = self.green_pixmap
+        else:
+            pixmap = self.red_pixmap
+        self.broken_rail_fail_label2.setPixmap(pixmap)
 
     def add_train(self):
         self.map.add_train()
