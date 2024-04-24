@@ -24,6 +24,38 @@ class UI(QMainWindow):
     comboClicked = pyqtSignal()
     new_ctrl_list = pyqtSignal()
 
+    # signals for backend communication
+    trainnum_to_container = pyqtSignal()
+
+    automode_to_controller = pyqtSignal()
+    manualmode_to_controller = pyqtSignal()
+
+    extlights_to_controller = pyqtSignal()
+    intlights_to_controller = pyqtSignal()
+    cabintemp_to_controller = pyqtSignal()
+    dooropen_to_controller = pyqtSignal()
+
+    kp_to_controller = pyqtSignal()
+    ki_to_controller = pyqtSignal()
+    setspeed_to_controller = pyqtSignal()
+    servicebrake_to_controller = pyqtSignal()
+    ebrake_to_controller = pyqtSignal()
+
+    # from testbench
+    TB_actspeed_to_controller = pyqtSignal()
+    TB_cmdspeed_to_controller = pyqtSignal()
+    TB_authority_to_controller = pyqtSignal()
+    TB_passebrake_to_controller = pyqtSignal()
+    TB_polarity_to_controller = pyqtSignal()
+
+    TB_signalfail_to_controller = pyqtSignal()
+    TB_enginefail_to_controller = pyqtSignal()
+    TB_brakefail_to_controller = pyqtSignal()
+
+    TB_doorside_to_controller = pyqtSignal()
+
+    TB_beacon_to_controller = pyqtSignal()
+
     def __init__(self, ctrl_list):
         super(UI, self).__init__()
 
@@ -35,7 +67,7 @@ class UI(QMainWindow):
 
         # TODO update values function when trainctrl is changed in drop down list
 
-        # took from lucas (Track_Controller_SW/TrackController.UI), thank you Lucas
+        # took from lucas (Track_Controller_SW/TrackController.UI), thank you
         current_dir = os.path.dirname(__file__)
         ui_path = os.path.join(current_dir, "trainControllerSW_UI.ui")
         try:
@@ -70,7 +102,7 @@ class UI(QMainWindow):
         self.power.setText(f'{self.trainctrl.power}')
         self.setPtSpeed.setValue(int(self.ms_to_mph(self.trainctrl.setPtSpeed)))
         self.speedLimTB.setValue(int(self.ms_to_mph(self.trainctrl.speedlim)))
-        #self.train_list.addItems(ctrl_list)
+        # self.train_list.addItems(ctrl_list)
 
         # TODO make connections
         self.testBench.clicked.connect(self.testingbench)
@@ -101,10 +133,13 @@ class UI(QMainWindow):
         self.kp.valueChanged.connect(self.changekp)
         self.ki.valueChanged.connect(self.changeki)
         self.servBrake.clicked.connect(self.useservicebrake)
-        # self.trains_list.clicked.connect(self.addtrain)  # TODO: combobox clicked function WHAT IS IT pls i need this to work
+        # self.trains_list.clicked.connect(self.addtrain)
+        # TODO: combobox clicked function WHAT IS IT pls i need this to work
+
+        # external connections
 
         # show the app
-        self.show()
+        # self.show()
 
     def closeEvent(self, event):
         print("train controller sw ui.py: hi")
@@ -167,8 +202,6 @@ class UI(QMainWindow):
     def changecurrspeed(self):
         self.trainctrl.actualspeed = self.actSpeedTB.value()
         self.currSpeed.setText(str(self.trainctrl.actualSpeed))
-
-        # TODO make it so change on enter (maybe just to text box)
 
     def changecmdspeed(self):
         self.trainctrl.cmdSpeed = self.mph_to_ms(self.cmdSpeedTB.value())
@@ -383,7 +416,7 @@ class UI(QMainWindow):
     #         time.sleep(5)
 
     #def addtrain(self, ctrl_list):
-    def addtrain(self): # , ctrl_list):
+    def addtrain(self):  # , ctrl_list):
         print("train contrller sw ui.py: clicked train select")
         self.trains_list.clear()
 
@@ -411,6 +444,7 @@ class UI(QMainWindow):
     def hp_to_watt(self, value):
         return value * 745.7
 
+
 def main():
     # initialize the app
     app = QApplication(sys.argv)
@@ -420,5 +454,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-

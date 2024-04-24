@@ -101,9 +101,10 @@ class TrainBusinessLogic(QObject):
 
     @pyqtSlot()
     def physics_calculation(self):
-        interval = SystemTime.time() - self.time
+        new_time = SystemTime.time()
+        interval = new_time - self.time
         print(f'Train Model Business Logic: physics time interval is {interval}s')
-        self.time = SystemTime.time()
+        self.time = new_time
         for i in self.train_dict:
             self.delta_x_return[i] = self.train_dict[i].physics_calculation(interval)
         self.signals.total_update.emit(self.train_dict)
@@ -117,21 +118,28 @@ class TrainBusinessLogic(QObject):
         else:
             index = max(self.train_dict.keys()) + 1
             self.train_dict[index] = TrainModel(self.controller, index, self.num_cars)
-        self.signals.ui_add_train.emit(self.train_dict, index)
+        try:
+            self.signals.ui_add_train.emit(self.train_dict, index)
+        except Exception as error:
+            print(error)
 
     @pyqtSlot(int)
     def remove_train(self, index):
         if len(self.train_dict) == 0:
+            print("Train Model: Train not removed: no trains")
             return
         if not (index in self.train_dict.keys()):
+            print("Train Model: Train not removed: passed index is: ", index)
             return
         else:
             self.train_dict.pop(index)
             self.signals.ui_remove_train.emit(self.train_dict, index)
+            print("Train Model: Train Removed Successfully")
 
     @pyqtSlot()
     def train_update_controller(self):
         for i in self.train_dict.keys():
+            print(f"INDEX {i}")
             self.train_dict[i].update_controller()
         self.signals.total_update.emit(self.train_dict)
 

@@ -21,7 +21,7 @@ class CTCSchedule:
         print("CTCSchedule: Train Scheduled.")
         print("\tDeparture time: ", train.departure_time())
         print(f"\t {time_to_str(train.departure_time())}")
-        train.time_to_departure = train.departure_time() - SystemTime.time()
+        train.time_to_departure = SystemTime.time() - train.departure_time()
         self.train_list.append(train)
         self.train_list.sort(key=lambda train: train.departure_time())
         self.current_train_number += 1
@@ -41,7 +41,7 @@ class CTCSchedule:
 
     def update_departure_countdowns(self):
         for train in self.train_list:
-            train.time_to_departure = train.departure_time() - SystemTime.time()
+            train.time_to_departure = SystemTime.time() - train.departure_time()
 
     def get_trains_to_dispatch(self) -> list[Train]:
         self.update_departure_countdowns()

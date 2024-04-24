@@ -16,9 +16,9 @@ class CTCContainer(QObject):
         super().__init__()
 
         TopLevelSignals.update_ctc_from_wayside.connect(self.update_ctc_from_wayside_slot)
+        CTCSignals.update_wayside_from_ctc_signal.connect(self.update_wayside_from_ctc_slot)
 
         self.ctc = CTC()
-        self.ctc.update_wayside_from_ctc_signal.connect(self.update_wayside_from_ctc_slot)
 
         # self.ctc.update_wayside_from_ctc_signal.connect(self.update_wayside_from_ctc)
         print("CTC wired to CTC container")

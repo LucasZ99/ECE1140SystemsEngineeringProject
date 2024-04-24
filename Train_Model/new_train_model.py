@@ -50,7 +50,7 @@ class TrainModel:
     def update_blocks(self, input_list):
         self.track_circuit = not self.track_circuit
         self.position = 0
-        self.old_block = self.new_block
+        self.old_block.update_all_values((self.new_block.grade, self.new_block.elevation, self.old_block.underground))
         self.new_block.update_all_values(input_list)
 
     def physics_calculation(self, time):

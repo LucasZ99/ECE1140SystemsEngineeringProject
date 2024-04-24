@@ -22,15 +22,16 @@ class TrainModelContainer(QObject):
         self.signals.tb_train_controller_inputs.connect(self.train_controller_inputs)
         self.signals.tb_track_update_passenger.connect(self.track_update_passengers)
         self.top_signal = TopLevelSignals
-        self.top_signal.update_train_model_from_track_model.connect(self.update_train_model_from_track_model)
+        self.top_signal.update_train_model_from_track_model.connect(self.train_model_from_track_model)
 
     @pyqtSlot(dict, dict, bool, int, dict)
-    def update_train_model_from_track_model(self, auth_speed_dict: dict, block_dict: dict, new_train: bool,
+    def train_model_from_track_model(self, auth_speed_dict: dict, block_dict: dict, new_train: bool,
                                             remove_train: int, passenger_dict: dict):
         
         print("Train Model: reached update_train_model_from_track_model\n")
         self.signals.clear_return_dicts.emit()
 
+        print("Train Model: remove index: ", remove_train)
         self.remove_train(remove_train)
 
         if new_train:
@@ -76,7 +77,10 @@ class TrainModelContainer(QObject):
         # the list provided should have the entries in this order: [commanded speed, power, service brake,
         # emergency brake, left/right doors, announce station, cabin lights, headlights]
         input_list = tuple(input_list)
-        self.signals.train_controller_inputs.emit(input_list, index)
+        try:
+            self.signals.train_controller_inputs.emit(input_list, index)
+        except Exception as error:
+            print(error)
 
     @pyqtSlot(tuple, int)
     def track_update_block(self, block_vals, index):
@@ -95,7 +99,10 @@ class TrainModelContainer(QObject):
 
     @pyqtSlot()
     def physics_calculation(self):
-        self.signals.physics_calculation.emit()
+        try:
+            self.signals.physics_calculation.emit()
+        except Exception as error:
+            print(error)
 
     @pyqtSlot()
     def add_train(self):
@@ -105,6 +112,5 @@ class TrainModelContainer(QObject):
 
     @pyqtSlot(int)
     def remove_train(self, index):
-        print("Train Model Container: train remove hit\n")
+        print("Train Model Container: train remove hit")
         self.signals.business_remove_train.emit(index)
-        print("Train Model Container: train removed from container")
