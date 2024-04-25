@@ -437,6 +437,7 @@ class TrackModel(QObject):
 
     def update_infrastructure(self, switch_changed_indexes, signal_changed_indexes, rr_crossing_indexes, toggle_block_indexes):
         print('TRACK MODEL: update_infrastructure called')
+        print(f'TRACK MODEL: signal_changed_indexes = {signal_changed_indexes}')
         for index, val in switch_changed_indexes:
             self.data[index, 19] = val
         for index, val in signal_changed_indexes:
