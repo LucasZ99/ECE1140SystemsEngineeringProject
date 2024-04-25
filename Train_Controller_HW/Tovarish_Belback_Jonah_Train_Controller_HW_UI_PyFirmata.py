@@ -5,7 +5,7 @@ from PyQt6.QtWidgets import *
 #import sys
 import linecache
 import threading
-import sys
+import sys,os
 #print(f"FILE:\t\t<{__file__[-10:-3]}>")
 #print(f"FILE2:\t\t<{sys.argv[0][-10:-3]}>")
 if __name__ != "__main__" and sys.argv[0][-10:-3] != "Testing": from SystemTime import SystemTime
@@ -44,14 +44,19 @@ import math
 #authority: number of blocks until I stop, dont stop at every station
 
 
-global board,Pmax,Acc_Lim,DeAcc_Lim,NoHW,RL_LAjump_dict,RL_switchdirs_dict
+global board,Pmax,Acc_Lim,DeAcc_Lim,NoHW,RL_LAjump_dict,RL_switchdirs_dict,dir_path
+
+dir_path = os.path.dirname(os.path.realpath(__file__))
+dir_path=dir_path.replace('\Train_Controller_HW','')
+print(f"DIRECTORY:\t\t{dir_path}>")
+
 Pmax=10000
 Acc_Lim=0.5
 DeAcc_Lim=1.2#train spec page (1.20 is service brake)
 try:
     board = ArduinoMega('COM7')
     NoHW=False
-except:
+except (Exception,):
     NoHW=True
     print("No Train Controller HW detected: Arduino COM")
 
@@ -205,7 +210,7 @@ class HW_UI_JEB382_PyFirmat:
                         
             self.DISP = DISP_PyF()
         
-        except:
+        except (Exception,):
             global NoHW
             NoHW = True
             print("No Train Controller HW detected")
@@ -322,7 +327,6 @@ class HW_UI_JEB382_PyFirmat:
             #distance alloted from authority
         
         
-        distance_to_station=0
         #every block flips in polarity, +/- on edge
         if self.polarity != self.TrainModel_arr[4]:
             print("TRAINC HW: NEW BLOCK")
@@ -415,12 +419,13 @@ class HW_UI_JEB382_PyFirmat:
         #add up distance of array according to authority+1
         for i in range(int(self.TrainModel_arr[2])+1):
             if not self.line:
-                infra = linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum).split('\t')[5]
-                particular_line = linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum+i).split("\t")
+                infra = linecache.getline(dir_path+'\Resources\IT3_GreenLine.txt', self.blockNum).split('\t')[5]
+                particular_line = linecache.getline(dir_path+'\Resources\IT3_GreenLine.txt', self.blockNum+i).split("\t")
             else:
                 #print(f"<{i}>: {temp}")
-                infra = linecache.getline('Resources/IT4_RedLine.txt', self.blockNum+1).split('\t')[5]
-                particular_line = linecache.getline('Resources/IT4_RedLine.txt', temp[i]+1).split("\t")
+                #print(dir_path+'\Resources\IT4_RedLine.txt')
+                infra = linecache.getline(dir_path+'\Resources\IT4_RedLine.txt', self.blockNum+1).split('\t')[5]
+                particular_line = linecache.getline(dir_path+'\Resources\IT4_RedLine.txt', temp[i]+1).split("\t")
             #print(f"LINE: <{self.blockNum}<,\t{particular_line}")
             #print(f"LINE: <{temp[i+1]+1}>,\t{particular_line}")
             distance_to_station += int(float(particular_line[3]))
@@ -436,9 +441,9 @@ class HW_UI_JEB382_PyFirmat:
         self.output_arr[5] = ""
         if app_stat:
             if not self.line:
-                infra = linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum  ).split('\t')[5]
+                infra = linecache.getline(dir_path+'\Resources\IT3_GreenLine.txt', self.blockNum  ).split('\t')[5]
             else:
-                infra = linecache.getline('Resources/IT4_RedLine.txt',   self.blockNum+1).split('\t')[5]
+                infra = linecache.getline(dir_path+'\Resources\IT4_RedLine.txt',   self.blockNum+1).split('\t')[5]
             self.output_arr[5] = app_stat[:12]
             self.Announcements = f"{'NOW' if infra[:7] == 'STATION' else 'APP'}:{app_stat[:12]}"
         #================================================  
@@ -476,7 +481,7 @@ class HW_UI_JEB382_PyFirmat:
         s1=0.5*(0+float(self.TrainModel_arr[0]))*t1#*(5/18)#1/2 * u * t * conversion of km/hr to m/s
         
         t2=( (0-float(self.TrainModel_arr[0]))/(-2.73 ) )#*(5/18)
-        s2=0.5*(0+float(self.TrainModel_arr[0]))*t1#*(5/18)#1/2 * u * t * conversion of km/hr to m/s
+        s2=0.5*(0+float(self.TrainModel_arr[0]))*t2#*(5/18)#1/2 * u * t * conversion of km/hr to m/s
         
         if __name__ != "__main__" and sys.argv[0][-10:-3] != "Testing": currtime = SystemTime.time()
         else: currtime = time.time()
@@ -487,7 +492,7 @@ class HW_UI_JEB382_PyFirmat:
         
         
         
-        #print(f"DIST: {distance_to_station},\tLEFT:{self.traveled},\tGRP:<{temp}>,\t<{self.output_arr[5]}>")
+        print(f"DIST: {distance_to_station},\tTRVL:{self.traveled},\tGRP:<{temp}>,\t<{self.output_arr[5]}>")
         
             
         
@@ -517,9 +522,9 @@ class HW_UI_JEB382_PyFirmat:
                 self.output_arr[0] = self.TrainModel_arr[1]
             #-----
             if not self.line:
-                self.speedlimit = int(linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum).split("\t")[4])
+                self.speedlimit = int(linecache.getline(dir_path+'\Resources\IT3_GreenLine.txt', self.blockNum).split("\t")[4])
             else:
-                self.speedlimit = int(linecache.getline('Resources/IT4_RedLine.txt', self.blockNum+1).split("\t")[4])
+                self.speedlimit = int(linecache.getline(dir_path+'\Resources\IT4_RedLine.txt', self.blockNum+1).split("\t")[4])
             #-----
             if self.output_arr[0] > (self.speedlimit/3.6):
                 self.output_arr[0] = float((self.speedlimit/3.6))#TODO: SPDLMT is KM/HR, CONVERT
@@ -629,7 +634,10 @@ class HW_UI_JEB382_PyFirmat:
 
         
     def __del__(self):
-        super().__del__()
+        try:
+            super().__del__()
+        except (Exception,):
+            print("Hi PyCharm :////")
         print('HW_UI_JEB382_PyFirmat: Destructor called')
 
 
@@ -690,7 +698,7 @@ class HW_UI_JEB382_PyFirmat:
 #help funcs------------------------------------------------------------
 def TC_HW_init(driver,trainmodel,output,TestB=False):
     print("TC_HW_init")
-    Arduino = True
+    #Arduino = True
     
     if not NoHW:
         it = util.Iterator(board)  
@@ -699,7 +707,7 @@ def TC_HW_init(driver,trainmodel,output,TestB=False):
     return  HW_UI_JEB382_PyFirmat(driver, trainmodel, output, TestB)
 
 def def_main(line=4):
-    Arduino = True
+    #Arduino = True
     
     main_Driver_arr = []#[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
     if line == 0: main_TrainModel_arr = [0,0,3,False,True,False, "0"*128]#nonspecified
@@ -711,7 +719,7 @@ def def_main(line=4):
     try:
         it = util.Iterator(board)  
         it.start()
-    except:
+    except (Exception,):
         print("No Train Controller HW detected: util.Iterator")
     
     glob_UI = HW_UI_JEB382_PyFirmat(main_Driver_arr, main_TrainModel_arr, main_output_arr, TestBench=True)

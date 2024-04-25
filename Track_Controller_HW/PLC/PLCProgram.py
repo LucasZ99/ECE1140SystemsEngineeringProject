@@ -10,6 +10,7 @@ class PLC:
     blocks = {}
     stops = {}
     mode = False
+    loopOcc = [False, False]  # [0] = loop 1, [1] = loop 2
 
     def assign_vals(self, blocks, switches, rrCrossing, mode):
         self.rrCrossing = rrCrossing  # False = off
@@ -27,7 +28,7 @@ class PLC:
             self.rrCrossing = False
 
         # stops logic (padding any occupancies with 4 zero speed flags)
-        for i in range(29, 77):  # blocks 29 - 57
+        for i in range(29, 77):  # blocks 29 - 76
             #print(self.blocks[i])
             if 58 <= i < 62:
                 skipped = True
@@ -42,17 +43,20 @@ class PLC:
                 if i > 32:
                     self.stops[i - 4] = True
 
-        # for i in range(62, 76):
-        #     if self.blocks.get(i, False):
-        #         self.stops[i] = True
-        #         if i > 62:
-        #             self.stops[i - 1] = True
-        #         if i > 63:
-        #             self.stops[i - 2] = True
-        #         if i > 64:
-        #             self.stops[i - 3] = True
-        #         if i > 65:
-        #             self.stops[i - 4] = True
+            # checking for loop 1 occupancy
+            if self.blocks.get(76, False):
+                self.loopOcc[0] = True
+                #print("set loop 1 to occupied")
+
+            if self.loopOcc[0] == True and not self.blocks.get(101, True):  # if loop 1 is occupied and block 101 is unoccupied
+                #print ("hit event")
+                self.stops[76] = True  # stop the train at block 76 - 73
+                self.stops[75] = True
+                self.stops[74] = True
+                self.stops[73] = True
+
+            if self.blocks.get(101, False):
+                self.loopOcc[0] = False
 
         for i in range(101, 151):  # blocks 101 - 150
             if self.blocks.get(i, False):
@@ -66,6 +70,21 @@ class PLC:
                 if i > 104:
                     self.stops[i - 4] = True
 
+                # checking for loop 2 occupancy
+            if self.blocks.get(150, False):
+                self.loopOcc[1] = True
+                #print("set loop 2 to occupied")
+
+            if self.loopOcc[1] == True and not self.blocks.get(29, True):  # if loop 1 is occupied and block 101 is unoccupied
+                #print("hit event")
+                self.stops[150] = True  # stop the train at block 76 - 73
+                self.stops[149] = True
+                self.stops[148] = True
+                self.stops[147] = True
+
+            if self.blocks.get(29, False):
+                #print("set loop 2 to unoccupied")
+                self.loopOcc[1] = False
         #print("stops:", self.stops)
 
         return [self.stops, self.blocks, self.rrCrossing]  # return the updated values

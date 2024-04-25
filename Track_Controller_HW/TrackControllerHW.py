@@ -6,7 +6,7 @@ from PyQt6.QtCore import pyqtSignal, QObject, pyqtSlot
 from Track_Controller_HW import SlotsSigs, TBShell
 
 class TrackControllerHardware(QObject):
-    mode = False
+    mode = True
     num_switches = 1
     num_blocks = 107
     authority = [0] * num_blocks
@@ -20,6 +20,7 @@ class TrackControllerHardware(QObject):
 
     def __init__(self, occupancy_dict: dict, section: str):
         super().__init__()
+        print(self.mode)
         self.blocks = occupancy_dict
         self.slots_sigs = SlotsSigs(mode=self.mode, authority=self.authority, switches=self.switches,
                                               blocks=self.blocks, suggested_speed=self.suggested_speed,
