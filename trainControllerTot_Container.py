@@ -52,7 +52,8 @@ class TrainController_Tot_Container(QObject):
 
     # like this maybe ? vvv
     def show_hwui(self):
-        if self.HW_index:
+        print(self.HW_index)
+        if self.HW_index or self.HW_index==0:
             self.ctrl_list[self.HW_index].show_ui()
         else:
             print("train controller tot container.py: WARNING: TrainController_Tot_Container: show_hwui without HW Controller")
@@ -88,10 +89,10 @@ def TrainC_main():
     trainctrlcntr = TrainController_Tot_Container()
     cntrl = trainctrlcntr.new_train_controller()  # removed (type) as parameter
     trainctrlcntr.show_hwui()
-    cntrl = trainctrlcntr.new_train_controller()  # removed (type) as parameter
-    cntrl = trainctrlcntr.new_train_controller()  # removed (type) as parameter
-    cntrl = trainctrlcntr.new_train_controller()  # removed (type) as parameter
-    trainctrlcntr.show_swui()
+    # cntrl = trainctrlcntr.new_train_controller()  # removed (type) as parameter
+    # cntrl = trainctrlcntr.new_train_controller()  # removed (type) as parameter
+    # cntrl = trainctrlcntr.new_train_controller()  # removed (type) as parameter
+    # trainctrlcntr.show_swui()
     '''while True:
         cntrl.show_ui()'''
 
