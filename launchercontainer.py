@@ -29,7 +29,7 @@ class LauncherContainer(QObject):
         self.track_controller_testbench_container = TrackControllerTestBenchContainer()
 
         # Test container signals
-        # CTC to Wayside
+        # CTC to Waysideg
         self.track_controller_testbench_container.test_update_wayside_from_ctc.connect(
             self.track_controller_container.update_wayside_from_ctc)
         # Track Model to Wayside
