@@ -78,10 +78,10 @@ To run the module as a standalone component, navigate to 'Tovarish_Belback_Jonah
 file within an IDE or code editor of choice and run main().
 
 You are given a selection based on what you comment out, indicating how the Train Controller is initalized:
-0: Start beacon is all zeros, normally an error but for limitations with other modules places on the greenline
-1: Start beacon is on the greenline
-2: Start beacon is on the redline
-3: Start beacon is full of nonsense information, raise error
+- 0: Start beacon is all zeros, normally an error but for limitations with other modules places on the greenline
+- 1: Start beacon is on the greenline
+- 2: Start beacon is on the redline
+- 3: Start beacon is full of nonsense information, raise error
 Only uncomment one at a time.
 
 
