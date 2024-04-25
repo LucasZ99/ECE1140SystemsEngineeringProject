@@ -175,6 +175,9 @@ class TrackModelContainer(QObject):
             self.signals.map_update_signal_signal.emit(index, value)
         for index, value in rr_crossing_indexes:
             self.signals.map_update_rxr_signal.emit(index, value)
+        closed_blocks = self.track_model.get_closure_dict()
+        for index in toggle_block_indexes:
+            self.signals.map_update_closure_signal.emit(index, closed_blocks[index])
         # update track_model
         print('Track Model: updating self.track_model authority and speed')
         self.track_model.update_authority_and_safe_speed(authority_safe_speed_update)

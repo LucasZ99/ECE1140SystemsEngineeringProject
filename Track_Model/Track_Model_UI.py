@@ -328,6 +328,7 @@ class Window(QMainWindow):
         self.signals.map_move_train_signal.connect(self.map.move_train)
         self.signals.map_update_signal_signal.connect(self.map_update_signal)
         self.signals.map_update_rxr_signal.connect(self.map_update_rxr)
+        self.signals.map_update_closure_signal.connect(self.map_update_closure)
 
         # STYLE
         style_file = os.path.join(dirname, 'style.css')

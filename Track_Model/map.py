@@ -83,11 +83,13 @@ class Map(QWidget):
         self.warning_pixmap = self.warning_pixmap.scaled(15, 15, Qt.AspectRatioMode.KeepAspectRatio)
 
         self.station_pixmap = QPixmap(station_file)
-        self.station_pixmap = self.station_pixmap.scaled(40, 40, Qt.AspectRatioMode.KeepAspectRatio)
+        self.station_pixmap = self.station_pixmap.scaled(30, 30, Qt.AspectRatioMode.KeepAspectRatio)
 
-        self.station1 = QLabel()
-        self.station1.setPixmap(self.station_pixmap)
-        self.station1.move(100, 100)
+        # 2, 9, 17, 22
+
+        # self.station1 = QLabel(self)
+        # self.station1.setPixmap(self.station_pixmap)
+        # self.station1.move(100, 100)
 
         # TODO:
         # self.view_box = QLabel()

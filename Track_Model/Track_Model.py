@@ -384,6 +384,9 @@ class TrackModel(QObject):
 
     # track controller
 
+    def get_closure_dict(self):
+        return self.closed_blocks
+
     def get_occupancy_list(self):
         return self.data[1:, 7].tolist()
 
