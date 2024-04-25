@@ -145,18 +145,16 @@ class CTC(QObject):
             self.get_scheduled_trains_signal_handler()
 
 
-        if len(self.departure_times) > 0:
-            # update throughput - remove all entries that are greater than 1 hr old
-            while self.departure_times[0] < SystemTime.time() - 3600:
-                if len(self.departure_times) > 0:
-                    self.departure_times.pop(0)
-                    self.throughput -= 1
-                else:
-                    break
+        for departure_time in self.departure_times:
+            if departure_time < SystemTime.time() - 3600:
+                self.departure_times.remove(departure_time)
+                self.throughput -= 1
                 update_throughput = True
+            else:
+                break
 
-        if update_throughput:
-            self.get_throughput_signal_handler()
+
+        self.get_throughput_signal_handler()
 
         # when this is true, there is a change in CTC state.
         return update_running_trains or update_scheduled_trains
