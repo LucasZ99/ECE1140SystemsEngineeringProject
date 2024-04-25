@@ -108,10 +108,10 @@ class Map(QWidget):
 
         self.signal_1 = QLabel(self)
         self.signal_1.setPixmap(self.red_light_pixmap)
-        self.signal_1.move(138, 12)
+        self.signal_1.move(154, 20)
         self.signal_12 = QLabel(self)
         self.signal_12.setPixmap(self.green_light_pixmap)
-        self.signal_12.move(154, 20)
+        self.signal_12.move(138, 12)
 
         self.signal_29 = QLabel(self)
         self.signal_29.setPixmap(self.green_light_pixmap)

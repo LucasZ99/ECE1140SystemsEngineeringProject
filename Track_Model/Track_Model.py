@@ -234,6 +234,12 @@ class TrackModel(QObject):
         for i in range(1, new_data.shape[0]):
             if str(new_data[i, 11]) == 'nan':
                 new_data[i, 11] = '0' * 128
+
+        # set default signal values
+        new_data[12, 21] = True
+        new_data[29, 21] = True
+        new_data[76, 21] = True
+        new_data[86, 21] = True
         return new_data
 
     def output_data_as_excel(self):
