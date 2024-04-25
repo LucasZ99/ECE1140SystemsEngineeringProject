@@ -18,8 +18,6 @@ import time
 from Track_Model.TrackModelSignals import TrackModelSignals as signals
 
 
-# TODO: https://www.gradientmagic.com/collection/popular/gradient/1559907591086
-# TODO: https://www.gradientmagic.com/collection/popular/gradient/1559869192589
 class Window(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -432,10 +430,10 @@ class Window(QMainWindow):
 
         # BLOCK INFO
         # strs
-        self.length_label.setText('Length: ' + str(info[0]) + ' m')
+        self.length_label.setText('Length: ' + str(round(info[0] * 3.28084, 2)) + ' ft')
         self.grade_label.setText('Grade: ' + str(info[1]) + ' %')
-        self.speed_lim_label.setText('Speed Limit: ' + str(info[2]) + ' km/hr')
-        self.elevation_label.setText('Elevation: ' + str(info[3]) + ' m')
+        self.speed_lim_label.setText('Speed Limit: ' + str(round(info[2] * 0.621371, 2)) + ' mph')
+        self.elevation_label.setText('Elevation: ' + str(round(info[3] * 3.28084, 2)) + ' ft')
         beacon_str = 'N/A'
         if str(info[5]) != '0' * 128:
             beacon_str = str(info[5])
@@ -521,6 +519,8 @@ class Window(QMainWindow):
 
         self.signals.get_train_dict_signal.emit()
         self.train_dict_label.setText('Trains: ' + str(self.train_dict))
+
+        self.map.move_view_finder(block)
 
     def add_train(self):
         self.map.add_train()

@@ -45,6 +45,7 @@ class Map(QWidget):
         rxr_activated_file = os.path.join(dirname, 'rxr_activated.png')
         warning_file = os.path.join(dirname, 'warning.png')
         station_file = os.path.join(dirname, 'station.png')
+        highlight_file = os.path.join(dirname, 'highlight.png')
 
         background = QLabel(self)
         pixmap = QPixmap(map_file)
@@ -83,13 +84,10 @@ class Map(QWidget):
         self.warning_pixmap = self.warning_pixmap.scaled(15, 15, Qt.AspectRatioMode.KeepAspectRatio)
 
         self.station_pixmap = QPixmap(station_file)
-        self.station_pixmap = self.station_pixmap.scaled(30, 30, Qt.AspectRatioMode.KeepAspectRatio)
+        self.station_pixmap = self.station_pixmap.scaled(12, 12, Qt.AspectRatioMode.KeepAspectRatio)
 
-        # 2, 9, 17, 22
+        self.highlight_pixmap = QPixmap(highlight_file)
 
-        # self.station1 = QLabel(self)
-        # self.station1.setPixmap(self.station_pixmap)
-        # self.station1.move(100, 100)
 
         # TODO:
         # self.view_box = QLabel()
@@ -158,17 +156,17 @@ class Map(QWidget):
             36: (100, 218), 37: (110, 218), 38: (120, 218), 39: (130, 218), 40: (140, 218), 41: (150, 218),
             42: (160, 218), 43: (170, 218), 44: (180, 218), 45: (190, 218), 46: (200, 218), 47: (210, 218),
             48: (220, 218), 49: (230, 218), 50: (240, 218), 51: (250, 218), 52: (260, 218), 53: (270, 218),
-            54: (280, 218), 55: (290, 218), 56: (300, 218), 57: (300, 218),
+            54: (280, 218), 55: (290, 218), 56: (300, 218), 57: (310, 218),
 
             # should never reach 58-62
-            58: (300, 218), 59: (300, 218), 60: (300, 218), 61: (300, 218), 62: (300, 218),
+            58: (320, 218), 59: (320, 218), 60: (320, 218), 61: (320, 218),
 
             # k
-            63: (354, 250), 64: (354, 288), 65: (354, 326), 66: (354, 364), 67: (354, 380), 68: (354, 400),
+            62: (354, 225), 63: (354, 250), 64: (354, 288), 65: (354, 326), 66: (354, 364), 67: (354, 380), 68: (354, 400),
             # l
             69: (354, 425), 70: (354, 450), 71: (345, 480), 72: (330, 500), 73: (300, 515),
             # m
-            74: (263, 515), 75: (226, 515), 76: (190, 515),
+            74: (263, 515), 75: (226, 515), 76: (205, 515),
             # n
             77: (190, 515), 78: (175, 515), 79: (161, 515), 80: (146, 515), 81: (132, 515), 82: (117, 515),
             83: (102, 515), 84: (88, 515), 85: (73, 515),
@@ -203,9 +201,84 @@ class Map(QWidget):
             150: (33, 151)
         }
 
-    # def test_pix_dict(self):
-    #     for key in self.pixel_dict:
-    #         self.train.move(list(self.pixel_dict[key])[0], list(self.pixel_dict[key])[1])
+        # STATIONS
+        # 2,
+        self.station2 = QLabel(self)
+        self.station2.setPixmap(self.station_pixmap)
+        self.station2.move(self.pixel_dict[2][0], self.pixel_dict[2][1])
+        # 9,
+        self.station9 = QLabel(self)
+        self.station9.setPixmap(self.station_pixmap)
+        self.station9.move(self.pixel_dict[9][0], self.pixel_dict[9][1])
+        # 16,
+        self.station16 = QLabel(self)
+        self.station16.setPixmap(self.station_pixmap)
+        self.station16.move(self.pixel_dict[16][0], self.pixel_dict[16][1])
+        # 22,
+        self.station22 = QLabel(self)
+        self.station22.setPixmap(self.station_pixmap)
+        self.station22.move(self.pixel_dict[22][0], self.pixel_dict[22][1])
+        # 31,
+        self.station31 = QLabel(self)
+        self.station31.setPixmap(self.station_pixmap)
+        self.station31.move(self.pixel_dict[31][0], self.pixel_dict[31][1])
+        # 39,
+        self.station39 = QLabel(self)
+        self.station39.setPixmap(self.station_pixmap)
+        self.station39.move(self.pixel_dict[39][0], self.pixel_dict[39][1])
+        # 48,
+        self.station48 = QLabel(self)
+        self.station48.setPixmap(self.station_pixmap)
+        self.station48.move(self.pixel_dict[48][0], self.pixel_dict[48][1])
+        # 57,
+        self.station57 = QLabel(self)
+        self.station57.setPixmap(self.station_pixmap)
+        self.station57.move(self.pixel_dict[57][0], self.pixel_dict[57][1])
+        # 65,
+        self.station65 = QLabel(self)
+        self.station65.setPixmap(self.station_pixmap)
+        self.station65.move(self.pixel_dict[65][0], self.pixel_dict[65][1])
+        # 73,
+        self.station73 = QLabel(self)
+        self.station73.setPixmap(self.station_pixmap)
+        self.station73.move(self.pixel_dict[73][0], self.pixel_dict[73][1])
+        # 77,
+        self.station77 = QLabel(self)
+        self.station77.setPixmap(self.station_pixmap)
+        self.station77.move(self.pixel_dict[77][0], self.pixel_dict[77][1])
+        # 88,
+        self.station88 = QLabel(self)
+        self.station88.setPixmap(self.station_pixmap)
+        self.station88.move(self.pixel_dict[88][0], self.pixel_dict[88][1])
+        # 96,
+        self.station96 = QLabel(self)
+        self.station96.setPixmap(self.station_pixmap)
+        self.station96.move(self.pixel_dict[96][0], self.pixel_dict[96][1])
+        # 105,
+        self.station105 = QLabel(self)
+        self.station105.setPixmap(self.station_pixmap)
+        self.station105.move(self.pixel_dict[105][0], self.pixel_dict[105][1])
+        # 114,
+        self.station114 = QLabel(self)
+        self.station114.setPixmap(self.station_pixmap)
+        self.station114.move(self.pixel_dict[114][0], self.pixel_dict[114][1])
+        # 123,
+        self.station123 = QLabel(self)
+        self.station123.setPixmap(self.station_pixmap)
+        self.station123.move(self.pixel_dict[123][0], self.pixel_dict[123][1])
+        # 132,
+        self.station132 = QLabel(self)
+        self.station132.setPixmap(self.station_pixmap)
+        self.station132.move(self.pixel_dict[132][0], self.pixel_dict[132][1])
+        # 141
+        self.station141 = QLabel(self)
+        self.station141.setPixmap(self.station_pixmap)
+        self.station141.move(self.pixel_dict[141][0], self.pixel_dict[141][1])
+
+        # VIEWFINDER
+        self.view_finder = QLabel(self)
+        self.view_finder.setPixmap(self.highlight_pixmap)
+        self.view_finder.move(self.pixel_dict[1][0]-5, self.pixel_dict[1][1]-5)
 
     def show_ui(self):
         self.show()
@@ -217,20 +290,14 @@ class Map(QWidget):
     def get_pix_dict(self):
         return self.pixel_dict
 
-    # def populate_map(self, train_dict):
-    #     for key in train_dict:
-    #         print(key)
-    #         print(train_dict[key])
-    #         block = train_dict[key]
-    #         self.train = QLabel(self)
-    #         self.train.setPixmap(self.train_pixmap)
-    #         self.train.move(list(self.pixel_dict[block])[0], list(self.pixel_dict[block])[1])
+    def move_view_finder(self, block):
+        self.view_finder.move(self.pixel_dict[block][0]-5, self.pixel_dict[block][1]-5)
 
     def add_train(self):
         print('map: add train called')
         train = QLabel(self)
         train.setPixmap(self.train_pixmap)
-        train.move(354, 250)
+        train.move(354, 225)
         train.show()
         self.train_id_counter += 1
         self.train_dict[self.train_id_counter] = train
