@@ -12,7 +12,7 @@ def PTSD_test(file, title_str,variable,expected,perc=None,Controller=None):
     #float
     if perc:
         file.write("\n-------------\n")
-        test = ( variable <= expected*(1+(perc/100)) and variable >= expected*(1-(perc/100)) )        
+        test = (expected * (1 + (perc / 100)) >= variable >= expected * (1 - (perc / 100)))
         file.write(f"{title_str}: <{'PASS' if test else 'FAIL'}>\n")
         file.write(f"REAL:\t<{variable}>\t\tGOAL:\t<{expected}> *<{perc}>% (<{expected*(1+(perc/100))}>,<{expected*(1-(perc/100))}>)\n")
         file.write(f"ERR:\t<{variable - expected}>\n")
@@ -45,28 +45,28 @@ def get_testing_folder():
     if os.path.exists(dir_path+'\Testlogs'):
         #folder path and name
         print(f"TIME:\t\t<{str(datetime.datetime.now())[:10]}>")
-        test_dir = f"{dir_path}\Testlogs\{str(datetime.datetime.now())[:10]}"
-        print(f"TESTING DIRECTORY:\t\t<{test_dir}>")
+        testing_dir = f"{dir_path}\Testlogs\{str(datetime.datetime.now())[:10]}"
+        print(f"TESTING DIRECTORY:\t\t<{testing_dir}>")
         
         #deleting folder if it exists
-        if os.path.exists( test_dir ):
-            print(f"ATTENTION!!!!!!!!!!!!!!!!!!!\nLOG FOLDER ALREADY EXISTS\nDELETE?: {test_dir}........")
+        if os.path.exists( testing_dir ):
+            print(f"ATTENTION!!!!!!!!!!!!!!!!!!!\nLOG FOLDER ALREADY EXISTS\nDELETE?: {testing_dir}........")
             inp = input("y/n: ")
             if inp.lower() in ["n","no"]:
                 raise TypeError("TRAIN CONTROLLER HW TESTING:\t\tNO DELETION")
             elif inp.lower() in ["y","ye","yes"]:
                 print("DELETING...")
-                shutil.rmtree( test_dir )
+                shutil.rmtree( testing_dir )
             else:
                 raise TypeError("TRAIN CONTROLLER HW TESTING:\t\tINVALID SELECTION")
         
         #remake folder    
-        os.makedirs(test_dir)
+        os.makedirs(testing_dir)
         print("DIRECTORY MADE")
     else:
         raise TypeError("TRAIN CONTROLLER HW TESTING:\t\tNO Testlogs DIRECTORY")
     
-    return test_dir
+    return testing_dir
 
 
 
@@ -87,7 +87,7 @@ def pass_ebreak_enable(folder):
     main_Driver_arr = []
     
     try: it = util.Iterator(board); it.start()
-    except: print("No Train Controller HW detected: util.Iterator")
+    except (Exception,): print("No Train Controller HW detected: util.Iterator")
     
     trainCtrl = HW_UI_JEB382_PyFirmat(main_Driver_arr, main_TrainModel_arr, main_output_arr)
     
@@ -155,7 +155,7 @@ def driver_disable_pass(folder):
     main_Driver_arr = []
     
     try: it = util.Iterator(board); it.start()
-    except: print("No Train Controller HW detected: util.Iterator")
+    except (Exception,): print("No Train Controller HW detected: util.Iterator")
     
     trainCtrl = HW_UI_JEB382_PyFirmat(main_Driver_arr, main_TrainModel_arr, main_output_arr)
     
@@ -265,7 +265,7 @@ def driver_ebreak_enable(folder):
     main_Driver_arr = []
     
     try: it = util.Iterator(board); it.start()
-    except: print("No Train Controller HW detected: util.Iterator")
+    except (Exception,): print("No Train Controller HW detected: util.Iterator")
     
     trainCtrl = HW_UI_JEB382_PyFirmat(main_Driver_arr, main_TrainModel_arr, main_output_arr)
     
@@ -334,7 +334,7 @@ def driver_sbreak_enable(folder):
     main_Driver_arr = []
     
     try: it = util.Iterator(board); it.start()
-    except: print("No Train Controller HW detected: util.Iterator")
+    except (Exception,): print("No Train Controller HW detected: util.Iterator")
     
     trainCtrl = HW_UI_JEB382_PyFirmat(main_Driver_arr, main_TrainModel_arr, main_output_arr)
     
@@ -403,7 +403,7 @@ def driver_door(folder):
     main_Driver_arr = []
     
     try: it = util.Iterator(board); it.start()
-    except: print("No Train Controller HW detected: util.Iterator")
+    except (Exception,): print("No Train Controller HW detected: util.Iterator")
     
     trainCtrl = HW_UI_JEB382_PyFirmat(main_Driver_arr, main_TrainModel_arr, main_output_arr)
     
@@ -562,7 +562,7 @@ def train_door(folder):
     main_Driver_arr = []
     
     try: it = util.Iterator(board); it.start()
-    except: print("No Train Controller HW detected: util.Iterator")
+    except (Exception,): print("No Train Controller HW detected: util.Iterator")
     
     trainCtrl = HW_UI_JEB382_PyFirmat(main_Driver_arr, main_TrainModel_arr, main_output_arr)
     
@@ -601,7 +601,7 @@ def driver_int_lights(folder):
     main_Driver_arr = []
     
     try: it = util.Iterator(board); it.start()
-    except: print("No Train Controller HW detected: util.Iterator")
+    except (Exception,): print("No Train Controller HW detected: util.Iterator")
     
     trainCtrl = HW_UI_JEB382_PyFirmat(main_Driver_arr, main_TrainModel_arr, main_output_arr)
     
@@ -674,7 +674,7 @@ def driver_ext_lights(folder):
     main_Driver_arr = []
     
     try: it = util.Iterator(board); it.start()
-    except: print("No Train Controller HW detected: util.Iterator")
+    except (Exception,): print("No Train Controller HW detected: util.Iterator")
     
     trainCtrl = HW_UI_JEB382_PyFirmat(main_Driver_arr, main_TrainModel_arr, main_output_arr)
     
@@ -748,7 +748,7 @@ def zero_pow(folder):
     main_Driver_arr = []
     
     try: it = util.Iterator(board); it.start()
-    except: print("No Train Controller HW detected: util.Iterator")
+    except (Exception,): print("No Train Controller HW detected: util.Iterator")
     
     trainCtrl = HW_UI_JEB382_PyFirmat(main_Driver_arr, main_TrainModel_arr, main_output_arr)
     
@@ -1006,7 +1006,7 @@ def brake_overturn(folder):
     main_Driver_arr = []
     
     try: it = util.Iterator(board); it.start()
-    except: print("No Train Controller HW detected: util.Iterator")
+    except (Exception,): print("No Train Controller HW detected: util.Iterator")
     
     trainCtrl = HW_UI_JEB382_PyFirmat(main_Driver_arr, main_TrainModel_arr, main_output_arr)
     
@@ -1075,7 +1075,7 @@ def amb_light(folder):
     main_Driver_arr = []
     
     try: it = util.Iterator(board); it.start()
-    except: print("No Train Controller HW detected: util.Iterator")
+    except (Exception,): print("No Train Controller HW detected: util.Iterator")
     
     trainCtrl = HW_UI_JEB382_PyFirmat(main_Driver_arr, main_TrainModel_arr, main_output_arr)
     
@@ -1182,7 +1182,7 @@ def stop_dist(folder):
     main_Driver_arr = []
     
     try: it = util.Iterator(board); it.start()
-    except: print("No Train Controller HW detected: util.Iterator")
+    except (Exception,): print("No Train Controller HW detected: util.Iterator")
     
     trainCtrl = HW_UI_JEB382_PyFirmat(main_Driver_arr, main_TrainModel_arr, main_output_arr)
     
@@ -1221,7 +1221,7 @@ def sbrake_dist(folder):
     main_Driver_arr = []
     
     try: it = util.Iterator(board); it.start()
-    except: print("No Train Controller HW detected: util.Iterator")
+    except (Exception,): print("No Train Controller HW detected: util.Iterator")
     
     trainCtrl = HW_UI_JEB382_PyFirmat(main_Driver_arr, main_TrainModel_arr, main_output_arr)
     
@@ -1260,7 +1260,7 @@ def ebrake_dist(folder):
     main_Driver_arr = []
     
     try: it = util.Iterator(board); it.start()
-    except: print("No Train Controller HW detected: util.Iterator")
+    except (Exception,): print("No Train Controller HW detected: util.Iterator")
     
     trainCtrl = HW_UI_JEB382_PyFirmat(main_Driver_arr, main_TrainModel_arr, main_output_arr)
     
@@ -1299,7 +1299,7 @@ def announce_stat_block(folder):
     main_Driver_arr = []
     
     try: it = util.Iterator(board); it.start()
-    except: print("No Train Controller HW detected: util.Iterator")
+    except (Exception,): print("No Train Controller HW detected: util.Iterator")
     
     trainCtrl = HW_UI_JEB382_PyFirmat(main_Driver_arr, main_TrainModel_arr, main_output_arr)
     
@@ -1338,7 +1338,7 @@ def driver_temp(folder):
     main_Driver_arr = []
     
     try: it = util.Iterator(board); it.start()
-    except: print("No Train Controller HW detected: util.Iterator")
+    except (Exception,): print("No Train Controller HW detected: util.Iterator")
     
     trainCtrl = HW_UI_JEB382_PyFirmat(main_Driver_arr, main_TrainModel_arr, main_output_arr)
     
@@ -1379,7 +1379,7 @@ def driver_temp(folder):
     Endcase *= PTSD_test(file, "A: DRIVER TEMP: +10", trainCtrl.Driver_arr[5], -20)
     trainCtrl.updateCalc()
     Endcase *= PTSD_test(file, "A: OUTPUT TEMP: CHANGE1", trainCtrl.output_arr[8], 48)
-    #cant test past max as thats within pyfirmata library, manual testing required
+    #cant test past max as that's within pyfirmata library, manual testing required
     
     
     
@@ -1419,7 +1419,7 @@ def driver_temp(folder):
     Endcase *= PTSD_test(file, "A: DRIVER TEMP: +10", trainCtrl.Driver_arr[5], -20)
     trainCtrl.updateCalc()
     Endcase *= PTSD_test(file, "A: OUTPUT TEMP: CHANGE1", trainCtrl.output_arr[8], 48)
-    #cant test past max as thats within pyfirmata library, manual testing required
+    #cant test past max as that's within pyfirmata library, manual testing required
     
     
     
@@ -1452,7 +1452,7 @@ def redline_rundown(folder):
     main_Driver_arr = []
     
     try: it = util.Iterator(board); it.start()
-    except: print("No Train Controller HW detected: util.Iterator")
+    except (Exception,): print("No Train Controller HW detected: util.Iterator")
     
     trainCtrl = HW_UI_JEB382_PyFirmat(main_Driver_arr, main_TrainModel_arr, main_output_arr)
     
@@ -1492,7 +1492,7 @@ def pass_break_enable(folder):
     main_Driver_arr = []
     
     try: it = util.Iterator(board); it.start()
-    except: print("No Train Controller HW detected: util.Iterator")
+    except (Exception,): print("No Train Controller HW detected: util.Iterator")
     
     trainCtrl = HW_UI_JEB382_PyFirmat(main_Driver_arr, main_TrainModel_arr, main_output_arr)
     
@@ -1531,7 +1531,7 @@ def pass_break_enable(folder):
     main_Driver_arr = []
     
     try: it = util.Iterator(board); it.start()
-    except: print("No Train Controller HW detected: util.Iterator")
+    except (Exception,): print("No Train Controller HW detected: util.Iterator")
     
     trainCtrl = HW_UI_JEB382_PyFirmat(main_Driver_arr, main_TrainModel_arr, main_output_arr)
     
@@ -1570,7 +1570,7 @@ def pass_break_enable(folder):
     main_Driver_arr = []
     
     try: it = util.Iterator(board); it.start()
-    except: print("No Train Controller HW detected: util.Iterator")
+    except (Exception,): print("No Train Controller HW detected: util.Iterator")
     
     trainCtrl = HW_UI_JEB382_PyFirmat(main_Driver_arr, main_TrainModel_arr, main_output_arr)
     
@@ -1609,7 +1609,7 @@ def pass_break_enable(folder):
     main_Driver_arr = []
     
     try: it = util.Iterator(board); it.start()
-    except: print("No Train Controller HW detected: util.Iterator")
+    except (Exception,): print("No Train Controller HW detected: util.Iterator")
     
     trainCtrl = HW_UI_JEB382_PyFirmat(main_Driver_arr, main_TrainModel_arr, main_output_arr)
     
@@ -1645,64 +1645,64 @@ def pass_break_enable(folder):
 if __name__ == "__main__":
     #folder: test_dir
     test_dir = get_testing_folder()
-    Endcase = True#total endcase that all tests work
+    tot_Endcase = True#total Endcase that all tests work
     
     # NOTE: Passenger Break enables eBrake
-    Endcase *= pass_ebreak_enable(test_dir)
+    tot_Endcase *= pass_ebreak_enable(test_dir)
     
     # NOTE: Driver can disable Passenger Brake's effect in any mode
-    Endcase *= driver_disable_pass(test_dir)
+    tot_Endcase *= driver_disable_pass(test_dir)
     
     # NOTE: Driver can enable ebrake in any mode
-    Endcase *= driver_ebreak_enable(test_dir)
+    tot_Endcase *= driver_ebreak_enable(test_dir)
     
     # NOTE: Driver can enable service brake in manual mode only
-    Endcase *= driver_sbreak_enable(test_dir)
+    tot_Endcase *= driver_sbreak_enable(test_dir)
     
     # NOTE: Driver can change door state when train is stopped in manual mode
-    Endcase *= driver_door(test_dir)
+    tot_Endcase *= driver_door(test_dir)
     
     # NOTE: Train opens stationside door when train is stopped in auto mode
     #!!!!!!!!!!TODO: ADD BEACON TRACING
-    #Endcase *= train_door(test_dir)
+    #tot_Endcase *= train_door(test_dir)
     # NOTE: Driver can enable interior lights in manual when it is otherwise off
-    Endcase *= driver_int_lights(test_dir)
+    tot_Endcase *= driver_int_lights(test_dir)
     
     # NOTE: Driver can enable exterior lights in manual mode when it is otherwise off.
-    Endcase *= driver_ext_lights(test_dir)
+    tot_Endcase *= driver_ext_lights(test_dir)
     
     # NOTE: Power is zero without authority and/or commanded speed, or matching actual
-    Endcase *= zero_pow(test_dir)
+    tot_Endcase *= zero_pow(test_dir)
     
     # NOTE: Enable of Emergency brake turns off service brake
-    Endcase *= brake_overturn(test_dir)
+    tot_Endcase *= brake_overturn(test_dir)
     
     # NOTE: Turn on both lights when given lack of ambient light in both modes
     # NOTE: Turn off both lights when given ambient light in both modes
-    Endcase *= amb_light(test_dir)
+    tot_Endcase *= amb_light(test_dir)
     
     # NOTE: Train calculates correct stopping distance with current speed
     #!!!!!!!!!!TODO: BEACON ADDITION
     # NOTE: Better off manual with the TB
-    #Endcase *= stop_dist(test_dir)
+    #tot_Endcase *= stop_dist(test_dir)
     
     # NOTE: Train enables service brake within correct stopping distance
     #!!!!!!!!!!TODO: BEACON ADDITION
     # NOTE: Better off manual with the TB
-    #Endcase *= sbrake_dist(test_dir)
+    #tot_Endcase *= sbrake_dist(test_dir)
     
     # NOTE: Train enables emergency brake if it cant stop in time
     #!!!!!!!!!!TODO: BEACON ADDITION
     # NOTE: Better off manual with the TB
-    #Endcase *= ebrake_dist(test_dir)
+    #tot_Endcase *= ebrake_dist(test_dir)
     
     # NOTE: Train gives station when in the block
     #!!!!!!!!!!TODO: BEACON ADDITION
     # NOTE: Better off manual with the TB
-    #Endcase *= announce_stat_block(test_dir)
+    #tot_Endcase *= announce_stat_block(test_dir)
     
     # NOTE: Driver can adjust Temperature in any mode within limit
-    Endcase *= driver_temp(test_dir)
+    tot_Endcase *= driver_temp(test_dir)
     
     #NOTE: [!!!!!!!!!!] Must be done manually
     #HW: correct buttons correspond to correct changes in driver array
@@ -1715,4 +1715,4 @@ if __name__ == "__main__":
     #Endcase
     print("================================================================================")
     print("\n\n\n=============-------------=============-------------=============")
-    print(f"[!!!ATTENTION!!!]\nTOTAL TESTING OF TRAIN CONTROLLER HW:\n<{'PASS' if Endcase else 'FAIL'}>")
+    print(f"[!!!ATTENTION!!!]\nTOTAL TESTING OF TRAIN CONTROLLER HW:\n<{'PASS' if tot_Endcase else 'FAIL'}>")
