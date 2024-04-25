@@ -315,8 +315,11 @@ class Map(QWidget):
         if block != 58:
             [x, y] = self.pixel_dict[block]
             train = self.train_dict.get(train_id)
+            label = self.train_label_dict.get(train_id)
+            label.setText(str(train_id) + ', ' + str(block))
             if train:
                 train.move(x, y)
+                label.move(x-10, y-20)
             else:
                 print(f"No train with ID {train_id} found")
         else:
@@ -324,8 +327,10 @@ class Map(QWidget):
 
     def remove_train(self, train_id):
         train = self.train_dict.pop(train_id, None)
+        label = self.train_label_dict.pop(train_id, None)
         if train:
             train.deleteLater()
+            label.deleteLater()
         else:
             print(f"No train with ID {train_id} found")
 
