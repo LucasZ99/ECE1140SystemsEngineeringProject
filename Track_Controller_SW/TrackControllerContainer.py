@@ -275,7 +275,8 @@ class TrackControllerContainer(QObject):
 
     @pyqtSlot(list)
     def update_lights_C_status(self, lights_list: list[Light]) -> None:
-        self.lights_list[4:7] = lights_list[0:4]
+        self.lights_list[4:] = lights_list[0:]
+        print([str(light) for light in self.lights_list])
 
 
 def main():
