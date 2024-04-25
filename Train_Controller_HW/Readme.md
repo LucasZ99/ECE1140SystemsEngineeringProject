@@ -104,6 +104,9 @@ test bench and the train controller will update values as if a signal has been r
 To view how the Train Contoller is tested with automated regression tests, navigate to the 'Tovarish_Belback_Jonah_Train_Controller_Testing.py'
 file within an IDE or code editor of choice and run main().
 
+NOTE: Due to differences in some IDE's, minor modification may be nessecary, this module was created in VS Studio Code but use
+in an IDE like PyCharm may need changes like to lines containing the 'linecache.getline()' function where files directories are interpreted differently. A new file path may be necessary. As of publication 4/25/2024 these issues are handled in Python 3.11.5 with latest PyCharm and VS Studio Code
+
 Once ran, a folder will be created named the day's date in the folder 'Testlogs' under the module's folder.
 This contains several textfiles all containing the logs of each regression test individually.
 If the file is ran more then once on the same day, it will prompt you asking to delete the previously
