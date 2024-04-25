@@ -165,7 +165,6 @@ class TrackModelContainer(QObject):
         print('Track Model: update_track_model_from_wayside called')
         add_train = False  # default
         remove_train = self.track_model.get_remove_train()
-        embarking_passengers_update = {}  # TODO: implement embarking passengers dict per train
         print('Track Model: updating self.track_model infrastructure')
         self.track_model.update_infrastructure(switch_changed_indexes, signal_changed_indexes, rr_crossing_indexes,
                                                toggle_block_indexes)
@@ -198,6 +197,9 @@ class TrackModelContainer(QObject):
                     self.track_model.train_spawned()
         train_dict = self.track_model.get_train_dict()  # copy train dict
 
+        # check for embarking passengers at station
+        embarking_passengers_update = self.track_model.get_embarking_passengers()
+        print(f'Track Model: embarking_passengers_update = {embarking_passengers_update}')
         # change authority_safe_speed_update to be train based instead of block based
         # list[tuple[block_id: int, authority: int, safe_speed: float]] ->
         # dict[train_id:int, (authority: int, safe_speed: float)]
