@@ -87,7 +87,6 @@ class UI(QMainWindow):
 
         self.extLights.setEnabled(False)
         self.intLights.setEnabled(False)
-        self.temp.setEnabled(False)
         self.doorControl.setEnabled(False)
         self.kp.setEnabled(False)
         self.ki.setEnabled(False)
@@ -295,7 +294,7 @@ class UI(QMainWindow):
             self.trainctrl.modeswitch()  # put train into auto mode
             self.extLights.setEnabled(False)
             self.intLights.setEnabled(False)
-            self.temp.setEnabled(False)
+            # self.temp.setEnabled(False)
             self.doorControl.setEnabled(False)
             self.kp.setEnabled(False)
             self.ki.setEnabled(False)
@@ -309,7 +308,7 @@ class UI(QMainWindow):
             self.trainctrl.modeswitch()  # put train into manual mode
             self.extLights.setEnabled(True)
             self.intLights.setEnabled(True)
-            self.temp.setEnabled(True)
+            # self.temp.setEnabled(True)
 
             if self.trainctrl.mode and self.trainctrl.actualSpeed == 0:
                 self.doorControl.setEnabled(True)
