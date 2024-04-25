@@ -68,8 +68,8 @@ class TrackModel(QObject):
         # 123
         # 132
         # 141
-        self.min_passengers = 10
-        self.max_passengers = 150
+        self.min_passengers = 50
+        self.max_passengers = 200
         self.passengers_at_stations = {
             2: random.randint(self.min_passengers, self.max_passengers),
             9: random.randint(self.min_passengers, self.max_passengers),
@@ -129,6 +129,10 @@ class TrackModel(QObject):
     def get_train_dict(self):
         self.signals.send_train_dict_signal.emit(self.train_dict)
         return self.train_dict
+
+    def get_station_dict(self):
+        self.signals.send_station_dict_signal.emit(self.passengers_at_stations)
+        return self.passengers_at_stations
 
     def get_full_path(self):
         self.signals.send_full_path_signal.emit(self.full_path)
@@ -421,8 +425,6 @@ class TrackModel(QObject):
             if val in [2, 9, 16, 22, 31, 39, 48, 57, 65, 73, 77, 88, 96, 105, 114, 123, 132, 141]:
                 embarking_passengers[key] = int(random.random() * self.passengers_at_stations[val])
                 self.passengers_at_stations[val] -= embarking_passengers[key]
-                self.passengers_at_stations[val] = max(
-                    self.passengers_at_stations[val], random.randint(self.min_passengers, self.max_passengers))
         return embarking_passengers
 
     # SENDING (getters)
