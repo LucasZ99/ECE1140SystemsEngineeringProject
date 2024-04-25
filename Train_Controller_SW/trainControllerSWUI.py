@@ -7,7 +7,7 @@ from PyQt6.QtWidgets import *
 import sys
 from PyQt6.uic import loadUi
 from PyQt6.QtCore import pyqtSlot, pyqtSignal, QObject
-from PyQt6.QtWidgets import QComboBox
+from PyQt6.QtGui import QFont
 
 
 # class ComboBox(QComboBox):
@@ -61,9 +61,11 @@ class UI(QMainWindow):
 
         # create train object
         self.ctrl_list = ctrl_list
-        # self.trainctrl = self.ctrl_list[1]  # like this i think i hope, inits with first train ctrl in list
 
-        self.trainctrl = self.ctrl_list  # for testing w self module
+        if type(ctrl_list) is not list:
+            self.trainctrl = self.ctrl_list  # for testing w self module
+        else:
+            self.trainctrl = self.ctrl_list[1]  # like this i think i hope, inits with first train ctrl in list
 
         # TODO update values function when trainctrl is changed in drop down list
 
@@ -80,6 +82,8 @@ class UI(QMainWindow):
         # open with set dimensions
         self.setFixedWidth(810)
         self.setFixedHeight(545)
+        self.autoMode.setFont(QFont('MS Shell Dlg 2', 8))
+        self.manualMode.setFont(QFont('MS Shell Dlg 2', 8))
 
         self.extLights.setEnabled(False)
         self.intLights.setEnabled(False)
@@ -89,6 +93,16 @@ class UI(QMainWindow):
         self.ki.setEnabled(False)
         self.setPtSpeed.setEnabled(False)
         self.servBrake.setEnabled(False)
+        self.ambientLight.setHidden(True)
+
+        self.testLabel.setHidden(True)
+        self.doorLabel.setHidden(True)
+        self.failSigPickupInputL.setHidden(True)
+        self.failSigPickupTB.setHidden(True)
+        self.failEngineInputL.setHidden(True)
+        self.failEngineTB.setHidden(True)
+        self.failBrakeInputL.setHidden(True)
+        self.failBrakeTB.setHidden(True)
 
         # TODO set default values
 
@@ -101,8 +115,15 @@ class UI(QMainWindow):
         self.currSpeed.setText(str(self.ms_to_mph(self.trainctrl.actualSpeed)))
         self.power.setText(f'{self.trainctrl.power}')
         self.setPtSpeed.setValue(int(self.ms_to_mph(self.trainctrl.setPtSpeed)))
-        self.speedLimTB.setValue(int(self.ms_to_mph(self.trainctrl.speedlim)))
-        # self.train_list.addItems(ctrl_list)
+        self.speedLimTB.setValue(int(self.trainctrl.speedlim))
+
+        j = 1
+        if type(self.ctrl_list) is not list:
+            self.trains_list.addItem(str(j))
+        else:
+            for i in self.ctrl_list:
+                j += 1
+                self.trains_list.addItem(str(j))
 
         # TODO make connections
         self.testBench.clicked.connect(self.testingbench)
@@ -110,8 +131,7 @@ class UI(QMainWindow):
         self.cmdSpeedTB.valueChanged.connect(self.changecmdspeed)
         self.speedLimTB.valueChanged.connect(self.changespeedlim)
         self.vitalAuthTB.valueChanged.connect(self.changevitalauth)
-        self.accelLimTB.valueChanged.connect(self.changeaccellim)
-        self.decelLimTB.valueChanged.connect(self.changedecellim)
+
         self.passEBrakeTB.clicked.connect(self.passebrake)
         self.trackStateTB.clicked.connect(self.trackstate)
         self.failSigPickupTB.clicked.connect(self.signalfail)
@@ -133,8 +153,8 @@ class UI(QMainWindow):
         self.kp.valueChanged.connect(self.changekp)
         self.ki.valueChanged.connect(self.changeki)
         self.servBrake.clicked.connect(self.useservicebrake)
+        self.updateTB.clicked.connect(self.update_train_model_values)
         # self.trains_list.clicked.connect(self.addtrain)
-        # TODO: combobox clicked function WHAT IS IT pls i need this to work
 
         # external connections
 
@@ -142,34 +162,133 @@ class UI(QMainWindow):
         # self.show()
 
     def closeEvent(self, event):
-        print("train controller sw ui.py: hi")
+        print("train controller sw ui.py: ui opened")
         self.closed.emit(False)
-        print("train controller sw ui.py: bye")
-
-    # def showPopup(self):
-    #     self.comboClicked.emit()
-
-    def hello(self, value):
-        if not value:
-            print("train controller sw ui.py: hi!")
-        elif value:
-            print("train controller sw ui.py: bye")
+        print("train controller sw ui.py: ui closed")
 
     # define procedures
+
+    def update_train_model_values(self):
+
+        type1 = [0, 0]  # type1: [authority, cmd speed]
+        type2 = [False, False, 0]  # type2: [polarity, underground, beacon]
+        type3 = [0, False]  # type3: [actual speed, passenger e-brake]
+
+        type1_list = str(self.type1.text()).split(", ", -1)
+        if type1_list == [""]:
+            type1[0] = None
+            type1[1] = None
+        else:
+            type1[0] = float(type1_list[0])
+            type1[1] = int(type1_list[1])
+        print()
+        self.trainctrl.updater(type1, 1)
+        print()
+        print("train controller sw ui.py: type 1 values updated")
+        print()
+
+        type2_list = str(self.type2.text()).split(", ", -1)
+        if type2_list[0] == "True" or type2_list[0] == "true" or type2_list[0] == "T" or type2_list[0] == "t":
+            type2[0] = True
+        elif type2_list[0] == "False" or type2_list[0] == "false" or type2_list[0] == "F" or type2_list[0] == "f":
+            type2[0] = False
+
+        if type2_list[1] == "True" or type2_list[1] == "true" or type2_list[1] == "T" or type2_list[1] == "t":
+            type2[1] = True
+        elif type2_list[1] == "False" or type2_list[1] == "false" or type2_list[1] == "F" or type2_list[1] == "f":
+            type2[1] = False
+
+        # type2[1] = type2_list[1]
+        type2[2] = str(self.beaconTB.text())
+        self.trainctrl.updater(type2, 2)
+        print()
+        print("train controller sw ui.py: type 2 values updated")
+        print()
+
+        type3_list = str(self.type3.text()).split(", ", -1)
+        type3[0] = float(type3_list[0])
+
+        if type3_list[1] == "True" or type3_list[1] == "true" or type3_list[1] == "T" or type3_list[1] == "t":
+            type3[1] = True
+        elif type3_list[1] == "False" or type3_list[1] == "false" or type3_list[1] == "F" or type3_list[1] == "f":
+            type3[1] = False
+
+        self.trainctrl.updater(type3, 3)
+        print()
+        print("train controller sw ui.py: type 3 values updated")
+        print()
+
+        self.update_this_ui()
+
+        print()
+        print(f'outputs to train model: {self.trainctrl.update_train_model_from_train_controller()}')
+        print()
+
+    def update_this_ui(self):
+        self.extLights.setValue(int(self.trainctrl.extLights))
+        self.intLights.setValue(int(self.trainctrl.intLights))
+        self.temp.setValue(int(self.trainctrl.cabinTemp))
+
+        if self.trainctrl.atStation:
+            self.stationName.setText(str(self.trainctrl.station))
+        else:
+            self.stationName.setText("")
+
+        if self.trainctrl.doorSide == 1:
+            self.doorsLeft.setChecked(True)
+            self.doorsRight.setChecked(False)
+        elif self.trainctrl.doorSide == 2:
+            self.doorsLeft.setChecked(False)
+            self.doorsRight.setChecked(True)
+        elif self.trainctrl.doorSide == 3:
+            self.doorsLeft.setChecked(True)
+            self.doorsRight.setChecked(True)
+        else:
+            self.doorsLeft.setChecked(False)
+            self.doorsRight.setChecked(False)
+
+        self.speedLim.setText(str(int(self.ms_to_mph(self.trainctrl.speedlim))))
+
+        self.currSpeed.setText(str(int(self.ms_to_mph(self.trainctrl.actualSpeed))))
+
+        if self.trainctrl.cmdSpeed is not None:
+            self.setPtSpeed.setValue(int(self.ms_to_mph(self.trainctrl.cmdSpeed)))
+        else:
+            self.setPtSpeed.setValue(0)
+
+        self.power.setText(str(int(self.watt_to_hp(self.trainctrl.power))))
+
+        if self.trainctrl.servBrake:
+            self.servBrake.setText("Service Brake: ON")
+        elif not self.trainctrl.servBrake:
+            self.servBrake.setText("Service Brake: OFF")
+
+        if self.trainctrl.eBrake:
+            self.eBrake.setText("EMERGENCY BRAKE: ON")
+        elif not self.trainctrl.eBrake:
+            self.eBrake.setText("EMERGENCY BRAKE: OFF")
+
+        if self.trainctrl.mode and self.trainctrl.actualSpeed == 0:
+            self.doorControl.setEnabled(True)
+        else:
+            self.doorControl.setEnabled(False)
+
+        self.ambientLight.setHidden(not self.trainctrl.isUnderground)
 
     def testingbench(self):
         if self.trainctrl.testBenchState == 0:  # open test bench
             self.trainctrl.testbenchcontrol()
             self.setFixedWidth(1197)
-            self.setFixedHeight(733)
+            # self.setFixedHeight(733)
+            self.setFixedHeight(625)
             self.testBench.setText("Close Test Bench")
-            print("train controller sw ui.py: test bench opened")
+            # print("train controller sw ui.py: test bench opened")
         elif self.trainctrl.testBenchState == 1:  # close test bench
             self.trainctrl.testbenchcontrol()
             self.setFixedWidth(810)
             self.setFixedHeight(545)
             self.testBench.setText("Open Test Bench")
-            print("train controller sw ui.py: test bench closed")
+            # print("train controller sw ui.py: test bench closed")
 
     def automodeswitcher(self):
         if self.trainctrl.mode == 1:  # train running in manual mode
@@ -191,7 +310,12 @@ class UI(QMainWindow):
             self.extLights.setEnabled(True)
             self.intLights.setEnabled(True)
             self.temp.setEnabled(True)
-            self.doorControl.setEnabled(True)
+
+            if self.trainctrl.mode and self.trainctrl.actualSpeed == 0:
+                self.doorControl.setEnabled(True)
+            else:
+                self.doorControl.setEnabled(False)
+
             self.kp.setEnabled(True)
             self.ki.setEnabled(True)
             self.setPtSpeed.setEnabled(True)
@@ -200,38 +324,33 @@ class UI(QMainWindow):
         return
 
     def changecurrspeed(self):
-        self.trainctrl.actualspeed = self.actSpeedTB.value()
-        self.currSpeed.setText(str(self.trainctrl.actualSpeed))
+        self.trainctrl.setactspeed(float(self.actSpeedTB.value()))
+        self.currSpeed.setText(str(round(self.ms_to_mph(self.trainctrl.actualSpeed), 2)))
+        self.actSpeedTB.setValue(int(self.trainctrl.actualSpeed))
 
     def changecmdspeed(self):
+        print(f'train controller sw ui.py: new commanded speed is {self.cmdSpeedTB.value()} mph')
         self.trainctrl.cmdSpeed = self.mph_to_ms(self.cmdSpeedTB.value())
 
         self.trainctrl.speedcheck()
         self.trainctrl.authority()
-        print("trian controller sw ui.py: authority updated after cmdspeed change in testbench")
+        print("train controller sw ui.py: authority updated after commanded speed change in testbench")
         self.trainctrl.powercontrol()
-        print("trian controller sw ui.py: power updated after cmdspeed change in testbench")
+        print("train controller sw ui.py: power updated after commanded speed change in testbench")
         print()
 
     def changevitalauth(self):
         self.trainctrl.vitalAuth = self.vitalAuthTB.value()
 
         self.trainctrl.authority()
-        print("trian controller sw ui.py: authority updated after authority change in testbench")
+        print("train controller sw ui.py: authority updated after authority change in testbench")
         self.trainctrl.powercontrol()
-        print("trian controller sw ui.py: power updated after authority change in testbench")
+        print("train controller sw ui.py: power updated after authority change in testbench")
         print()
 
     def changespeedlim(self):
-        self.trainctrl.speedlim = self.speedLimTB.value()
-        self.speedLim.setText(str(self.trainctrl.speedlim))
-
-    # I can probably get rid of accel and decel lim edits since they are static data and never updated.
-    def changeaccellim(self):
-        self.trainctrl.accelLim = self.accelLimTB.value()
-
-    def changedecellim(self):
-        self.trainctrl.decelLim = self.decelLimTB.value()
+        self.trainctrl.speedLim = self.speedLimTB.value()
+        self.speedLim.setText(str(int(self.ms_to_mph(self.trainctrl.speedlim))))
 
     def passebrake(self):
         self.trainctrl.ui_ebrakecontrol()
@@ -255,6 +374,27 @@ class UI(QMainWindow):
             self.trackStateTB.setText("-")
         elif self.trainctrl.polarity == 1:  # track is positive polarity
             self.trackStateTB.setText("+")
+
+        if self.trainctrl.atStation:
+            self.stationName.setText(self.trainctrl.station)
+        else:
+            self.stationName.setText("")
+
+        if self.trainctrl.doorSide == 1:
+            self.doorsLeft.setChecked(True)
+            self.doorsRight.setChecked(False)
+        elif self.trainctrl.doorSide == 2:
+            self.doorsLeft.setChecked(False)
+            self.doorsRight.setChecked(True)
+        elif self.trainctrl.doorSide == 3:
+            self.doorsLeft.setChecked(True)
+            self.doorsRight.setChecked(True)
+        else:
+            self.doorsLeft.setChecked(False)
+            self.doorsRight.setChecked(False)
+
+        self.update_this_ui()
+        self.speedLimTB.setValue(int(self.trainctrl.speedlim))
 
     def signalfail(self):
         self.trainctrl.signalfailcontrol()
@@ -321,10 +461,18 @@ class UI(QMainWindow):
         self.trainctrl.parsebeacon(str(self.beaconTB.toPlainText()))
 
     def changeextlights(self):
-        self.trainctrl.extlightscontrol()
+        if self.trainctrl.isUnderground:
+            self.extLights.setValue(1)
+        else:
+            if self.extLights.value() != self.trainctrl.extLights:
+                self.trainctrl.extlightscontrol()
 
     def changeintlights(self):
-        self.trainctrl.intlightscontrol()
+        if self.trainctrl.isUnderground:
+            self.intLights.setValue(1)
+        else:
+            if self.intLights.value() != self.trainctrl.intLights:
+                self.trainctrl.intlightscontrol()
 
     def tempcontrol(self):
         self.trainctrl.tempcontrol(self.temp.value())
@@ -362,39 +510,46 @@ class UI(QMainWindow):
             self.eBrake.setText("EMERGENCY BRAKE: OFF")
             self.testLabel.setText(f'ebrake off and {self.trainctrl.eBrake}')
             self.testLabel.adjustSize()
-            self.refreshengine()
+            #self.refreshengine()
         elif self.trainctrl.eBrake == 1:
             self.eBrake.setText("EMERGENCY BRAKE: ON")
-            self.testLabel.setText(f'ebrake off and {self.trainctrl.eBrake}')
+            self.servBrake.setText("Service Brake: OFF")
+            self.testLabel.setText(f'ebrake on and {self.trainctrl.eBrake}')
             self.testLabel.adjustSize()
             # self.setPtSpeed.setValue(self.trainctrl.setPtSpeed) # crashes here, probably because speed is undefined
-            self.refreshengine()
+            #self.refreshengine()
+
+        self.update_this_ui()
 
     def speedupdate(self):
-        if self.trainctrl.eBrake == 0 and self.trainctrl.passEBrake == 0:
-            f'{self.setPtSpeed.value()}'
-            self.trainctrl.setsetptspeed(self.setPtSpeed.value())
-            self.refreshengine()
-        #elif self.trainctrl.eBrake() == 1 or self.trainctrl.passEBrake == 1:
-            #self.setPtSpeed.setValue(0)
+        if self.setPtSpeed.value() != int(self.ms_to_mph(self.trainctrl.cmdSpeed)):
+            # print("value actually changed")
+            self.trainctrl.cmdSpeed = self.mph_to_ms(self.setPtSpeed.value())
+            self.trainctrl.vitalitycheck()
+            self.trainctrl.powercontrol()
+            self.update_this_ui()
 
     def changekp(self):
         self.trainctrl.kp = self.kp.value()
-        self.refreshengine()
+        print(f'new kp: {self.trainctrl.kp}')
 
     def changeki(self):
         self.trainctrl.ki = self.ki.value()
-        self.refreshengine()
+        print(f'new ki: {self.trainctrl.ki}')
 
     def useservicebrake(self):
-        if self.trainctrl.servBrake == 0:
-            self.trainctrl.setservbrake(1)
+        if not self.trainctrl.servBrake:
+            self.trainctrl.servBrake = True
             self.servBrake.setText("Service Brake: On")
-            self.refreshengine()
-        elif self.trainctrl.servBrake == 1:
-            self.trainctrl.setservbrake(0)
+            self.trainctrl.sBrakeSetByDriver = True
+        elif self.trainctrl.servBrake:
+            self.trainctrl.servBrake = False
             self.servBrake.setText("Service Brake: Off")
-            self.refreshengine()
+            self.trainctrl.sBrakeSetByDriver = False
+
+        self.trainctrl.vitalitycheck()
+        self.trainctrl.powercontrol()
+        self.update_this_ui()
 
     def refreshengine(self):
         self.setPtSpeed.setValue(int(self.ms_to_mph(self.trainctrl.setPtSpeed)))
