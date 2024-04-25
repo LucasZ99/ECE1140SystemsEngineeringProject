@@ -73,17 +73,17 @@ class PLC:
                 # checking for loop 2 occupancy
             if self.blocks.get(150, False):
                 self.loopOcc[1] = True
-                #print("set loop 2 to occupied")
+                print("set loop 2 to occupied")
 
             if self.loopOcc[1] == True and not self.blocks.get(29, True):  # if loop 1 is occupied and block 101 is unoccupied
-                #print("hit event")
+                print("hit event")
                 self.stops[150] = True  # stop the train at block 76 - 73
                 self.stops[149] = True
                 self.stops[148] = True
                 self.stops[147] = True
 
             if self.blocks.get(29, False):
-                #print("set loop 2 to unoccupied")
+                print("set loop 2 to unoccupied")
                 self.loopOcc[1] = False
         #print("stops:", self.stops)
 
