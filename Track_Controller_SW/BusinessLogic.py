@@ -2,7 +2,7 @@ from PyQt6.QtCore import QObject
 from PyQt6.QtCore import pyqtSlot
 
 from Common import Light, Switch
-from Track_Controller_SW.PLC_Logic import PlcProgram
+from Track_Controller_SW.PLCLogic import PlcProgram
 from Track_Controller_SW.TrackControllerSignals import TrackControllerSignals as signals
 
 
