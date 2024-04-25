@@ -51,7 +51,7 @@ class UiMainWindow(QMainWindow):
 
     def open_ctc_ui(self):
         # self.ctc_ui.show()
-        self.track_controller_test_ui.show()
+        self.ctc_ui.show()
 
     def open_track_controller_a_ui(self):
         self.track_controller_a_ui.show()
