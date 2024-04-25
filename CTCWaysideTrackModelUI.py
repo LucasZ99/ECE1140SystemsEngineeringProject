@@ -15,6 +15,7 @@ from Track_Model.Track_Model_Container import TrackModelContainer
 from Track_Model.Track_Model_UI import Window
 from Train_Model import UITrain, TrainModelContainer
 from SystemTime import SystemTimeUi, SystemTimeContainer
+from Train_Model_Dummy.TrainModelDummyContainer import TrainModelDummyContainer
 
 
 class UiMainWindow(QMainWindow):
@@ -27,6 +28,7 @@ class UiMainWindow(QMainWindow):
         self.system_time_ui = SystemTimeUi()
         self.track_controller_a_ui = UI("A")
         self.track_controller_c_ui = UI("C")
+        self.track_controller_test_ui = TestUi()
         self.track_model_ui = Window()
         self.ctc_ui = CTCMainWindow()
 
@@ -48,7 +50,8 @@ class UiMainWindow(QMainWindow):
         self.system_time_ui.show()
 
     def open_ctc_ui(self):
-        self.ctc_ui.show()
+        # self.ctc_ui.show()
+        self.track_controller_test_ui.show()
 
     def open_track_controller_a_ui(self):
         self.track_controller_a_ui.show()
@@ -72,6 +75,10 @@ def main():
     system_time_container = SystemTimeContainer()
     system_time_container.moveToThread(system_time_thread)
 
+    track_controller_test_thread = QThread()
+    track_controller_test_container = TrackControllerTestBenchContainer()
+    track_controller_test_container.moveToThread(track_controller_test_thread)
+
     track_controller_thread = QThread()
     track_controller_container = TrackControllerContainer()
     track_controller_container.moveToThread(track_controller_thread)
@@ -80,10 +87,16 @@ def main():
     track_model_container = TrackModelContainer()
     track_model_container.moveToThread(track_model_thread)
 
+    dummy_train_thread = QThread()
+    dummy_train_container = TrainModelDummyContainer()
+    dummy_train_container.moveToThread(dummy_train_thread)
+
     system_time_thread.start()
     ctc_thread.start()
     track_controller_thread.start()
     track_model_thread.start()
+    dummy_train_thread.start()
+    track_controller_test_thread.start()
 
     window = UiMainWindow()
 
