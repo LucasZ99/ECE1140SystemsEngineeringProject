@@ -442,11 +442,19 @@ class TrackModel(QObject):
         print('TRACK MODEL: update_infrastructure called')
         print(f'TRACK MODEL: signal_changed_indexes = {signal_changed_indexes}')
         for index, val in switch_changed_indexes:
-            self.data[index, 19] = val
+            if not self.data[index, 14]:  # Track Circuit Failure
+                self.data[index, 19] = val
+            if self.data[index, 13]:  # Power Failure
+                self.data[index, 19]: False
         for index, val in signal_changed_indexes:
-            self.data[index, 21] = val
+            if not self.data[index, 14]:  # Track Circuit Failure
+                self.data[index, 21] = val
+            if self.data[index, 13]:  # Power Failure
+                self.data[index, 21]: False
         for index, val in rr_crossing_indexes:
             self.data[index, 22] = val
+            if self.data[index, 13]:  # Power Failure
+                self.data[index, 22]: True
         for block_id in toggle_block_indexes:  # FOR RN Just toggles occupancy
             if self.closed_blocks[block_id]:
                 self.closed_blocks[block_id] = False
@@ -454,6 +462,7 @@ class TrackModel(QObject):
             else:
                 self.closed_blocks[block_id] = True
                 self.close_block(block_id)
+
 
     # new UI getters
     def get_block_info(self, block_id):

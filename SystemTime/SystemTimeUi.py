@@ -12,6 +12,13 @@ class SystemTimeUi(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle('SystemTime')
+
+        # STYLE
+        dirname = os.path.dirname(__file__)
+        style_file = os.path.join(dirname, 'Track_Model/style.css')
+        with open(style_file, 'r') as file:
+            self.setStyleSheet(file.read())
+
         self.signals = SystemTimeSignals
 
         current_dir = os.path.dirname(__file__)  # setting up to work in any dir

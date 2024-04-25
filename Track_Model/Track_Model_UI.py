@@ -527,7 +527,11 @@ class Window(QMainWindow):
         self.train_dict_label.setText('Trains: ' + str(self.train_dict))
 
         self.signals.get_station_dict_signal.emit()
-        self.station_dict_label.setText('Stations: ' + str(self.station_dict))
+
+        if block in self.station_dict.keys():
+            self.station_label.setText('Passengers waiting at Station: ' + str(self.station_dict[block]))
+        else:
+            self.station_label.setText('Passengers waiting at Station: N/A')
 
         self.map.move_view_finder(block)
 
