@@ -183,7 +183,7 @@ GREEN_LINE = {
         148: Block("Y148", 50, 20),
         149: Block("Y149", 50, 20),
         150: Block("Z150", 50, 20),
-        GREEN_LINE_YARD_DELETE: Block("I58", 50, 20)
+        GREEN_LINE_YARD_DELETE: Block("I57", 50, 20)
     },
     ROUTE: [
         GREEN_LINE_YARD_SPAWN,
