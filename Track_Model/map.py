@@ -94,6 +94,7 @@ class Map(QWidget):
         # self.view_box.move(100, 100)
 
         self.train_dict = {}
+        self.train_label_dict = {}
         self.train_id_counter = 0
 
         self.failure_dict = {}  # block, failure type
@@ -301,6 +302,13 @@ class Map(QWidget):
         train.show()
         self.train_id_counter += 1
         self.train_dict[self.train_id_counter] = train
+
+        train_label = QLabel(self)
+        train_label.setText(str(self.train_id_counter) + ', 62')
+        train_label.setStyleSheet("QLabel {color: #FFFFFF; font-weight: bold; font-size: 14px;}")
+        train_label.move(354-10, 225-20)
+        train_label.show()
+        self.train_label_dict[self.train_id_counter] = train_label
 
     def move_train(self, train_id, block):
         print(f'map: move train called, train_id = {train_id}, block = {block}')

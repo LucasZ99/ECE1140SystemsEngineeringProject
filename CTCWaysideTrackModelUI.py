@@ -2,7 +2,8 @@ import os
 import sys
 
 from PyQt6.QtCore import QThread
-from PyQt6.QtWidgets import QPushButton, QMainWindow, QApplication
+from PyQt6.QtGui import QFont
+from PyQt6.QtWidgets import QPushButton, QMainWindow, QApplication, QLabel
 from PyQt6.uic import loadUi
 
 from CTC.CTCContainer import CTCContainer
@@ -25,6 +26,19 @@ class UiMainWindow(QMainWindow):
         current_dir = os.path.dirname(__file__)  # setting up to work in any dir
         ui_path = os.path.join(current_dir, 'CTC_Wayside_TrackModel.ui')
         loadUi(ui_path, self)
+
+        # STYLE
+        dirname = os.path.dirname(__file__)
+        style_file = os.path.join(dirname, 'Track_Model/style.css')
+        with open(style_file, 'r') as file:
+            self.setStyleSheet(file.read())
+        # FONT
+        title_font = QFont()
+        title_font.setBold(True)
+        title_font.setPointSize(20)
+        self.title = QLabel('CTC-Wayside-TrackModel TB')  # TODO: idk how designer works
+        self.title.setFont(title_font)
+
         self.system_time_ui = SystemTimeUi()
         self.track_controller_a_ui = UI("A")
         self.track_controller_c_ui = UI("C")
