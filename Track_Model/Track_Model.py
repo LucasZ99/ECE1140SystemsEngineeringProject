@@ -234,6 +234,12 @@ class TrackModel(QObject):
         for i in range(1, new_data.shape[0]):
             if str(new_data[i, 11]) == 'nan':
                 new_data[i, 11] = '0' * 128
+
+        # set default signal values
+        new_data[12, 21] = True
+        new_data[29, 21] = True
+        new_data[76, 21] = True
+        new_data[86, 21] = True
         return new_data
 
     def output_data_as_excel(self):
@@ -431,6 +437,7 @@ class TrackModel(QObject):
 
     def update_infrastructure(self, switch_changed_indexes, signal_changed_indexes, rr_crossing_indexes, toggle_block_indexes):
         print('TRACK MODEL: update_infrastructure called')
+        print(f'TRACK MODEL: signal_changed_indexes = {signal_changed_indexes}')
         for index, val in switch_changed_indexes:
             self.data[index, 19] = val
         for index, val in signal_changed_indexes:

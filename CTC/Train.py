@@ -113,8 +113,8 @@ class Train:
             self.at_last_stop = False
             self.next_stop += 1
 
-    # returns the next MSSD blocks OR blocks until next stop (including current block)
     def get_next_blocks(self) -> list[int]:
+        # returns the next MSSD blocks OR blocks until next stop (including current block)
         next_blocks = [self.current_block]
         prev_block = self.current_block
 
