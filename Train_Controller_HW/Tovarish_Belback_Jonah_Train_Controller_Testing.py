@@ -1683,18 +1683,22 @@ if __name__ == "__main__":
     
     # NOTE: Train calculates correct stopping distance with current speed
     #!!!!!!!!!!TODO: BEACON ADDITION
+    # NOTE: Better off manual with the TB
     #Endcase *= stop_dist(test_dir)
     
     # NOTE: Train enables service brake within correct stopping distance
     #!!!!!!!!!!TODO: BEACON ADDITION
+    # NOTE: Better off manual with the TB
     #Endcase *= sbrake_dist(test_dir)
     
     # NOTE: Train enables emergency brake if it cant stop in time
     #!!!!!!!!!!TODO: BEACON ADDITION
+    # NOTE: Better off manual with the TB
     #Endcase *= ebrake_dist(test_dir)
     
     # NOTE: Train gives station when in the block
     #!!!!!!!!!!TODO: BEACON ADDITION
+    # NOTE: Better off manual with the TB
     #Endcase *= announce_stat_block(test_dir)
     
     # NOTE: Driver can adjust Temperature in any mode within limit
