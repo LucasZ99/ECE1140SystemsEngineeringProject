@@ -482,10 +482,10 @@ class HW_UI_JEB382_PyFirmat:
                 infra = linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum).split('\t')[5]
                 particular_line = linecache.getline('Resources/IT3_GreenLine.txt', self.blockNum+i).split("\t")
             else:
-                print(f"<{i}>: {temp}")
+                #print(f"<{i}>: {temp}")
                 infra = linecache.getline('Resources/IT4_RedLine.txt', temp[i]+1).split('\t')[5]
                 particular_line = linecache.getline('Resources/IT4_RedLine.txt', temp[i+1]+1).split("\t")
-            print(f"LINE: <{self.blockNum}<,\t{particular_line}")
+            #print(f"LINE: <{self.blockNum}<,\t{particular_line}")
             distance_to_station += int(float(particular_line[3]))
 
             if particular_line[5][:7] == "STATION" or infra[:7] == "STATION":
