@@ -1,6 +1,3 @@
-# TODO all connection signals yayayayayay
-# i am going to kill myself.
-
 from PyQt6.QtCore import pyqtSignal, pyqtSlot
 
 

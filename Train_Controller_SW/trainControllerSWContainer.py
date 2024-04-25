@@ -33,7 +33,7 @@ class TrainControllerSWContainer:
         if app is None:
             app = QApplication([])
 
-        #self.swUI = UI(self.trainCtrl)
+        # self.swUI = UI(self.trainCtrl)
         self.swUI = UI(self.control_list)
         print("train controller sw container.py: made sw ui")
         print()
