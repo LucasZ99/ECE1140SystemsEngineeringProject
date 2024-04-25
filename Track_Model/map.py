@@ -44,6 +44,7 @@ class Map(QWidget):
         rxr_unactivated_file = os.path.join(dirname, 'rxr_unactivated.png')
         rxr_activated_file = os.path.join(dirname, 'rxr_activated.png')
         warning_file = os.path.join(dirname, 'warning.png')
+        station_file = os.path.join(dirname, 'station.png')
 
         background = QLabel(self)
         pixmap = QPixmap(map_file)
@@ -80,6 +81,13 @@ class Map(QWidget):
 
         self.warning_pixmap = QPixmap(warning_file)
         self.warning_pixmap = self.warning_pixmap.scaled(15, 15, Qt.AspectRatioMode.KeepAspectRatio)
+
+        self.station_pixmap = QPixmap(station_file)
+        self.station_pixmap = self.station_pixmap.scaled(40, 40, Qt.AspectRatioMode.KeepAspectRatio)
+
+        self.station1 = QLabel()
+        self.station1.setPixmap(self.station_pixmap)
+        self.station1.move(100, 100)
 
         # TODO:
         # self.view_box = QLabel()

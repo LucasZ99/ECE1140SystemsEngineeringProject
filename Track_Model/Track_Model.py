@@ -267,9 +267,9 @@ class TrackModel(QObject):
             self.set_block_occupancy(self.train_dict[key], True)
 
         # Closed Blocks
-        for key, value in self.closed_blocks.items():
-            if value:
-                self.set_block_occupancy(key, True)
+        # for key, value in self.closed_blocks.items():
+        #     if value:
+        #         self.set_block_occupancy(key, True)
 
     # communication to ui
 
@@ -304,10 +304,14 @@ class TrackModel(QObject):
         self.data[block_id, 22] = not self.data[block_id, 22]
 
     def open_block(self, block_id: int):
-        self.set_block_occupancy(block_id)
+        self.set_power_failure(block_id, False)
+        self.set_track_circuit_failure(block_id, False)
+        self.set_broken_rail_failure(block_id, False)
 
     def close_block(self, block_id: int):
-        self.set_block_occupancy(block_id)
+        self.set_power_failure(block_id, True)
+        self.set_track_circuit_failure(block_id, True)
+        self.set_broken_rail_failure(block_id, True)
 
     # train model
 
@@ -395,11 +399,10 @@ class TrackModel(QObject):
         for block_id in toggle_block_indexes:  # FOR RN Just toggles occupancy
             if self.closed_blocks[block_id]:
                 self.closed_blocks[block_id] = False
-                print(f'TRACK MODEL: setting data at: {block_id} to true')
+                self.open_block(block_id)
             else:
                 self.closed_blocks[block_id] = True
-                print(f'TRACK MODEL: setting data at: {block_id} to false')
-
+                self.close_block(block_id)
 
     # new UI getters
     def get_block_info(self, block_id):
