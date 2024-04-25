@@ -24,9 +24,10 @@ class Train:
         # determine slowdown of route
 
         # TODO fix this with route refactor
-        self.speed_factor = Route.get_route_travel_time(
-            Route.get_route_stops(self.line_id, [stop.block for stop in self.route])
-        ) / Route.get_route_travel_time(self.route)
+        # self.speed_factor = (Route.get_route_travel_time([stop.block for stop in self.route]) /
+        #                      Route.get_scheduled_route_travel_time(self.route))
+        #
+        # print("Train dispatched with speed factor {0}".format(self.speed_factor))
 
     def get_slowdown(self) -> float:
         return self.speed_factor
@@ -66,11 +67,14 @@ class Train:
             self.next_stop += 1
 
             # at yard
-            if self.current_stop == self.route.__len__() - 1:
+            if self.current_block == GREEN_LINE_YARD_DELETE:
                 self.at_last_stop = True
                 return -2
             # last stop - yard next
-            elif self.current_stop == self.route.__len__() - 2:
+            elif self.current_stop == self.route.__len__() - 1:
+                # dispatch to yard
+                print("Train has reached final stop. Dispatched to yard.")
+                self.route.append(Stop(GREEN_LINE_YARD_DELETE, SystemTime.time() + 60, 0))
                 return -1
             # otherwise, intermediate stop
             else:
@@ -82,14 +86,17 @@ class Train:
 
     def next_block(self, block: int) -> int:
         curr_block_idx = GREEN_LINE[ROUTE].index(block)
-        return GREEN_LINE[ROUTE][curr_block_idx+1]
+        if curr_block_idx == GREEN_LINE[ROUTE].__len__() - 1:
+            return GREEN_LINE[ROUTE][curr_block_idx]
+        else:
+            return GREEN_LINE[ROUTE][curr_block_idx+1]
 
     def get_next_stop(self) -> int:
         return self.next_stop
 
     def get_destination(self) -> Stop:
         # route[-1] is the yahd.
-        return self.route[-2]
+        return self.route[-1]
 
     def add_stop(self, stop: Stop):
         self.route.append(stop)
@@ -124,11 +131,11 @@ class Train:
 
         return next_blocks
 
-    """
-    Returns the train's authorities for the next MSSD blocks or the blocks until the next stop (whichever is shorter),
-    including the current block.
-    """
     def get_next_authorities(self) -> list[tuple[int, int]]:
+        """
+        Returns the train's authorities for the next MSSD blocks or the blocks until the next stop (whichever is shorter),
+        including the current block.
+        """
         authorities = []
         next_blocks = self.get_next_blocks()
         for i in range(0, min(MSSD + 1, self.blocks_to_next_stop())):

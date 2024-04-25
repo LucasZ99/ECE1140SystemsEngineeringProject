@@ -20,7 +20,7 @@ class TestRoute(unittest.TestCase):
 
         print(Route.find_path(GREEN_LINE, 2, -16))
         print(PATH[GREEN_LINE].index(2), PATH[GREEN_LINE].index(16))
-        self.assertEqual(40, round(Route.get_block_pair_travel_time(GREEN_LINE, 2, -16)))
+        self.assertEqual(40, round(Route.get_block_pair_travel_time(GREEN_LINE, 2, 0)))
 
     def test_find_path(self):
         # test from yard

@@ -34,6 +34,8 @@ class CTCSignalsCls(QObject):
     ctc_get_lights_signal = pyqtSignal()
     ctc_get_railroad_crossings_signal = pyqtSignal()
 
+    new_minute_signal = pyqtSignal()
+
     def __init__(self):
         super().__init__()
         print("CTCSignals.py init")

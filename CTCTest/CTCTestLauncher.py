@@ -5,7 +5,8 @@ from PyQt6.QtWidgets import QApplication
 
 from CTC.CTCContainer import CTCContainer
 from CTC.CTC_UI_Main import CTCMainWindow
-from CTCTest.CTCTestUI import CTCTestUI, CTCTestUIContainer
+from CTCTest.CTCTestBackendContainer import CTCTestBackendContainer
+from CTCTest.CTCTestUI import CTCTestUI
 from SystemTime import SystemTimeUi, SystemTimeContainer
 
 
@@ -34,14 +35,13 @@ class CTCTestLauncher(QObject):
 def run_ctc_test_container():
     app = QApplication(sys.argv)
 
-    ui_container = CTCTestLauncher()
-
     ctc_thread = QThread()
     ctc_container = CTCContainer()
     ctc_container.moveToThread(ctc_thread)
 
+    # Track controller test lives in here
     test_backend_thread = QThread()
-    test_backend_container = CTCTestUIContainer()
+    test_backend_container = CTCTestBackendContainer()
     test_backend_container.moveToThread(test_backend_thread)
 
     system_time_thread = QThread()
@@ -52,6 +52,7 @@ def run_ctc_test_container():
     test_backend_thread.start()
     system_time_thread.start()
 
+    ui_container = CTCTestLauncher()
     ui_container.open_uis()
 
     sys.exit(app.exec())
