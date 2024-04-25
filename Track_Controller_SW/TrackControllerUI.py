@@ -32,6 +32,11 @@ class ManualMode(QWidget):
             self.signals.send_switches_list_C_switch_ui_signal.connect(self.get_switches_list)
             self.signals.get_switches_list_C_switch_ui_signal.emit()
 
+        current_dir = os.path.dirname(__file__)  # setting up to work in any dir
+        style_file = os.path.join(current_dir, 'style.css')
+        with open(style_file, 'r') as file:
+            self.setStyleSheet(file.read())
+
     @pyqtSlot(list)
     def get_switches_list(self, switches: list):
         self.switches_list = switches
@@ -81,10 +86,16 @@ class UI(QMainWindow):
         # load ui
         current_dir = os.path.dirname(__file__)  # setting up to work in any dir
         ui_path = os.path.join(current_dir, 'TrackController.ui')
+
+
         try:
             loadUi(ui_path, self)
         except Exception as e:
             print("Error with loading UI file: ", e)
+
+        style_file = os.path.join(current_dir, 'style.css')
+        with open(style_file, 'r') as file:
+            self.setStyleSheet(file.read())
 
         self.setWindowTitle(f"Track Controller {self.section}")
 

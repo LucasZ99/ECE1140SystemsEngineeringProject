@@ -9,7 +9,7 @@ from SystemTime import SystemTime
 from TopLevelSignals import TopLevelSignals as top_level_signals
 
 
-class TrainModelContainerDummy(QObject):  # Note, this can just hold all the logic, just named container for convention
+class TrainModelDummyContainer(QObject):  # Note, this can just hold all the logic, just named container for convention
 
     def __init__(self):
         super().__init__()
@@ -21,7 +21,7 @@ class TrainModelContainerDummy(QObject):  # Note, this can just hold all the log
         self.passenger_count = 0
         self.previous_time = SystemTime.time()
 
-    @pyqtSlot(dict, dict, bool, bool, int)
+    @pyqtSlot(object, object, bool, int, object)
     def update_train_model_from_track_model(self,
                                             authority_safe_speed_dict: dict,   # {Train_ID : (authority, speed)}
                                             block_info_dict: dict,             # {Train_ID : (block info tuple)}

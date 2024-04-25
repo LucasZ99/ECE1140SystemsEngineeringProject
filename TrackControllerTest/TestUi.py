@@ -27,6 +27,10 @@ class TestUi(QMainWindow):
         except Exception as e:
             print("Error with loading UI file: ", e)
 
+        style_file = white_file = os.path.join(current_dir, 'style.css')
+        with open(style_file, 'r') as file:
+            self.setStyleSheet(file.read())
+
         self.authority_select = self.findChild(QComboBox, 'authority_select')
         self.occupancy_block_select = self.findChild(QComboBox, 'occupancy_block_select')
         self.occupancy_toggle_button = self.findChild(QPushButton, 'occupancy_toggle_button')
@@ -81,11 +85,15 @@ class TestUi(QMainWindow):
         for block in self.blocks:
             self.toggle_block_select.addItem(str(block))
 
+        self.toggle_block_select.adjustSize()
+
     def init_toggle_switch_select(self):
         self.toggle_switch_select.clear()
         self.toggle_switch_select.addItem("None")
         for switch in self.switches:
             self.toggle_switch_select.addItem(f"Switch b{str(switch.block)}")
+
+        self.toggle_switch_select.adjustSize()
 
 
     @pyqtSlot()
@@ -106,7 +114,7 @@ class TestUi(QMainWindow):
         self.authority_select.clear()
         for authority in self.authority:
             self.authority_select.addItem(str(authority))
-            self.authority_select.adjustSize()
+        self.authority_select.adjustSize()
 
     def update_occupancy_block_select(self):
 
@@ -115,13 +123,11 @@ class TestUi(QMainWindow):
         for block, occupancy in self.blocks_occupancy.items():
             self.occupancy_block_select.addItem(str(block) + " " + str(occupancy))
 
-        # self.show()
-
     def init_block_list(self):
         self.track_signal_block_select.clear()
         for block in self.blocks:
             self.track_signal_block_select.addItem(str(block))
-            self.occupancy_block_select.adjustSize()
+        self.occupancy_block_select.adjustSize()
 
     def authority_update(self):
         self.signals.track_signal_authority_update_signal.emit(self.authority_select.currentIndex())
