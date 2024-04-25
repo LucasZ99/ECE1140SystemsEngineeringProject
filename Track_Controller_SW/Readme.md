@@ -46,14 +46,20 @@ _**You MUST upload files (or use the preuploaded files) to both Track Controller
 
 ## Integrated Operation
 
-1. In the fully integrated system, inputs to the Track Controllers are sent directly from the CTC
+Consider Integrated Operation as the Track Controllers communicating with the CTC and Track Model. You should run 
+ece1140-tovarish/CTCWaysideTrackModelUI.py to simulate this integration, since the overall system doesn't work.
+Refer to the other modules' readme's to understand their operation.
+
+1. In the integrated system, inputs to the Track Controllers are sent directly from the CTC
    and Track Model
-2. The only operation aside from Uploading a PLC file on program startup is a Maintenance Mode switch toggle.
+2. The only operation aside from Uploading a PLC file on program startup in the Track Controller UI 
+is a Maintenance Mode switch toggle.
    
    - Click Maintenance Mode in either UI
-   - select a switch to toggle. If it's safe, the switch will toggle and the new switch and light statuses
-     will be reflected in the UI.
-   - If it's not safe, nothing will update.
+   - select a switch to toggle. The switch will toggle and the new switch and light statuses
+     will be reflected in the UI. 
+   - If it's unsafe, the switch will immediately toggle back when block occupancy is once
+     again detected
 
 ## Using the Testbench to Simulate Inputs
 
