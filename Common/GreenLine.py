@@ -13,7 +13,7 @@ STATIONS = 'STATIONS'
 
 # Constants
 GREEN_LINE_YARD_SPAWN = 62
-GREEN_LINE_YARD_DELETE = 58
+GREEN_LINE_YARD_DELETE = 57
 
 GREEN_LINE = {
     SWITCHES: [
@@ -94,7 +94,7 @@ GREEN_LINE = {
         54: Block("I54", 50, 30),
         55: Block("I55", 50, 30),
         56: Block("I56", 50, 30),
-        57: Block("I57", 50, 30),
+        # 57: Block("I57", 50, 30),
         63: Block("K63", 100, 70),
         64: Block("K64", 100, 70),
         65: Block("K65", 200, 70),
@@ -183,7 +183,7 @@ GREEN_LINE = {
         148: Block("Y148", 50, 20),
         149: Block("Y149", 50, 20),
         150: Block("Z150", 50, 20),
-        GREEN_LINE_YARD_DELETE: Block("I58", 50, 20)
+        GREEN_LINE_YARD_DELETE: Block("I57", 50, 20)
     },
     ROUTE: [
         GREEN_LINE_YARD_SPAWN,
@@ -356,7 +356,7 @@ GREEN_LINE = {
         54,
         55,
         56,
-        57,
+        # 57,
         GREEN_LINE_YARD_DELETE
     ],
     TWO_WAY_BLOCKS: {
@@ -411,8 +411,8 @@ GREEN_LINE = {
     },
     STATIONS: {
         # 0: "YARD",
-        62: "YARD",
-        58: "YARD",
+        GREEN_LINE_YARD_SPAWN: "YARD",
+        GREEN_LINE_YARD_DELETE: "YARD",
         2: "PIONEER",
         9: "EDGEBROOK",
         16: "STATION",

@@ -31,6 +31,7 @@ class TrainModelContainer(QObject):
         print("Train Model: reached update_train_model_from_track_model\n")
         self.signals.clear_return_dicts.emit()
 
+        print("Train Model: remove index: ", remove_train)
         self.remove_train(remove_train)
 
         if new_train:

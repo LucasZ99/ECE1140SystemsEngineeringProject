@@ -40,10 +40,14 @@ class TrackModelTestUI(QMainWindow):
         self.delta_x_dict = {}
         self.disembarking_passengers_dict = {}
 
+        authority_speed_list = []
+        for block in range(62, 80):
+            authority_speed_list.append((block, 4, 50))
+
         # Instantiate labels and forms
         self.authority_safe_speed_update_label = QLabel('authority_safe_speed_update:')
         self.authority_safe_speed_update_input = QLineEdit()
-        self.authority_safe_speed_update_input.setText('[(62, 4, 50), (63, 4, 50), (64, 4, 50)]')
+        self.authority_safe_speed_update_input.setText(str(authority_speed_list))
         self.authority_safe_speed_update_input.editingFinished.connect(self.authority_safe_speed_update_input_handler)
         self.switch_changed_indexes_label = QLabel('switch_changed_indexes:')
         self.switch_changed_indexes_input = QLineEdit()
@@ -66,7 +70,7 @@ class TrackModelTestUI(QMainWindow):
 
         self.delta_x_dict_label = QLabel('delta_x_dict:')
         self.delta_x_dict_input = QLineEdit()
-        self.delta_x_dict_input.setText('{1:25}')
+        self.delta_x_dict_input.setText('{1:999999}')
         self.delta_x_dict_input.editingFinished.connect(self.delta_x_dict_input_handler)
         self.disembarking_passengers_dict_label = QLabel('disembarking_passengers_dict')
         self.disembarking_passengers_dict_input = QLineEdit()

@@ -1,5 +1,7 @@
 from time import localtime, strftime
 
+from Common.Lines import *
+
 from Common.GreenLine import *
 
 
@@ -22,13 +24,6 @@ class Stop:
         return s
 
 
-def get_block(block: int) -> int:
-    if block in GREEN_LINE[TWO_WAY_BLOCKS].keys():
-        return GREEN_LINE[TWO_WAY_BLOCKS][block]
-    else:
-        return block
-
-
 # Returns the list of blocks from block1 to block2 including block2
 def find_path(line_id: int, block1: int, block2: int) -> list[int]:
     start_idx = GREEN_LINE[ROUTE].index(block1)
@@ -40,12 +35,15 @@ def find_path(line_id: int, block1: int, block2: int) -> list[int]:
 # Returns the list of stops from block1 to block2 including block2.
 def find_route(line_id: int, block1: int, block2: int) -> list[int]:
     route = find_path(line_id, block1, block2)
+
+    print("Route:", route)
+
     if route is not None:
         stops = [route[0]]
 
         # train will only stop at station stops until final block
         for block in route[1:-1]:
-            if get_block(block) in GREEN_LINE[STATIONS]:
+            if get_block(block).id() in GREEN_LINE[STATIONS]:
                 stops.append(block)
         stops.append(route[-1])
         return stops
@@ -65,10 +63,8 @@ def get_block_pair_travel_time(line_id: int, block1: int, block2: int) -> float:
 
             # print(GREEN_LINE[BLOCKS][get_block(block1)].)
 
-            time_between_blocks += ((GREEN_LINE[BLOCKS][get_block(block1)].length / (
-                    GREEN_LINE[BLOCKS][get_block(block1)].speed_limit * 1000)) / 2.0) \
-                                   + ((GREEN_LINE[BLOCKS][get_block(block2)].length / (
-                    GREEN_LINE[BLOCKS][get_block(block2)].speed_limit * 1000)) / 2.0)
+            time_between_blocks += (((get_block(block1).length / (get_block(block1).speed_limit * 1000)) / 2.0)
+                                    + ((get_block(block2).length / (get_block(block2).speed_limit * 1000)) / 2.0))
 
             # convert hr to seconds
         time_between_blocks *= 3600
@@ -105,11 +101,30 @@ def get_route_stops(line_id: int, route: list[int]) -> list[Stop]:
 
 
 # Returns the minimum travel time through a given set of stops
-def get_route_travel_time(route: list[Stop]) -> float:
+def get_route_travel_time(route: list[int]) -> float:
+    print(route)
     travel_time = 0
-    for stop in route:
-        travel_time += stop.arrival_time
+    route_path = find_path(0, route[0], route[-1])
 
+    print("Route path: ", route_path)
+
+    for i in range(len(route_path) - 1):
+        travel_time_to_end_of_block_1 = get_line_blocks()[abs(route_path[i])].get_block_travel_time() / 2
+        travel_time_to_mid_of_block_2 = get_line_blocks()[abs(route_path[i + 1])].get_block_travel_time() / 2
+        block_pair_travel_time = travel_time_to_end_of_block_1 + travel_time_to_mid_of_block_2
+        travel_time += block_pair_travel_time
+
+    return travel_time
+
+
+def get_scheduled_route_travel_time(route: list[Stop]) -> float:
+    return route[-1].arrival_time - route[1].departure_time
+
+def get_route_travel_time_with_stops(route: list[int]) -> float:
+    """
+    returns the route travel time including stops
+    """
+    travel_time = get_route_travel_time(route) + (len(route) - 1) * 60
     return travel_time
 
 
@@ -125,18 +140,19 @@ def is_route_schedulable(line_id, route: list[Stop], departure_time: float, arri
 
 
 # returns 0 if proposed departure/arrival time pair are not possible. 1 if scheduled
-def schedule_route(line_id, route: list[Stop], departure_time: float, arrival_time: float) -> list[Stop]:
+def schedule_route(route: list[int], departure_time: float, arrival_time: float) -> list[Stop]:
     proposed_travel_time = arrival_time - departure_time
+
     minimum_travel_time = get_route_travel_time(route)
 
-    # Add last stop to list
-    route.append(Stop(GREEN_LINE_YARD_DELETE, route[-1].departure_time,
-                      get_block_pair_travel_time(line_id, route[-1].block, GREEN_LINE_YARD_DELETE)))
+    print(proposed_travel_time)
+    print(minimum_travel_time)
 
     # route[-1].arrival time is going to be the time through the end of the route
     if proposed_travel_time > minimum_travel_time:
         # figure out slowdown:
         route_slowdown_factor = proposed_travel_time / minimum_travel_time
+        route_slowdown_factor = 1
 
         total_travel_time = departure_time
 
@@ -144,11 +160,13 @@ def schedule_route(line_id, route: list[Stop], departure_time: float, arrival_ti
         scheduled_route: list[Stop] = [Stop(GREEN_LINE_YARD_SPAWN, departure_time, departure_time)]
 
         # Rest of stops
-        for stop in route[1:]:
-            arrival_time = (stop.arrival_time * route_slowdown_factor) + total_travel_time
-            scheduled_route.append(Stop(stop.block, arrival_time, arrival_time + 60))
+        for i, stop in enumerate(route[1:]):
+            travel_time_from_last_block = get_route_travel_time(route[i + 1:i + 3]) * route_slowdown_factor
+            total_travel_time += travel_time_from_last_block
+            arrival_time = total_travel_time
+            scheduled_route.append(Stop(stop, arrival_time, arrival_time + 60))
 
-            total_travel_time += (stop.arrival_time * route_slowdown_factor) + 60
+            total_travel_time += 60
 
         return scheduled_route
 
@@ -158,10 +176,18 @@ def schedule_route(line_id, route: list[Stop], departure_time: float, arrival_ti
 
         total_travel_time = departure_time
 
-        for stop in route[1:]:
-            arrival_time = stop.arrival_time + total_travel_time
-            scheduled_route.append(Stop(stop.block, arrival_time, arrival_time + 60))
+        for i, stop in enumerate(route[1:]):
+            travel_time_from_last_block = get_route_travel_time(route[i + 1:i + 3])
+            arrival_time = travel_time_from_last_block + total_travel_time
+            scheduled_route.append(Stop(stop, arrival_time, arrival_time + 60))
 
-            total_travel_time = stop.arrival_time + 60
+            total_travel_time += travel_time_from_last_block + 60
+
+        # calculate time to yard
+        last_stop_departure_time = scheduled_route[-1].departure_time
+        travel_time_to_yard = get_route_travel_time([scheduled_route[-1].block, GREEN_LINE_YARD_DELETE])
+        yard_arrival_time = last_stop_departure_time + travel_time_to_yard
+
+        # this is handled in train
 
         return scheduled_route

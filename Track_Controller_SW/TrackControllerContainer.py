@@ -129,7 +129,6 @@ class TrackControllerContainer(QObject):
               # f"light list: {[str(item) for item in self.lights_list]}\n"
               # f"crossing list: {[str(item) for item in self.rr_crossing_list]}")
 
-        # self.top_level_signals.update_testbench_from_wayside.emit()
 
         # call downstream endpoint after processing of CTC data
         self.top_level_signals.update_track_model_from_wayside.emit(
@@ -144,7 +143,6 @@ class TrackControllerContainer(QObject):
     @pyqtSlot(dict)
     def update_wayside_from_track_model(self, block_occupancy_update: dict[int, bool]):
         print(f"WAYSIDE: update_wayside_from_track_model received:\n")
-              # f"block 62 status: {block_occupancy_update[62]}")
 
         if self.occupancy_dict != block_occupancy_update:
             self.update_occupancy(block_occupancy_update)
@@ -183,18 +181,22 @@ class TrackControllerContainer(QObject):
             if switch.block == 13:
                 if self.safe_toggle_switch[0] is True:
                     self.signals.maintenance_switch_changed_A_signal.emit(0)
+                    print(F"WAYSIDE: switch {switch.block} toggled")
             elif switch.block == 28:
                 if self.safe_toggle_switch[1] is True:
                     self.signals.maintenance_switch_changed_A_signal.emit(1)
+                    print(F"WAYSIDE: switch {switch.block} toggled")
             elif switch.block == 77:
                 if self.safe_toggle_switch[2] is True:
                     self.signals.maintenance_switch_changed_C_signal.emit(0)
+                    print(F"WAYSIDE: switch {switch.block} toggled")
             elif switch.block == 85:
                 if self.safe_toggle_switch[3] is True:
                     self.signals.maintenance_switch_changed_C_signal.emit(1)
+                    print(F"WAYSIDE: switch {switch.block} toggled")
 
     def update_occupancy(self, block_occupancy_dict: dict[int, bool]):
-        print("WAYSIDE: TrackControllerContainer.update_occupancy called")
+        print(f"WAYSIDE: TrackControllerContainer.update_occupancy called: occupancy at 150: ")
 
         # update occupancy dicts with new data
         self.occupancy_dict.update(block_occupancy_dict)
@@ -213,8 +215,13 @@ class TrackControllerContainer(QObject):
             self.safe_close_blocks[block + 1] = False
 
         unsafe_toggle_switch = update_occupancy_A_result[2]
-        for switch_index in unsafe_toggle_switch:
-            self.safe_toggle_switch[switch_index] = False
+        if unsafe_toggle_switch[0]:
+            self.safe_toggle_switch[1] = False
+        if unsafe_toggle_switch[1]:
+            self.safe_toggle_switch[0] = False
+
+        if self.occupancy_dict[150] or self.occupancy_dict[149]:
+            self.safe_toggle_switch[1] = False
 
         update_occupancy_B_result = self.trackControllerB.update_occupancy(self.occupancy_dict_B)
         self.zero_speed_flag_dict_B = update_occupancy_B_result
@@ -230,8 +237,13 @@ class TrackControllerContainer(QObject):
             self.safe_close_blocks[block + 1] = False
 
         unsafe_toggle_switch = update_occupancy_C_result[2]
-        for switch_index in unsafe_toggle_switch:
-            self.safe_toggle_switch[switch_index + 2] = False
+        if unsafe_toggle_switch[0]:
+            self.safe_toggle_switch[2] = False
+        if unsafe_toggle_switch[1]:
+            self.safe_toggle_switch[3] = False
+
+        if self.occupancy_dict[76] or self.occupancy_dict[77]:
+            self.safe_toggle_switch[2] = False
 
         print("WAYSIDE: TrackControllerContainer.update_occupancy finished")
 
@@ -244,7 +256,6 @@ class TrackControllerContainer(QObject):
 
         self.top_level_signals.maintenance_mode_update.emit([switch.to_tuple() for switch in self.switch_list],
                                                             [light.to_tuple() for light in self.lights_list])
-
 
     @pyqtSlot(bool)
     def update_rr_crossing_status_A(self, rr_crossing_status: bool) -> None:
@@ -265,7 +276,8 @@ class TrackControllerContainer(QObject):
 
     @pyqtSlot(list)
     def update_lights_C_status(self, lights_list: list[Light]) -> None:
-        self.lights_list[4:7] = lights_list[0:4]
+        self.lights_list[4:] = lights_list[0:]
+        print([str(light) for light in self.lights_list])
 
 
 def main():

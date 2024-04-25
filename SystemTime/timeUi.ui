@@ -107,7 +107,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>play</string>
+     <string>pause</string>
     </property>
    </widget>
   </widget>

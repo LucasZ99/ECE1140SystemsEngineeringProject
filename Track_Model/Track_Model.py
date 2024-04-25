@@ -23,11 +23,11 @@ class TrackModel(QObject):
         # d = pd.read_excel(file_name, header=None)  # We will also load our header row, and block IDs will map to index
         # self.data = d.to_numpy()
         # self.check_data()
-        start = time.time()
+        # start = time.time()
         self.data = self.set_data(file_name)
         # self.output_data_as_excel()
-        end = time.time()
-        print(f'set_data time = {end - start}')
+        # end = time.time()
+        # print(f'set_data time = {end - start}')
         # self.output_data_as_excel()
         self.line_name = self.data[0, 0]
         self.num_blocks = len(self.data) - 1
@@ -48,6 +48,49 @@ class TrackModel(QObject):
         self.remove_train = -1
 
         self.closed_blocks = {i: False for i in range(1, 151)}
+
+        # STATIONS
+        # 2
+        # 9
+        # 16
+        # 22
+        # 31
+        # 39
+        # 48
+        # 57
+        # 65
+        # 73
+        # 77
+        # 88
+        # 96
+        # 105
+        # 114
+        # 123
+        # 132
+        # 141
+        self.min_passengers = 10
+        self.max_passengers = 150
+        self.passengers_at_stations = {
+            2: random.randint(self.min_passengers, self.max_passengers),
+            9: random.randint(self.min_passengers, self.max_passengers),
+            16: random.randint(self.min_passengers, self.max_passengers),
+            22: random.randint(self.min_passengers, self.max_passengers),
+            31: random.randint(self.min_passengers, self.max_passengers),
+            39: random.randint(self.min_passengers, self.max_passengers),
+            48: random.randint(self.min_passengers, self.max_passengers),
+            57: random.randint(self.min_passengers, self.max_passengers),
+            65: random.randint(self.min_passengers, self.max_passengers),
+            73: random.randint(self.min_passengers, self.max_passengers),
+            77: random.randint(self.min_passengers, self.max_passengers),
+            88: random.randint(self.min_passengers, self.max_passengers),
+            96: random.randint(self.min_passengers, self.max_passengers),
+            105: random.randint(self.min_passengers, self.max_passengers),
+            114: random.randint(self.min_passengers, self.max_passengers),
+            123: random.randint(self.min_passengers, self.max_passengers),
+            132: random.randint(self.min_passengers, self.max_passengers),
+            141: random.randint(self.min_passengers, self.max_passengers)
+        }
+
 
 
         # hardcoded
@@ -113,15 +156,15 @@ class TrackModel(QObject):
 
     # long runtimes
     def set_data(self, file_name):
-        start = time.time()
+        # start = time.time()
         d = pd.read_excel(file_name,
                           header=None)  # We will also load our header row, and block IDs will map to index
-        end = time.time()
-        print(f'pandas read time = {end-start}')
+        # end = time.time()
+        # print(f'pandas read time = {end-start}')
         data = d.to_numpy()
-        end = time.time()
-        print(f'pandas time = {end-start}')
-        start = time.time()
+        # end = time.time()
+        # print(f'pandas time = {end-start}')
+        # start = time.time()
         false_col = np.full((data.shape[0], 1), False, dtype=bool)
         temp = np.full((data.shape[0], 1), 74, dtype=int)
         new_data = np.hstack((data[:, 0:7], np.copy(false_col)))
@@ -139,8 +182,8 @@ class TrackModel(QObject):
         new_data = np.hstack((new_data, np.copy(false_col)))
         new_data = np.hstack((new_data, np.copy(nan_array)))
         new_data = np.hstack((new_data, np.copy(nan_array)))
-        end = time.time()
-        print(f'hstack time = {end-start}')
+        # end = time.time()
+        # print(f'hstack time = {end-start}')
         # initialize signals from switch info
         start = time.time()
         for i in range(1, new_data.shape[0]):
@@ -171,7 +214,7 @@ class TrackModel(QObject):
             if 'railway crossing' in str(new_data[i, 9]).lower():
                 new_data[i, 22] = False
         end = time.time()
-        print(f'loops time = {end-start}')
+        # print(f'loops time = {end-start}')
 
         new_data[0, 7] = 'Block Occupancy'
         new_data[0, 8] = 'Temperature'
@@ -191,6 +234,12 @@ class TrackModel(QObject):
         for i in range(1, new_data.shape[0]):
             if str(new_data[i, 11]) == 'nan':
                 new_data[i, 11] = '0' * 128
+
+        # set default signal values
+        new_data[12, 21] = True
+        new_data[29, 21] = True
+        new_data[76, 21] = True
+        new_data[86, 21] = True
         return new_data
 
     def output_data_as_excel(self):
@@ -267,9 +316,9 @@ class TrackModel(QObject):
             self.set_block_occupancy(self.train_dict[key], True)
 
         # Closed Blocks
-        for key, value in self.closed_blocks.items():
-            if value:
-                self.set_block_occupancy(key, True)
+        # for key, value in self.closed_blocks.items():
+        #     if value:
+        #         self.set_block_occupancy(key, True)
 
     # communication to ui
 
@@ -286,28 +335,32 @@ class TrackModel(QObject):
 
     # track controller
 
-    def update_authority(self, authority: list[int]):
-        self.authority = authority
-        print("self authority updated in track model")
-
-    def update_speed(self, speed: list[float]):
-        self.speed = speed
-        print("self speed updated in track model")
-
-    def toggle_switch(self, block_id: int):
-        self.data[block_id, 19] = not self.data[block_id, 19]
-
-    def toggle_signal(self, block_id: int):
-        self.data[block_id, 21] = not self.data[block_id, 21]
-
-    def toggle_crossing(self, block_id: int):
-        self.data[block_id, 22] = not self.data[block_id, 22]
+    # def update_authority(self, authority: list[int]):
+    #     self.authority = authority
+    #     print("self authority updated in track model")
+    #
+    # def update_speed(self, speed: list[float]):
+    #     self.speed = speed
+    #     print("self speed updated in track model")
+    #
+    # def toggle_switch(self, block_id: int):
+    #     self.data[block_id, 19] = not self.data[block_id, 19]
+    #
+    # def toggle_signal(self, block_id: int):
+    #     self.data[block_id, 21] = not self.data[block_id, 21]
+    #
+    # def toggle_crossing(self, block_id: int):
+    #     self.data[block_id, 22] = not self.data[block_id, 22]
 
     def open_block(self, block_id: int):
-        self.set_block_occupancy(block_id)
+        self.set_power_failure(block_id, False)
+        self.set_track_circuit_failure(block_id, False)
+        self.set_broken_rail_failure(block_id, False)
 
     def close_block(self, block_id: int):
-        self.set_block_occupancy(block_id)
+        self.set_power_failure(block_id, True)
+        self.set_track_circuit_failure(block_id, True)
+        self.set_broken_rail_failure(block_id, True)
 
     # train model
 
@@ -340,16 +393,6 @@ class TrackModel(QObject):
         return self.remove_train
 
     def update_delta_x_dict(self, delta_x_dict):
-        print('train dict relative:')
-        for key, val in self.train_dict_relative.items():
-            print(f'key = {key}')
-            print(f'val = {val}')
-            print()
-        print('train dict relative:')
-        for key, val in self.train_dict_relative.items():
-            print(f'key = {key}')
-            print(f'val = {val}')
-            print()
         self.remove_train = -1
         # meters
         for key, value in delta_x_dict.items():
@@ -361,7 +404,6 @@ class TrackModel(QObject):
                 self.signals.map_move_train_signal.emit(key, self.full_path[self.train_dict_relative[key]])  # refresh map ui
             if self.train_dict_relative[key] > 170:  # check if we should remove trains
                 self.remove_train = key
-            print(f'train_dict_relative[key] = {self.train_dict_relative[key]}')
         # actual block based on relative
         for key, value in self.train_dict_relative.items():
             self.train_dict[key] = self.full_path[value]
@@ -373,19 +415,29 @@ class TrackModel(QObject):
             del self.train_dict[self.remove_train]
             self.train_count -= 1
 
-    def set_disembarking_passengers(self, station_id: int, disembarking_passengers: int):
-        self.data[station_id, 21] = disembarking_passengers
+    def get_embarking_passengers(self):
+        embarking_passengers = {}
+        for key, val in self.train_dict.items():
+            if val in [2, 9, 16, 22, 31, 39, 48, 57, 65, 73, 77, 88, 96, 105, 114, 123, 132, 141]:
+                embarking_passengers[key] = int(random.random() * self.passengers_at_stations[val])
+                self.passengers_at_stations[val] -= embarking_passengers[key]
+                self.passengers_at_stations[val] = max(
+                    self.passengers_at_stations[val], random.randint(self.min_passengers, self.max_passengers))
+        return embarking_passengers
 
     # SENDING (getters)
 
     # track controller
+
+    def get_closure_dict(self):
+        return self.closed_blocks
 
     def get_occupancy_list(self):
         return self.data[1:, 7].tolist()
 
     def update_infrastructure(self, switch_changed_indexes, signal_changed_indexes, rr_crossing_indexes, toggle_block_indexes):
         print('TRACK MODEL: update_infrastructure called')
-        print(f'TRACK MODEL: toggle_block_indexes = {toggle_block_indexes}')
+        print(f'TRACK MODEL: signal_changed_indexes = {signal_changed_indexes}')
         for index, val in switch_changed_indexes:
             self.data[index, 19] = val
         for index, val in signal_changed_indexes:
@@ -395,11 +447,10 @@ class TrackModel(QObject):
         for block_id in toggle_block_indexes:  # FOR RN Just toggles occupancy
             if self.closed_blocks[block_id]:
                 self.closed_blocks[block_id] = False
-                print(f'TRACK MODEL: setting data at: {block_id} to true')
+                self.open_block(block_id)
             else:
                 self.closed_blocks[block_id] = True
-                print(f'TRACK MODEL: setting data at: {block_id} to false')
-
+                self.close_block(block_id)
 
     # new UI getters
     def get_block_info(self, block_id):

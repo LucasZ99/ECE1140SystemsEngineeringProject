@@ -3,6 +3,8 @@ import os
 from PyQt6.QtCore import pyqtSlot
 from PyQt6.QtWidgets import QMainWindow, QComboBox, QPushButton, QLineEdit
 from PyQt6.uic import loadUi
+
+from Common import Switch
 from TrackControllerTest.TrackControllerTestSignals import TrackControllerTestSignals as signals
 
 
@@ -15,6 +17,7 @@ class TestUi(QMainWindow):
         self.blocks = []
         self.blocks_occupancy = {}
         self.authority = [0, 1, 2, 3, 4]
+        self.switches = []
 
         # load ui
         current_dir = os.path.dirname(__file__)  # setting up to work in any dir
@@ -23,6 +26,10 @@ class TestUi(QMainWindow):
             loadUi(ui_path, self)
         except Exception as e:
             print("Error with loading UI file: ", e)
+
+        style_file = white_file = os.path.join(current_dir, 'style.css')
+        with open(style_file, 'r') as file:
+            self.setStyleSheet(file.read())
 
         self.authority_select = self.findChild(QComboBox, 'authority_select')
         self.occupancy_block_select = self.findChild(QComboBox, 'occupancy_block_select')
@@ -46,10 +53,12 @@ class TestUi(QMainWindow):
         # Connect external signals
         self.signals.send_blocks_signal.connect(self.set_blocks)
         self.signals.send_blocks_occupancy_signal.connect(self.set_blocks_occupancy)
+        self.signals.send_switches_signal.connect(self.set_switches)
 
         # send init signals
         self.signals.get_blocks_signal.emit()
         self.signals.get_blocks_occupancy_signal.emit()
+        self.signals.get_switches_signal.emit()
 
         # Initialization:
         self.init_authority_select()
@@ -66,14 +75,26 @@ class TestUi(QMainWindow):
     def set_blocks(self, blocks: list):
         self.blocks = blocks
 
+    @pyqtSlot(list)
+    def set_switches(self, switches: list[Switch]):
+        self.switches = switches
+
     def init_close_block_select(self):
         self.toggle_block_select.clear()
         self.toggle_block_select.addItem("None")
         for block in self.blocks:
             self.toggle_block_select.addItem(str(block))
 
+        self.toggle_block_select.adjustSize()
+
     def init_toggle_switch_select(self):
-        pass
+        self.toggle_switch_select.clear()
+        self.toggle_switch_select.addItem("None")
+        for switch in self.switches:
+            self.toggle_switch_select.addItem(f"Switch b{str(switch.block)}")
+
+        self.toggle_switch_select.adjustSize()
+
 
     @pyqtSlot()
     def toggle_block_selected(self):
@@ -84,13 +105,16 @@ class TestUi(QMainWindow):
                 self.signals.block_to_toggle.emit(self.toggle_block_select.currentIndex() + 4)
 
     def toggle_switch_selected(self):
-        pass
+        if self.toggle_switch_select.currentIndex() != 0:
+            self.signals.switch_to_toggle.emit([self.switches[self.toggle_switch_select.currentIndex() - 1]])
+        else:
+            self.signals.switch_to_toggle.emit([])
 
     def init_authority_select(self):
         self.authority_select.clear()
         for authority in self.authority:
             self.authority_select.addItem(str(authority))
-            self.authority_select.adjustSize()
+        self.authority_select.adjustSize()
 
     def update_occupancy_block_select(self):
 
@@ -99,13 +123,11 @@ class TestUi(QMainWindow):
         for block, occupancy in self.blocks_occupancy.items():
             self.occupancy_block_select.addItem(str(block) + " " + str(occupancy))
 
-        # self.show()
-
     def init_block_list(self):
         self.track_signal_block_select.clear()
         for block in self.blocks:
             self.track_signal_block_select.addItem(str(block))
-            self.occupancy_block_select.adjustSize()
+        self.occupancy_block_select.adjustSize()
 
     def authority_update(self):
         self.signals.track_signal_authority_update_signal.emit(self.authority_select.currentIndex())
