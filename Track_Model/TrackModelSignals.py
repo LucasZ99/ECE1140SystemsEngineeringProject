@@ -15,12 +15,14 @@ class TrackModelSignalsCls(QObject):
     get_data_signal = pyqtSignal()
     get_block_info_signal = pyqtSignal(int)
     get_train_dict_signal = pyqtSignal()
+    get_station_dict_signal = pyqtSignal()
     get_full_path_signal = pyqtSignal()
 
     # Track Model data -> UI
     send_data_signal = pyqtSignal(object)
     send_block_info_signal = pyqtSignal(object)
     send_train_dict_signal = pyqtSignal(dict)
+    send_station_dict_signal = pyqtSignal(dict)
     send_full_path_signal = pyqtSignal(object)
 
     # UI -> Track Model

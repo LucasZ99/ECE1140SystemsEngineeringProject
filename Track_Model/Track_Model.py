@@ -68,8 +68,8 @@ class TrackModel(QObject):
         # 123
         # 132
         # 141
-        self.min_passengers = 10
-        self.max_passengers = 150
+        self.min_passengers = 50
+        self.max_passengers = 200
         self.passengers_at_stations = {
             2: random.randint(self.min_passengers, self.max_passengers),
             9: random.randint(self.min_passengers, self.max_passengers),
@@ -124,11 +124,16 @@ class TrackModel(QObject):
         self.signals.get_data_signal.connect(self.get_data)
         self.signals.get_block_info_signal.connect(self.get_block_info)
         self.signals.get_train_dict_signal.connect(self.get_train_dict)
+        self.signals.get_station_dict_signal.connect(self.get_station_dict)
         self.signals.get_full_path_signal.connect(self.get_full_path)
 
     def get_train_dict(self):
         self.signals.send_train_dict_signal.emit(self.train_dict)
         return self.train_dict
+
+    def get_station_dict(self):
+        self.signals.send_station_dict_signal.emit(self.passengers_at_stations)
+        return self.passengers_at_stations
 
     def get_full_path(self):
         self.signals.send_full_path_signal.emit(self.full_path)
@@ -421,8 +426,6 @@ class TrackModel(QObject):
             if val in [2, 9, 16, 22, 31, 39, 48, 57, 65, 73, 77, 88, 96, 105, 114, 123, 132, 141]:
                 embarking_passengers[key] = int(random.random() * self.passengers_at_stations[val])
                 self.passengers_at_stations[val] -= embarking_passengers[key]
-                self.passengers_at_stations[val] = max(
-                    self.passengers_at_stations[val], random.randint(self.min_passengers, self.max_passengers))
         return embarking_passengers
 
     # SENDING (getters)
@@ -439,11 +442,19 @@ class TrackModel(QObject):
         print('TRACK MODEL: update_infrastructure called')
         print(f'TRACK MODEL: signal_changed_indexes = {signal_changed_indexes}')
         for index, val in switch_changed_indexes:
-            self.data[index, 19] = val
+            if not self.data[index, 14]:  # Track Circuit Failure
+                self.data[index, 19] = val
+            if self.data[index, 13]:  # Power Failure
+                self.data[index, 19]: False
         for index, val in signal_changed_indexes:
-            self.data[index, 21] = val
+            if not self.data[index, 14]:  # Track Circuit Failure
+                self.data[index, 21] = val
+            if self.data[index, 13]:  # Power Failure
+                self.data[index, 21]: False
         for index, val in rr_crossing_indexes:
             self.data[index, 22] = val
+            if self.data[index, 13]:  # Power Failure
+                self.data[index, 22]: True
         for block_id in toggle_block_indexes:  # FOR RN Just toggles occupancy
             if self.closed_blocks[block_id]:
                 self.closed_blocks[block_id] = False
@@ -451,6 +462,7 @@ class TrackModel(QObject):
             else:
                 self.closed_blocks[block_id] = True
                 self.close_block(block_id)
+
 
     # new UI getters
     def get_block_info(self, block_id):

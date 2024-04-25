@@ -306,6 +306,7 @@ class Map(QWidget):
         train_label = QLabel(self)
         train_label.setText(str(self.train_id_counter) + ', 62')
         train_label.setStyleSheet("QLabel {color: #FFFFFF; font-weight: bold; font-size: 14px;}")
+        train_label.setFixedWidth(100)
         train_label.move(354-10, 225-20)
         train_label.show()
         self.train_label_dict[self.train_id_counter] = train_label
@@ -317,6 +318,7 @@ class Map(QWidget):
             train = self.train_dict.get(train_id)
             label = self.train_label_dict.get(train_id)
             label.setText(str(train_id) + ', ' + str(block))
+            # label.set
             if train:
                 train.move(x, y)
                 label.move(x-10, y-20)

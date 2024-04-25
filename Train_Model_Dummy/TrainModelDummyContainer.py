@@ -29,6 +29,7 @@ class TrainModelDummyContainer(QObject):  # Note, this can just hold all the log
                                             remove_train: bool,                # index of train to remove or -1
                                             embarking_passengers_update: dict  # {Train_ID: embarking_passengers}
                                             ):
+        print(f'TRAIN MODEL DUMMY: embarking_passengers_update: {embarking_passengers_update}')
 
         self.update_delta_x(authority_safe_speed_dict)
         disembarking_passengers_dict = {}  # Formatted {Train_ID: disembarking_passengers, disembarking_passenger}
@@ -36,11 +37,13 @@ class TrainModelDummyContainer(QObject):  # Note, this can just hold all the log
         # if add_train, add a train to dictionary
         if add_train:
             self.add_train()
+
         # if remove_train != -1, remove train from dictionary at that index
         if remove_train != -1:
             self.remove_train(remove_train)
 
-        # TODO: update delta x from authority_safe_speed_dict and time-lapsed
+        # update delta x from authority_safe_speed_dict and time-lapsed
+
         self.update_delta_x(authority_safe_speed_dict)
         # pretty irrelevant: maybe a UI could display block_info_dict
 
@@ -57,12 +60,15 @@ class TrainModelDummyContainer(QObject):  # Note, this can just hold all the log
     def remove_train(self, index):
         del self.train_dict[index]
         self.train_count -= 1
+        self.top_level_signals.update_track_model_from_train_model.emit(self.train_dict, {})
 
     def update_delta_x(self, authority_safe_speed_dict: dict):
-        i = 1
-        for train in self.train_dict:
-            self.train_dict[i] += self.calc_delta_x(authority_safe_speed_dict[i])
-            i += 1
+        for key, val in authority_safe_speed_dict.items():
+            if key in self.train_dict.keys():
+                self.train_dict[key] += self.calc_delta_x(authority_safe_speed_dict[key])
+
+        # for key, val in self.train_dict.items():
+        #     self.train_dict[key] += self.calc_delta_x(authority_safe_speed_dict[key])
 
         self.previous_time = SystemTime.time()
 
