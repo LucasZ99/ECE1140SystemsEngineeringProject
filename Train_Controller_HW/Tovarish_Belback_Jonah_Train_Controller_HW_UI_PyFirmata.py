@@ -30,9 +30,9 @@ import math
 
 
 #max auth of 4 (no foresight)
-#auth=0: sits there (if station from beacon, open doors, else dont just sit)
+#auth=0: sits there (if station from beacon, open doors, else don't just sit)
 
-#when entering driver, reset to whats the auto array set
+#when entering driver, reset to what's the auto array set
 
 
 #self.Mode 0: AUTO
@@ -41,18 +41,16 @@ import math
 
 
 
-#authority: number of blocks until I stop, dont stop at every station
+#authority: number of blocks until I stop, don't stop at every station
 
 
-global board,Pmax,Acc_Lim,DeAcc_Lim,NoHW,RL_LAjump_dict,RL_switchdirs_dict,dir_path
+global board,Pmax,NoHW,RL_LAjump_dict,RL_switchdirs_dict,dir_path
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path=dir_path.replace('\Train_Controller_HW','')
 print(f"DIRECTORY:\t\t{dir_path}>")
 
 Pmax=10000
-Acc_Lim=0.5
-DeAcc_Lim=1.2#train spec page (1.20 is service brake)
 try:
     board = ArduinoMega('COM7')
     NoHW=False
@@ -367,7 +365,7 @@ class HW_UI_JEB382_PyFirmat:
                         
                     else:
                         # unless trackmodel really screwed up:
-                        # this is a case between beacons where direction doesnt change
+                        # this is a case between beacons where direction doesn't change
                         print(f"TRAINC HW CALC: BEACON DIRECTIONAL SWITCH EDGECASE NOT FOUND: <{str(temp_arr)}>")
                     
                     #update last beacon
@@ -415,7 +413,7 @@ class HW_UI_JEB382_PyFirmat:
                 curr += (self.direction*-2) + 1
         
         #TODO: DEBUG???
-        #cut back to 5 incase#NOTE:dont have to due to next line
+        #cut back to 5 incase#NOTE:don't have to due to next line
         #add up distance of array according to authority+1
         for i in range(int(self.TrainModel_arr[2])+1):
             if not self.line:
@@ -463,7 +461,7 @@ class HW_UI_JEB382_PyFirmat:
             if int(self.TrainModel_arr[2]) == 0:
                 self.output_arr[2]=True
             else:
-                #reset from previous non auth, if needs to brake will be caught later
+                #reset from previous non auth, if it needs to brake will be caught later
                 self.output_arr[2]=False
         else:#manual
             self.output_arr[2] = self.Driver_arr[9]
@@ -544,7 +542,6 @@ class HW_UI_JEB382_PyFirmat:
                 
                 V_err = self.output_arr[0] - self.TrainModel_arr[0] #Verr=Vcmd-Vactual ; m/s-m/s
                 #T = currtime-self.timeL #sec-sec
-                global Pmax
                 if self.Pcmd < Pmax:
                     uk = self.uk1+( (T/2)*(V_err-self.ek1) )  # m + ( s*(m/s-m/s) )
                 else:
@@ -648,7 +645,7 @@ class HW_UI_JEB382_PyFirmat:
 
     #================================================================================
     #[{!!!!!!!!!!!!!!!!!!!!!!!!}]
-    #can call this just as its class, this implies its not getting information from a testbench which requires threading
+    #can call this just as its class, this implies it's not getting information from a testbench which requires threading
     def HW_UI_mainloop_fast(self):
         time.sleep(2)
         ptime = time.time()
