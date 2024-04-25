@@ -76,6 +76,7 @@ class TrackControllerContainer(QObject):
 
         self.trackControllerA = TrackController(occupancy_dict=self.occupancy_dict_A, section="A")
         self.trackControllerB = TrackControllerHardware(occupancy_dict=self.occupancy_dict_B, section="B")
+        self.trackControllerB.slots_sigs.mode = True
         self.trackControllerC = TrackController(occupancy_dict=self.occupancy_dict_C, section="C")
 
         # # Connect Internal Signals:
