@@ -124,6 +124,7 @@ class TrackModel(QObject):
         self.signals.get_data_signal.connect(self.get_data)
         self.signals.get_block_info_signal.connect(self.get_block_info)
         self.signals.get_train_dict_signal.connect(self.get_train_dict)
+        self.signals.get_station_dict_signal.connect(self.get_station_dict)
         self.signals.get_full_path_signal.connect(self.get_full_path)
 
     def get_train_dict(self):

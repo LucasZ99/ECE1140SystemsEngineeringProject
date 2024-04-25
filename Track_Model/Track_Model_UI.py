@@ -53,17 +53,20 @@ class Window(QMainWindow):
         # self.signals.refresh_ui_signal.connect(self.refresh)
         self.signals.send_full_path_signal.connect(self.receive_full_path)
         self.signals.send_train_dict_signal.connect(self.receive_train_dict)
+        self.signals.send_station_dict_signal.connect(self.receive_station_dict)
         self.signals.send_data_signal.connect(self.receive_data)
         self.signals.send_block_info_signal.connect(self.receive_block_info)
 
         # initialize track model data
         self.full_path = []
         self.train_dict = {}
+        self.station_dict = {}
         self.data = np.array([])
         self.block_info = np.array([])
 
         self.signals.get_full_path_signal.emit()
         self.signals.get_train_dict_signal.emit()
+        self.signals.get_station_dict_signal.emit()
         self.signals.get_data_signal.emit()
         self.signals.get_block_info_signal.emit(1)
 
@@ -286,6 +289,8 @@ class Window(QMainWindow):
 
         # train dictionary display
         self.train_dict_label = QLabel('Trains: ' + str(self.train_dict))
+        self.station_label = QLabel(f'Passengers at Station: N/A')
+
 
         # Final BV Layout
         bv_layout = QGridLayout()
@@ -299,6 +304,7 @@ class Window(QMainWindow):
         bv_layout.addLayout(failures_layout, 1, 0, 1, 1)
         bv_layout.addLayout(block_info_layout, 0, 1, 2, 1)
         bv_layout.addWidget(self.train_dict_label, 2, 0, 1, 2)
+        bv_layout.addWidget(self.station_label, 3, 0, 1, 2)
 
         # map
         self.map_layout_group = QGroupBox("Map")
@@ -520,6 +526,9 @@ class Window(QMainWindow):
         self.signals.get_train_dict_signal.emit()
         self.train_dict_label.setText('Trains: ' + str(self.train_dict))
 
+        self.signals.get_station_dict_signal.emit()
+        self.station_dict_label.setText('Stations: ' + str(self.station_dict))
+
         self.map.move_view_finder(block)
 
     def add_train(self):
@@ -540,6 +549,7 @@ class Window(QMainWindow):
     def refresh(self):
         self.signals.get_data_signal.emit()
         self.signals.get_train_dict_signal.emit()
+        self.signals.get_station_dict_signal.emit()
         self.refresh_block_info()
         print('refresh ui called')
         
@@ -554,6 +564,9 @@ class Window(QMainWindow):
     
     def receive_train_dict(self, train_dict):
         self.train_dict = train_dict
+
+    def receive_station_dict(self, station_dict):
+        self.station_dict = station_dict
 
 
 ##############################
