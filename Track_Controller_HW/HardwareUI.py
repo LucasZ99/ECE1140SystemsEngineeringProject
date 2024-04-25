@@ -20,6 +20,7 @@ class HWUI:
         print("WS HW: Track Controller HW UI started...")
 
     def show_hw_data(self, blocks, mode, rr_cross, zero_speed):  # send data through server to Pi
+        #print(mode)
         self.data_to_send = {
             "blocks": blocks,
             "mode": mode,
