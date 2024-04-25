@@ -179,9 +179,9 @@ class BusinessLogic(QObject):
                         self.lights_list[2].val = False
                         self.lights_list[3].val = True
 
+                self.signals.send_lights_A_signal.emit(self.lights_list)
                 self.signals.send_switch_changed_A_signal.emit(self.switches_list[index].block)
                 self.signals.send_switches_list_A_signal.emit(self.switches_list)
-                self.signals.send_lights_A_signal.emit(self.lights_list)
 
     @pyqtSlot(int)
     def switches_changed_C(self, index: int) -> None:
@@ -207,9 +207,9 @@ class BusinessLogic(QObject):
                         self.lights_list[2].val = False
                         self.lights_list[3].val = True
 
+                self.signals.send_lights_C_signal.emit(self.lights_list)
                 self.signals.send_switch_changed_C_signal.emit(self.switches_list[index].block)
                 self.signals.send_switches_list_C_signal.emit(self.switches_list)
-                self.signals.send_lights_C_signal.emit(self.lights_list)
 
     def set_plc_filepath_A(self, plc_filepath: str) -> None:
         if self.section == "A":
