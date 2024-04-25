@@ -10,14 +10,6 @@ from PyQt6.QtCore import pyqtSlot, pyqtSignal, QObject
 from PyQt6.QtGui import QFont
 
 
-# class ComboBox(QComboBox):
-#     clicked = pyqtSignal()
-
-    # def showPopup(self):
-    #     self.clicked.emit()
-    #     super(ComboBox, self).showPopup()
-
-
 class UI(QMainWindow):
 
     closed = pyqtSignal(bool)
@@ -509,14 +501,14 @@ class UI(QMainWindow):
             self.eBrake.setText("EMERGENCY BRAKE: OFF")
             self.testLabel.setText(f'ebrake off and {self.trainctrl.eBrake}')
             self.testLabel.adjustSize()
-            #self.refreshengine()
+            # self.refreshengine()
         elif self.trainctrl.eBrake == 1:
             self.eBrake.setText("EMERGENCY BRAKE: ON")
             self.servBrake.setText("Service Brake: OFF")
             self.testLabel.setText(f'ebrake on and {self.trainctrl.eBrake}')
             self.testLabel.adjustSize()
             # self.setPtSpeed.setValue(self.trainctrl.setPtSpeed) # crashes here, probably because speed is undefined
-            #self.refreshengine()
+            # self.refreshengine()
 
         self.update_this_ui()
 
@@ -569,7 +561,7 @@ class UI(QMainWindow):
     #         print(i)
     #         time.sleep(5)
 
-    #def addtrain(self, ctrl_list):
+    # def addtrain(self, ctrl_list):
     def addtrain(self):  # , ctrl_list):
         print("train contrller sw ui.py: clicked train select")
         self.trains_list.clear()
@@ -577,8 +569,8 @@ class UI(QMainWindow):
         print("1 train controller sw ui.py: sending new_ctrl_list signal to sw container")
         self.update_ctrl_list(self.new_ctrl_list.emit())
         print("4 train controller sw ui.py all signals received")
-        #print(
-        #self.ctrl_list = ctrl_list  # how does this update when new ctrl is added in container..
+        # print(
+        # self.ctrl_list = ctrl_list  # how does this update when new ctrl is added in container..
         # probably gonna have to use a signal for ^^, looking into it
         self.trains_list.addItems(self.ctrl_list)
 

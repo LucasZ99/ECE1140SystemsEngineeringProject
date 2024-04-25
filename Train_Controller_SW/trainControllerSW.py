@@ -447,7 +447,6 @@ class TrainController:
             self.vitalAuth = None
             self.eBrake = True
 
-
         print("train controller sw.py: authority updated")
 
     def vitalitycheck(self):
@@ -559,7 +558,7 @@ class TrainController:
             self.actualSpeed = inputs[0]
             self.passEBrake = inputs[1]
             print
-            #self.ebrakecontrol(self.passEBrake)
+            # self.ebrakecontrol(self.passEBrake)
 
             if self.passEBrake:
                 self.eBrake = True
@@ -597,28 +596,28 @@ class TrainController:
         self.polaritycontrol(inputs[4])
 
         self.actualSpeed = inputs[0]
-        #print("actual speeded")
+        # print("actual speeded")
         self.cmdSpeed = inputs[1]
-        #print("cmd speeded")
+        # print("cmd speeded")
         self.vitalAuth = inputs[2]  # authority is distance to destination
         print(self.vitalAuth)
         print(inputs[2])
-        #print("authority changed")
+        # print("authority changed")
         # distance control
         self.authority()
-        #print("authority controlled")
+        # print("authority controlled")
         # ebrake control here
         self.passEBrake = inputs[3]
-        #print("ebraked")
+        # print("ebraked")
 
         self.isUnderground = inputs[5]
-        #print("undregrounded")
+        # print("undregrounded")
         self.beacon = inputs[6]
-        #print("beaconed")
+        # print("beaconed")
 
         # power stuff
         self.powercontrol()
-        #print("powered")
+        # print("powered")
         print(f'power is {self.power}')
         # update all values in output array and call train model container update function
         # reference adjacent container (train model cntr)
