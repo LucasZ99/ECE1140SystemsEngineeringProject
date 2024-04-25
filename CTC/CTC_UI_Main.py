@@ -67,10 +67,9 @@ def calculate_times_through_route(departure_time: float, arrival_time: float, ro
     return scheduled_route
 
 
-class CTCMainWindow(QMainWindow, CTCWidget):
+class CTCMainWindow(QMainWindow):
     def __init__(self):
         super(CTCMainWindow, self).__init__()
-        super(CTCWidget, self).__init__()
 
         self.next_train_number = 0
         self.mode: int = 0
@@ -330,7 +329,7 @@ class RunningTrainsTableLayout(QVBoxLayout):
             self.table.setItem(row, 6, QTableWidgetItem(str(train.blocks_to_next_stop() - 1)))
 
 
-class ScheduledTrainsTableWidget(CTCWidget):
+class ScheduledTrainsTableWidget():
     def __init__(self):
         super().__init__()
         self.setLayout(ScheduledTrainsTableLayout())
@@ -766,7 +765,7 @@ class DispatchTrainLayout(QVBoxLayout):
         pass
 
 
-class BlockTable(QTableWidget, CTCWidget):
+class BlockTable(QTableWidget):
     block_id_column_index = 0
     block_occupancy_column_index = 1
     block_open_column_index = 2
@@ -888,7 +887,7 @@ class BlockTable(QTableWidget, CTCWidget):
                          QTableWidgetItem(str(track_signal.speed)))
 
 
-class DispatchArrivalTime(CTCWidget):
+class DispatchArrivalTime():
     timeChanged = pyqtSignal()
 
     def __init__(self):
