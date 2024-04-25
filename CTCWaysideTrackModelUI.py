@@ -23,6 +23,9 @@ class UiMainWindow(QMainWindow):
 
     def __init__(self):
         super().__init__()
+
+
+
         current_dir = os.path.dirname(__file__)  # setting up to work in any dir
         ui_path = os.path.join(current_dir, 'CTC_Wayside_TrackModel.ui')
         loadUi(ui_path, self)
@@ -60,6 +63,8 @@ class UiMainWindow(QMainWindow):
         self.ctc_button.clicked.connect(self.open_ctc_ui)
         self.track_model_button.clicked.connect(self.open_track_model)
         self.track_controller_test_button.clicked.connect(self.open_test_ui)
+
+        self.setWindowTitle('Tovarish Train System')
 
         self.show()
 

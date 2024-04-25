@@ -11,7 +11,7 @@ class SystemTimeUi(QMainWindow):
 
     def __init__(self):
         super().__init__()
-        self.setWindowTitle('SystemTime')
+
 
         self.signals = SystemTimeSignals
 
@@ -36,6 +36,8 @@ class SystemTimeUi(QMainWindow):
         self.twenty_five_times_button.clicked.connect(self.update_multiplier_twenty_five)
         self.fifty_times_button.clicked.connect(self.update_multiplier_fifty)
         self.pause_play_button.clicked.connect(self.toggle_play_pause_button)
+
+        self.setWindowTitle('System Time')
 
         # self.show()
 
