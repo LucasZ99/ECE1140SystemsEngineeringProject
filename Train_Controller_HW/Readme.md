@@ -16,8 +16,8 @@ The following external libraries are needed for proper functionality of the Trai
 - PyQt6
 
 PyQt6 is used for both the UI design and for sending signals between the train controller hardware frontend and backend,
-as well as for integration.\
-PyQt6 can be installed by using the following command in the Command Prompt:\
+as well as for integration.
+PyQt6 can be installed by using the following command in the Command Prompt:
 ```pip install PyQt6```
 
 
@@ -37,33 +37,36 @@ Your IDE also needs to be given the library 'LiquidCrystal_I2C' v1.1.2, a zip of
 
 The Pins of the Arduino need to be matched up to buttons, LEDs, Potentiometers, and a LCD display as specficied by such:
 
-*Potentiometers*
-Analog 1    :Kp
-Analog 2    :Ki
-Analog 3    :Driver Commanded Speed
-Analog 4    :Temperature
 
-*LEDs*
-Digital 22  :Cabin Light
-Digital 23  :Head Light
-Digital 24  :Left Door
-Digital 25  :Right Door
-Digital 26  :Passenger Emergency Brake
-Digital 27  :Track Polarity
-Digital 28  :Station Side Door -Right Bit x_
-Digital 29  :Station Side Door -Left  Bit _x
-Digital 33  :Emergency Brake
-Digital 34  :Service Brake
+### *Potentiometers*
+- Analog 1    :Kp
+- Analog 2    :Ki
+- Analog 3    :Driver Commanded Speed
+- Analog 4    :Temperature
 
-*Buttons*
-Digital 38  :Driver Cabin Light Override
-Digital 39  :Driver Head Light Override
-Digital 42  :Driver Left Door Override
-Digital 44  :Driver Right Door Override
-Digital 46  :Driver Emergency Brake
-Digital 48  :Driver Service Brake
-Digital 50  :Disable Passenger Emergency Brake
-Digital 52  :Mode
+
+### *LEDs*
+- Digital 22  :Cabin Light
+- Digital 23  :Head Light
+- Digital 24  :Left Door
+- Digital 25  :Right Door
+- Digital 26  :Passenger Emergency Brake
+- Digital 27  :Track Polarity
+- Digital 28  :Station Side Door -Right Bit x_
+- Digital 29  :Station Side Door -Left  Bit _x
+- Digital 33  :Emergency Brake
+- Digital 34  :Service Brake
+
+
+### *Buttons*
+- Digital 38  :Driver Cabin Light Override
+- Digital 39  :Driver Head Light Override
+- Digital 42  :Driver Left Door Override
+- Digital 44  :Driver Right Door Override
+- Digital 46  :Driver Emergency Brake
+- Digital 48  :Driver Service Brake
+- Digital 50  :Disable Passenger Emergency Brake
+- Digital 52  :Mode
 
 A picture of the pinout can be found at the file 'TrainC HW Arduino Pinout.jpg'
 
@@ -72,24 +75,24 @@ A picture of the pinout can be found at the file 'TrainC HW Arduino Pinout.jpg'
 
 ## Running Standalone Module
 To run the module as a standalone component, navigate to 'Tovarish_Belback_Jonah_Train_Controller_HW_UI_PyFirmata.py'
-file within an IDE or code editor of choice and run main().\
+file within an IDE or code editor of choice and run main().
 
 You are given a selection based on what you comment out, indicating how the Train Controller is initalized:
 0: Start beacon is all zeros, normally an error but for limitations with other modules places on the greenline
 1: Start beacon is on the greenline
 2: Start beacon is on the redline
 3: Start beacon is full of nonsense information, raise error
-Only uncomment one at a time.\
+Only uncomment one at a time.
 
 
 If a choice is picked between 0 through 2, a single Hardware Traincontroller will spawn.
 A testbench will then appear and the if the Hardware is setup correctly, it will light up with information.
 Due to the vital architecture of the Train Controller, the module initializes with the speed and authority set to 0.
 To simulate train movement and communication between modules when running standalone, the train controller test bench can 
-be used.\
+be used.
 
 Within the test bench, modifying the values for commanded speed and authority will trigger power control of the Train
-Controller. Power will be calculated once authority is above 0 and commanded speed is set above 0.\
+Controller. Power will be calculated once authority is above 0 and commanded speed is set above 0.
 
 Once power and authority is set and the train has calculated power, the actual speed of the train can be changed in the
 test bench and the train controller will update values as if a signal has been received from the train model.
@@ -99,12 +102,12 @@ test bench and the train controller will update values as if a signal has been r
 
 ## Running Standalone Module - Automated Testing
 To view how the Train Contoller is tested with automated regression tests, navigate to the 'Tovarish_Belback_Jonah_Train_Controller_Testing.py'
-file within an IDE or code editor of choice and run main().\
+file within an IDE or code editor of choice and run main().
 
 Once ran, a folder will be created named the day's date in the folder 'Testlogs' under the module's folder.
 This contains several textfiles all containing the logs of each regression test individually.
 If the file is ran more then once on the same day, it will prompt you asking to delete the previously
-created folder for that day before remaking it with that run's tests. Otherwise it will create the folder without asking.\
+created folder for that day before remaking it with that run's tests. Otherwise it will create the folder without asking.
 
 The bottom printout in the terminal once a rundown of all the regressions are completed will tell you if all the tests have passed or not.
 If not, please search within the console for 'fail' and navigate to the test that printed out that it has failed.
