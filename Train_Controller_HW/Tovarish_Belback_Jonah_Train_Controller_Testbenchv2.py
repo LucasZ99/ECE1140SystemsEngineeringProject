@@ -98,7 +98,7 @@ class TestBench_JEB382(QWidget):
         
         self.ticks = []
         tickNames1 = ["Actual Speed:","Commanded Speed","Vital Authority"]#,"Speed Limit","Accel Limit","Decel Limit"]
-        tickNames2 = ["MPH"          ,"MPH"            ,"Miles"          ]#,"MPH"        ,"MPH/s"      ,"MPH/s"]
+        tickNames2 = ["M/S"          ,"M/S"            ,"Blocks"          ]#,"MPH"        ,"MPH/s"      ,"MPH/s"]
         
         # generates tickboxes and names with names from array
         for i in range(1,len(tickNames1)+1):

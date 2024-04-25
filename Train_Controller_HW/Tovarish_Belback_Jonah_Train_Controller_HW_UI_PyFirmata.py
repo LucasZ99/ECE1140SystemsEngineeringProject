@@ -50,7 +50,7 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path=dir_path.replace('\Train_Controller_HW','')
 print(f"DIRECTORY:\t\t{dir_path}>")
 
-Pmax=10000
+Pmax=120000
 try:
     board = ArduinoMega('COM7')
     NoHW=False
@@ -489,7 +489,7 @@ class HW_UI_JEB382_PyFirmat:
         distance_to_station -= self.traveled
         
         
-        
+        #PRESENT
         print(f"DIST: {distance_to_station},\tTRVL:{self.traveled},\tGRP:<{temp}>,\t<{self.output_arr[5]}>")
         
             
@@ -501,7 +501,7 @@ class HW_UI_JEB382_PyFirmat:
             self.output_arr[1] = 0
             self.output_arr[2] = True
             print("SBRAKE")
-            #input("wait")
+            input("wait")
         #elif authority<4 and distance to station <= s1: emergency brake, power=0, commanded speed=0
         elif distance_to_station < s2+displace_buffer:
             #print("TrainC HW: emergency brake")
@@ -509,7 +509,7 @@ class HW_UI_JEB382_PyFirmat:
             self.output_arr[1] = 0
             self.output_arr[3] = True
             print("EBRAKE")
-            #input("wait")
+            input("wait")
         else:
             #print("TrainC HW: moving")
             #fill out self.output_arr and self.Announcements
@@ -667,10 +667,11 @@ class HW_UI_JEB382_PyFirmat:
                 
                 #if not NoHW:
                 #print("\nHW_UI_mainloop_fast")
-                print("===================================")
-                print(f"Driver TrainC HW:\t{self.Driver_arr} {'AUTO' if not self.Mode else 'MANUAL'}")
-                print(f"TrainModel TrainC HW:\t{self.TrainModel_arr} {'AUTO' if not self.Mode else 'MANUAL'}")
-                print(f"Output TrainC HW:\t{self.output_arr} {'AUTO' if not self.Mode else 'MANUAL'}")
+                #PRESENT
+                # print("===================================")
+                # print(f"Driver TrainC HW:\t{self.Driver_arr} {'AUTO' if not self.Mode else 'MANUAL'}")
+                # print(f"TrainModel TrainC HW:\t{self.TrainModel_arr} {'AUTO' if not self.Mode else 'MANUAL'}")
+                # print(f"Output TrainC HW:\t{self.output_arr} {'AUTO' if not self.Mode else 'MANUAL'}")
             elif (int(time.time())-int(ptime))%2!=0:
                 prin=True
             #print(self.Mode)
