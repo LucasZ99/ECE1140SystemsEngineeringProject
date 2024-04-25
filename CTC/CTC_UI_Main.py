@@ -1,3 +1,5 @@
+import os
+
 import PyQt6
 from PyQt6 import QtWidgets
 
@@ -20,7 +22,15 @@ from Common.Lines import *
 from SystemTime.SystemTime import time_to_str
 
 
-# from models import BlockModel
+class CTCWidget(QWidget):
+    def __init__(self):
+        super().__init__()
+
+        dirname = os.path.dirname(__file__)
+        style_file = os.path.join(dirname, '../Track_Model/style.css')
+        with open(style_file, 'r') as file:
+            self.setStyleSheet(file.read())
+
 
 class CTCMainWindowViewModel:
     def __init__(self):
@@ -57,10 +67,10 @@ def calculate_times_through_route(departure_time: float, arrival_time: float, ro
     return scheduled_route
 
 
-
-class CTCMainWindow(QMainWindow):
+class CTCMainWindow(QMainWindow, CTCWidget):
     def __init__(self):
         super(CTCMainWindow, self).__init__()
+        super(CTCWidget, self).__init__()
 
         self.next_train_number = 0
         self.mode: int = 0
@@ -318,6 +328,12 @@ class RunningTrainsTableLayout(QVBoxLayout):
             self.table.setItem(row, 4, QTableWidgetItem(stop_name(train.route[train.next_stop].block)))
             self.table.setItem(row, 5, QTableWidgetItem(str(abs(train.current_block))))
             self.table.setItem(row, 6, QTableWidgetItem(str(train.blocks_to_next_stop() - 1)))
+
+
+class ScheduledTrainsTableWidget(CTCWidget):
+    def __init__(self):
+        super().__init__()
+        self.setLayout(ScheduledTrainsTableLayout())
 
 
 class ScheduledTrainsTableLayout(QVBoxLayout):
@@ -750,7 +766,7 @@ class DispatchTrainLayout(QVBoxLayout):
         pass
 
 
-class BlockTable(QTableWidget):
+class BlockTable(QTableWidget, CTCWidget):
     block_id_column_index = 0
     block_occupancy_column_index = 1
     block_open_column_index = 2
@@ -865,14 +881,14 @@ class BlockTable(QTableWidget):
                          QTableWidgetItem(crossing_state))
 
     def update_track_signals(self, track_signals: dict[int, TrackSignal]):
-        for track_signal in track_signals.values():
+        for track_signal in track_signals.copy().values():
             self.setItem(self.row_block_mapping.index(track_signal.block_id), self.authority_column_index,
                          QTableWidgetItem(str(track_signal.authority)))
             self.setItem(self.row_block_mapping.index(track_signal.block_id), self.suggested_speed_column_index,
                          QTableWidgetItem(str(track_signal.speed)))
 
 
-class DispatchArrivalTime(QWidget):
+class DispatchArrivalTime(CTCWidget):
     timeChanged = pyqtSignal()
 
     def __init__(self):
