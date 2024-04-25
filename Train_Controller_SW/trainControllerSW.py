@@ -38,7 +38,7 @@ class TrainController:
     def __init__(self):  # , system_time: SystemTime):
         # initial inits
         # self.system_time = SystemTime.time
-        self.last_update_time = SystemTime.time()
+        self.last_update_time = 0
         self.update_time = SystemTime.time()
 
         # train mode, as input from driver
@@ -72,6 +72,7 @@ class TrainController:
         self.cmdSpeed = float(0)  # commanded vital speed of the train, as passed from wayside controller
         self.speedLim = float(31.0686)  # speed limit of the current block, 50 kmh in mph, blue line speed lim
         self.vitalAuth = float(0)  # vital authority for the train, as passed from wayside controller
+        self.prevAuth = float(0)  # authority of previous block
         self.passEBrake = bool(0)  # passenger emergency brake as bool: 0 off, 1 on
         self.polarity = bool(0)  # track circuit state: 0 left, 1 right
         self.beacon = str("")  # 128 byte message, as passed from track model
@@ -92,8 +93,8 @@ class TrainController:
         self.ek1 = float(0)
         self.T = 0  # time between sample from train model(eg time between train controller value updates for IT3)
         # PID gain values, as inputs from engineer
-        self.ki = float(500)  # integral gain as float,
-        self.kp = float(1000)  # proportional gain as float
+        self.ki = float(1000)  # integral gain as float,
+        self.kp = float(2000)  # proportional gain as float
 
         # authority and distance
         self.distanceTraveled = float(-25)
@@ -309,6 +310,7 @@ class TrainController:
             else:
                 self.doorSide = 0
                 self.atStation = False
+                self.station = ""
 
             self.arriveatstation(self.atStation)
         return
@@ -392,8 +394,8 @@ class TrainController:
 
                 if self.power < 0:
                     self.power = 0  # power can't be negative, enable service brake instead
-                    self.servBrake = True
-                    print("service brake on")
+                    # self.servBrake = True
+                    # print("service brake on")
         else:
             self.power = 0
 
@@ -410,14 +412,34 @@ class TrainController:
     def authority(self):
         print("train controller sw.py: in authority func")
         if self.vitalAuth is not None:
-            if self.vitalAuth < 4:
+            if self.vitalAuth < 3 and self.prevAuth == 4:
+                print(f'train controller sw.py: train authority sudden drop, enabling ebrake. currently at '
+                      f'{self.vitalAuth}')
+                self.stopSoon = True
+                self.power = 0
+                self.eBrake = True
+            elif self.vitalAuth < 2 and self.prevAuth == 3:
+                print(f'train controller sw.py: train authority sudden drop, enabling ebrake. currently at '
+                      f'{self.vitalAuth}')
+                self.stopSoon = True
+                self.power = 0
+                self.eBrake = True
+            elif self.vitalAuth < 1 and self.prevAuth == 2:
+                print(f'train controller sw.py: train authority sudden drop, enabling ebrake. currently at '
+                      f'{self.vitalAuth}')
+                self.stopSoon = True
+                self.power = 0
+                self.eBrake = True
+            elif self.vitalAuth < self.prevAuth and self.vitalAuth != self.prevAuth:  # and self.prevAuth == 4:
                 print(f'train controller sw.py: train authority less then 4, currently at {self.vitalAuth}')
                 self.stopSoon = True
                 self.power = 0
+                self.eBrake = False
                 if not self.sBrakeSetByDriver:
                     self.servBrake = True
-            elif self.vitalAuth >= 4:
+            elif self.vitalAuth >= 4 or self.vitalAuth > self.prevAuth:
                 self.stopSoon = False
+                self.eBrake = False
                 if not self.sBrakeSetByDriver:
                     self.servBrake = False
                 print("train controller sw.py: train authority has been given authority 4, able to move forward")
@@ -488,6 +510,7 @@ class TrainController:
 
         if num == 1:
             print("train controller sw.py: update type 1 values (authority safe speed): authority and cmd speed")
+            self.prevAuth = self.vitalAuth
             self.vitalAuth = inputs[0]  # authority is distance to destination
             # print(self.vitalAuth)
             # print(inputs[0])
@@ -542,25 +565,19 @@ class TrainController:
                 self.eBrake = True
 
             # power stuff
+            if self.last_update_time == 0:
+                self.last_update_time = SystemTime.time()
             self.powercontrol()
             print(f'train controller sw.py: power is {self.power}')
-
-            # if self.atStation and self.actualSpeed == 0 and self.power == 0:
-            #     self.doorcontrol()
-            #     print(f'entered station: doorstate is {self.doorState}')
-            #     SystemTime.pause()
-            #     time.sleep(60/SystemTime.scale)
-            #     self.doorcontrol()
-            #     print(f'leaving station: doorstate is: {self.doorState}')
 
         return
 
     def arriveatstation(self, is_at_station):
-        if is_at_station and self.actualSpeed == 0 and self.power == 0:
+        if is_at_station and self.actualSpeed == 0:
             print(f'entered station at: {SystemTime.time()}')
             self.doorcontrol()
             print(f'opening doors, door state is {self.doorState}')
-            # time.sleep(6)  # waits at station for 60 seconds, set to 6 seconds for individual module purposes
+            time.sleep(6)  # waits at station for 60 seconds, set to 6 seconds for individual module purposes
             self.doorcontrol()
             print(f'closing doors, door state is: {self.doorState}')
             print(f'left station at: {SystemTime.time()}')
