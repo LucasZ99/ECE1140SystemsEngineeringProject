@@ -330,7 +330,7 @@ class Window(QMainWindow):
         self.signals.map_update_rxr_signal.connect(self.map_update_rxr)
 
         # STYLE
-        style_file = white_file = os.path.join(dirname, 'style.css')
+        style_file = os.path.join(dirname, 'style.css')
         with open(style_file, 'r') as file:
             self.setStyleSheet(file.read())
 
