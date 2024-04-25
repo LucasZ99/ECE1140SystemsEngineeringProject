@@ -42,4 +42,3 @@ def set_multiplier(multiplier: float) -> None:
 
     SystemTime.scale = multiplier
     print(f"multiplier set: {multiplier}")
-    print("SystemTime started")

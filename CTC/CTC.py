@@ -16,19 +16,26 @@ class CTC(QObject):
     def __init__(self):
         self.track_signals_to_clear: set[int] = set()
         self.track_signals_to_set: set[int] = set()
+
+        self.track_signals_set: set[int] = set() # to track when a track circuit breaks
+
         self.set_switches: dict[int, Switch] = {}
-        self.closed_blocks: list[int] = []
+        self.closed_blocks: list[int] = [] # maintain list of closed blocks
+
+        # Maintenance mode: holds list of switches to set. A switch can only be set when the switch's block is not in
+        # track_signals_set.
+        self.switches_to_set: set[Switch] = set()
+
         self.throughput = 0
         self.ticket_sales = 0
-        self.blocks_to_clear = set()
+
         self.blocks_set_to_occupied: set[int] = set()
-        self.blocks_set_to_vacant: list[int] = []
         self.updated_switches: list[Switch] = []
         self.blocks_to_close_open: list[tuple[int, bool]] = []
-        self.maintenance_mode_override_flag: bool = False
+
         self.track_signals: dict[int: TrackSignal] = {}
+
         init_start_time = python_time.time()
-        # print("CTC Init started t={0}".format(init_start_time))
 
         super().__init__()
 
@@ -72,6 +79,11 @@ class CTC(QObject):
         for crossing in GREEN_LINE[CROSSINGS]:
             self.rr_crossings[crossing] = crossing
 
+        for block in GREEN_LINE[BLOCKS]:
+            self.track_signals[block] = TrackSignal(block, 0, 0)
+
+        self.emit_frontend_signals()
+
         self.ctc_update_timer = QTimer()
         self.ctc_update_timer.timeout.connect(self.timer_handler)
         self.ctc_update_timer.start()
@@ -92,6 +104,7 @@ class CTC(QObject):
         trains_to_dispatch = self.scheduled_trains.dispatch_trains()
 
         if len(trains_to_dispatch) > 0:
+            print("Trains to dispatch")
             update_scheduled_trains = True
             update_running_trains = True
             for train_to_dispatch in trains_to_dispatch:
@@ -118,6 +131,7 @@ class CTC(QObject):
 
         if update_running_trains:
             self.get_running_trains_signal_handler()
+            self.get_scheduled_trains_signal_handler()
         if len(self.scheduled_trains.train_list) > 0:
             self.get_scheduled_trains_signal_handler()
 
@@ -166,7 +180,8 @@ class CTC(QObject):
         # self.authority_speed_update.clear()
         for block in self.track_signals_to_set:
             print(f"CTC: Block {block} track signal set")
-            self.track_signals[block] = TrackSignal(abs(block), self.authorities[block], self.suggested_speeds[block])
+            self.track_signals[block] = TrackSignal(abs(block), self.authorities[abs(block)],
+                                                    self.suggested_speeds[abs(block)])
 
         self.track_signals_to_set.clear()
         # self.clear_changed_blocks()
@@ -183,7 +198,8 @@ class CTC(QObject):
         next_blocks = train.get_next_blocks()
 
         last_block = abs(next_blocks[-1])
-        last_block_speed = get_line_blocks()[last_block].speed_limit * train.get_slowdown() / 3.6
+        # last_block_speed = get_line_blocks()[last_block].speed_limit * train.get_slowdown() / 3.6
+        last_block_speed = get_line_blocks()[last_block].speed_limit / 3.6
         self.suggested_speeds[last_block] = last_block_speed
 
     # def clear_train_previous_block(self, train: Train):
@@ -205,12 +221,7 @@ class CTC(QObject):
             # speed = get_line_blocks()[abs(block[0])].speed_limit * train.get_slowdown() / 3.6
             speed = get_line_blocks()[abs(block[0])].speed_limit / 3.6
             self.suggested_speeds[abs(block[0])] = speed
-            self.track_signals_to_set.add(block[0])
-
-    # def set_block_track_signal(self, block: int):
-    #     self.track_signals[block] = TrackSignal(abs(block),
-    #                                             self.authorities[abs(block)],
-    #                                             self.suggested_speeds[abs(block)])
+            self.track_signals_to_set.add(abs(block[0]))
 
     def set_train_next_block_track_signal(self, train: Train):
         self.set_train_next_block_authority(train)
@@ -219,91 +230,17 @@ class CTC(QObject):
         next_block_to_set = abs(train.get_next_blocks()[-1])
         self.track_signals_to_set.add(next_block_to_set)
 
-    # def set_block_authority(self, train) -> bool:
-    #     update = False
-    #     for block in train.get_next_authorities():
-    #         if self.authorities[abs(block[0])] != block[1]:
-    #             print(f"CTC: Block {block[0]} authority set to {block[1]}")
-    #             self.authorities[abs(block[0])] = block[1]
-    #             self.add_to_changed_blocks(abs(block[0]))
-    #             update = True
-    #
-    #     previous_block = train.get_previous_block()
-    #
-    #     # No need to change previous blocks when the train is still in the yard.
-    #     if previous_block != 0:
-    #         # print(f"CTC: Train previous block {previous_block} authority set queued to 0")
-    #         if self.authorities[train.get_previous_block()] != 0:
-    #             self.authorities[train.get_previous_block()] = 0
-    #             self.add_to_changed_blocks(train.get_previous_block())
-    #             update = True
-    #     # else:
-    #     #     # print(f"CTC: Train previous block {previous_block} is 0. Not updating.")
-    #     #     pass
-    #
-    #     # print(f"CTC: Authority update: {update}")
-    #     return update
-
-    # def add_to_changed_blocks(self, block: int):
-    #     if block == 0:
-    #         raise
-    #     self.changed_blocks.add(block)
-    #     self.changed_blocks_count += 1
-
-    # def remove_from_changed_blocks(self, block: int):
-    #     self.changed_blocks.remove(block)
-    #     self.changed_blocks_count -= 1
-    #
-    # def clear_changed_blocks(self):
-    #     self.changed_blocks.clear()
-
-    # def set_block_suggested_speeds(self, train) -> bool:
-    #     # print("CTC: Set Block Suggested Speeds")
-    #     # breakpoint()
-    #     update = False
-    #     for block in train.get_next_blocks():
-    #         block_speed_limit = GREEN_LINE[BLOCKS][block].speed_limit
-    #
-    #         # meters per second
-    #         adjusted_speed_limit = block_speed_limit * train.get_slowdown() / 3.6
-    #
-    #         if self.suggested_speeds[block] != adjusted_speed_limit:
-    #             self.suggested_speeds[block] = adjusted_speed_limit
-    #             self.add_to_changed_blocks(block)
-    #             update = True
-    #
-    #     previous_block = train.get_previous_block()
-    #
-    #     # No need to change previous blocks when the train is still in the yard.
-    #     if previous_block != 0:
-    #         # print(f"CTC: Train previous block {previous_block} authority set queued to 0")
-    #         if self.suggested_speeds[train.get_previous_block()] != 0:
-    #             self.suggested_speeds[train.get_previous_block()] = 0
-    #             self.add_to_changed_blocks(train.get_previous_block())
-    #             update = True
-    #
-    #     return update
-
-    """
-    Updates the position of each train based on the occupancies received from wayside
-    
-    Returns False if train hasn't moved and True if train has.
-    """
-
     def update_train_position(self, train: Train) -> bool:
-        # check if train is in yard - set authority in that case
-        # if train.current_block == GREEN_LINE_YARD_SPAWN:
-        #     return True
-        # Check if train has moved blocks. Don't update if it hasn't
-        # if self.blocks[train.current_block] is False and self.blocks[train.get_next_block()] is False:
-        #     return False
+        """
+        Updates the position of each train based on the occupancies received from wayside
 
+        Returns False if train hasn't moved and True if train has.
+        """
         # set next track signal when train enters new block
-        if train.get_next_block() in self.blocks_set_to_occupied:
-            print("CTC Train {0}: Next block set to occupied".format(train.id))
-            # acknowledge block occupied
-            self.blocks_set_to_occupied.remove(train.get_next_block())
-            self.blocks_to_clear.add(train.current_block)
+        if abs(train.get_next_block()) in self.blocks_set_to_occupied:
+            print("CTC Train {0}: has entered next block".format(train.id))
+            self.blocks_set_to_occupied.remove(abs(train.get_next_block()))
+            self.track_signals_to_clear.add(abs(train.current_block))
 
             # Train has moved from yard
             if self.yard is True and train is self.yard_train:
@@ -313,29 +250,19 @@ class CTC(QObject):
 
             next_block_status = train.set_to_next_block()
             if next_block_status == 1:  # at station
-                print(f"CTC: Train {train.id} has arrived at station.")
+                print(f"\tTrain {train.id} has arrived at station.")
                 self.running_trains.remove(train)
                 self.dispatched_trains.schedule_train(train)
             elif next_block_status == 0:  # continue to next station
-                print(f"CTC: Train {train.id} has entered next block.")
+                print(f"\tTrain {train.id} is continuing to the next station")
                 self.set_train_next_block_track_signal(train)
             elif next_block_status == -1:  # yard is next
-                self.dispatched_trains.schedule_train(train)
-            elif next_block_status == -2:  # remove from lists
                 self.running_trains.remove(train)
-
+                self.dispatched_trains.schedule_train(train)
+            elif next_block_status == -2:  # at yard. remove from list and clear track signal
+                self.track_signals_to_clear.add(GREEN_LINE_YARD_DELETE)
+                self.running_trains.remove(train)
             return True
-        # train leaves previous block
-        # elif train.previous_block in self.blocks_set_to_vacant and self.blocks[train.current_block] is True:
-        #     # Check if train has left yard - clear yard if so
-        #     if self.yard is True and train is self.yard_train:
-        #         print(f"CTC: Train {train.id} has left YARD")
-        #         self.yard = False
-        #
-        #     # always clear the previous block when train enters a new block
-        #     self.clear_train_previous_block(train)
-        #
-        #     return True
         else:
             return False or self.yard
 
@@ -376,13 +303,10 @@ class CTC(QObject):
             return False
 
     def update_block_occupancies(self, blocks: dict[int, bool]):
-        # self.blocks_set_to_vacant.clear()
-        print("CTC wayside block event handler hit")
         update = False
         for block in blocks:
             # Only update occupancy when block is changed
             if blocks[block] != self.blocks[block]:
-                print(f"CTC: Block {block} occupancy set to {blocks[block]}")
                 self.update_block_occupancy(block, blocks[block])
                 update = True
         if update:
@@ -390,32 +314,24 @@ class CTC(QObject):
 
         return update
 
-    def clear_block_track_signal(self, block: int):
-        if block not in self.track_signals_to_set:
-            print("CTC: block {0} track signal cleared".format(block))
-            self.suggested_speeds[abs(block)] = 0
-            self.authorities[abs(block)] = 0
-
-            self.track_signals_to_clear.add(abs(block))
-
     def clear_track_signals(self):
         for block in self.track_signals_to_clear:
-            del self.track_signals[abs(block)]
+            if block not in self.track_signals_set:
+                # del self.track_signals[abs(block)]
+                self.track_signals[abs(block)] = TrackSignal(abs(block), 0, 0)
+                self.authorities[abs(block)] = 0
+                self.suggested_speeds[abs(block)] = 0
         self.track_signals_to_clear.clear()
 
     def update_block_occupancy(self, block_id: int, occupied: bool):
         if self.blocks[block_id] is True and occupied is False:
-            self.blocks_set_to_vacant.append(block_id)
-            # clear track signal in block
-            if block_id in self.blocks_to_clear:
-                print("CTC: block {0} track signal set to clear".format(block_id))
-                self.blocks_to_clear.remove(block_id)
-                self.clear_block_track_signal(block_id)
-        else:
+            print("CTC: Block {0} set to false".format(block_id))
+            if self.blocks[block_id] in self.blocks_set_to_occupied:
+                self.blocks_set_to_occupied.remove(block_id)
+        elif self.blocks[block_id] is False and occupied is True:
+            print("CTC: Block {0} set to true".format(block_id))
             self.blocks_set_to_occupied.add(block_id)
         self.blocks[block_id] = occupied
-        # occupied_str = "occupied" if occupied else "vacant"
-        # print(f"CTC: Block {block_id} set to {occupied_str}.")
 
     # returns True when a track signal is to be updated
     def update_running_trains(self) -> bool:
@@ -430,8 +346,6 @@ class CTC(QObject):
             if self.update_train_position(train):
                 # print(f"CTC: Train {train.id} update.")
                 update_running_trains = True
-
-        self.track_signal_update()
 
         # send data to UI
         if update_running_trains:
@@ -458,9 +372,11 @@ class CTC(QObject):
         if self.track_signals_to_clear.__len__() > 0:
             self.clear_track_signals()
             update = True
+            self.track_signals_to_clear.clear()
         if self.track_signals_to_set.__len__() > 0:
             self.set_track_signals()
             update = True
+            self.track_signals_to_set.clear()
 
         return update
 
@@ -475,11 +391,13 @@ class CTC(QObject):
     def wayside_event_handler(self, block_occupancy_update: dict[int, bool], switch_positions: list[Switch],
                               light_states: list[Light],
                               rr_crossing_states: list[RRCrossing]):
-        update = self.update_block_occupancies(block_occupancy_update)
+        self.update_block_occupancies(block_occupancy_update)
         self.update_switch_positions(switch_positions)
         self.update_signal_statuses(light_states)
         self.update_railroad_crossing_statuses(rr_crossing_states)
         self.update_running_trains()
+
+        self.track_signal_update()
 
         if len(self.track_signals) > 0:
             self.update_wayside()
@@ -497,6 +415,10 @@ class CTC(QObject):
         self.get_scheduled_trains_signal_handler()
         if self.update_ctc_queues() or self.update_running_trains():
             print("CTC: schedule_train_signal_handler")
+
+        self.track_signal_update()
+
+        if len(self.track_signals) > 0:
             self.update_wayside()
 
     @pyqtSlot(int)
@@ -517,6 +439,7 @@ class CTC(QObject):
 
     @pyqtSlot()
     def get_next_train_number_signal_handler(self):
+        print("Next train number: {0}".format(self.get_next_train_number()))
         CTCSignals.ui_next_train_number_signal.emit(self.get_next_train_number())
 
     @pyqtSlot()
@@ -571,3 +494,15 @@ class CTC(QObject):
         CTCSignals.ctc_schedule_train_signal.connect(self.schedule_train_signal_handler)
         CTCSignals.ctc_set_mode_signal.connect(self.set_mode_signal_handler)
         CTCSignals.ctc_update_queues_signal.connect(self.update_queues_signal_handler)
+
+    def emit_frontend_signals(self):
+        self.get_next_train_number_signal_handler()
+        self.get_running_trains_signal_handler()
+        self.get_scheduled_trains_signal_handler()
+        self.get_blocks_signal_handler()
+        self.get_lights_signal_handler()
+        self.get_throughput_signal_handler()
+        self.get_mode_signal_handler()
+        self.get_ticket_sales_signal_handler()
+        self.get_railroad_crossings_signal_handler()
+        self.get_switch_positions_signal_handler()

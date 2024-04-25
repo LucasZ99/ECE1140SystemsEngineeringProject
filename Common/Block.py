@@ -6,3 +6,13 @@ class Block:
 
     def id(self):
         return int(self.name[1:])
+
+    def get_block_travel_time(self) -> float:
+        """
+        returns the travel time through a block in seconds
+        """
+        speed_limit_mps = self.speed_limit / 3.6
+
+        travel_time = self.length / speed_limit_mps
+
+        return travel_time
