@@ -25,3 +25,8 @@ git clone https://github.com/fletch2001/ece1140-tovarish.git
 ```
 
 7. Press Enter to create your local clone
+
+8. In the ece1140-tovarish folder that you cloned, open a terminal at the root of the folder and run `python -m pip install -r requirements.txt'
+   8a. If you don't have pip installed, you may need to install it. Instructions here: [](https://pip.pypa.io/en/stable/installation/)
+
+10. Then, to run the whole system, run `python CTCWaysideTrackModelUI.py`
