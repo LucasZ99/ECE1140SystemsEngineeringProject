@@ -31,18 +31,21 @@ class UiMainWindow(QMainWindow):
         self.track_controller_test_ui = TestUi()
         self.track_model_ui = Window()
         self.ctc_ui = CTCMainWindow()
+        self.test_ui = TestUi()
 
         self.track_controller_a_button = self.findChild(QPushButton, "track_controller_a_button")
         self.track_controller_c_button = self.findChild(QPushButton, "track_controller_c_button")
         self.ctc_button = self.findChild(QPushButton, "ctc_button")
         self.track_model_button = self.findChild(QPushButton, "track_model_button")
         self.time_button = self.findChild(QPushButton, "time_button")
+        self.track_controller_test_button = self.findChild(QPushButton, "track_controller_test_button")
 
         self.time_button.clicked.connect(self.open_time_ui)
         self.track_controller_a_button.clicked.connect(self.open_track_controller_a_ui)
         self.track_controller_c_button.clicked.connect(self.open_track_controller_c_ui)
         self.ctc_button.clicked.connect(self.open_ctc_ui)
         self.track_model_button.clicked.connect(self.open_track_model)
+        self.track_controller_test_button.clicked.connect(self.open_test_ui)
 
         self.show()
 
@@ -61,6 +64,9 @@ class UiMainWindow(QMainWindow):
 
     def open_track_model(self):
         self.track_model_ui.show()
+
+    def open_test_ui(self):
+        self.test_ui.show()
 
 
 def main():
