@@ -23,13 +23,9 @@ git clone https://github.com/fletch2001/ece1140-tovarish.git
 
 7. Press Enter to create your local clone
 
-## Test Bench Usage
+8. In the ece1140-tovarish folder that you cloned, open a terminal at the root of the folder and run `python -m pip install -r requirements.txt'
 
-1. Right click the directory of your local clone and open command prompt (insert picture)
-    
-2. Type python Track_Model_Test/Test_Main.py and press enter
-```
-python Track_Model_Test/Test_Main.py
-```
+   8a. If you don't have pip installed, you may need to install it. Instructions here: https://pip.pypa.io/en/stable/installation/
 
-3. Advanced options are available, but for general test press the third button (insert picture)
+10. Then, to run the whole system, run `python CTCWaysideTrackModelUI.py`
+
