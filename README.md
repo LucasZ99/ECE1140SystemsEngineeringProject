@@ -1,6 +1,8 @@
-# ECE1140 - Team Tovarish
+# ECE1140 - Lucas Connell
 
 This Train System (transit system) is a standalone simulation of an entire transit system, including the control systems, (simulated) track, and (simulated) moving train. The system runs as-is, without any systems depending only on a computer running Windows 10 to run the system.
+
+My specific module is Track_Controller_SW. I also made significant contributions to the overall system architecture including integration using PyQt signals and slots and common modules including System Time. 
 
 ## Installation
 
